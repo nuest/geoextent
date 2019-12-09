@@ -1,5 +1,6 @@
 sudo: false
 language: python
+
 python:
   - "3.4"
   - "3.5"
@@ -8,6 +9,7 @@ python:
   - "3.7-dev"  # 3.7 development branch
   - "3.8-dev"  # 3.8 development branch
   - "nightly"  # nightly build
+
 addons:
   apt:
     sources:
@@ -20,16 +22,30 @@ addons:
       - gdal-bin
       - netcdf-bin
       #- python-gdal # GDAL from UbuntuGIS results in error for line `from osgeo import ogr`: ModuleNotFoundError: No module named 'osgeo'
+
 before_install:
   - gdal-config --version
   # installation of gdal Python package, see https://stackoverflow.com/a/17311033
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
   - export C_INCLUDE_PATH=/usr/include/gdal
   - pip install gdal==`gdal-config --version`
+
 install:
   - pip install -r requirements.txt
   - pip install -e .
+
 script:
   - pytest
+
 #after_script:
 #  - TODO code coverage
+
+deploy:
+  provider: pypi
+  user: "__token__"
+  password:
+    secure: jyCluMYTpxW/vRQ9m/OMazPG/m2yCduiIRu+qWd7aSoozurhySnlfqtrHhgxw+FGkuUWd2m8js5K80XXSrzI5nEJgis8I87xAMOeBLvKyU3fcsaoQaoGKatBa9ouVDULdySOmRcsp8P9TtCzjkMssn2EEVLFQw0CUPiGBdIkf1xi1NlXJx4RInimLcZvWdbOW4BYuOe1v/BDYZyjXMSU7EDLRSWBHUe2ZGQsgaKdNMaPSruDrpqeFlcCzXS27zSxNOEdlWV2gQ4sVxFuEbcZIbFzWvDbOKJjQfvOKLpmv16GH6njVtj1VtneXg/Kxv2uIQv2KJCHiYZUv1oaQSC3CzBD08RfChEeTxQzB3gf8KW3jU3/vvDigBufCVk+US7gPFBHQAzatMFVA6lHRjYIIT/gADcmpxVwY6x4SPJcmtSuMzANQugXqiok+d8LflfjYwc3mBoALHqM8k9vuYomFckJi28/Xz8G/kFwyk/c+KHwRjJY/49javYCPL3aYOeZub1jqi0n386jwaGid6zQ80VOtyUNNt0EvBX4wuNiAEbysKWzsTs8qNMVisXGVKQij7bQFZPnzKayuGudv6ZeKyk4NWvjwOznAHty5H8J9gZX1qK2sYtvHAexE7m4mBESFpgUMnci7EJnusu/hC7QXm3xqcsxGgyFseZ+5dUdNac=
+  on:
+    tags: true
+  distributions: "sdist bdist_wheel"
+  skip_existing: true

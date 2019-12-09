@@ -67,7 +67,11 @@ python -m pytest tests/test_api.py
 
 ## Release
 
-### [Generate distibution archive](https://packaging.python.org/tutorials/packaging-projects/)
+### Travis CI automated release
+
+The release is automated _for tags_ following these instructions:  https://docs.travis-ci.com/user/deployment/pypi/
+
+### Manually [generate distibution archive](https://packaging.python.org/tutorials/packaging-projects/)
 
 Prerequisites: `setuptools wheel twine`
 
