@@ -4,19 +4,16 @@ authors:
   - family-names: Nüst
     given-names: Daniel
     orcid: https://orcid.org/0000-0002-0024-5046
-    affiliation: Opening Reproducible Research, University of Münster, Münster, Germany
-    email: daniel.nuest@uni-muenster.de
-    website: https://nuest.staff.ifgi.de/
+    affiliation: TU Dresden, Dresden, Germany
+    email: daniel.nuest@tu-dresden.de
+    website: https://nordholmen.net
   - family-names: Garzón
     given-names: Sebastian
     orcid: https://orcid.org/0000-0002-8335-9312
-    affiliation: Opening Reproducible Research, University of Münster, Münster, Germany
-    email: jgarzon@uni-muenster.de
-
   - family-names: Qamaz
     given-names: Yousef
 title: "geoextent"
-version: 0.7.1
+version: 0.8.0
 doi: 10.5281/zenodo.3925693
 date-released: 2020-05-11
 license: MIT

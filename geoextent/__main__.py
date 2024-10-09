@@ -3,12 +3,13 @@ import logging
 import os
 import sys
 import zipfile
-from . import __version__ as current_version
 from .lib import extent
 from .lib import helpfunctions as hf
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger("geoextent")
+
+from setuptools_scm import get_version
 
 help_description = '''
 geoextent is a Python library for extracting geospatial and temporal extents of a file
@@ -142,7 +143,7 @@ def print_supported_formats():
 
 
 def print_version():
-    print(current_version)
+    print(get_version())
 
 
 arg_parser = get_arg_parser()

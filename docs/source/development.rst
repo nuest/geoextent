@@ -131,9 +131,10 @@ Bump version for release
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Follow the `Semantic Versioning specification`_ to clearly mark changes as a new major version, minor changes, or patches.
-The version number is centrally managed in the file ``geoextent/__init__.py``.
+The version number is managed using `setuptools-scm`_ via git tags.
 
 .. _Semantic Versioning specification: https://semver.org/
+.. _setuptools-scm: https://setuptools-scm.readthedocs.io/en/stable/usage/
 
 Update changelog
 ^^^^^^^^^^^^^^^^

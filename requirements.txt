@@ -1,9 +1,5 @@
-pyproj
-geojson>=2.4.1
-pygeoj
-pyshp
-python-dateutil
 pandas
 numpy
 requests
 traitlets
+setuptools-scm

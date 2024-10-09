@@ -2,21 +2,30 @@
 Changelog
 =========
 
+0.8.0
+^^^^^
+
+- Move configuration from ``setup.py` to ``pyproject.toml``
+
 0.7.1
 ^^^^^
+
 - Add DOI-based retrieval functions for Zenodo (:pr:`100`)
 - Add export function ``--output`` for folders, ZIP files and repositories (:pr:`124`)
 
 0.6.0
 ^^^^^
+
 - Add details option ``--details`` for folders and ZIP files (:pr:`116`)
 
 0.5.0
 ^^^^^
+
 - Add support for spatial extent for ``osgeo`` files (via OGR/GDAL) with generic vector (GeoPackage, Shapefile, GeoJSON, GML, GPX, KML) and raster handling (GeoTIFF) (:pr:`87`, :pr:`99`)
 
 0.4.0
 ^^^^^
+
 - Add support for ZIP files and folders (:pr:`79`)
 
 0.3.0

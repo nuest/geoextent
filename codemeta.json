@@ -7,10 +7,10 @@
     "dateCreated": "2019-08-16",
     "datePublished": "2020-03-25",
     "dateModified": "2020-05-11",
-    "downloadUrl": "https://pypi.org/project/geoextent/0.7.1/",
+    "downloadUrl": "https://pypi.org/project/geoextent/0.8.0/",
     "issueTracker": "https://github.com/o2r-project/geoextent/issues",
     "name": "geoextent",
-    "version": "0.7.1",
+    "version": "0.8.0",
     "identifier": "https://doi.org/10.5281/zenodo.3925693",
     "description": "Python library for extracting geospatial extent of files and directories with multiple data formats. This project is developed as part of the DFG-funded research project Opening Reproducible Research (o2r, https://o2r.info).",
     "applicationCategory": "Geoinformatics",
@@ -41,10 +41,10 @@
             "@id": "https://orcid.org/0000-0002-0024-5046",
             "givenName": "Daniel",
             "familyName": "Nüst",
-            "email": "daniel.nuest@uni-muenster.de",
+            "email": "daniel.nuest@tu-dresden.de",
             "affiliation": {
                 "@type": "Organization",
-                "name": "Opening Reproducible Research, University of Münster, Münster, Germany"
+                "name": "TU Dresden, Dresden, Germany"
             }
         },
         {

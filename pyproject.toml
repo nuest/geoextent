@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geoextent"
+dynamic = ["version"]
+description = "A package to extract geospatial extent from files and directories"
+keywords = ["spatial", "metadata", "geospatial", "location"]
+readme = "README.md"
+authors = [
+    { name = "Daniel Nüst", email = "daniel.nuest@tu-dresden.de" },
+    { name = "Sebastian Garzón" },
+    { name = "Yousef Qamaz"}
+]
+maintainers = [
+    { name = "Daniel Nüst", email = "daniel.nuest@tu-dresden.de" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+]
+requires-python = ">=3.10"
+dependencies = [
+    # "gdal",
+    "numpy",
+    "pandas",
+    "python-dateutil",
+    "requests",
+    "traitlets",
+    "wheel",
+]
+
+[project.scripts]
+geoextent = "geoextent.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/nuest/geoextent"
+#Documentation = "https://readthedocs.org"
+Repository = "https://github.com/nuest/geoextent.git"
+Issues = "https://github.com/nuest/geoextent/issues"
+#Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+
+[tool.setuptools.packages.find]
+where = ["geoextent"]
+exclude = ["tests"]
+namespaces = false #  -> equals to find_packages
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests",
+    #"integration",
+]
+
+[tool.setuptools_scm]
+version_file = "geoextent/_version.py"

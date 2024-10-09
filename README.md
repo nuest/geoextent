@@ -33,9 +33,46 @@ pip install geoextent
 ```bash
 git clone https://github.com/o2r-project/geoextent
 cd geoextent
+
+pip install pygdal=="`gdal-config --version`.*"
 pip install -r requirements.txt
 
 pip install -e .
+```
+
+### Source installation into Conda environment
+
+We recommend using [Mamba](https://mamba.readthedocs.io/en/latest/index.html) - see also the blog article ["Towards a Vendor-Lock-In-Free conda Experience"](https://prefix.dev/blog/towards_a_vendor_lock_in_free_conda_experience).
+
+```bash
+conda create --name geoextent python=3.10
+
+conda activate geoextent
+
+# for source installation
+conda install conda-build
+
+conda install -c conda-forge gdal
+
+# verify install
+#python
+#>>> import osgeo.gdal
+#>>> print(osgeo.gdal.__version__)
+#3.9.2
+
+conda install --yes --file requirements.txt
+# or
+#pip install -r requirements.txt
+
+#python -m pip install .
+
+# for development (no re-install or reload required)
+conda develop .
+# or
+#python -m pip install --editable .
+
+# test
+python -m geoextent --version
 ```
 
 ## Use
@@ -43,12 +80,13 @@ pip install -e .
 Run
 
 ```bash
-geoextent --help
+python -m geoextent --help
 ```
 
 to see usage instructions.
 
 ## Showcases
+
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/o2r-project/geoextent/master?filepath=showcase%2FSG_01_Exploring_Research_Data_Repositories_with_geoextent.ipynb)
 
 To run the showcase notebooks, install [JupyterLab](https://jupyter.org/) or the classic Jupyter Notebook and then start a local server as shown below.
