@@ -38,26 +38,27 @@ dependencies = [
     "traitlets",
     "wheel"
 ]
-optional-dependencies = {
-    dev = [
+
+[project.optional-dependencies]
+dev = [
         "pytest",
         "pytest-cov",
         "twine",
         "setuptools>=64",
         "setuptools-scm>=8",
-        #"black",
+        "black",
+        "pre-commit",
         #"flake8",
         # "mypy",
-        ],
-    test = [
+]
+test = [
         "pytest",
         "pytest-cov"
-        ],
-    docs = [
+]
+docs = [
         "sphinx",
         "sphinx-rtd-theme",
         "recommonmark"]
-}
 
 [project.scripts]
 geoextent = "geoextent.__main__:main"

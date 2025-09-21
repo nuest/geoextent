@@ -37,11 +37,15 @@ pip install geoextent
 git clone https://github.com/nuest/geoextent
 cd geoextent
 
-python -m venv geoextent-env
-source geoextent-env/bin/activate
+python -m venv .env
+source .env/bin/activate
 
 # installs deps from pyproject.toml
 pip install -e .
+
+# install dev, test, and docs dependencies
+pip install -e ".[dev,test,docs]"
+
 ```
 
 ## Use
