@@ -90,12 +90,6 @@ Build documentation locally
     pip install -r requirements-docs.txt
     make html
 
-Build documentation website
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The deployed documentation website is built on Travis CI, see file ``.travis.yml`` for details.
-In short, an extra stage ``build docs`` is executed only on the ``master`` branch and not for pull requests.
-
 .. _Sphinx: https://www.sphinx-doc.org
 
 Release
@@ -122,10 +116,6 @@ Make sure that all tests work locally by running
 ::
 
     pytest
-
-and check the tests on `Travis CI o2r-project/geoextent`_ before continuing with the following tasks.
-
-.. _`Travis CI o2r-project/geoextent`: https://travis-ci.org/github/o2r-project/geoextent
 
 Bump version for release
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -219,7 +209,7 @@ Alternatively, use Debian Testing container to try out a more recent version of 
     geoextent --help
     geoextent --version
 
-    wget https://github.com/o2r-project/geoextent/blob/master/tests/testdata/tif/wf_100m_klas.tif
+    wget https://github.com/nuest/geoextent/blob/main/tests/testdata/tif/wf_100m_klas.tif
     
     geoextent -b wf_100m_klas.tif
 

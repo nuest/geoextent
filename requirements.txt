@@ -1,5 +1,13 @@
+pyproj
+geojson>=2.4.1
+pygeoj
+pyshp
+gdal
+patool
+python-dateutil
 pandas
-numpy
 requests
+numpy
 traitlets
+wheel
 setuptools-scm

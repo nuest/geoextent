@@ -11,27 +11,53 @@ readme = "README.md"
 authors = [
     { name = "Daniel Nüst", email = "daniel.nuest@tu-dresden.de" },
     { name = "Sebastian Garzón" },
+    { name = "Lars Drechsler" },
     { name = "Yousef Qamaz"}
 ]
 maintainers = [
     { name = "Daniel Nüst", email = "daniel.nuest@tu-dresden.de" },
 ]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
 ]
 requires-python = ">=3.10"
 dependencies = [
-    # "gdal",
-    "numpy",
-    "pandas",
+    "pyproj",
+    "geojson>=2.4.1",
+    "pygeoj",
+    "pyshp",
+    "gdal",
+    "patool",
     "python-dateutil",
+    "pandas",
     "requests",
+    "numpy",
     "traitlets",
-    "wheel",
+    "wheel"
 ]
+optional-dependencies = {
+    dev = [
+        "pytest",
+        "pytest-cov",
+        "twine",
+        "setuptools>=64",
+        "setuptools-scm>=8",
+        #"black",
+        #"flake8",
+        # "mypy",
+        ],
+    test = [
+        "pytest",
+        "pytest-cov"
+        ],
+    docs = [
+        "sphinx",
+        "sphinx-rtd-theme",
+        "recommonmark"]
+}
 
 [project.scripts]
 geoextent = "geoextent.__main__:main"
@@ -41,7 +67,7 @@ Homepage = "https://github.com/nuest/geoextent"
 #Documentation = "https://readthedocs.org"
 Repository = "https://github.com/nuest/geoextent.git"
 Issues = "https://github.com/nuest/geoextent/issues"
-#Changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+#Changelog = "https://github.com/nuest/geoextent/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 where = ["geoextent"]
@@ -56,4 +82,5 @@ testpaths = [
 ]
 
 [tool.setuptools_scm]
-version_file = "geoextent/_version.py"
+
+ = "geoextent/_version.py"

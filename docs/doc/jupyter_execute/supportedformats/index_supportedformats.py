@@ -14,7 +14,7 @@ def get_showcase_file(folder_name, url, unzip_file = None):
 import geoextent.lib.extent as geoextent
 
 dir_name = 'showcase_geojson'
-file_url = 'https://raw.githubusercontent.com/o2r-project/geoextent/master/tests/testdata/geojson/muenster_ring_zeit.geojson'
+file_url = 'https://raw.githubusercontent.com/nuest/geoextent/main/tests/testdata/geojson/muenster_ring_zeit.geojson'
 get_showcase_file(dir_name, file_url)
 
 geoextent.fromFile('showcase_folder/muenster_ring_zeit.geojson', True, True)
@@ -30,7 +30,7 @@ geoextent.fromFile('showcase_folder/cities_NL.csv', True, True)
 import geoextent.lib.extent as geoextent
 
 dir_name = 'showcase_geotiff'
-file_url = 'https://github.com/o2r-project/geoextent/raw/master/tests/testdata/tif/wf_100m_klas.tif'
+file_url = 'https://github.com/nuest/geoextent/raw/main/tests/testdata/tif/wf_100m_klas.tif'
 get_showcase_file(dir_name, file_url)
 
 geoextent.fromFile('showcase_folder/wf_100m_klas.tif', True, False)

@@ -284,8 +284,7 @@ class geoextent_from_repository(Application):
                 logger.debug("Using {} to extract {}".format(repository.name, repository_identifier))
                 supported_by_geoextent = True
                 try:
-                    tmp_parent = "/run/media/lars/8f0c1f09-2c90-4cb3-ac63-19295ea5ede3/tmp2"
-                    with tempfile.TemporaryDirectory(dir=tmp_parent) as tmp:
+                    with tempfile.TemporaryDirectory() as tmp:
                         repository.download(tmp, throttle)
                         metadata = fromDirectory(tmp, bbox, tbox, details, timeout)
                     return metadata

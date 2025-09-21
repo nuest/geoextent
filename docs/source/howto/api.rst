@@ -83,7 +83,7 @@ Output:
 
 (`source of file muenster_ring_zeit.geojson`_)
 
-.. _source of file muenster_ring_zeit.geojson: https://github.com/o2r-project/geoextent/blob/master/tests/testdata/geojson/muenster_ring_zeit.geojson
+.. _source of file muenster_ring_zeit.geojson: https://github.com/nuest/geoextent/blob/main/tests/testdata/geojson/muenster_ring_zeit.geojson
 
 Folders or ZIP file(s)
 ----------------------
@@ -120,7 +120,7 @@ Output:
    import geoextent.lib.extent as geoextent
    geoextent.fromDirectory('../tests/testdata/folders/folder_one_file', True, True, True)
 
-`folder_two_files <https://github.com/o2r-project/geoextent/blob/master/tests/testdata/folders/folder_two_files>`_
+`folder_two_files <https://github.com/nuest/geoextent/blob/main/tests/testdata/folders/folder_two_files>`_
 
 Zenodo repositories
 -------------------

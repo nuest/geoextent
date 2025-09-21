@@ -1,3 +1,0 @@
-pytest>=5
-pytest-console-scripts
-wheel

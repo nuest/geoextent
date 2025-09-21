@@ -32,7 +32,7 @@ Examples
 GeoJSON
 ^^^^^^^
 
-The file used in the example can be in the code repository: `muenster_ring_zeit.geojson <https://raw.githubusercontent.com/o2r-project/geoextent/master/tests/testdata/geojson/muenster_ring_zeit.geojson>`_.
+The file used in the example can be in the code repository: `muenster_ring_zeit.geojson <https://raw.githubusercontent.com/nuest/geoextent/maintests/testdata/geojson/muenster_ring_zeit.geojson>`_.
 
 ::
 
@@ -44,7 +44,7 @@ The file used in the example can be in the code repository: `muenster_ring_zeit.
    import geoextent.lib.extent as geoextent
 
    dir_name = 'showcase_geojson'
-   file_url = 'https://raw.githubusercontent.com/o2r-project/geoextent/master/tests/testdata/geojson/muenster_ring_zeit.geojson'
+   file_url = 'https://raw.githubusercontent.com/nuest/geoextent/maintests/testdata/geojson/muenster_ring_zeit.geojson'
    get_showcase_file(dir_name, file_url)
 
    geoextent.fromFile('showcase_folder/muenster_ring_zeit.geojson', True, True)
@@ -98,7 +98,7 @@ The file used in the example can be obtained from `Zenodo Sandbox record 256820 
 GeoTIFF
 ^^^^^^^
 
-The file used in the example is available online: `wf_100m_klas.tif <https://github.com/o2r-project/geoextent/blob/master/tests/testdata/tif/wf_100m_klas.tif>`_.
+The file used in the example is available online: `wf_100m_klas.tif <https://github.com/nuest/geoextent/blob/main/tests/testdata/tif/wf_100m_klas.tif>`_.
 
 ::
 
@@ -110,7 +110,7 @@ The file used in the example is available online: `wf_100m_klas.tif <https://git
    import geoextent.lib.extent as geoextent
 
    dir_name = 'showcase_geotiff'
-   file_url = 'https://github.com/o2r-project/geoextent/raw/master/tests/testdata/tif/wf_100m_klas.tif'
+   file_url = 'https://github.com/nuest/geoextent/raw/main/tests/testdata/tif/wf_100m_klas.tif'
    get_showcase_file(dir_name, file_url)
 
    geoextent.fromFile('showcase_folder/wf_100m_klas.tif', True, False)
@@ -176,7 +176,7 @@ The file used in the example is available online: `run.gpx <https://docs.mapbox.
 Geography Markup Language
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The file used in the example is available online: `clc_1000_PT.gml <https://github.com/o2r-project/geoextent/blob/master/tests/testdata/gml/clc_1000_PT.gml>`_.
+The file used in the example is available online: `clc_1000_PT.gml <https://github.com/nuest/geoextent/blob/main/tests/testdata/gml/clc_1000_PT.gml>`_.
 
 ::
 
@@ -188,7 +188,7 @@ The file used in the example is available online: `clc_1000_PT.gml <https://gith
    import geoextent.lib.extent as geoextent
 
    dir_name = 'showcase_gml'
-   file_url = 'https://raw.githubusercontent.com/o2r-project/geoextent/master/tests/testdata/gml/clc_1000_PT.gml'
+   file_url = 'https://raw.githubusercontent.com/nuest/geoextent/maintests/testdata/gml/clc_1000_PT.gml'
    get_showcase_file(dir_name, file_url)
    geoextent.fromFile('showcase_folder/clc_1000_PT.gml', True, False)
 

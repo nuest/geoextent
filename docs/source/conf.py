@@ -68,4 +68,4 @@ html_logo = '_static/o2r-logo-only.svg'
 # -- Options for extensions --------------------------------------------------
 
 # https://github.com/sloria/sphinx-issues
-issues_github_path = "o2r-project/geoextent"
+issues_github_path = "nuest/geoextent"
