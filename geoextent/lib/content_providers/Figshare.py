@@ -3,16 +3,16 @@ from .providers import DoiProvider
 from ..extent import *
 
 
-class Zenodo(DoiProvider):
+class Figshare(DoiProvider):
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")
-        self.host = {"hostname": ["https://zenodo.org/records/", "http://zenodo.org/records/", "https://zenodo.org/api/records/"],
-                     "api": "https://zenodo.org/api/records/"
-                     }
+        self.host = {"hostname": ["https://figshare.com/articles/", "http://figshare.com/articles/", "https://api.figshare.com/v2/articles/"],
+                     "api": "https://api.figshare.com/v2/articles/"
+                    }
         self.reference = None
         self.record_id = None
-        self.name = "Zenodo"
+        self.name = "Figshare"
         self.throttle = False
 
     def validate_provider(self, reference):
@@ -38,7 +38,7 @@ class Zenodo(DoiProvider):
                 return self.record
             except Exception as e:
                 print("DEBUG:", e)
-                m = "The zenodo record : https://zenodo.org/records/" + self.record_id + " does not exist"
+                m = "The Figshare item : https://figshare.com/articles/" + self.record_id + " does not exist"
                 self.log.warning(m)
                 raise HTTPError(m)
         else:
@@ -56,24 +56,26 @@ class Zenodo(DoiProvider):
         try:
             files = record['files']
         except Exception:
-            m = "This record does not have Open Access files. Verify the Access rights of the record."
+            m = "This item does not have Open Access files. Verify the Access rights of the item."
             self.log.warning(m)
             raise ValueError(m)
 
         file_list = []
         for j in files:
-            file_list.append(j['links']['self'])
+            name = j["name"]
+            link = j["download_url"]
+            file_list.append([name, link])
+            # TODO: files can be empty
         return file_list
 
     def download(self, folder, throttle=False):
         self.throttle = throttle
-        self.log.debug("Downloading Zenodo record id: {} ".format(self.record_id))
+        self.log.debug("Downloading Figshare item id: {} ".format(self.record_id))
         try:
             download_links = self._get_file_links
             counter = 1
-            for file_link in download_links:
+            for filename, file_link in download_links:
                 resp = self._request(file_link, throttle=self.throttle, stream=True,)
-                filename = file_link.split('/')[-2]
                 filepath = os.path.join(folder, filename)
                 # TODO: catch http error (?)
                 with open(filepath, "wb") as dst:

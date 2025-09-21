@@ -1,10 +1,14 @@
 import logging
 import os
+import patoolib
+import random
 import threading
-import zipfile
+import time
 import tempfile
 from traitlets import List
 from traitlets.config import Application
+from .content_providers import Dryad
+from .content_providers import Figshare
 from .content_providers import Zenodo
 from . import handleCSV
 from . import handleRaster
@@ -52,12 +56,20 @@ def compute_bbox_wgs84(module, path):
     return spatial_extent
 
 
-def fromDirectory(path, bbox=False, tbox=False, details=False):
-    """ Extracts geoextent from a directory/ZipFile
+def fromDirectory(
+    path: str,
+    bbox: bool = False,
+    tbox: bool = False,
+    details: bool = False,
+    timeout: None | int | float = None,
+    level: int = 0,
+):
+    """Extracts geoextent from a directory/archive
     Keyword arguments:
-    path -- directory/ZipFile path
+    path -- directory/archive path
     bbox -- True if bounding box is requested (default False)
     tbox -- True if time box is requested (default False)
+    timeout -- maximal allowed run time in seconds (default None)
     """
 
     logger.info("Extracting bbox={} tbox={} from Directory {}".format(bbox, tbox, path))
@@ -69,30 +81,50 @@ def fromDirectory(path, bbox=False, tbox=False, details=False):
     # initialization of later output dict
     metadata_directory = {}
 
-    isZip = zipfile.is_zipfile(path)
+    timeout_flag = False
+    start_time = time.time()
 
-    if isZip:
-        logger.info("Inspecting zipfile {}".format(path))
-        hf.extract_zip(path)
-        extract_folder = path[:-4]
-        logger.info("Extract_folder zipfile {}".format(extract_folder))
+    # TODO: eventually delete all extracted content
+
+    is_archive = patoolib.is_archive(path)
+
+    if is_archive:
+        logger.info("Inspecting archive {}".format(path))
+        extract_folder = hf.extract_archive(path)
+        logger.info("Extract_folder archive {}".format(extract_folder))
         path = extract_folder
 
-    for filename in os.listdir(path):
-        logger.info("path {}, folder/zipfile {}".format(path, filename))
-        isZip = zipfile.is_zipfile(os.path.join(path, filename))
-        if isZip:
-            logger.info("**Inspecting folder {}, is zip ? {}**".format(filename, str(isZip)))
-            metadata_directory[filename] = fromDirectory(os.path.join(path, filename), bbox, tbox, details=True)
+    files = os.listdir(path)
+    if timeout:
+        random.seed(0)
+        random.shuffle(files)
+
+    for filename in files:
+        elapsed_time = time.time() - start_time
+        if timeout and elapsed_time > timeout:
+            if level == 0:
+                logger.warning(f"Timeout reached after {timeout} seconds, returning partial results.")
+                timeout_flag = True
+            break
+
+        logger.info("path {}, folder/archive {}".format(path, filename))
+        absolute_path = os.path.join(path, filename)
+        is_archive = patoolib.is_archive(absolute_path)
+
+        remaining_time = timeout - elapsed_time if timeout else None
+
+        if is_archive:
+            logger.info("**Inspecting folder {}, is archive ? {}**".format(filename, str(is_archive)))
+            metadata_directory[filename] = fromDirectory(absolute_path, bbox, tbox, details=True, timeout=remaining_time, level=level+1)
         else:
-            logger.info("Inspecting folder {}, is zip ? {}".format(filename, str(isZip)))
-            if os.path.isdir(os.path.join(path, filename)):
-                metadata_directory[filename] = fromDirectory(os.path.join(path, filename), bbox, tbox, details=True)
+            logger.info("Inspecting folder {}, is archive ? {}".format(filename, str(is_archive)))
+            if os.path.isdir(absolute_path):
+                metadata_directory[filename] = fromDirectory(absolute_path, bbox, tbox, details=True, timeout=remaining_time, level=level+1)
             else:
-                metadata_file = fromFile(os.path.join(path, filename), bbox, tbox)
+                metadata_file = fromFile(absolute_path, bbox, tbox)
                 metadata_directory[str(filename)] = metadata_file
 
-    file_format = "zip" if isZip else 'folder'
+    file_format = "archive" if is_archive else 'folder'
     metadata['format'] = file_format
 
     if bbox:
@@ -115,6 +147,9 @@ def fromDirectory(path, bbox=False, tbox=False, details=False):
 
     if details:
         metadata['details'] = metadata_directory
+
+    if timeout and timeout_flag:
+        metadata["timeout"] = timeout
 
     return metadata
 
@@ -210,10 +245,17 @@ def fromFile(filepath, bbox=True, tbox=True, num_sample=None):
     return metadata
 
 
-def from_repository(repository_identifier, bbox=False, tbox=False, details=False):
+def from_repository(
+    repository_identifier: str,
+    bbox: bool = False,
+    tbox: bool = False,
+    details: bool = False,
+    throttle: bool = False,
+    timeout: None | int | float = None,
+):
     try:
         geoextent = geoextent_from_repository()
-        metadata = geoextent.from_repository(repository_identifier, bbox, tbox, details)
+        metadata = geoextent.from_repository(repository_identifier, bbox, tbox, details, throttle, timeout)
         metadata['format'] = 'repository'
     except ValueError as e:
         logger.debug("Error while inspecting repository {}: {}".format(repository_identifier, e))
@@ -223,13 +265,13 @@ def from_repository(repository_identifier, bbox=False, tbox=False, details=False
 
 
 class geoextent_from_repository(Application):
-    content_providers = List([Zenodo.Zenodo], config=True, help="""
+    content_providers = List([Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo], config=True, help="""
         Ordered list by priority of ContentProviders to try in turn to fetch
         the contents specified by the user.
         """
                              )
 
-    def from_repository(self, repository_identifier, bbox=False, tbox=False, details=False):
+    def from_repository(self, repository_identifier, bbox=False, tbox=False, details=False, throttle=False, timeout=None):
 
         if bbox + tbox == 0:
             logger.error("Require at least one of extraction options, but bbox is {} and tbox is {}".format(bbox, tbox))
@@ -242,9 +284,10 @@ class geoextent_from_repository(Application):
                 logger.debug("Using {} to extract {}".format(repository.name, repository_identifier))
                 supported_by_geoextent = True
                 try:
-                    with tempfile.TemporaryDirectory() as tmp:
-                        repository.download(tmp)
-                        metadata = fromDirectory(tmp, bbox, tbox, details)
+                    tmp_parent = "/run/media/lars/8f0c1f09-2c90-4cb3-ac63-19295ea5ede3/tmp2"
+                    with tempfile.TemporaryDirectory(dir=tmp_parent) as tmp:
+                        repository.download(tmp, throttle)
+                        metadata = fromDirectory(tmp, bbox, tbox, details, timeout)
                     return metadata
                 except ValueError as e:
                     raise Exception(e)

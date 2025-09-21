@@ -3,15 +3,22 @@ import datetime
 import itertools
 import logging
 import os
+import patoolib
 import random
 import re
-import zipfile
+import uuid
 import numpy as np
 import pandas as pd
 from osgeo import ogr
 from osgeo import osr
 from pandas.core.tools.datetimes import _guess_datetime_format_for_array as time_format
 from pathlib import Path
+
+
+# to suppress warning "FutureWarning: Neither gdal.UseExceptions() nor gdal.DontUseExceptions() has been explicitly called. In GDAL 4.0, exceptions will be enabled by default."
+ogr.UseExceptions()
+osr.UseExceptions()
+
 
 output_time_format = '%Y-%m-%d'
 PREFERRED_SAMPLE_SIZE = 30
@@ -191,7 +198,7 @@ def getDelimiter(csv_file):
     dialect = csv.Sniffer().sniff(csv_file.readline(1024))
     # To reset back position to beginning of the file
     csv_file.seek(0)
-    return csv.reader(csv_file.readlines(), delimiter=dialect.delimiter)
+    return dialect.delimiter
 
 
 def get_time_format(time_list, num_sample):
@@ -261,19 +268,35 @@ def date_parser(datetime_list, num_sample=None):
     return parse_time
 
 
-def extract_zip(filepath):
+def extract_archive(filepath) -> Path:
     """
-    Function purpose: unzip file (always inside a new folder)
-    filepath: filepath to zipfile
+    Function purpose: extract archive (always inside a new folder)
+    filepath: filepath to archive
     """
 
-    abs_path = os.path.abspath(filepath)
-    root_folder = os.path.split(abs_path)[0]
-    zip_name = os.path.split(abs_path)[1][:-4]
-    zip_folder_path = os.path.join(root_folder, zip_name)
+    filepath = Path(filepath)
 
-    with zipfile.ZipFile(abs_path) as zip_file:
-        zip_file.extractall(zip_folder_path)
+    while True:
+        folder_to_extract = Path.joinpath(filepath.parent, f"{filepath.name}_{uuid.uuid4()}")
+        if not folder_to_extract.exists():
+            break
+
+    try:
+        patoolib.extract_archive(archive=filepath, outdir=folder_to_extract, verbosity=-1)
+    except patoolib.util.PatoolError:
+        pass
+    except TypeError:
+        # exception to prevent this error:
+        # TypeError: Path.replace() takes 2 positional arguments but 3 were given
+        pass
+    except Exception:
+        pass
+    finally:
+        folder_to_extract.mkdir(parents=True, exist_ok=True)
+        # to prevent this error:
+        # [Errno 2] No such file or directory:
+
+    return folder_to_extract
 
 
 def bbox_merge(metadata, origin):

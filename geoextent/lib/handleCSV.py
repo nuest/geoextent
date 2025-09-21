@@ -23,13 +23,29 @@ def checkFileSupported(filepath):
     try:
         file = gdal.OpenEx(filepath)
         driver = file.GetDriver().ShortName
-    except:
+    except Exception:
         logger.debug("File {} is NOT supported by HandleCSV module".format(filepath))
         return False
 
     if driver == "CSV":
         with open(filepath) as csv_file:
-            data = csv.reader(csv_file.readlines())
+            try:
+                delimiter = hf.getDelimiter(csv_file)
+                data = csv.reader(csv_file.readlines(10000), delimiter=delimiter)
+            except UnicodeDecodeError:
+                # exception to prevent this error:
+                # UnicodeDecodeError: 'utf-8' codec can't decode byte 0x8a in position 187: invalid start byte
+                data = None
+            except ValueError:
+                # exception to prevent this error:
+                # ValueError: bad delimiter or quotechar value
+                data = None
+            except csv.Error:
+                # exception to prevent this error:
+                # _csv.Error: Could not determine delimiter
+                data = None
+            except Exception:
+                data = None
             if data is None:
                 logger.debug("File {} is NOT supported by HandleCSV module".format(filepath))
                 return False
@@ -40,7 +56,7 @@ def checkFileSupported(filepath):
         return False
 
 
-def getBoundingBox(filePath):
+def getBoundingBox(filePath, chunk_size=50000):
     '''
     Function purpose: extracts the spatial extent (bounding box) from a csv-file \n
     input "filepath": type string, file path to csv file \n
@@ -48,35 +64,56 @@ def getBoundingBox(filePath):
     '''
 
     with open(filePath) as csv_file:
-        # To get delimiter either comma or simecolon
-        date = hf.getDelimiter(csv_file)
+        delimiter = hf.getDelimiter(csv_file)
+        data = csv.reader(csv_file, delimiter=delimiter)
 
-        elements = []
-        for x in date:
-            elements.append(x)
+        header = next(data)
+        chunk = [header]
 
-        spatial_lat_extent = hf.searchForParameters(elements, search['latitude'], exp_data='numeric')
+        spatial_extent = {
+            "min_lat": [],
+            "max_lat": [],
+            "min_lon": [],
+            "max_lon": [],
+        }
 
-        min_lat = None
-        max_lat = None
+        for x in data:
+            chunk.append(x)
+            if len(chunk) >= chunk_size:
+                spatial_lat_extent = hf.searchForParameters(chunk, search['latitude'], exp_data='numeric')
+                spatial_lon_extent = hf.searchForParameters(chunk, search['longitude'], exp_data='numeric')
 
-        if spatial_lat_extent is None:
-            pass
-        else:
-            min_lat = (min(spatial_lat_extent))
-            max_lat = (max(spatial_lat_extent))
+                if not spatial_lat_extent and not spatial_lon_extent:
+                    raise Exception('The csv file from ' + filePath + ' has no BoundingBox')
+                else:
+                    spatial_extent["min_lat"].append(min(spatial_lat_extent))
+                    spatial_extent["max_lat"].append(max(spatial_lat_extent))
+                    spatial_extent["min_lon"].append(min(spatial_lon_extent))
+                    spatial_extent["max_lon"].append(max(spatial_lon_extent))
 
-        spatial_lon_extent = hf.searchForParameters(elements, search['longitude'], exp_data='numeric')
+                chunk = [header]
 
-        if spatial_lon_extent is None:
-            raise Exception('The csv file from ' + filePath + ' has no BoundingBox')
-        else:
-            min_lon = (min(spatial_lon_extent))
-            max_lon = (max(spatial_lon_extent))
+        if len(chunk) > 1:
+            spatial_lat_extent = hf.searchForParameters(chunk, search['latitude'], exp_data='numeric')
+            spatial_lon_extent = hf.searchForParameters(chunk, search['longitude'], exp_data='numeric')
 
-        bbox = [min_lon, min_lat, max_lon, max_lat]
+            if not spatial_lat_extent and not spatial_lon_extent:
+                raise Exception('The csv file from ' + filePath + ' has no BoundingBox')
+            else:
+                spatial_extent["min_lat"].append(min(spatial_lat_extent))
+                spatial_extent["max_lat"].append(max(spatial_lat_extent))
+                spatial_extent["min_lon"].append(min(spatial_lon_extent))
+                spatial_extent["max_lon"].append(max(spatial_lon_extent))
+
+        bbox = [
+            min(spatial_extent["min_lon"]),
+            min(spatial_extent["min_lat"]),
+            max(spatial_extent["max_lon"]),
+            max(spatial_extent["max_lat"]),
+        ]
+
         logger.debug("Extracted Bounding box (without projection): {}".format(bbox))
-        crs = getCRS(filePath)
+        crs = getCRS(filePath, chunk_size)
         logger.debug("Extracted CRS: {}".format(crs))
         spatialExtent = {"bbox": bbox, "crs": crs}
         if not bbox or not crs:
@@ -92,8 +129,8 @@ def getTemporalExtent(filepath, num_sample):
     """
 
     with open(filepath) as csv_file:
-        # To get delimiter either comma or semicolon
-        data = hf.getDelimiter(csv_file)
+        delimiter = hf.getDelimiter(csv_file)
+        data = csv.reader(csv_file, delimiter=delimiter)
 
         elements = []
         for x in data:
@@ -115,28 +152,42 @@ def getTemporalExtent(filepath, num_sample):
             return tbox
 
 
-def getCRS(filepath):
+def getCRS(filepath, chunk_size=50000):
     '''extracts coordinatesystem from csv File \n
     input "filepath": type string, file path to csv file \n
     returns the epsg code of the used coordinate reference system, type list, contains extracted coordinate system of content from csv file
     '''
 
     with open(filepath) as csv_file:
-        data = hf.getDelimiter(csv_file)
-        elements = []
+        delimiter = hf.getDelimiter(csv_file)
+        data = csv.reader(csv_file, delimiter=delimiter)
+
+        header = next(data)
+        chunk = [header]
+
+        crs = []
+
         for x in data:
-            elements.append(x)
+            chunk.append(x)
+            if len(chunk) >= chunk_size:
+                param = hf.searchForParameters(chunk, ["crs", "srsID", "EPSG"])
+                if param:
+                    crs.extend(param)
 
-        param = hf.searchForParameters(elements, ["crs", "srsID", "EPSG"])
+                chunk = [header]
 
-        if param is None:
+        if len(chunk) > 1:
+            param = hf.searchForParameters(chunk, ["crs", "srsID", "EPSG"])
+            if param:
+                crs.extend(param)
+
+        if not crs:
             logger.debug("{} : There is no identifiable coordinate reference system. We will try to use EPSG: 4326".format(filepath))
             crs = "4326"
-
-        elif len(list(set(param))) > 1:
+        elif len(list(set(crs))) > 1:
             logger.debug("{} : Coordinate reference system of the file is ambiguous. Extraction is not possible.".format(filepath))
             raise Exception('The csv file from ' + filepath + ' has no CRS')
         else:
-            crs = str(list(set(param))[0])
+            crs = str(list(set(crs))[0])
 
         return crs
