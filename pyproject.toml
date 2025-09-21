@@ -71,8 +71,9 @@ Issues = "https://github.com/nuest/geoextent/issues"
 #Changelog = "https://github.com/nuest/geoextent/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
-where = ["geoextent"]
-exclude = ["tests"]
+where = ["."]
+include = ["geoextent*"]
+exclude = ["tests*"]
 namespaces = false #  -> equals to find_packages
 
 [tool.pytest.ini_options]

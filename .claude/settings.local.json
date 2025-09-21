@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python:*)",
+      "WebFetch(domain:flatgeobuf.org)",
+      "Bash(pip install:*)",
+      "Bash(black:*)",
+      "Bash(curl:*)",
+      "Bash(pytest:*)",
+      "Bash(ogrinfo:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
