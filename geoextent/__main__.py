@@ -36,6 +36,7 @@ Supported formats:
 - GPS Exchange Format (.gpx)
 - Geography Markup Language (.gml)
 - Keyhole Markup Language (.kml)
+- FlatGeobuf (.fgb)
 
 """
 

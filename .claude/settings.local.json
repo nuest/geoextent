@@ -7,7 +7,11 @@
       "Bash(black:*)",
       "Bash(curl:*)",
       "Bash(pytest:*)",
-      "Bash(ogrinfo:*)"
+      "Bash(ogrinfo:*)",
+      "Bash(python -m pytest tests/test_api_flatgeobuf.py -v)",
+      "WebFetch(domain:pangaea-data-publisher.github.io)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:doi.pangaea.de)"
     ],
     "deny": [],
     "ask": []

@@ -23,13 +23,14 @@
 | [geoextent]        | zeroes.nc                        | netcdf   | PDDL    |
 | [Copernicus]        | MSK_SNWPRB_60m                        | jp2   | [Copernicus Sentinel Data]    |
 | [Zenodo](https://zenodo.org/record/4323616)        | Churfirsten_30m                      | asc  | CC-BY 4.0    |
+| [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf/blob/master/test/data/countries.fgb) | countries | fgb | BSD-2-Clause |
 
 [sf]: https://github.com/r-spatial/sf
 [geoextent]: https://github.com/o2r-project/geoextent
 [Geosoftware2]: https://github.com/carobro/Geosoftware2
 [INSPIRE]:      https://themes.jrc.ec.europa.eu/file/view/107486/example-of-gml-file-conformant-to-inspire-land-cover-vector-application-schema
 [unidata]: https://www.unidata.ucar.edu/software/netcdf/examples/files.html
-[geojson.io]: http://geojson.io 
+[geojson.io]: http://geojson.io
 [govdata]: https://www.govdata.de/web/guest/daten/-/details/abgrabungen
 [Carto BCN / martgnz]: https://github.com/martgnz/bcn-geodata/tree/master/districtes
 [Google]: https://developers.google.com/kml/documentation/time#gps

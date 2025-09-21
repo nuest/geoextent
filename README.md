@@ -86,6 +86,11 @@ Consult the documentation on [paired notebooks based on Jupytext](https://github
 - Tabular data (.csv)
 - Shapefile (.shp)
 - GeoTIFF (.geotiff, .tif)
+- GeoPackage (.gpkg)
+- GPS Exchange Format (.gpx)
+- Geography Markup Language (.gml)
+- Keyhole Markup Language (.kml)
+- FlatGeobuf (.fgb)
 
 ## Contribute
 

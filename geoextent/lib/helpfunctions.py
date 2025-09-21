@@ -252,8 +252,8 @@ def get_time_format(time_list, num_sample):
         # Selects num_sample-2 elements
         time_sample = sum(time_sample, [])
 
+    # Primary method: pandas format detection
     format_list = []
-
     for i in range(0, len(time_sample)):
         format_list.append(time_format(np.array([time_sample[i]])))
     unique_formats = list(set(format_list))
@@ -264,10 +264,63 @@ def get_time_format(time_list, num_sample):
             try:
                 pd.to_datetime(time_sample, format=tf)
                 date_time_format = tf
+                break
             except:
                 pass
-    else:
-        return None
+
+    # Fallback 1: Try pandas flexible parsing without explicit format
+    if date_time_format is None:
+        logger.debug("Primary format detection failed, trying flexible parsing")
+        try:
+            # Test if pandas can parse the sample without explicit format
+            parsed_sample = pd.to_datetime(time_sample, errors="coerce")
+            if not parsed_sample.isna().all():
+                # If parsing succeeds, return a special indicator for flexible parsing
+                date_time_format = "flexible"
+                logger.debug("Flexible parsing successful")
+        except Exception:
+            pass
+
+    # Fallback 2: Try common datetime format patterns
+    if date_time_format is None:
+        logger.debug("Flexible parsing failed, trying common format patterns")
+        common_formats = [
+            "%Y/%m/%d %H:%M:%S",            # 2023/03/23 23:23:23
+            "%Y-%m-%d %H:%M:%S",            # 2023-03-23 23:23:23
+            "%Y/%m/%d",                     # 2023/03/23
+            "%Y-%m-%d",                     # 2023-03-23
+            "%d/%m/%Y",                     # 23/03/2023
+            "%d-%m-%Y",                     # 23-03-2023
+            "%m/%d/%Y",                     # 03/23/2023
+            "%m-%d-%Y",                     # 03-23-2023
+            "%Y%m%d",                       # 20230323
+            "%d.%m.%Y",                     # 23.03.2023
+            "%Y.%m.%d",                     # 2023.03.23
+            "%Y-%m-%dT%H:%M:%S",            # 2023-03-23T23:23:23 (ISO 8601)
+            "%Y-%m-%dT%H:%M:%S.%f",         # 2023-03-23T23:23:23.123456 (ISO with fractional)
+            "%Y-%m-%dT%H:%M:%S%z",          # 2023-03-23T23:23:23+0200 (ISO with timezone offset)
+            "%Y-%m-%d %H:%M:%S.%f",         # 2023-03-23 23:23:23.123456 (space sep with fractional)
+            "%d %B %Y",                     # 23 March 2023 (verbose month)
+            "%d %b %Y",                     # 23 Mar 2023 (abbrev month)
+            "%a, %d %b %Y %H:%M:%S %z",     # Thu, 23 Mar 2023 23:23:23 +0200 (RFC 2822/email)
+            "%H:%M:%S",                     # 23:23:23 (time only)
+            "%H:%M:%S.%f",                  # 23:23:23.123 (time with fractional seconds)
+            "%Y-%m",                        # 2023-03 (year-month)
+            "%Y",                           # 2023 (year only)
+            "%Y-%j",                        # 2023-082 (ordinal day of year)
+            "%d/%m/%y",                     # 23/03/23 (two-digit year)
+            "%m/%d/%y",                     # 03/23/23 (US two-digit year)
+            "%Y.%m.%d %H:%M:%S",            # 2023.03.23 23:23:23 (dotted date with time)
+        ]
+
+        for fmt in common_formats:
+            try:
+                pd.to_datetime(time_sample, format=fmt, errors="raise")
+                date_time_format = fmt
+                logger.debug("Found matching format: {}".format(fmt))
+                break
+            except Exception:
+                continue
 
     return date_time_format
 
@@ -282,9 +335,15 @@ def date_parser(datetime_list, num_sample=None):
     datetime_format = get_time_format(datetime_list, num_sample)
 
     if datetime_format is not None:
-        parse_time_input_format = pd.to_datetime(
-            datetime_list, format=datetime_format, errors="coerce"
-        )
+        if datetime_format == "flexible":
+            # Use pandas flexible parsing without explicit format
+            parse_time_input_format = pd.to_datetime(datetime_list, errors="coerce")
+        else:
+            # Use explicit format
+            parse_time_input_format = pd.to_datetime(
+                datetime_list, format=datetime_format, errors="coerce"
+            )
+
         parse_time = pd.to_datetime(
             parse_time_input_format, format=output_time_format, errors="coerce"
         )
