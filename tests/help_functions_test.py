@@ -27,6 +27,6 @@ def parse_coordinates(result):
     Input: string
     Output: list
     """
-    bboxStr = result[result.find("[") + 1:result.find("]")]
-    bboxList = [float(i) for i in bboxStr.split(',')]
+    bboxStr = result[result.find("[") + 1 : result.find("]")]
+    bboxList = [float(i) for i in bboxStr.split(",")]
     return bboxList

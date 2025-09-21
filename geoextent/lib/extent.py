@@ -16,7 +16,7 @@ from . import handleVector
 from . import helpfunctions as hf
 
 logger = logging.getLogger("geoextent")
-handle_modules = {'CSV': handleCSV, "raster": handleRaster, "vector": handleVector}
+handle_modules = {"CSV": handleCSV, "raster": handleRaster, "vector": handleVector}
 
 
 def compute_bbox_wgs84(module, path):
@@ -31,27 +31,36 @@ def compute_bbox_wgs84(module, path):
     spatial_extent_origin = module.getBoundingBox(path)
 
     try:
-        if spatial_extent_origin['crs'] == str(hf.WGS84_EPSG_ID):
+        if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
             spatial_extent = spatial_extent_origin
         else:
-            spatial_extent = {'bbox': hf.transformingArrayIntoWGS84(spatial_extent_origin['crs'],
-                                                                    spatial_extent_origin['bbox']),
-                              'crs': str(hf.WGS84_EPSG_ID)}
+            spatial_extent = {
+                "bbox": hf.transformingArrayIntoWGS84(
+                    spatial_extent_origin["crs"], spatial_extent_origin["bbox"]
+                ),
+                "crs": str(hf.WGS84_EPSG_ID),
+            }
     except Exception as e:
-        raise Exception("The bounding box could not be transformed to the target CRS epsg:{} \n error {}"
-                        .format(hf.WGS84_EPSG_ID, e))
+        raise Exception(
+            "The bounding box could not be transformed to the target CRS epsg:{} \n error {}".format(
+                hf.WGS84_EPSG_ID, e
+            )
+        )
 
-    validate = hf.validate_bbox_wgs84(spatial_extent['bbox'])
+    validate = hf.validate_bbox_wgs84(spatial_extent["bbox"])
     logger.debug("Validate: {}".format(validate))
 
-    if not hf.validate_bbox_wgs84(spatial_extent['bbox']):
+    if not hf.validate_bbox_wgs84(spatial_extent["bbox"]):
         try:
-            flip_bbox = hf.flip_bbox(spatial_extent['bbox'])
-            spatial_extent['bbox'] = flip_bbox
+            flip_bbox = hf.flip_bbox(spatial_extent["bbox"])
+            spatial_extent["bbox"] = flip_bbox
 
         except Exception as e:
-            raise Exception("The bounding box could not be transformed to the target CRS epsg:{} \n error {}"
-                            .format(hf.WGS84_EPSG_ID, e))
+            raise Exception(
+                "The bounding box could not be transformed to the target CRS epsg:{} \n error {}".format(
+                    hf.WGS84_EPSG_ID, e
+                )
+            )
 
     return spatial_extent
 
@@ -75,7 +84,11 @@ def fromDirectory(
     logger.info("Extracting bbox={} tbox={} from Directory {}".format(bbox, tbox, path))
 
     if not bbox and not tbox:
-        logger.error("Require at least one of extraction options, but bbox is {} and tbox is {}".format(bbox, tbox))
+        logger.error(
+            "Require at least one of extraction options, but bbox is {} and tbox is {}".format(
+                bbox, tbox
+            )
+        )
         raise Exception("No extraction options enabled!")
     metadata = {}
     # initialization of later output dict
@@ -103,7 +116,9 @@ def fromDirectory(
         elapsed_time = time.time() - start_time
         if timeout and elapsed_time > timeout:
             if level == 0:
-                logger.warning(f"Timeout reached after {timeout} seconds, returning partial results.")
+                logger.warning(
+                    f"Timeout reached after {timeout} seconds, returning partial results."
+                )
                 timeout_flag = True
             break
 
@@ -114,39 +129,65 @@ def fromDirectory(
         remaining_time = timeout - elapsed_time if timeout else None
 
         if is_archive:
-            logger.info("**Inspecting folder {}, is archive ? {}**".format(filename, str(is_archive)))
-            metadata_directory[filename] = fromDirectory(absolute_path, bbox, tbox, details=True, timeout=remaining_time, level=level+1)
+            logger.info(
+                "**Inspecting folder {}, is archive ? {}**".format(
+                    filename, str(is_archive)
+                )
+            )
+            metadata_directory[filename] = fromDirectory(
+                absolute_path,
+                bbox,
+                tbox,
+                details=True,
+                timeout=remaining_time,
+                level=level + 1,
+            )
         else:
-            logger.info("Inspecting folder {}, is archive ? {}".format(filename, str(is_archive)))
+            logger.info(
+                "Inspecting folder {}, is archive ? {}".format(
+                    filename, str(is_archive)
+                )
+            )
             if os.path.isdir(absolute_path):
-                metadata_directory[filename] = fromDirectory(absolute_path, bbox, tbox, details=True, timeout=remaining_time, level=level+1)
+                metadata_directory[filename] = fromDirectory(
+                    absolute_path,
+                    bbox,
+                    tbox,
+                    details=True,
+                    timeout=remaining_time,
+                    level=level + 1,
+                )
             else:
                 metadata_file = fromFile(absolute_path, bbox, tbox)
                 metadata_directory[str(filename)] = metadata_file
 
-    file_format = "archive" if is_archive else 'folder'
-    metadata['format'] = file_format
+    file_format = "archive" if is_archive else "folder"
+    metadata["format"] = file_format
 
     if bbox:
         bbox_ext = hf.bbox_merge(metadata_directory, path)
         if bbox_ext is not None:
             if len(bbox_ext) != 0:
-                metadata['crs'] = bbox_ext['crs']
-                metadata['bbox'] = bbox_ext['bbox']
+                metadata["crs"] = bbox_ext["crs"]
+                metadata["bbox"] = bbox_ext["bbox"]
         else:
             logger.warning(
                 "The {} {} has no identifiable bbox - Coordinate reference system (CRS) may be missing".format(
-                    file_format, path))
+                    file_format, path
+                )
+            )
 
     if tbox:
         tbox_ext = hf.tbox_merge(metadata_directory, path)
         if tbox_ext is not None:
-            metadata['tbox'] = tbox_ext
+            metadata["tbox"] = tbox_ext
         else:
-            logger.warning("The {} {} has no identifiable time extent".format(file_format, path))
+            logger.warning(
+                "The {} {} has no identifiable time extent".format(file_format, path)
+            )
 
     if details:
-        metadata['details'] = metadata_directory
+        metadata["details"] = metadata_directory
 
     if timeout and timeout_flag:
         metadata["timeout"] = timeout
@@ -155,7 +196,7 @@ def fromDirectory(
 
 
 def fromFile(filepath, bbox=True, tbox=True, num_sample=None):
-    """ Extracts geoextent from a file
+    """Extracts geoextent from a file
     Keyword arguments:
     path -- filepath
     bbox -- True if bounding box is requested (default False)
@@ -165,7 +206,11 @@ def fromFile(filepath, bbox=True, tbox=True, num_sample=None):
     logger.info("Extracting bbox={} tbox={} from file {}".format(bbox, tbox, filepath))
 
     if not bbox and not tbox:
-        logger.error("Require at least one of extraction options, but bbox is {} and tbox is {}".format(bbox, tbox))
+        logger.error(
+            "Require at least one of extraction options, but bbox is {} and tbox is {}".format(
+                bbox, tbox
+            )
+        )
         raise Exception("No extraction options enabled!")
 
     file_format = os.path.splitext(filepath)[1][1:]
@@ -181,12 +226,20 @@ def fromFile(filepath, bbox=True, tbox=True, num_sample=None):
         valid = handle_modules[i].checkFileSupported(filepath)
         if valid:
             usedModule = handle_modules[i]
-            logger.info("{} is being used to inspect {} file".format(usedModule.get_handler_name(), filepath))
+            logger.info(
+                "{} is being used to inspect {} file".format(
+                    usedModule.get_handler_name(), filepath
+                )
+            )
             break
 
     # If file format is not supported
     if not usedModule:
-        logger.info("Did not find a compatible module for file format {} of file {}".format(file_format, filepath))
+        logger.info(
+            "Did not find a compatible module for file format {} of file {}".format(
+                file_format, filepath
+            )
+        )
         return None
 
     # get Bbox, Temporal Extent, Vector representation and crs parallel with threads
@@ -208,23 +261,33 @@ def fromFile(filepath, bbox=True, tbox=True, num_sample=None):
                     if bbox:
                         spatial_extent = compute_bbox_wgs84(usedModule, filepath)
                         if spatial_extent is not None:
-                            metadata["bbox"] = spatial_extent['bbox']
-                            metadata["crs"] = spatial_extent['crs']
+                            metadata["bbox"] = spatial_extent["bbox"]
+                            metadata["crs"] = spatial_extent["crs"]
                 except Exception as e:
-                    logger.warning("Error for {} extracting bbox:\n{}".format(filepath, str(e)))
+                    logger.warning(
+                        "Error for {} extracting bbox:\n{}".format(filepath, str(e))
+                    )
             elif self.task == "tbox":
                 try:
                     if tbox:
-                        if usedModule.get_handler_name() == 'handleCSV':
-                            extract_tbox = usedModule.getTemporalExtent(filepath, num_sample)
+                        if usedModule.get_handler_name() == "handleCSV":
+                            extract_tbox = usedModule.getTemporalExtent(
+                                filepath, num_sample
+                            )
                         else:
                             if num_sample is not None:
-                                logger.warning("num_sample parameter is ignored, only applies to CSV files")
+                                logger.warning(
+                                    "num_sample parameter is ignored, only applies to CSV files"
+                                )
                             extract_tbox = usedModule.getTemporalExtent(filepath)
                         if extract_tbox is not None:
                             metadata["tbox"] = extract_tbox
                 except Exception as e:
-                    logger.warning("Error extracting tbox, time format not found \n {}:".format(str(e)))
+                    logger.warning(
+                        "Error extracting tbox, time format not found \n {}:".format(
+                            str(e)
+                        )
+                    )
             else:
                 raise Exception("Unsupported thread task {}".format(self.task))
             logger.debug("Completed thread {} on file {}".format(self.task, filepath))
@@ -255,33 +318,56 @@ def from_repository(
 ):
     try:
         geoextent = geoextent_from_repository()
-        metadata = geoextent.from_repository(repository_identifier, bbox, tbox, details, throttle, timeout)
-        metadata['format'] = 'repository'
+        metadata = geoextent.from_repository(
+            repository_identifier, bbox, tbox, details, throttle, timeout
+        )
+        metadata["format"] = "repository"
     except ValueError as e:
-        logger.debug("Error while inspecting repository {}: {}".format(repository_identifier, e))
+        logger.debug(
+            "Error while inspecting repository {}: {}".format(repository_identifier, e)
+        )
         raise Exception(e)
 
     return metadata
 
 
 class geoextent_from_repository(Application):
-    content_providers = List([Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo], config=True, help="""
+    content_providers = List(
+        [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo],
+        config=True,
+        help="""
         Ordered list by priority of ContentProviders to try in turn to fetch
         the contents specified by the user.
-        """
-                             )
+        """,
+    )
 
-    def from_repository(self, repository_identifier, bbox=False, tbox=False, details=False, throttle=False, timeout=None):
+    def from_repository(
+        self,
+        repository_identifier,
+        bbox=False,
+        tbox=False,
+        details=False,
+        throttle=False,
+        timeout=None,
+    ):
 
         if bbox + tbox == 0:
-            logger.error("Require at least one of extraction options, but bbox is {} and tbox is {}".format(bbox, tbox))
+            logger.error(
+                "Require at least one of extraction options, but bbox is {} and tbox is {}".format(
+                    bbox, tbox
+                )
+            )
             raise Exception("No extraction options enabled!")
 
         for h in self.content_providers:
             repository = h()
             supported_by_geoextent = False
             if repository.validate_provider(reference=repository_identifier):
-                logger.debug("Using {} to extract {}".format(repository.name, repository_identifier))
+                logger.debug(
+                    "Using {} to extract {}".format(
+                        repository.name, repository_identifier
+                    )
+                )
                 supported_by_geoextent = True
                 try:
                     with tempfile.TemporaryDirectory() as tmp:
@@ -291,6 +377,9 @@ class geoextent_from_repository(Application):
                 except ValueError as e:
                     raise Exception(e)
             if supported_by_geoextent is False:
-                logger.error("Geoextent can not handle this repository identifier {}"
-                                 "\n Check for typos or if the repository exists. ".format(repository_identifier)
-                            )
+                logger.error(
+                    "Geoextent can not handle this repository identifier {}"
+                    "\n Check for typos or if the repository exists. ".format(
+                        repository_identifier
+                    )
+                )

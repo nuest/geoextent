@@ -83,5 +83,22 @@ testpaths = [
 ]
 
 [tool.setuptools_scm]
+version_file = "geoextent/_version.py"
 
- = "geoextent/_version.py"
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    # directories
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''

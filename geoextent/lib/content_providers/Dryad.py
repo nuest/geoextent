@@ -9,9 +9,13 @@ class Dryad(DoiProvider):
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")
-        self.host = {"hostname": ["https://datadryad.org/dataset/", "http://datadryad.org/dataset/"],
-                     "api": "https://datadryad.org/api/v2/datasets/"
-                     }
+        self.host = {
+            "hostname": [
+                "https://datadryad.org/dataset/",
+                "http://datadryad.org/dataset/",
+            ],
+            "api": "https://datadryad.org/api/v2/datasets/",
+        }
         self.reference = None
         self.record_id = None
         self.record_id_html = None
@@ -66,7 +70,7 @@ class Dryad(DoiProvider):
             return self.record2
 
         else:
-            raise ValueError('Invalid content provider')
+            raise ValueError("Invalid content provider")
 
     @property
     def _get_file_links(self):
@@ -76,7 +80,7 @@ class Dryad(DoiProvider):
             raise Exception(e)
 
         try:
-            files = record['_embedded']["stash:files"]
+            files = record["_embedded"]["stash:files"]
         except Exception:
             m = "This record does not have Open Access files. Verify the Access rights of the record."
             self.log.warning(m)
@@ -89,7 +93,6 @@ class Dryad(DoiProvider):
             file_list.append([link, path])
         return file_list
 
-
     def download(self, folder, throttle=False):
         self.throttle = throttle
         self.log.debug("Downloading Dryad dataset id: {} ".format(self.record_id))
@@ -98,7 +101,11 @@ class Dryad(DoiProvider):
             download_links = [self.host["api"] + self.record_id_html + "/download"]
             counter = 1
             for file_link in download_links:
-                resp = self._request(file_link, throttle=self.throttle, stream=True,)
+                resp = self._request(
+                    file_link,
+                    throttle=self.throttle,
+                    stream=True,
+                )
                 filename = "dataset.zip"
                 filepath = os.path.join(folder, filename)
 
@@ -106,12 +113,19 @@ class Dryad(DoiProvider):
                     for chunk in resp.iter_content(chunk_size=None):
                         dst.write(chunk)
 
-                self.log.debug("{} out of {} files downloaded.".format(counter, len(download_links)))
+                self.log.debug(
+                    "{} out of {} files downloaded.".format(
+                        counter, len(download_links)
+                    )
+                )
                 counter += 1
         except ValueError as e:
             raise Exception(e)
         except HTTPError as e:
-            if e.response.content != b'The dataset is too large for zip file generation. Please download each file individually.':
+            if (
+                e.response.content
+                != b"The dataset is too large for zip file generation. Please download each file individually."
+            ):
                 m = "The Dryad dataset : " + self.get_url + " cannot be accessed"
                 self.log.warning(m)
                 raise HTTPError(m)
@@ -121,13 +135,21 @@ class Dryad(DoiProvider):
             download_links = self._get_file_links
             counter = 1
             for file_link, filename in download_links:
-                resp = self._request(file_link, throttle=self.throttle, stream=True,)
+                resp = self._request(
+                    file_link,
+                    throttle=self.throttle,
+                    stream=True,
+                )
                 filepath = Path(folder).joinpath(filename)
                 # TODO: catch http error (?)
                 with open(filepath, "wb") as dst:
                     for chunk in resp.iter_content(chunk_size=None):
                         dst.write(chunk)
-                self.log.debug("{} out of {} files downloaded.".format(counter, len(download_links)))
+                self.log.debug(
+                    "{} out of {} files downloaded.".format(
+                        counter, len(download_links)
+                    )
+                )
                 counter += 1
         except ValueError as e:
             raise Exception(e)

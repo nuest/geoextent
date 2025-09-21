@@ -7,9 +7,14 @@ class Zenodo(DoiProvider):
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")
-        self.host = {"hostname": ["https://zenodo.org/records/", "http://zenodo.org/records/", "https://zenodo.org/api/records/"],
-                     "api": "https://zenodo.org/api/records/"
-                     }
+        self.host = {
+            "hostname": [
+                "https://zenodo.org/records/",
+                "http://zenodo.org/records/",
+                "https://zenodo.org/api/records/",
+            ],
+            "api": "https://zenodo.org/api/records/",
+        }
         self.reference = None
         self.record_id = None
         self.name = "Zenodo"
@@ -38,11 +43,15 @@ class Zenodo(DoiProvider):
                 return self.record
             except Exception as e:
                 print("DEBUG:", e)
-                m = "The zenodo record : https://zenodo.org/records/" + self.record_id + " does not exist"
+                m = (
+                    "The zenodo record : https://zenodo.org/records/"
+                    + self.record_id
+                    + " does not exist"
+                )
                 self.log.warning(m)
                 raise HTTPError(m)
         else:
-            raise ValueError('Invalid content provider')
+            raise ValueError("Invalid content provider")
 
     @property
     def _get_file_links(self):
@@ -54,7 +63,7 @@ class Zenodo(DoiProvider):
             raise Exception(e)
 
         try:
-            files = record['files']
+            files = record["files"]
         except Exception:
             m = "This record does not have Open Access files. Verify the Access rights of the record."
             self.log.warning(m)
@@ -62,7 +71,7 @@ class Zenodo(DoiProvider):
 
         file_list = []
         for j in files:
-            file_list.append(j['links']['self'])
+            file_list.append(j["links"]["self"])
         return file_list
 
     def download(self, folder, throttle=False):
@@ -72,14 +81,22 @@ class Zenodo(DoiProvider):
             download_links = self._get_file_links
             counter = 1
             for file_link in download_links:
-                resp = self._request(file_link, throttle=self.throttle, stream=True,)
-                filename = file_link.split('/')[-2]
+                resp = self._request(
+                    file_link,
+                    throttle=self.throttle,
+                    stream=True,
+                )
+                filename = file_link.split("/")[-2]
                 filepath = os.path.join(folder, filename)
                 # TODO: catch http error (?)
                 with open(filepath, "wb") as dst:
                     for chunk in resp.iter_content(chunk_size=None):
                         dst.write(chunk)
-                self.log.debug("{} out of {} files downloaded.".format(counter, len(download_links)))
+                self.log.debug(
+                    "{} out of {} files downloaded.".format(
+                        counter, len(download_links)
+                    )
+                )
                 counter += 1
         except ValueError as e:
             raise Exception(e)

@@ -12,10 +12,10 @@ def get_handler_name():
 
 
 def checkFileSupported(filepath):
-    '''Checks whether it is valid raster file or not. \n
+    """Checks whether it is valid raster file or not. \n
     input "path": type string, path to file which shall be extracted \n
     raise exception if not valid
-    '''
+    """
 
     logger.info(filepath)
     try:
@@ -34,7 +34,7 @@ def checkFileSupported(filepath):
 
 
 def getBoundingBox(filepath):
-    """ extracts bounding box from raster \n
+    """extracts bounding box from raster \n
     input "filepath": type string, file path to raster file \n
     returns bounding box of the file: type list, length = 4 , type = float, schema = [min(longs), min(lats), max(longs), max(lats)]
     """
@@ -71,8 +71,11 @@ def getBoundingBox(filepath):
         lat_long_max = transform.TransformPoint(max_x, max_y)
     except:
         # Assume that coordinates are in EPSG:4236
-        logger.debug("{}: There is no identifiable coordinate reference system. We will try to use EPSG: 4326 "
-                     .format(filepath))
+        logger.debug(
+            "{}: There is no identifiable coordinate reference system. We will try to use EPSG: 4326 ".format(
+                filepath
+            )
+        )
         lat_long_min = [min_y, min_x]
         lat_long_max = [max_y, max_x]
 
@@ -88,9 +91,9 @@ def getBoundingBox(filepath):
 
 
 def getTemporalExtent(filepath):
-    """ extracts temporal extent of the geotiff \n
+    """extracts temporal extent of the geotiff \n
     input "filepath": type string, file path to geotiff file \n
     returns None as There is no time value for GeoTIFF files
     """
-    logger.debug('{} There is no time value for raster files'.format(filepath))
+    logger.debug("{} There is no time value for raster files".format(filepath))
     return None

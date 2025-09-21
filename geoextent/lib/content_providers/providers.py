@@ -24,7 +24,7 @@ class DoiProvider(ContentProvider):
             except HTTPError as e:
                 # http error
                 # dryad     dict_keys(['undefined', '404', '502', '503'])
-                # figshare  dict_keys(['404', '422']) 
+                # figshare  dict_keys(['404', '422'])
                 # zenodo    dict_keys(['410', '502', '404', '504'])
                 # https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
 
@@ -36,15 +36,15 @@ class DoiProvider(ContentProvider):
 
         if throttle:
             self._throttle(response)
-        
+
         return response
-    
+
     def _throttle(self, response):
         values = [
             (response.headers.get("x-ratelimit-remaining")),  # Zenodo
-            (response.headers.get("x-ratelimit-reset")),      # Zenodo
-            (response.headers.get("ratelimit-remaining")),    # Dryad
-            (response.headers.get("ratelimit-reset")),        # Dryad
+            (response.headers.get("x-ratelimit-reset")),  # Zenodo
+            (response.headers.get("ratelimit-remaining")),  # Dryad
+            (response.headers.get("ratelimit-reset")),  # Dryad
         ]
         http_error = response.status_code
 
@@ -86,7 +86,7 @@ class DoiProvider(ContentProvider):
         if hf.doi_regexp.match(self.reference):
             return "DOI"
         elif hf.https_regexp.match(self.reference):
-            return 'Link'
+            return "Link"
 
     @property
     def get_url(self):

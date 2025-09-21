@@ -7,9 +7,14 @@ class Figshare(DoiProvider):
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")
-        self.host = {"hostname": ["https://figshare.com/articles/", "http://figshare.com/articles/", "https://api.figshare.com/v2/articles/"],
-                     "api": "https://api.figshare.com/v2/articles/"
-                    }
+        self.host = {
+            "hostname": [
+                "https://figshare.com/articles/",
+                "http://figshare.com/articles/",
+                "https://api.figshare.com/v2/articles/",
+            ],
+            "api": "https://api.figshare.com/v2/articles/",
+        }
         self.reference = None
         self.record_id = None
         self.name = "Figshare"
@@ -38,11 +43,15 @@ class Figshare(DoiProvider):
                 return self.record
             except Exception as e:
                 print("DEBUG:", e)
-                m = "The Figshare item : https://figshare.com/articles/" + self.record_id + " does not exist"
+                m = (
+                    "The Figshare item : https://figshare.com/articles/"
+                    + self.record_id
+                    + " does not exist"
+                )
                 self.log.warning(m)
                 raise HTTPError(m)
         else:
-            raise ValueError('Invalid content provider')
+            raise ValueError("Invalid content provider")
 
     @property
     def _get_file_links(self):
@@ -54,7 +63,7 @@ class Figshare(DoiProvider):
             raise Exception(e)
 
         try:
-            files = record['files']
+            files = record["files"]
         except Exception:
             m = "This item does not have Open Access files. Verify the Access rights of the item."
             self.log.warning(m)
@@ -75,13 +84,21 @@ class Figshare(DoiProvider):
             download_links = self._get_file_links
             counter = 1
             for filename, file_link in download_links:
-                resp = self._request(file_link, throttle=self.throttle, stream=True,)
+                resp = self._request(
+                    file_link,
+                    throttle=self.throttle,
+                    stream=True,
+                )
                 filepath = os.path.join(folder, filename)
                 # TODO: catch http error (?)
                 with open(filepath, "wb") as dst:
                     for chunk in resp.iter_content(chunk_size=None):
                         dst.write(chunk)
-                self.log.debug("{} out of {} files downloaded.".format(counter, len(download_links)))
+                self.log.debug(
+                    "{} out of {} files downloaded.".format(
+                        counter, len(download_links)
+                    )
+                )
                 counter += 1
         except ValueError as e:
             raise Exception(e)

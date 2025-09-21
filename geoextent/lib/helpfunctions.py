@@ -20,23 +20,22 @@ ogr.UseExceptions()
 osr.UseExceptions()
 
 
-output_time_format = '%Y-%m-%d'
+output_time_format = "%Y-%m-%d"
 PREFERRED_SAMPLE_SIZE = 30
 WGS84_EPSG_ID = 4326
 logger = logging.getLogger("geoextent")
 
-https_regexp = re.compile('https://(.*)')
+https_regexp = re.compile("https://(.*)")
 
 # doi_regexp, is_doi, and normalize_doi are from idutils (https://github.com/inveniosoftware/idutils)
 # Copyright (C) 2015-2018 CERN.
 # Copyright (C) 2018 Alan Rubin.
 # Licensed under BSD-3-Clause license
 doi_regexp = re.compile(
-    r"(doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(.\d+)*/.+)$", flags=re.I)
-
-zenodo_regexp = re.compile(
-    r"(https://zenodo.org/record/)?(.\d*)$", flags=re.I
+    r"(doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(.\d+)*/.+)$", flags=re.I
 )
+
+zenodo_regexp = re.compile(r"(https://zenodo.org/record/)?(.\d*)$", flags=re.I)
 
 
 def getAllRowElements(row_name, elements, exp_data=None):
@@ -54,14 +53,16 @@ def getAllRowElements(row_name, elements, exp_data=None):
                     if x[indexOf] != row_name:
                         values.append(x[indexOf].replace(" ", ""))
                 except IndexError as e:
-                    logger.info("Row skipped,file might be corrupted. Error {}".format(e))
+                    logger.info(
+                        "Row skipped,file might be corrupted. Error {}".format(e)
+                    )
                     pass
 
-    if exp_data == 'time':
+    if exp_data == "time":
         if get_time_format(values, 30) is not None:
             return values
 
-    elif exp_data == 'numeric':
+    elif exp_data == "numeric":
         try:
             values_num = list(map(float_convert, values))
             values_num_none = [i for i in values_num if i]
@@ -148,7 +149,12 @@ def transformingArrayIntoWGS84(crs, pointArray):
     elif len(pointArray) == 4:
         bbox = [[pointArray[0], pointArray[1]], [pointArray[2], pointArray[3]]]
         transf_bbox = transformingArrayIntoWGS84(crs, bbox)
-        return [transf_bbox[0][0], transf_bbox[0][1], transf_bbox[1][0], transf_bbox[1][1]]
+        return [
+            transf_bbox[0][0],
+            transf_bbox[0][1],
+            transf_bbox[1][0],
+            transf_bbox[1][1],
+        ]
 
 
 def validate_bbox_wgs84(bbox):
@@ -161,8 +167,11 @@ def validate_bbox_wgs84(bbox):
     lon_values = bbox[0:3:2]
     lat_values = bbox[1:4:2]
 
-    if sum(list(map(lambda x: x < -90 or x > 90, lat_values))) + sum(
-            list(map(lambda x: x < -180 or x > 180, lon_values))) > 0:
+    if (
+        sum(list(map(lambda x: x < -90 or x > 90, lat_values)))
+        + sum(list(map(lambda x: x < -180 or x > 180, lon_values)))
+        > 0
+    ):
         valid = False
 
     return valid
@@ -182,8 +191,10 @@ def flip_bbox(bbox):
         logger.warning("Longitude and latitude values flipped")
         return bbox_flip
     else:
-        raise Exception("Latitude and longitude values extracted do not seem to be correctly transformed. We tried "
-                        "flipping latitude and longitude values but both bbox are incorrect")
+        raise Exception(
+            "Latitude and longitude values extracted do not seem to be correctly transformed. We tried "
+            "flipping latitude and longitude values but both bbox are incorrect"
+        )
 
 
 def validate(date_text):
@@ -213,20 +224,31 @@ def get_time_format(time_list, num_sample):
 
     if num_sample is None:
         num_sample = PREFERRED_SAMPLE_SIZE
-        logger.info("num_sample not provided, num_sample modified to SAMPLE_SIZE {}".format(PREFERRED_SAMPLE_SIZE))
+        logger.info(
+            "num_sample not provided, num_sample modified to SAMPLE_SIZE {}".format(
+                PREFERRED_SAMPLE_SIZE
+            )
+        )
     elif type(num_sample) is not int:
-        raise Exception('num_sample parameter  must be an integer')
+        raise Exception("num_sample parameter  must be an integer")
     elif num_sample <= 0:
-        raise Exception('num_sample parameter: {} must be greater than 0'.format(num_sample))
+        raise Exception(
+            "num_sample parameter: {} must be greater than 0".format(num_sample)
+        )
 
     if len(time_list) < num_sample:
         time_sample = time_list
         logger.info(
             "num_sample is greater than the length of the list. num_sample modified to length of list {}".format(
-                len(time_list)))
+                len(time_list)
+            )
+        )
     else:
         # Selects first and last element
-        time_sample = [[time_list[1], time_list[-1]], random.sample(time_list[1:-1], num_sample - 2)]
+        time_sample = [
+            [time_list[1], time_list[-1]],
+            random.sample(time_list[1:-1], num_sample - 2),
+        ]
         # Selects num_sample-2 elements
         time_sample = sum(time_sample, [])
 
@@ -260,8 +282,12 @@ def date_parser(datetime_list, num_sample=None):
     datetime_format = get_time_format(datetime_list, num_sample)
 
     if datetime_format is not None:
-        parse_time_input_format = pd.to_datetime(datetime_list, format=datetime_format, errors='coerce')
-        parse_time = pd.to_datetime(parse_time_input_format, format=output_time_format, errors='coerce')
+        parse_time_input_format = pd.to_datetime(
+            datetime_list, format=datetime_format, errors="coerce"
+        )
+        parse_time = pd.to_datetime(
+            parse_time_input_format, format=output_time_format, errors="coerce"
+        )
     else:
         parse_time = None
 
@@ -277,12 +303,16 @@ def extract_archive(filepath) -> Path:
     filepath = Path(filepath)
 
     while True:
-        folder_to_extract = Path.joinpath(filepath.parent, f"{filepath.name}_{uuid.uuid4()}")
+        folder_to_extract = Path.joinpath(
+            filepath.parent, f"{filepath.name}_{uuid.uuid4()}"
+        )
         if not folder_to_extract.exists():
             break
 
     try:
-        patoolib.extract_archive(archive=filepath, outdir=folder_to_extract, verbosity=-1)
+        patoolib.extract_archive(
+            archive=filepath, outdir=folder_to_extract, verbosity=-1
+        )
     except patoolib.util.PatoolError:
         pass
     except TypeError:
@@ -313,14 +343,21 @@ def bbox_merge(metadata, origin):
     for x, y in metadata.items():
         if isinstance(y, dict):
             try:
-                bbox_extent = [y['bbox'], y['crs']]
+                bbox_extent = [y["bbox"], y["crs"]]
                 boxes_extent.append(bbox_extent)
             except:
-                logger.debug("{} does not have identifiable geographical extent (CRS+bbox)".format(x))
+                logger.debug(
+                    "{} does not have identifiable geographical extent (CRS+bbox)".format(
+                        x
+                    )
+                )
                 pass
     if len(boxes_extent) == 0:
         logger.debug(
-            " ** {} does not have geometries with identifiable geographical extent (CRS+bbox)".format(origin))
+            " ** {} does not have geometries with identifiable geographical extent (CRS+bbox)".format(
+                origin
+            )
+        )
         return None
     elif len(boxes_extent) > 0:
 
@@ -351,18 +388,28 @@ def bbox_merge(metadata, origin):
 
             except Exception as e:
                 logger.debug(
-                    "Error extracting geographic extent. CRS {} may be invalid. Error: {}".format(int(bbox[1]), e))
+                    "Error extracting geographic extent. CRS {} may be invalid. Error: {}".format(
+                        int(bbox[1]), e
+                    )
+                )
                 continue
 
         num_geo_files = multipolygon.GetGeometryCount() / 4
         if num_geo_files > 0:
-            logger.debug('{} contains {} geometries out of {} with identifiable geographic extent'.format(origin, int(
-                num_geo_files), num_files))
+            logger.debug(
+                "{} contains {} geometries out of {} with identifiable geographic extent".format(
+                    origin, int(num_geo_files), num_files
+                )
+            )
             env = multipolygon.GetEnvelope()
-            metadata_merge['bbox'] = [env[0], env[2], env[1], env[3]]
-            metadata_merge['crs'] = str(WGS84_EPSG_ID)
+            metadata_merge["bbox"] = [env[0], env[2], env[1], env[3]]
+            metadata_merge["crs"] = str(WGS84_EPSG_ID)
         else:
-            logger.debug(" {} does not have geometries with identifiable geographical extent (CRS+bbox)".format(origin))
+            logger.debug(
+                " {} does not have geometries with identifiable geographical extent (CRS+bbox)".format(
+                    origin
+                )
+            )
             metadata_merge = None
 
     return metadata_merge
@@ -380,14 +427,18 @@ def tbox_merge(metadata, path):
     for x, y in metadata.items():
         if isinstance(y, dict):
             try:
-                boxes.append(y['tbox'][0])
-                boxes.append(y['tbox'][1])
+                boxes.append(y["tbox"][0])
+                boxes.append(y["tbox"][1])
             except:
                 pass
 
     num_time_files = len(boxes)
     if num_time_files == 0:
-        logger.debug(" ** Directory {} does not have files with identifiable temporal extent".format(path))
+        logger.debug(
+            " ** Directory {} does not have files with identifiable temporal extent".format(
+                path
+            )
+        )
         return None
 
     else:
@@ -395,8 +446,11 @@ def tbox_merge(metadata, path):
             boxes[i] = datetime.datetime.strptime(boxes[i], output_time_format)
         min_date = min(boxes).strftime(output_time_format)
         max_date = max(boxes).strftime(output_time_format)
-        logger.debug("Folder {} contains {} files out of {} with identifiable temporal extent".format(path, int(
-            num_time_files), num_files))
+        logger.debug(
+            "Folder {} contains {} files out of {} with identifiable temporal extent".format(
+                path, int(num_time_files), num_files
+            )
+        )
         time_ext = [min_date, max_date]
 
     return time_ext
@@ -415,7 +469,7 @@ def transform_bbox(x):
         ring.AddPoint(x[2], x[3])
         ring.AddPoint(x[0], x[3])
         ring.CloseRings()
-    # Create polygon
+        # Create polygon
         poly = ogr.Geometry(ogr.wkbPolygon)
         poly.AddGeometry(ring)
         poly.FlattenTo2D()
@@ -437,7 +491,7 @@ def transform_tbox(x):
     if x is None:
         return None
     elif isinstance(x, list):
-        return str(x[0]) + '/' + str(x[1])
+        return str(x[0]) + "/" + str(x[1])
 
 
 def extract_details(details):
@@ -461,8 +515,8 @@ def extract_details(details):
         if file is None:
             filename.append([i])
             file_format_v = os.path.splitext(i)[1][1:]
-            if file_format_v == '':
-                file_format_v = 'undetected'
+            if file_format_v == "":
+                file_format_v = "undetected"
             file_format.append([file_format_v])
             handler.append([None])
             bbox.append([None])
@@ -470,24 +524,24 @@ def extract_details(details):
             crs.append([None])
         else:
             filename.append([i])
-            file_format.append([file.get('format')])
-            handler_v = file.get('geoextent_handler')
-            bbox_v = file.get('bbox')
-            tbox_v = file.get('tbox')
-            crs_v = file.get('crs')
+            file_format.append([file.get("format")])
+            handler_v = file.get("geoextent_handler")
+            bbox_v = file.get("bbox")
+            tbox_v = file.get("tbox")
+            crs_v = file.get("crs")
             handler.append([handler_v])
             bbox.append([bbox_v])
             tbox.append([tbox_v])
             crs.append([crs_v])
 
-            if file.get('format') == 'folder':
-                details_folder = extract_details(file['details'])
-                filename.append(details_folder['filename'])
-                file_format.append(details_folder['format'])
-                handler.append(details_folder['handler'])
-                bbox.append(details_folder['bbox'])
-                tbox.append(details_folder['tbox'])
-                crs.append(details_folder['crs'])
+            if file.get("format") == "folder":
+                details_folder = extract_details(file["details"])
+                filename.append(details_folder["filename"])
+                file_format.append(details_folder["format"])
+                handler.append(details_folder["handler"])
+                bbox.append(details_folder["bbox"])
+                tbox.append(details_folder["tbox"])
+                crs.append(details_folder["crs"])
 
     if any(isinstance(i, list) for i in filename):
         filename = list(itertools.chain.from_iterable(filename))
@@ -497,9 +551,14 @@ def extract_details(details):
         tbox = list(itertools.chain.from_iterable(tbox))
         crs = list(itertools.chain.from_iterable(crs))
 
-    d = {'filename': filename, 'format': file_format,   'handler': handler,
-         'bbox': bbox,
-         'tbox': tbox, 'crs': crs}
+    d = {
+        "filename": filename,
+        "format": file_format,
+        "handler": handler,
+        "bbox": bbox,
+        "tbox": tbox,
+        "crs": crs,
+    }
     files = pd.DataFrame(d)
     return files
 
@@ -513,19 +572,25 @@ def extract_output(result, files, current_version):
     Output: Dataframe with geoextent of all files AND final output (merge) of user request
     """
     filename = files
-    file_format = result.get('format')
+    file_format = result.get("format")
     handler = "geoextent:" + current_version
-    bbox = result.get('bbox')
-    tbox = result.get('tbox')
-    crs = result.get('crs')
+    bbox = result.get("bbox")
+    tbox = result.get("tbox")
+    crs = result.get("crs")
 
-    new_row = {'filename': filename, 'format': file_format,   'handler': handler, 'bbox': bbox, 'tbox': tbox, 'crs': crs
-               }
+    new_row = {
+        "filename": filename,
+        "format": file_format,
+        "handler": handler,
+        "bbox": bbox,
+        "tbox": tbox,
+        "crs": crs,
+    }
 
-    df = extract_details(result['details'])
+    df = extract_details(result["details"])
     df = df.append(new_row, ignore_index=True)
-    df['bbox'] = df['bbox'].apply(transform_bbox)
-    df['tbox'] = df['tbox'].apply(transform_tbox)
+    df["bbox"] = df["bbox"].apply(transform_bbox)
+    df["tbox"] = df["tbox"].apply(transform_tbox)
     return df
 
 
@@ -561,21 +626,21 @@ def create_geopackage(df, filename):
         os.remove(filename)
         logger.warning("Overwriting {} ".format(filename))
 
-    ds = ogr.GetDriverByName('GPKG').CreateDataSource(filename)
-    lyr = ds.CreateLayer('files', geom_type=ogr.wkbPolygon, srs=sr4326)
-    lyr.CreateField(ogr.FieldDefn('filename', ogr.OFTString))
-    lyr.CreateField(ogr.FieldDefn('handler', ogr.OFTString))
-    lyr.CreateField(ogr.FieldDefn('format', ogr.OFTString))
-    lyr.CreateField(ogr.FieldDefn('tbox', ogr.OFTString))
-    lyr.CreateField(ogr.FieldDefn('crs', ogr.OFTString))
+    ds = ogr.GetDriverByName("GPKG").CreateDataSource(filename)
+    lyr = ds.CreateLayer("files", geom_type=ogr.wkbPolygon, srs=sr4326)
+    lyr.CreateField(ogr.FieldDefn("filename", ogr.OFTString))
+    lyr.CreateField(ogr.FieldDefn("handler", ogr.OFTString))
+    lyr.CreateField(ogr.FieldDefn("format", ogr.OFTString))
+    lyr.CreateField(ogr.FieldDefn("tbox", ogr.OFTString))
+    lyr.CreateField(ogr.FieldDefn("crs", ogr.OFTString))
 
     for i in range(len(df)):
         feat = ogr.Feature(lyr.GetLayerDefn())
-        feat['filename'] = df.loc[i, "filename"]
-        feat['format'] = df.loc[i, "format"]
-        feat['tbox'] = df.loc[i, "tbox"]
-        feat['handler'] = df.loc[i, "handler"]
-        feat['crs'] = df.loc[i, "crs"]
+        feat["filename"] = df.loc[i, "filename"]
+        feat["format"] = df.loc[i, "format"]
+        feat["tbox"] = df.loc[i, "tbox"]
+        feat["handler"] = df.loc[i, "handler"]
+        feat["crs"] = df.loc[i, "crs"]
         if df.loc[i, "bbox"] is not None:
             feat.SetGeometry(ogr.CreateGeometryFromWkt(df.loc[i, "bbox"]))
         lyr.CreateFeature(feat)
@@ -597,5 +662,3 @@ def path_output(path):
         logger.error("Output target directory does not exist: {}".format(path))
         raise ValueError("Output target directory does not exist: {}".format(path))
     return absolute_file_path
-
-
