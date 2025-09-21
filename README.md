@@ -14,15 +14,16 @@ This project was originally developed as part of the [DFG-funded](https://o2r.in
 
 Python: `3.x`
 
+GDAL: `3.11.x`
+
 The package relies on common system libraries for reading geospatial datasets, such as GDAL and NetCDF.
 On Debian systems, the [UbuntuGIS](https://wiki.ubuntu.com/UbuntuGIS) project offers easy installation of up to date versions of those libraries.
+A one-line installer for GDAL is described at <>.
 
 See the list in `travis.yml` for a full list of dependencies on Linux.
 
 ### Install from PyPI
 
-You must install a suitable version of `pygdal` manually first, see [instructions](https://pypi.org/project/pygdal/) and [this related SO thread with different helpful answers](https://gis.stackexchange.com/questions/28966/python-gdal-package-missing-header-file-when-installing-via-pip/124420#124420).
-We use `pygdal` for better compatibility with virtual environments.
 
 ```bash
 python -m venv .env
@@ -91,6 +92,13 @@ Consult the documentation on [paired notebooks based on Jupytext](https://github
 - Geography Markup Language (.gml)
 - Keyhole Markup Language (.kml)
 - FlatGeobuf (.fgb)
+
+## Supported data repositories
+
+- [Zenodo](https://zenodo.org/) - Research data repository
+- [Dryad](https://datadryad.org/) - Data publishing platform
+- [Figshare](https://figshare.com/) - Research data sharing platform
+- [PANGAEA](https://www.pangaea.de/) - Earth & Environmental Science data publisher
 
 ## Contribute
 

@@ -36,7 +36,8 @@ dependencies = [
     "requests",
     "numpy",
     "traitlets",
-    "wheel"
+    "wheel",
+    "pangaeapy"
 ]
 
 [project.optional-dependencies]

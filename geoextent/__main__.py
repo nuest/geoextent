@@ -38,6 +38,12 @@ Supported formats:
 - Keyhole Markup Language (.kml)
 - FlatGeobuf (.fgb)
 
+Supported data repositories:
+- Zenodo (zenodo.org)
+- Dryad (datadryad.org)
+- Figshare (figshare.com)
+- PANGAEA (pangaea.de)
+
 """
 
 

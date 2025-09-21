@@ -72,7 +72,7 @@ The project follows a modular handler-based architecture:
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):
-   - Support for extracting data from repositories (Zenodo, Figshare, Dryad)
+   - Support for extracting data from repositories (Zenodo, Figshare, Dryad, PANGAEA)
 
 ### Handler Selection
 
