@@ -316,11 +316,12 @@ def from_repository(
     details: bool = False,
     throttle: bool = False,
     timeout: None | int | float = None,
+    download_data: bool = False,
 ):
     try:
         geoextent = geoextent_from_repository()
         metadata = geoextent.from_repository(
-            repository_identifier, bbox, tbox, details, throttle, timeout
+            repository_identifier, bbox, tbox, details, throttle, timeout, download_data
         )
         metadata["format"] = "repository"
     except ValueError as e:
@@ -350,6 +351,7 @@ class geoextent_from_repository(Application):
         details=False,
         throttle=False,
         timeout=None,
+        download_data=False,
     ):
 
         if bbox + tbox == 0:
@@ -372,7 +374,7 @@ class geoextent_from_repository(Application):
                 supported_by_geoextent = True
                 try:
                     with tempfile.TemporaryDirectory() as tmp:
-                        repository.download(tmp, throttle)
+                        repository.download(tmp, throttle, download_data)
                         metadata = fromDirectory(tmp, bbox, tbox, details, timeout)
                     return metadata
                 except ValueError as e:

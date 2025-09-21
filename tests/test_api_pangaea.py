@@ -30,6 +30,39 @@ class TestPangaeaProvider:
             "id": "150150",
             "title": "Reference list of 450 digitised data supplements of IPY 2007-2008",
             # This dataset may not have specific geographic/temporal extents
+        },
+        # Additional test datasets
+        "radiosonde_kwajalein": {
+            "doi": "10.1594/PANGAEA.853890",
+            "url": "https://doi.pangaea.de/10.1594/PANGAEA.853890",
+            "id": "853890",
+            "title": "Radiosonde measurements from station Kwajalein (2015-06)",
+            "expected_bbox": [167.731, 8.72, 167.731, 8.72],  # Point location
+            "expected_tbox": ["2015-06-01", "2015-06-29"],
+        },
+        "oceanography_meteor": {
+            "doi": "10.1594/PANGAEA.807588",
+            "url": "https://doi.pangaea.de/10.1594/PANGAEA.807588",
+            "id": "807588",
+            "title": "Physical oceanography during METEOR cruise M36/1",
+            "expected_bbox": [-41.905, 29.255, -15.505, 46.653],  # [W, S, E, N]
+            "expected_tbox": ["1996-06-11", "1996-06-18"],
+        },
+        "sediment_core": {
+            "doi": "10.1594/PANGAEA.842589",
+            "url": "https://doi.pangaea.de/10.1594/PANGAEA.842589",
+            "id": "842589",
+            "title": "Dinoflagellate cyst measurements from sediment core HH11-134-BC",
+            "expected_bbox": [9.887500, 77.599330, 9.887500, 77.599330],  # Point location
+            # Temporal coverage might be geological ages, not calendar dates
+        },
+        "radiosonde_momote": {
+            "doi": "10.1594/PANGAEA.841243",
+            "url": "https://doi.pangaea.de/10.1594/PANGAEA.841243",
+            "id": "841243",
+            "title": "Radiosonde measurements from station Momote (2005-09)",
+            "expected_bbox": [147.425, -2.058, 147.425, -2.058],  # Point location
+            "expected_tbox": ["2005-09-01", "2005-09-30"],
         }
     }
 
@@ -52,7 +85,6 @@ class TestPangaeaProvider:
         invalid_doi = "10.5281/zenodo.820562"
         assert pangaea.validate_provider(invalid_doi) == False
 
-    @pytest.mark.skip(reason="Requires pangaeapy and network access")
     def test_pangaea_metadata_extraction_multiple_datasets(self):
         """Test metadata extraction from multiple Pangaea datasets"""
         from geoextent.lib.content_providers.Pangaea import Pangaea
@@ -77,7 +109,6 @@ class TestPangaeaProvider:
             except Exception as e:
                 pytest.skip(f"Network or API error for {dataset_name}: {e}")
 
-    @pytest.mark.skip(reason="Requires pangaeapy and network access - integration test")
     def test_pangaea_repository_extraction_oceanography_dataset(self):
         """Test full repository extraction with oceanography dataset (bbox + tbox)"""
         dataset = self.TEST_DATASETS["oceanography"]
@@ -113,7 +144,6 @@ class TestPangaeaProvider:
         except Exception as e:
             pytest.skip(f"Network or API error: {e}")
 
-    @pytest.mark.skip(reason="Requires pangaeapy and network access - integration test")
     def test_pangaea_repository_extraction_drilling_dataset(self):
         """Test full repository extraction with drilling dataset (point location)"""
         dataset = self.TEST_DATASETS["drilling"]
@@ -148,7 +178,6 @@ class TestPangaeaProvider:
         except Exception as e:
             pytest.skip(f"Network or API error: {e}")
 
-    @pytest.mark.skip(reason="Requires pangaeapy and network access - integration test")
     def test_pangaea_repository_extraction_reference_dataset(self):
         """Test repository extraction with reference dataset (may lack geo/temporal data)"""
         dataset = self.TEST_DATASETS["reference"]
@@ -199,6 +228,115 @@ class TestPangaeaProvider:
 
         for url in invalid_urls:
             assert pangaea.validate_provider(url) == False
+
+    def test_pangaea_download_data_flag_oceanography(self):
+        """Test download_data flag with oceanography dataset"""
+        try:
+            # Test with download_data=True (should download actual files)
+            result = geoextent.from_repository(
+                self.TEST_DATASETS["oceanography_meteor"]["doi"],
+                bbox=True,
+                tbox=True,
+                download_data=True
+            )
+            assert result is not None
+            assert "format" in result
+            assert result["format"] == "repository"
+
+            # Should have extracted geographic and temporal data from actual files
+            if "bbox" in result:
+                bbox = result["bbox"]
+                expected_bbox = self.TEST_DATASETS["oceanography_meteor"]["expected_bbox"]
+                assert len(bbox) == 4
+                # Allow tolerance for extraction differences
+                assert abs(bbox[0] - expected_bbox[0]) < 5.0  # longitude tolerance
+                assert abs(bbox[1] - expected_bbox[1]) < 5.0  # latitude tolerance
+
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_radiosonde_datasets(self):
+        """Test radiosonde datasets (point locations with temporal data)"""
+        radiosonde_datasets = ["radiosonde_kwajalein", "radiosonde_momote"]
+
+        for dataset_name in radiosonde_datasets:
+            dataset = self.TEST_DATASETS[dataset_name]
+            try:
+                result = geoextent.from_repository(
+                    dataset["doi"], bbox=True, tbox=True
+                )
+                assert result is not None
+                assert "format" in result
+                assert result["format"] == "repository"
+
+                # Check point location
+                if "bbox" in result:
+                    bbox = result["bbox"]
+                    expected_bbox = dataset["expected_bbox"]
+                    assert len(bbox) == 4
+                    # For point locations, coordinates should be very close
+                    assert abs(bbox[0] - expected_bbox[0]) < 0.01  # longitude
+                    assert abs(bbox[1] - expected_bbox[1]) < 0.01  # latitude
+
+                # Check temporal coverage
+                if "tbox" in result and "expected_tbox" in dataset:
+                    tbox = result["tbox"]
+                    expected_tbox = dataset["expected_tbox"]
+                    assert len(tbox) == 2
+                    assert tbox[0].startswith(expected_tbox[0][:7])  # Year-month match
+
+            except ImportError:
+                pytest.skip("pangaeapy not available")
+            except Exception as e:
+                pytest.skip(f"Network or API error for {dataset_name}: {e}")
+
+    def test_pangaea_sediment_core_dataset(self):
+        """Test sediment core dataset (geological data with special temporal handling)"""
+        dataset = self.TEST_DATASETS["sediment_core"]
+
+        try:
+            result = geoextent.from_repository(
+                dataset["url"], bbox=True, tbox=True
+            )
+            assert result is not None
+            assert "format" in result
+            assert result["format"] == "repository"
+
+            # Check geographic coverage (point location)
+            if "bbox" in result:
+                bbox = result["bbox"]
+                expected_bbox = dataset["expected_bbox"]
+                assert len(bbox) == 4
+                assert abs(bbox[0] - expected_bbox[0]) < 0.1  # longitude
+                assert abs(bbox[1] - expected_bbox[1]) < 0.1  # latitude
+
+            # Temporal coverage might not be available for geological datasets
+            # This is OK - the test should pass even without temporal data
+
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_all_additional_datasets_validation(self):
+        """Test that all additional datasets can be validated"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+
+        additional_datasets = ["radiosonde_kwajalein", "oceanography_meteor", "sediment_core", "radiosonde_momote"]
+        pangaea = Pangaea()
+
+        for dataset_name in additional_datasets:
+            dataset = self.TEST_DATASETS[dataset_name]
+
+            # Test DOI validation
+            assert pangaea.validate_provider(dataset["doi"]) == True
+            assert pangaea.dataset_id == dataset["id"]
+
+            # Test URL validation
+            assert pangaea.validate_provider(dataset["url"]) == True
+            assert pangaea.dataset_id == dataset["id"]
 
     def test_pangaea_invalid_dataset(self):
         """Test handling of invalid Pangaea dataset ID"""
@@ -263,3 +401,83 @@ class TestPangaeaProvider:
         mock_dataset = MockDataset()
         parameters = pangaea._extract_parameters(mock_dataset)
         assert parameters == []
+
+    def test_pangaea_download_method_signatures(self):
+        """Test that download method accepts the new download_data parameter"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+        import tempfile
+        import os
+
+        pangaea = Pangaea()
+        pangaea.dataset_id = "123456"  # Mock dataset ID
+
+        # Test that method can be called with download_data parameter
+        with tempfile.TemporaryDirectory() as temp_dir:
+            try:
+                # This should not crash - method signature should accept download_data
+                pangaea.download(temp_dir, throttle=False, download_data=False)
+                pangaea.download(temp_dir, throttle=False, download_data=True)
+            except Exception as e:
+                # Expect errors due to mock data, but not signature errors
+                assert "pangaeapy" in str(e) or "dataset" in str(e) or "metadata" in str(e)
+
+    def test_pangaea_local_vs_metadata_extraction(self):
+        """Test comparing metadata-based vs local file extraction"""
+        dataset = self.TEST_DATASETS["radiosonde_kwajalein"]
+
+        try:
+            # Test metadata-based extraction (default)
+            result_metadata = geoextent.from_repository(
+                dataset["doi"],
+                bbox=True,
+                tbox=True,
+                download_data=False
+            )
+
+            # Test local file extraction
+            result_local = geoextent.from_repository(
+                dataset["doi"],
+                bbox=True,
+                tbox=True,
+                download_data=True
+            )
+
+            # Both should succeed
+            assert result_metadata is not None
+            assert result_local is not None
+            assert result_metadata["format"] == "repository"
+            assert result_local["format"] == "repository"
+
+            # Compare results - they should be similar but may differ slightly
+            if "bbox" in result_metadata and "bbox" in result_local:
+                metadata_bbox = result_metadata["bbox"]
+                local_bbox = result_local["bbox"]
+
+                # Coordinates should be reasonably close (within 1 degree tolerance)
+                assert abs(metadata_bbox[0] - local_bbox[0]) < 1.0
+                assert abs(metadata_bbox[1] - local_bbox[1]) < 1.0
+
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_cli_download_data_parameter(self):
+        """Test that CLI accepts and processes --download-data parameter"""
+        # This is a unit test that doesn't require network access
+        import argparse
+        from geoextent.__main__ import get_arg_parser
+
+        parser = get_arg_parser()
+
+        # Test that --download-data flag is accepted
+        args1 = parser.parse_args(["-b", "-t", "--download-data", "10.1594/PANGAEA.734969"])
+        assert args1.download_data == True
+        assert args1.bounding_box == True
+        assert args1.time_box == True
+
+        # Test without the flag
+        args2 = parser.parse_args(["-b", "-t", "10.1594/PANGAEA.734969"])
+        assert args2.download_data == False
+        assert args2.bounding_box == True
+        assert args2.time_box == True

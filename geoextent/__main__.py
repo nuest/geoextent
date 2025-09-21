@@ -133,6 +133,13 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--download-data",
+        action="store_true",
+        default=False,
+        help="for repositories: download actual data files and extract locally instead of using metadata (applies to PANGAEA)",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs=argparse.REMAINDER,
@@ -223,7 +230,11 @@ def main():
             )
         if is_url:
             output = extent.from_repository(
-                files, bbox=args["bounding_box"], tbox=args["time_box"], details=True
+                files,
+                bbox=args["bounding_box"],
+                tbox=args["time_box"],
+                details=True,
+                download_data=args["download_data"]
             )
 
     except Exception as e:
