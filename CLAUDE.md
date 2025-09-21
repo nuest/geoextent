@@ -29,6 +29,22 @@ pytest tests/test_api.py
 pytest tests/test_cli.py
 ```
 
+### Code Formatting
+
+```bash
+# Format code with black
+black geoextent/ tests/
+
+# Check formatting without making changes
+black --check geoextent/ tests/
+
+# Set up pre-commit hooks (run once)
+pre-commit install
+
+# Run pre-commit hooks manually
+pre-commit run --all-files
+```
+
 ### Running the CLI
 
 ```bash
