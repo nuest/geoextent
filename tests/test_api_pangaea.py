@@ -463,22 +463,22 @@ class TestPangaeaProvider:
             pytest.skip(f"Network or API error: {e}")
 
     def test_pangaea_cli_download_data_parameter(self):
-        """Test that CLI accepts and processes --download-data parameter"""
+        """Test that CLI accepts and processes --no-download-data parameter"""
         # This is a unit test that doesn't require network access
         import argparse
         from geoextent.__main__ import get_arg_parser
 
         parser = get_arg_parser()
 
-        # Test that --download-data flag is accepted
-        args1 = parser.parse_args(["-b", "-t", "--download-data", "10.1594/PANGAEA.734969"])
-        assert args1.download_data == True
+        # Test that --no-download-data flag is accepted
+        args1 = parser.parse_args(["-b", "-t", "--no-download-data", "10.1594/PANGAEA.734969"])
+        assert args1.download_data == False
         assert args1.bounding_box == True
         assert args1.time_box == True
 
-        # Test without the flag
+        # Test without the flag (default behavior is to download data)
         args2 = parser.parse_args(["-b", "-t", "10.1594/PANGAEA.734969"])
-        assert args2.download_data == False
+        assert args2.download_data == True
         assert args2.bounding_box == True
         assert args2.time_box == True
 
