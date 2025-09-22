@@ -57,9 +57,10 @@ class readable_file_or_dir(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         validated_files = []
         for candidate in values:
-            if (hf.doi_regexp.match(candidate) is not None) or (
-                hf.zenodo_regexp.match(candidate) is not None
-            ):
+            # Check if it's a supported repository URL/DOI by testing against content providers
+            is_repository = self._is_supported_repository(candidate)
+
+            if is_repository:
                 logger.debug(
                     "The format of the URL or DOI is correct. Geoextent is going to try to download "
                     "this repository from {} ".format(candidate)
@@ -82,6 +83,25 @@ class readable_file_or_dir(argparse.Action):
                     )
         setattr(namespace, self.dest, validated_files)
 
+    def _is_supported_repository(self, candidate):
+        """Check if the candidate is supported by any content provider"""
+        # Import content providers
+        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea
+
+        # Test against all content providers
+        content_providers = [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea]
+
+        for provider_class in content_providers:
+            provider = provider_class()
+            if provider.validate_provider(candidate):
+                return True
+
+        # Also check legacy DOI regex pattern for backward compatibility
+        if hf.doi_regexp.match(candidate) is not None:
+            return True
+
+        return False
+
 
 def get_arg_parser():
     """Get arguments to extract geoextent"""
@@ -89,7 +109,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--download-data] file1 [file2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--no-download-data] file1 [file2 ...]",
     )
 
     parser.add_argument(
@@ -137,10 +157,11 @@ def get_arg_parser():
     )
 
     parser.add_argument(
-        "--download-data",
-        action="store_true",
-        default=False,
-        help="for repositories: download actual data files and extract locally instead of using metadata (applies to PANGAEA)",
+        "--no-download-data",
+        action="store_false",
+        dest="download_data",
+        default=True,
+        help="for repositories: disable downloading data files and use metadata only (not recommended for most providers)",
     )
 
     parser.add_argument(

@@ -57,7 +57,92 @@ Run
 python -m geoextent --help
 ```
 
-to see usage instructions.
+to see all available options including repository extraction settings.
+
+### Basic Usage Examples
+
+```bash
+# Extract bounding box from a single file
+python -m geoextent -b data/cities.geojson
+
+# Extract temporal extent from a single file
+python -m geoextent -t data/measurements.csv
+
+# Extract both spatial and temporal extents
+python -m geoextent -b -t data/survey.shp
+
+# Process a directory of files
+python -m geoextent -b -t data/
+
+# Process multiple specific files
+python -m geoextent -b -t data/boundaries.shp data/points.csv data/tracks.gpkg
+
+# Process multiple files with wildcard (shell expansion)
+python -m geoextent -t data/*.geojson
+
+# Show detailed results for each file
+python -m geoextent -b -t --details data/countries.fgb data/cities.geojson
+
+# Extract from research repositories (DOI or URL)
+python -m geoextent -b -t https://zenodo.org/records/4593540
+python -m geoextent -b -t 10.5281/zenodo.4593540
+python -m geoextent -b -t https://doi.org/10.1594/PANGAEA.734969
+
+# Use metadata-only extraction for repositories (not recommended)
+python -m geoextent -b -t --no-download-data 10.5281/zenodo.4593540
+```
+
+### Repository Extraction Options
+
+When extracting geospatial data from research repositories, geoextent supports two extraction modes:
+
+#### Default Mode: Data Download (Recommended)
+By default, geoextent downloads actual data files from repositories and processes them locally using GDAL. This provides the most accurate and comprehensive geospatial extent extraction.
+
+```bash
+# Default behavior - downloads and processes actual data files
+python -m geoextent -b -t https://doi.org/10.1594/PANGAEA.786028
+python -m geoextent -b -t 10.5281/zenodo.654321
+```
+
+#### Metadata-Only Mode (Limited)
+Use the `--no-download-data` flag to extract information from repository metadata only, without downloading actual files. This is faster but may result in incomplete or missing spatial/temporal extents, especially for providers like Zenodo, Figshare, and Dryad that don't include detailed geospatial metadata.
+
+```bash
+# Metadata-only extraction (not recommended for most use cases)
+python -m geoextent -b -t --no-download-data https://doi.org/10.1594/PANGAEA.786028
+```
+
+**Note**: PANGAEA datasets often include rich geospatial metadata, but for best results and compatibility with all providers, the default data download mode is recommended.
+
+### Example Output
+
+Extracting from a single GeoJSON file:
+
+```json
+{
+  "format": "geojson",
+  "geoextent_handler": "handleVector",
+  "bbox": [7.60, 51.95, 7.65, 51.97],
+  "crs": "4326",
+  "tbox": ["2018-11-14", "2018-11-14"]
+}
+```
+
+Extracting from multiple files:
+
+```json
+{
+  "format": "multiple_files",
+  "crs": "4326",
+  "bbox": [2.05, 41.32, 7.65, 53.22],
+  "tbox": ["2017-08-01", "2019-09-30"],
+  "details": {
+    "cities.csv": {"format": "csv", "bbox": [...], "tbox": [...]},
+    "districts.geojson": {"format": "geojson", "bbox": [...], "tbox": [...]}
+  }
+}
+```
 
 ## Showcases
 

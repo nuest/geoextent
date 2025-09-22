@@ -35,7 +35,6 @@ doi_regexp = re.compile(
     r"(doi:\s*|(?:https?://)?(?:dx\.)?doi\.org/)?(10\.\d+(.\d+)*/.+)$", flags=re.I
 )
 
-zenodo_regexp = re.compile(r"(https://zenodo.org/record/)?(.\d*)$", flags=re.I)
 
 
 def getAllRowElements(row_name, elements, exp_data=None):

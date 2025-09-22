@@ -11,6 +11,8 @@ class Zenodo(DoiProvider):
             "hostname": [
                 "https://zenodo.org/records/",
                 "http://zenodo.org/records/",
+                "https://zenodo.org/record/",    # Legacy format
+                "http://zenodo.org/record/",     # Legacy format
                 "https://zenodo.org/api/records/",
             ],
             "api": "https://zenodo.org/api/records/",
@@ -21,13 +23,27 @@ class Zenodo(DoiProvider):
         self.throttle = False
 
     def validate_provider(self, reference):
+        import re
         self.reference = reference
         url = self.get_url
+
+        # Check if it starts with any of our known hostname patterns
         if any([url.startswith(p) for p in self.host["hostname"]]):
-            self.record_id = url.rsplit("/", maxsplit=1)[1]
+            # Handle trailing slashes by removing them first
+            clean_url = url.rstrip("/")
+            self.record_id = clean_url.rsplit("/", maxsplit=1)[1]
             return True
-        else:
-            return False
+
+        # Check for legacy zenodo patterns and bare numeric IDs
+        # This matches the original zenodo_regexp pattern: (https://zenodo.org/record/)?(.\d*)$
+        zenodo_pattern = re.compile(r"(https://zenodo\.org/record/)?(.\d*)$", flags=re.I)
+        match = zenodo_pattern.match(reference)
+        if match:
+            # Extract the numeric ID (second group)
+            self.record_id = match.group(2)
+            return True
+
+        return False
 
     def _get_metadata(self):
 

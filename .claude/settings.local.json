@@ -12,7 +12,10 @@
       "WebFetch(domain:pangaea-data-publisher.github.io)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:doi.pangaea.de)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "WebFetch(domain:zenodo.org)",
+      "WebSearch",
+      "Read(//tmp/**)"
     ],
     "deny": [],
     "ask": []

@@ -77,6 +77,137 @@ class Pangaea(DoiProvider):
             self.log.error(f"Error fetching Pangaea metadata: {e}")
             raise Exception(f"Failed to fetch Pangaea dataset {self.dataset_id}: {e}")
 
+    def _get_web_metadata(self):
+        """Get metadata by scraping the Pangaea web page directly"""
+        import requests
+        import re
+
+        if not self.dataset_id:
+            raise Exception("No dataset ID available for web metadata extraction")
+
+        url = f"https://doi.pangaea.de/10.1594/PANGAEA.{self.dataset_id}"
+        self.log.debug(f"Fetching web metadata from {url}")
+
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            html_content = response.text
+
+            metadata = {
+                "title": self._extract_title_from_html(html_content),
+                "year": self._extract_year_from_html(html_content),
+                "coverage": self._extract_coverage_from_html(html_content),
+                "temporal_coverage": self._extract_temporal_from_html(html_content),
+                "parameters": []  # Not extracted from web page for now
+            }
+
+            return metadata
+
+        except requests.RequestException as e:
+            raise Exception(f"Failed to fetch web page: {e}")
+        except Exception as e:
+            raise Exception(f"Failed to parse web metadata: {e}")
+
+    def _extract_title_from_html(self, html_content):
+        """Extract title from HTML content"""
+        import re
+        title_match = re.search(r'<title[^>]*>([^<]+)</title>', html_content, re.IGNORECASE)
+        if title_match:
+            return title_match.group(1).strip()
+        return None
+
+    def _extract_year_from_html(self, html_content):
+        """Extract year from HTML content"""
+        import re
+        # Look for date patterns in the HTML
+        year_match = re.search(r'(?:Published|Date|Year)[^:]*:\s*(\d{4})', html_content, re.IGNORECASE)
+        if year_match:
+            return int(year_match.group(1))
+        return None
+
+    def _extract_coverage_from_html(self, html_content):
+        """Extract geographic coverage from HTML content"""
+        import re
+        coverage = {}
+
+        # Look for coordinate patterns in the HTML by finding values in span tags with class="latitude" or "longitude"
+        lat_spans = re.findall(r'<span class="latitude">\s*([-+]?\d+\.?\d*)\s*</span>', html_content, re.IGNORECASE)
+        lon_spans = re.findall(r'<span class="longitude">\s*([-+]?\d+\.?\d*)\s*</span>', html_content, re.IGNORECASE)
+
+        # Also try simpler patterns without HTML classes
+        if not lat_spans:
+            lat_matches = re.findall(r'Latitude[^:]*:\s*</[^>]*>\s*<[^>]*>\s*([-+]?\d+\.?\d*)', html_content, re.IGNORECASE)
+            if lat_matches:
+                lat_spans = lat_matches
+
+        if not lon_spans:
+            lon_matches = re.findall(r'Longitude[^:]*:\s*</[^>]*>\s*<[^>]*>\s*([-+]?\d+\.?\d*)', html_content, re.IGNORECASE)
+            if lon_matches:
+                lon_spans = lon_matches
+
+        # Try to extract bounding box coordinates using more specific patterns
+        south_match = re.search(r'South-bound\s+Latitude[^:]*:\s*</[^>]*>\s*([-+]?\d+\.?\d*)', html_content, re.IGNORECASE)
+        north_match = re.search(r'North-bound\s+Latitude[^:]*:\s*</[^>]*>\s*([-+]?\d+\.?\d*)', html_content, re.IGNORECASE)
+        west_match = re.search(r'West-bound\s+Longitude[^:]*:\s*</[^>]*>\s*([-+]?\d+\.?\d*)', html_content, re.IGNORECASE)
+        east_match = re.search(r'East-bound\s+Longitude[^:]*:\s*</[^>]*>\s*([-+]?\d+\.?\d*)', html_content, re.IGNORECASE)
+
+        # Use bounding box if available
+        if all([south_match, north_match, west_match, east_match]):
+            coverage = {
+                "min_lat": float(south_match.group(1)),
+                "max_lat": float(north_match.group(1)),
+                "min_lon": float(west_match.group(1)),
+                "max_lon": float(east_match.group(1)),
+            }
+        elif lat_spans and lon_spans:
+            # Use all latitude/longitude values to compute bounding box
+            latitudes = [float(lat) for lat in lat_spans]
+            longitudes = [float(lon) for lon in lon_spans]
+
+            coverage = {
+                "min_lat": min(latitudes),
+                "max_lat": max(latitudes),
+                "min_lon": min(longitudes),
+                "max_lon": max(longitudes),
+            }
+
+        return coverage
+
+    def _extract_temporal_from_html(self, html_content):
+        """Extract temporal coverage from HTML content"""
+        import re
+        from datetime import datetime
+
+        temporal_coverage = {}
+
+        # Look for date ranges in the HTML content
+        date_range_patterns = [
+            r'(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})',
+            r'from\s+(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})',
+            r'(\d{4}-\d{2}-\d{2})\s*-\s*(\d{4}-\d{2}-\d{2})',
+        ]
+
+        for pattern in date_range_patterns:
+            match = re.search(pattern, html_content, re.IGNORECASE)
+            if match:
+                temporal_coverage = {
+                    "start_time": match.group(1),
+                    "end_time": match.group(2),
+                }
+                break
+
+        # If no range found, look for single dates
+        if not temporal_coverage:
+            single_date_match = re.search(r'(\d{4}-\d{2}-\d{2})', html_content)
+            if single_date_match:
+                date = single_date_match.group(1)
+                temporal_coverage = {
+                    "start_time": date,
+                    "end_time": date,
+                }
+
+        return temporal_coverage
+
     def _extract_coverage(self, dataset):
         """Extract geographic coverage from Pangaea dataset"""
         coverage = {}
@@ -176,7 +307,7 @@ class Pangaea(DoiProvider):
 
         return parameters
 
-    def download(self, target_folder, throttle=False, download_data=False):
+    def download(self, target_folder, throttle=False, download_data=True):
         """
         Extract geospatial metadata from Pangaea dataset.
 
@@ -202,17 +333,35 @@ class Pangaea(DoiProvider):
 
     def _download_metadata_only(self, target_folder):
         """Extract metadata without downloading actual data files"""
-        metadata = self._get_metadata()
+        # Try web scraping first as fallback when pangaeapy fails or for no-download mode
+        try:
+            metadata = self._get_web_metadata()
+        except Exception as web_error:
+            self.log.warning(f"Web metadata extraction failed: {web_error}, trying pangaeapy")
+            try:
+                metadata = self._get_metadata()
+            except Exception as pangaeapy_error:
+                self.log.error(f"Both web and pangaeapy metadata extraction failed: {pangaeapy_error}")
+                raise Exception(f"Failed to extract metadata: web error: {web_error}, pangaeapy error: {pangaeapy_error}")
 
-        # Create a temporary file with the extracted metadata for processing
+        # Create a GeoJSON file with the extracted spatial metadata for processing
         import json
         import os
 
-        metadata_file = os.path.join(target_folder, f"pangaea_{self.dataset_id}_metadata.json")
         processed_metadata = self._process_metadata_for_geoextent(metadata)
 
-        with open(metadata_file, "w") as f:
-            json.dump(processed_metadata, f, indent=2)
+        # Create GeoJSON if geographic coverage is available
+        if "geographic_coverage" in processed_metadata:
+            geojson_file = os.path.join(target_folder, f"pangaea_{self.dataset_id}.geojson")
+            geojson_data = self._create_geojson_from_metadata(processed_metadata)
+
+            with open(geojson_file, "w") as f:
+                json.dump(geojson_data, f, indent=2)
+        else:
+            # Fallback: create JSON metadata file for debugging
+            metadata_file = os.path.join(target_folder, f"pangaea_{self.dataset_id}_metadata.json")
+            with open(metadata_file, "w") as f:
+                json.dump(processed_metadata, f, indent=2)
 
     def _download_data_files(self, target_folder):
         """Download actual data files from Pangaea for local GDAL-based extraction"""
@@ -339,3 +488,45 @@ class Pangaea(DoiProvider):
             processed["parameters"] = parameters
 
         return processed
+
+    def _create_geojson_from_metadata(self, metadata):
+        """Create a GeoJSON representation from Pangaea metadata for geoextent processing"""
+        geojson_data = {
+            "type": "FeatureCollection",
+            "features": []
+        }
+
+        # Extract geographic coverage
+        if "geographic_coverage" in metadata:
+            bbox = metadata["geographic_coverage"]["bbox"]
+            min_lon, min_lat, max_lon, max_lat = bbox
+
+            # Create a polygon feature representing the bounding box
+            feature = {
+                "type": "Feature",
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [[
+                        [min_lon, min_lat],
+                        [max_lon, min_lat],
+                        [max_lon, max_lat],
+                        [min_lon, max_lat],
+                        [min_lon, min_lat]
+                    ]]
+                },
+                "properties": {
+                    "source": "Pangaea",
+                    "dataset_id": metadata.get("dataset_id", ""),
+                    "title": metadata.get("title", ""),
+                    "year": metadata.get("year", ""),
+                }
+            }
+
+            # Add temporal information if available
+            if "temporal_coverage" in metadata:
+                feature["properties"]["start_time"] = metadata["temporal_coverage"].get("start")
+                feature["properties"]["end_time"] = metadata["temporal_coverage"].get("end")
+
+            geojson_data["features"].append(feature)
+
+        return geojson_data
