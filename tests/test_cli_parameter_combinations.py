@@ -314,3 +314,33 @@ class TestCLIRepositoryParameterCombinations:
         # May succeed or fail depending on network/data availability
         if not ret.success:
             assert len(ret.stderr) > 0
+
+    def test_cli_doi_url_formats(self, script_runner):
+        """Test CLI with various DOI URL formats"""
+        doi_formats = [
+            "10.1594/PANGAEA.786028",  # Plain DOI
+            "https://doi.org/10.1594/PANGAEA.786028",  # HTTPS DOI resolver
+            "http://doi.org/10.1594/PANGAEA.786028",   # HTTP DOI resolver
+        ]
+
+        for doi_format in doi_formats:
+            ret = script_runner.run(["geoextent", "-b", "-t", doi_format])
+            if ret.success:
+                assert "repository" in ret.stdout
+            else:
+                # May fail due to network issues or missing dependencies
+                assert len(ret.stderr) > 0
+
+    def test_cli_generic_doi_resolver_support(self, script_runner):
+        """Test CLI support for generic DOI resolver URLs"""
+        # Test that both direct and generic DOI URLs work
+        direct_url = "https://doi.pangaea.de/10.1594/PANGAEA.786028"
+        generic_url = "https://doi.org/10.1594/PANGAEA.786028"
+
+        ret1 = script_runner.run(["geoextent", "-b", "-t", direct_url])
+        ret2 = script_runner.run(["geoextent", "-b", "-t", generic_url])
+
+        # Both should have similar behavior (success or failure due to network)
+        if ret1.success and ret2.success:
+            assert "repository" in ret1.stdout
+            assert "repository" in ret2.stdout

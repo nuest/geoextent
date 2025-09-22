@@ -37,7 +37,8 @@ dependencies = [
     "numpy",
     "traitlets",
     "wheel",
-    "pangaeapy"
+    "pangaeapy",
+    "setuptools-scm>=8"
 ]
 
 [project.optional-dependencies]

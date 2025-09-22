@@ -25,7 +25,7 @@ PREFERRED_SAMPLE_SIZE = 30
 WGS84_EPSG_ID = 4326
 logger = logging.getLogger("geoextent")
 
-https_regexp = re.compile("https://(.*)")
+https_regexp = re.compile("https?://(.*)")  # Match both HTTP and HTTPS
 
 # doi_regexp, is_doi, and normalize_doi are from idutils (https://github.com/inveniosoftware/idutils)
 # Copyright (C) 2015-2018 CERN.

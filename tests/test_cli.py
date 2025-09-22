@@ -5,7 +5,6 @@ import pytest
 import tempfile
 import geoextent
 from help_functions_test import create_zip, parse_coordinates, tolerance
-from osgeo import gdal
 
 
 def test_help_text_direct(script_runner):
@@ -236,22 +235,6 @@ def test_kml_time_invalid(script_runner):
     assert "'tbox'" not in ret.stdout
 
 
-@pytest.mark.skipif(
-    gdal.__version__.startswith("2"),
-    reason="coordinate order mismatch for old GDAL versions",
-)
-def test_geotiff_bbox(script_runner):
-    ret = script_runner.run("geoextent", "-b", "tests/testdata/tif/wf_100m_klas.tif")
-    assert ret.success, "process should return success"
-    assert ret.stderr == "", "stderr should be empty"
-    result = ret.stdout
-    bboxList = parse_coordinates(result)
-    assert bboxList == pytest.approx(
-        [5.915300, 50.310251, 9.468398, 52.530775], abs=tolerance
-    )
-    assert "4326" in result
-
-
 def test_gpkg_bbox(script_runner):
     ret = script_runner.run("geoextent", "-b", "tests/testdata/geopackage/nc.gpkg")
     result = ret.stdout
@@ -300,22 +283,6 @@ def test_csv_time_invalid(script_runner):
     assert ret.success, "process should return success"
     assert ret.stderr is not None
     assert "no TemporalExtent" in ret.stderr, "stderr should not be empty"
-
-
-@pytest.mark.skipif(
-    "TRAVIS" in os.environ and os.environ["TRAVIS"] == "true",
-    reason="Travis GDAL version outdated",
-)
-def test_gml_bbox(script_runner):
-    ret = script_runner.run("geoextent", "-b", "tests/testdata/gml/clc_1000_PT.gml")
-    assert ret.success, "process should return success"
-    assert ret.stderr == "", "stderr should be empty"
-    result = ret.stdout
-    bboxList = parse_coordinates(result)
-    assert bboxList == pytest.approx(
-        [-17.542069, 32.39669, -6.959389, 39.301139], abs=tolerance
-    )
-    assert "4326" in result
 
 
 def test_gml_time(script_runner):

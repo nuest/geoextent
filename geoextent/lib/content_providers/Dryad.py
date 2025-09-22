@@ -93,8 +93,14 @@ class Dryad(DoiProvider):
             file_list.append([link, path])
         return file_list
 
-    def download(self, folder, throttle=False):
+    def download(self, folder, throttle=False, download_data=True):
         self.throttle = throttle
+        if not download_data:
+            self.log.warning(
+                "Dryad provider does not have geospatial metadata. "
+                "Using download_data=False may result in limited or no spatial extent information. "
+                "Consider using download_data=True to download actual data files for better geospatial extraction."
+            )
         self.log.debug("Downloading Dryad dataset id: {} ".format(self.record_id))
         try:
             # very simple method for download only, instead of 2+ API queries, but without metadata capabilities

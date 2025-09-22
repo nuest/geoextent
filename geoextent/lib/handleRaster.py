@@ -1,6 +1,6 @@
 import osgeo
-import osgeo.gdal as gdal
-import osgeo.osr as osr
+from osgeo import gdal
+from osgeo import osr
 import logging
 from . import helpfunctions as hf
 

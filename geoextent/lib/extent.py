@@ -316,7 +316,7 @@ def from_repository(
     details: bool = False,
     throttle: bool = False,
     timeout: None | int | float = None,
-    download_data: bool = False,
+    download_data: bool = True,
 ):
     try:
         geoextent = geoextent_from_repository()
@@ -351,7 +351,7 @@ class geoextent_from_repository(Application):
         details=False,
         throttle=False,
         timeout=None,
-        download_data=False,
+        download_data=True,
     ):
 
         if bbox + tbox == 0:
@@ -362,9 +362,9 @@ class geoextent_from_repository(Application):
             )
             raise Exception("No extraction options enabled!")
 
+        supported_by_geoextent = False
         for h in self.content_providers:
             repository = h()
-            supported_by_geoextent = False
             if repository.validate_provider(reference=repository_identifier):
                 logger.debug(
                     "Using {} to extract {}".format(
@@ -379,10 +379,12 @@ class geoextent_from_repository(Application):
                     return metadata
                 except ValueError as e:
                     raise Exception(e)
-            if supported_by_geoextent is False:
-                logger.error(
-                    "Geoextent can not handle this repository identifier {}"
-                    "\n Check for typos or if the repository exists. ".format(
-                        repository_identifier
-                    )
+
+        # Only show error if no provider could handle the identifier
+        if not supported_by_geoextent:
+            logger.error(
+                "Geoextent can not handle this repository identifier {}"
+                "\n Check for typos or if the repository exists. ".format(
+                    repository_identifier
                 )
+            )

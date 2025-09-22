@@ -77,8 +77,14 @@ class Figshare(DoiProvider):
             # TODO: files can be empty
         return file_list
 
-    def download(self, folder, throttle=False):
+    def download(self, folder, throttle=False, download_data=True):
         self.throttle = throttle
+        if not download_data:
+            self.log.warning(
+                "Figshare provider does not have geospatial metadata. "
+                "Using download_data=False may result in limited or no spatial extent information. "
+                "Consider using download_data=True to download actual data files for better geospatial extraction."
+            )
         self.log.debug("Downloading Figshare item id: {} ".format(self.record_id))
         try:
             download_links = self._get_file_links

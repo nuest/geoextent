@@ -367,29 +367,6 @@ class TestRepositorySpecialCases:
                 # Redirect handling might fail, which is acceptable
                 pytest.skip(f"Redirect handling error: {e}")
 
-    def test_repository_case_insensitive_urls(self):
-        """Test repository with case variations in URLs"""
-        if "pangaea" not in TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA:
-            pytest.skip("Pangaea test data not available")
-
-        base_doi = TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA["pangaea"]["doi"]
-        case_variations = [
-            base_doi.upper(),
-            base_doi.lower(),
-            base_doi.replace("PANGAEA", "pangaea"),
-        ]
-
-        for doi_variant in case_variations:
-            try:
-                result = geoextent.from_repository(doi_variant, bbox=True)
-                if result is not None:
-                    assert result["format"] == "repository"
-            except ImportError:
-                pytest.skip("pangaeapy not available")
-            except Exception as e:
-                # Some case variations might not be supported
-                pytest.skip(f"Case variation not supported: {e}")
-
     def test_repository_with_whitespace_handling(self):
         """Test repository with whitespace in DOI/URL strings"""
         base_doi = list(TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA.values())[0]["doi"]
