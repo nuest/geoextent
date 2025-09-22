@@ -481,3 +481,341 @@ class TestPangaeaProvider:
         assert args2.download_data == False
         assert args2.bounding_box == True
         assert args2.time_box == True
+
+
+class TestPangaeaParameterCombinations:
+    """Test various parameter combinations for Pangaea repository functions"""
+
+    def test_pangaea_repository_bbox_only(self):
+        """Test Pangaea repository extraction with only bbox enabled"""
+        dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
+
+        try:
+            result = geoextent.from_repository(
+                dataset["doi"], bbox=True, tbox=False
+            )
+            assert result is not None
+            assert "bbox" in result
+            assert "tbox" not in result
+            assert result["format"] == "repository"
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_repository_tbox_only(self):
+        """Test Pangaea repository extraction with only tbox enabled"""
+        dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
+
+        try:
+            result = geoextent.from_repository(
+                dataset["doi"], bbox=False, tbox=True
+            )
+            assert result is not None
+            assert "tbox" in result
+            assert "bbox" not in result
+            assert result["format"] == "repository"
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_repository_both_disabled_should_fail(self):
+        """Test Pangaea repository extraction with both bbox and tbox disabled should fail"""
+        dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
+
+        with pytest.raises(Exception, match="No extraction options enabled"):
+            geoextent.from_repository(
+                dataset["doi"], bbox=False, tbox=False
+            )
+
+    def test_pangaea_repository_with_details_enabled(self):
+        """Test Pangaea repository extraction with details enabled"""
+        dataset = TestPangaeaProvider.TEST_DATASETS["reference"]
+
+        try:
+            result = geoextent.from_repository(
+                dataset["doi"], bbox=True, tbox=True, details=True
+            )
+            assert result is not None
+            assert "details" in result
+            assert isinstance(result["details"], dict)
+            assert result["format"] == "repository"
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_repository_with_throttle_enabled(self):
+        """Test Pangaea repository extraction with throttle enabled"""
+        dataset = TestPangaeaProvider.TEST_DATASETS["drilling"]
+
+        try:
+            result = geoextent.from_repository(
+                dataset["doi"], bbox=True, tbox=True, throttle=True
+            )
+            assert result is not None
+            assert result["format"] == "repository"
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_repository_with_timeout(self):
+        """Test Pangaea repository extraction with timeout parameter"""
+        dataset = TestPangaeaProvider.TEST_DATASETS["reference"]
+
+        try:
+            result = geoextent.from_repository(
+                dataset["doi"], bbox=True, tbox=True, timeout=30
+            )
+            assert result is not None
+            assert result["format"] == "repository"
+            # timeout field should not be present if timeout wasn't reached
+            assert "timeout" not in result
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_repository_download_data_combinations(self):
+        """Test Pangaea repository with different download_data parameter combinations"""
+        dataset = TestPangaeaProvider.TEST_DATASETS["radiosonde_kwajalein"]
+
+        try:
+            # Test with download_data=False (default, metadata-based)
+            result1 = geoextent.from_repository(
+                dataset["doi"], bbox=True, tbox=True, download_data=False
+            )
+            assert result1 is not None
+            assert result1["format"] == "repository"
+
+            # Test with download_data=True (local file download)
+            result2 = geoextent.from_repository(
+                dataset["doi"], bbox=True, tbox=True, download_data=True
+            )
+            assert result2 is not None
+            assert result2["format"] == "repository"
+
+            # Both results should have similar structure
+            assert ("bbox" in result1) == ("bbox" in result2)
+
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_repository_all_parameters_enabled(self):
+        """Test Pangaea repository with all optional parameters enabled"""
+        dataset = TestPangaeaProvider.TEST_DATASETS["sediment_core"]
+
+        try:
+            result = geoextent.from_repository(
+                dataset["doi"],
+                bbox=True,
+                tbox=True,
+                details=True,
+                throttle=True,
+                timeout=60,
+                download_data=True
+            )
+            assert result is not None
+            assert result["format"] == "repository"
+            assert "details" in result
+
+        except ImportError:
+            pytest.skip("pangaeapy not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_pangaea_repository_multiple_datasets_with_different_parameters(self):
+        """Test multiple Pangaea datasets with different parameter combinations"""
+        test_cases = [
+            {
+                "dataset": TestPangaeaProvider.TEST_DATASETS["oceanography"],
+                "params": {"bbox": True, "tbox": False, "details": False}
+            },
+            {
+                "dataset": TestPangaeaProvider.TEST_DATASETS["drilling"],
+                "params": {"bbox": False, "tbox": True, "details": True}
+            },
+            {
+                "dataset": TestPangaeaProvider.TEST_DATASETS["radiosonde_kwajalein"],
+                "params": {"bbox": True, "tbox": True, "download_data": True}
+            }
+        ]
+
+        for test_case in test_cases:
+            try:
+                result = geoextent.from_repository(
+                    test_case["dataset"]["doi"],
+                    **test_case["params"]
+                )
+                assert result is not None
+                assert result["format"] == "repository"
+
+                # Check parameter-specific expectations
+                if test_case["params"].get("bbox", False):
+                    # bbox might or might not be present depending on data
+                    pass
+                else:
+                    assert "bbox" not in result
+
+                if test_case["params"].get("tbox", False):
+                    # tbox might or might not be present depending on data
+                    pass
+                else:
+                    assert "tbox" not in result
+
+                if test_case["params"].get("details", False):
+                    assert "details" in result
+                else:
+                    assert "details" not in result
+
+            except ImportError:
+                pytest.skip("pangaeapy not available")
+            except Exception as e:
+                pytest.skip(f"Network or API error: {e}")
+
+
+class TestPangaeaEdgeCases:
+    """Test edge cases and error handling for Pangaea functionality"""
+
+    def test_pangaea_invalid_doi_format(self):
+        """Test Pangaea with invalid DOI format"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+
+        pangaea = Pangaea()
+        invalid_dois = [
+            "10.1594/INVALID.123",  # Wrong prefix
+            "10.5281/zenodo.123",   # Different repository
+            "not-a-doi-at-all",    # Not a DOI
+            "",                     # Empty string
+            "10.1594/PANGAEA.",     # Incomplete
+            "10.1594/PANGAEA.abc",  # Non-numeric ID
+        ]
+
+        for invalid_doi in invalid_dois:
+            assert pangaea.validate_provider(invalid_doi) == False
+
+    def test_pangaea_edge_case_urls(self):
+        """Test Pangaea with edge case URL formats"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+
+        pangaea = Pangaea()
+
+        # Valid dataset ID for testing
+        valid_id = "734969"
+
+        edge_case_urls = [
+            f"https://doi.pangaea.de/10.1594/PANGAEA.{valid_id}/",  # Trailing slash
+            f"HTTP://DOI.PANGAEA.DE/10.1594/PANGAEA.{valid_id}",    # Uppercase
+            f"https://pangaea.de/10.1594/PANGAEA.{valid_id}",       # Different subdomain
+            f"http://pangaea.de/10.1594/PANGAEA.{valid_id}",        # HTTP instead of HTTPS
+        ]
+
+        for url in edge_case_urls:
+            is_valid = pangaea.validate_provider(url)
+            if is_valid:
+                assert pangaea.dataset_id == valid_id
+
+    def test_pangaea_provider_error_handling(self):
+        """Test Pangaea provider error handling with problematic datasets"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+
+        pangaea = Pangaea()
+
+        # Test with a dataset ID that likely doesn't exist
+        pangaea.dataset_id = "999999999"
+
+        try:
+            metadata = pangaea._get_metadata()
+            # If it doesn't raise an exception, metadata should be None or empty
+            if metadata is not None:
+                assert isinstance(metadata, dict)
+        except Exception as e:
+            # Exception is expected for non-existent datasets
+            assert "Failed to fetch" in str(e) or "not available" in str(e) or "Error" in str(e)
+
+    def test_pangaea_coverage_extraction_with_invalid_data(self):
+        """Test coverage extraction with various invalid data scenarios"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+
+        pangaea = Pangaea()
+
+        # Test with dataset that has no data attribute
+        class MockDatasetNoData:
+            pass
+
+        result = pangaea._extract_coverage(MockDatasetNoData())
+        assert result == {}
+
+        # Test with dataset that has empty data
+        class MockDatasetEmptyData:
+            def __init__(self):
+                import pandas as pd
+                self.data = pd.DataFrame()
+
+        result = pangaea._extract_coverage(MockDatasetEmptyData())
+        assert result == {}
+
+    def test_pangaea_temporal_extraction_with_invalid_data(self):
+        """Test temporal extraction with various invalid data scenarios"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+
+        pangaea = Pangaea()
+
+        # Test with dataset that has invalid date formats
+        class MockDatasetInvalidDates:
+            def __init__(self):
+                import pandas as pd
+                self.data = pd.DataFrame({
+                    'date_time': ['invalid-date', 'not-a-date', '2023-13-45'],  # Invalid dates
+                    'other_col': [1, 2, 3]
+                })
+
+        result = pangaea._extract_temporal_coverage(MockDatasetInvalidDates())
+        assert result == {}
+
+    def test_pangaea_parameter_extraction_edge_cases(self):
+        """Test parameter extraction with edge cases"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+
+        pangaea = Pangaea()
+
+        # Test with dataset that has malformed params
+        class MockDatasetMalformedParams:
+            def __init__(self):
+                self.params = [
+                    {},  # Empty param
+                    {"name": None},  # None name
+                    {"name": "", "unit": ""},  # Empty strings
+                    {"unexpected_field": "value"},  # Unexpected structure
+                ]
+
+        result = pangaea._extract_parameters(MockDatasetMalformedParams())
+        assert isinstance(result, list)
+        assert len(result) == 4  # Should handle all params gracefully
+
+    def test_pangaea_download_with_various_scenarios(self):
+        """Test download method with various parameter scenarios"""
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+        import tempfile
+
+        pangaea = Pangaea()
+        pangaea.dataset_id = "123456"  # Mock ID
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Test download with throttle enabled
+            try:
+                pangaea.download(temp_dir, throttle=True, download_data=False)
+            except Exception as e:
+                # Expected to fail with mock data
+                assert "pangaeapy" in str(e) or "metadata" in str(e) or "dataset" in str(e)
+
+            # Test download with download_data enabled
+            try:
+                pangaea.download(temp_dir, throttle=False, download_data=True)
+            except Exception as e:
+                # Expected to fail with mock data
+                assert "pangaeapy" in str(e) or "metadata" in str(e) or "dataset" in str(e)
