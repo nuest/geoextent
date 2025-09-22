@@ -113,11 +113,19 @@ class TestPangaeaProvider:
         """Test full repository extraction with oceanography dataset (bbox + tbox)"""
         dataset = self.TEST_DATASETS["oceanography"]
 
+        print(f"\n=== Testing PANGAEA Dataset: Oceanography ===")
+        print(f"DOI: {dataset['doi']}")
+        print(f"URL: {dataset['url']}")
+        print(f"Title: {dataset['title']}")
+
         try:
             # Test with DOI
             result = geoextent.from_repository(
                 dataset["doi"], bbox=True, tbox=True
             )
+
+            print(f"Extraction result: {result}")
+
             assert result is not None
             assert "format" in result
             assert result["format"] == "repository"
@@ -126,15 +134,42 @@ class TestPangaeaProvider:
             if "bbox" in result:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
+
+                print(f"Detected bounding box: {bbox}")
+                print(f"Expected bounding box: {expected_bbox}")
+
                 assert len(bbox) == 4
-                # Allow some tolerance for coordinate extraction differences
-                assert abs(bbox[0] - expected_bbox[0]) < 1.0  # longitude tolerance
-                assert abs(bbox[1] - expected_bbox[1]) < 1.0  # latitude tolerance
+                assert isinstance(bbox[0], (int, float))
+                assert isinstance(bbox[1], (int, float))
+                assert isinstance(bbox[2], (int, float))
+                assert isinstance(bbox[3], (int, float))
+
+                # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
+                assert abs(bbox[0] - expected_bbox[0]) < 0.01, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                assert abs(bbox[1] - expected_bbox[1]) < 0.01, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                assert abs(bbox[2] - expected_bbox[2]) < 0.01, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                assert abs(bbox[3] - expected_bbox[3]) < 0.01, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+
+                # Verify bounding box validity
+                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
+                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
+                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
+                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+
+            # Check CRS
+            if "crs" in result:
+                assert result["crs"] == "4326", "CRS should be WGS84"
 
             # Check temporal coverage
             if "tbox" in result:
                 tbox = result["tbox"]
                 expected_tbox = dataset["expected_tbox"]
+
+                print(f"Detected temporal box: {tbox}")
+                print(f"Expected temporal box: {expected_tbox}")
+
                 assert len(tbox) == 2
                 assert tbox[0].startswith(expected_tbox[0][:7])  # Year-month match
                 assert tbox[1].startswith(expected_tbox[1][:7])

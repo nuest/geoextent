@@ -33,7 +33,8 @@
       "Bash(__NEW_LINE__ echo -e \"\\n4. Legacy DOI URL (dx.doi.org):\")",
       "Bash(__NEW_LINE__ echo -e \"\\n5. Direct OSF URL:\")",
       "Bash(__NEW_LINE__ echo -e \"\\n6. Direct project ID:\")",
-      "Bash(__NEW_LINE__ echo -e \"\\nAll OSF identifier formats working correctly! 🎉\")"
+      "Bash(__NEW_LINE__ echo -e \"\\nAll OSF identifier formats working correctly! 🎉\")",
+      "Bash(timeout 60 python -m geoextent:*)"
     ],
     "deny": [],
     "ask": []

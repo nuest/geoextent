@@ -492,3 +492,201 @@ class TestOSFEdgeCases:
         assert "target_folder" in param_names
         assert "throttle" in param_names
         assert "download_data" in param_names
+
+
+class TestOSFActualBoundingBoxVerification:
+    """Test OSF provider with actual bounding box verification using real datasets"""
+
+    # Test datasets with verified geospatial bounding boxes
+    VERIFIED_DATASETS = {
+        "boston_area": {
+            "plain_id": "OSF.IO/9JG2U",
+            "bare_doi": "10.17605/OSF.IO/9JG2U",
+            "doi_url": "https://doi.org/10.17605/OSF.IO/9JG2U",
+            "direct_url": "https://osf.io/9jg2u",
+            "project_id": "9jg2u",
+            "title": "Boston area geospatial data",
+            "expected_bbox": [-71.11696719686476, 42.33758042479756, -71.04845692576838, 42.37900158005487],  # [W, S, E, N]
+            "description": "Boston metropolitan area spatial data",
+        },
+        "southeast_asia": {
+            "plain_id": "OSF.IO/4XE6Z",
+            "bare_doi": "10.17605/OSF.IO/4XE6Z",
+            "doi_url": "https://doi.org/10.17605/OSF.IO/4XE6Z",
+            "direct_url": "https://osf.io/4xe6z",
+            "project_id": "4xe6z",
+            "title": "Southeast Asia regional data",
+            "expected_bbox": [93.885557, 10.0017, 108.72980074860037, 33.267781],  # [W, S, E, N]
+            "description": "Southeast Asia regional spatial dataset",
+        }
+    }
+
+    def test_osf_actual_bounding_box_verification_boston(self):
+        """Test OSF provider with actual bounding box verification - Boston dataset"""
+        dataset = self.VERIFIED_DATASETS["boston_area"]
+
+        print(f"\n=== Testing OSF Dataset: Boston Area ===")
+        print(f"Plain ID: {dataset['plain_id']}")
+        print(f"Bare DOI: {dataset['bare_doi']}")
+        print(f"DOI URL: {dataset['doi_url']}")
+        print(f"Direct URL: {dataset['direct_url']}")
+        print(f"Title: {dataset['title']}")
+        print(f"Description: {dataset['description']}")
+
+        try:
+            # Test with plain OSF identifier format (OSF.IO/9JG2U)
+            result = geoextent.from_repository(
+                dataset["plain_id"], bbox=True, tbox=True, download_data=True
+            )
+
+            print(f"Extraction result: {result}")
+
+            assert result is not None
+            assert result["format"] == "repository"
+
+            # Check geographic coverage
+            if "bbox" in result:
+                bbox = result["bbox"]
+                expected_bbox = dataset["expected_bbox"]
+
+                print(f"Detected bounding box: {bbox}")
+                print(f"Expected bounding box: {expected_bbox}")
+
+                assert len(bbox) == 4
+                assert isinstance(bbox[0], (int, float))
+                assert isinstance(bbox[1], (int, float))
+                assert isinstance(bbox[2], (int, float))
+                assert isinstance(bbox[3], (int, float))
+
+                # Verify bounding box with reasonable tolerance (0.001 degrees ~ 110 m)
+                assert abs(bbox[0] - expected_bbox[0]) < 0.001, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                assert abs(bbox[1] - expected_bbox[1]) < 0.001, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                assert abs(bbox[2] - expected_bbox[2]) < 0.001, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                assert abs(bbox[3] - expected_bbox[3]) < 0.001, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+
+                # Verify bounding box validity
+                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
+                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
+                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
+                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+
+                # Boston area should be in reasonable geographic bounds
+                assert -75 <= bbox[0] <= -70, f"West longitude {bbox[0]} should be in Boston area"
+                assert 40 <= bbox[1] <= 45, f"South latitude {bbox[1]} should be in Boston area"
+
+            # Check CRS
+            if "crs" in result:
+                assert result["crs"] == "4326", "CRS should be WGS84"
+
+        except ImportError:
+            pytest.skip("osfclient library not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_osf_actual_bounding_box_verification_southeast_asia(self):
+        """Test OSF provider with actual bounding box verification - Southeast Asia dataset"""
+        dataset = self.VERIFIED_DATASETS["southeast_asia"]
+
+        print(f"\n=== Testing OSF Dataset: Southeast Asia ===")
+        print(f"Plain ID: {dataset['plain_id']}")
+        print(f"Bare DOI: {dataset['bare_doi']}")
+        print(f"Title: {dataset['title']}")
+        print(f"Description: {dataset['description']}")
+
+        try:
+            # Test with bare DOI format
+            result = geoextent.from_repository(
+                dataset["bare_doi"], bbox=True, tbox=True, download_data=True
+            )
+
+            print(f"Extraction result: {result}")
+
+            assert result is not None
+            assert result["format"] == "repository"
+
+            # Check geographic coverage
+            if "bbox" in result:
+                bbox = result["bbox"]
+                expected_bbox = dataset["expected_bbox"]
+
+                print(f"Detected bounding box: {bbox}")
+                print(f"Expected bounding box: {expected_bbox}")
+
+                assert len(bbox) == 4
+                assert isinstance(bbox[0], (int, float))
+                assert isinstance(bbox[1], (int, float))
+                assert isinstance(bbox[2], (int, float))
+                assert isinstance(bbox[3], (int, float))
+
+                # Verify bounding box with reasonable tolerance (0.001 degrees ~ 110 m)
+                assert abs(bbox[0] - expected_bbox[0]) < 0.001, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                assert abs(bbox[1] - expected_bbox[1]) < 0.001, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                assert abs(bbox[2] - expected_bbox[2]) < 0.001, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                assert abs(bbox[3] - expected_bbox[3]) < 0.001, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+
+                # Verify bounding box validity
+                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
+                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
+                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
+                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+
+                # Southeast Asia should be in reasonable geographic bounds
+                assert 90 <= bbox[0] <= 115, f"West longitude {bbox[0]} should be in Southeast Asia"
+                assert 5 <= bbox[1] <= 35, f"South latitude {bbox[1]} should be in Southeast Asia"
+
+            # Check CRS
+            if "crs" in result:
+                assert result["crs"] == "4326", "CRS should be WGS84"
+
+        except ImportError:
+            pytest.skip("osfclient library not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_osf_all_identifier_formats_verification(self):
+        """Test that all OSF identifier formats return the same bounding box"""
+        dataset = self.VERIFIED_DATASETS["boston_area"]
+
+        identifiers = [
+            dataset["plain_id"],
+            dataset["bare_doi"],
+            dataset["doi_url"],
+            dataset["direct_url"],
+        ]
+
+        bboxes = []
+
+        print(f"\n=== Testing All OSF Identifier Formats ===")
+
+        for identifier in identifiers:
+            print(f"Testing identifier: {identifier}")
+            try:
+                result = geoextent.from_repository(
+                    identifier, bbox=True, download_data=True
+                )
+
+                if result and "bbox" in result:
+                    bbox = result["bbox"]
+                    bboxes.append((identifier, bbox))
+                    print(f"  Result: {bbox}")
+                else:
+                    print(f"  No bbox in result: {result}")
+
+            except Exception as e:
+                print(f"  Error: {e}")
+                continue
+
+        # All successful extractions should return the same bounding box
+        if len(bboxes) > 1:
+            reference_bbox = bboxes[0][1]
+            for identifier, bbox in bboxes[1:]:
+                assert abs(bbox[0] - reference_bbox[0]) < 0.001, f"West longitude mismatch for {identifier}"
+                assert abs(bbox[1] - reference_bbox[1]) < 0.001, f"South latitude mismatch for {identifier}"
+                assert abs(bbox[2] - reference_bbox[2]) < 0.001, f"East longitude mismatch for {identifier}"
+                assert abs(bbox[3] - reference_bbox[3]) < 0.001, f"North latitude mismatch for {identifier}"
+
+            print(f"✓ All {len(bboxes)} identifier formats returned consistent bounding boxes")
