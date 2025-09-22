@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.8.1
+^^^^^
+
+- Add support for OSF (Open Science Framework) repository extraction (:pr:`19`)
+- Add Pangaea provider with web metadata extraction
+- Add ``--no-data-download`` option for metadata-only extraction from selected repositories
+- Restructure regex patterns for better repository candidate detection
+- Add comprehensive test coverage for multiple providers
+
 0.8.0
 ^^^^^
 
