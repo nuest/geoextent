@@ -46,6 +46,7 @@ Supported data repositories:
 - Dryad (datadryad.org)
 - Figshare (figshare.com)
 - PANGAEA (pangaea.de)
+- OSF (osf.io)
 
 """
 
@@ -86,10 +87,10 @@ class readable_file_or_dir(argparse.Action):
     def _is_supported_repository(self, candidate):
         """Check if the candidate is supported by any content provider"""
         # Import content providers
-        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea
+        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF
 
         # Test against all content providers
-        content_providers = [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea]
+        content_providers = [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea, OSF.OSF]
 
         for provider_class in content_providers:
             provider = provider_class()
@@ -245,9 +246,13 @@ def main():
             is_zipfile = zipfile.is_zipfile(os.path.join(os.getcwd(), single_input))
             is_directory = os.path.isdir(os.path.join(os.getcwd(), single_input))
 
-            # Identify URL or DOI
+            # Identify URL, DOI, or repository identifier
             is_url = hf.https_regexp.match(single_input) is not None
             is_doi = hf.doi_regexp.match(single_input) is not None
+
+            # Check if it's a supported repository identifier (for cases like OSF.IO/9JG2U)
+            rfd_instance = readable_file_or_dir(None, None)
+            is_repository = rfd_instance._is_supported_repository(single_input)
 
             if is_file and not is_zipfile:
                 output = extent.fromFile(
@@ -257,7 +262,7 @@ def main():
                 output = extent.fromDirectory(
                     single_input, bbox=args["bounding_box"], tbox=args["time_box"], details=True
                 )
-            elif is_url or is_doi:
+            elif is_url or is_doi or is_repository:
                 output = extent.from_repository(
                     single_input,
                     bbox=args["bounding_box"],

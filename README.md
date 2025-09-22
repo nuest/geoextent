@@ -83,10 +83,15 @@ python -m geoextent -t data/*.geojson
 # Show detailed results for each file
 python -m geoextent -b -t --details data/countries.fgb data/cities.geojson
 
-# Extract from research repositories (DOI or URL)
+# Extract from research repositories (DOI, URL, or identifier)
 python -m geoextent -b -t https://zenodo.org/records/4593540
 python -m geoextent -b -t 10.5281/zenodo.4593540
 python -m geoextent -b -t https://doi.org/10.1594/PANGAEA.734969
+python -m geoextent -b -t https://osf.io/4xe6z
+python -m geoextent -b -t 10.17605/OSF.IO/4XE6Z
+python -m geoextent -b -t https://doi.org/10.17605/OSF.IO/J2STA
+python -m geoextent -b -t http://dx.doi.org/10.17605/OSF.IO/A5F3E
+python -m geoextent -b -t OSF.IO/9JG2U
 
 # Use metadata-only extraction for repositories (not recommended)
 python -m geoextent -b -t --no-download-data 10.5281/zenodo.4593540
@@ -97,16 +102,20 @@ python -m geoextent -b -t --no-download-data 10.5281/zenodo.4593540
 When extracting geospatial data from research repositories, geoextent supports two extraction modes:
 
 #### Default Mode: Data Download (Recommended)
+
 By default, geoextent downloads actual data files from repositories and processes them locally using GDAL. This provides the most accurate and comprehensive geospatial extent extraction.
 
 ```bash
 # Default behavior - downloads and processes actual data files
 python -m geoextent -b -t https://doi.org/10.1594/PANGAEA.786028
 python -m geoextent -b -t 10.5281/zenodo.654321
+python -m geoextent -b -t https://osf.io/4xe6z
+python -m geoextent -b -t OSF.IO/J2STA
 ```
 
 #### Metadata-Only Mode (Limited)
-Use the `--no-download-data` flag to extract information from repository metadata only, without downloading actual files. This is faster but may result in incomplete or missing spatial/temporal extents, especially for providers like Zenodo, Figshare, and Dryad that don't include detailed geospatial metadata.
+
+Use the `--no-download-data` flag to extract information from repository metadata only, without downloading actual files. This is faster but may result in incomplete or missing spatial/temporal extents, especially for providers like Zenodo, Figshare, Dryad, and OSF that don't include detailed geospatial metadata.
 
 ```bash
 # Metadata-only extraction (not recommended for most use cases)
@@ -184,6 +193,7 @@ Consult the documentation on [paired notebooks based on Jupytext](https://github
 - [Dryad](https://datadryad.org/) - Data publishing platform
 - [Figshare](https://figshare.com/) - Research data sharing platform
 - [PANGAEA](https://www.pangaea.de/) - Earth & Environmental Science data publisher
+- [OSF](https://osf.io/) - Open Science Framework
 
 ## Contribute
 

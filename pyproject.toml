@@ -38,6 +38,7 @@ dependencies = [
     "traitlets",
     "wheel",
     "pangaeapy",
+    "osfclient",
     "setuptools-scm>=8"
 ]
 
