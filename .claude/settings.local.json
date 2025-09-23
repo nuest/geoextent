@@ -34,7 +34,10 @@
       "Bash(__NEW_LINE__ echo -e \"\\n5. Direct OSF URL:\")",
       "Bash(__NEW_LINE__ echo -e \"\\n6. Direct project ID:\")",
       "Bash(__NEW_LINE__ echo -e \"\\nAll OSF identifier formats working correctly! 🎉\")",
-      "Bash(timeout 60 python -m geoextent:*)"
+      "Bash(timeout 60 python -m geoextent:*)",
+      "WebFetch(domain:dataverse.harvard.edu)",
+      "WebFetch(domain:guides.dataverse.org)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

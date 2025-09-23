@@ -12,6 +12,7 @@ from .content_providers import Figshare
 from .content_providers import Zenodo
 from .content_providers import Pangaea
 from .content_providers import OSF
+from .content_providers import Dataverse
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -336,7 +337,7 @@ def from_repository(
 
 class geoextent_from_repository(Application):
     content_providers = List(
-        [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea, OSF.OSF],
+        [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea, OSF.OSF, Dataverse.Dataverse],
         config=True,
         help="""
         Ordered list by priority of ContentProviders to try in turn to fetch
