@@ -525,21 +525,11 @@ class TestOSFActualBoundingBoxVerification:
         """Test OSF provider with actual bounding box verification - Boston dataset"""
         dataset = self.VERIFIED_DATASETS["boston_area"]
 
-        print(f"\n=== Testing OSF Dataset: Boston Area ===")
-        print(f"Plain ID: {dataset['plain_id']}")
-        print(f"Bare DOI: {dataset['bare_doi']}")
-        print(f"DOI URL: {dataset['doi_url']}")
-        print(f"Direct URL: {dataset['direct_url']}")
-        print(f"Title: {dataset['title']}")
-        print(f"Description: {dataset['description']}")
-
         try:
             # Test with plain OSF identifier format (OSF.IO/9JG2U)
             result = geoextent.from_repository(
                 dataset["plain_id"], bbox=True, tbox=True, download_data=True
             )
-
-            print(f"Extraction result: {result}")
 
             assert result is not None
             assert result["format"] == "repository"
@@ -549,8 +539,6 @@ class TestOSFActualBoundingBoxVerification:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-                print(f"Detected bounding box: {bbox}")
-                print(f"Expected bounding box: {expected_bbox}")
 
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
@@ -589,19 +577,11 @@ class TestOSFActualBoundingBoxVerification:
         """Test OSF provider with actual bounding box verification - Southeast Asia dataset"""
         dataset = self.VERIFIED_DATASETS["southeast_asia"]
 
-        print(f"\n=== Testing OSF Dataset: Southeast Asia ===")
-        print(f"Plain ID: {dataset['plain_id']}")
-        print(f"Bare DOI: {dataset['bare_doi']}")
-        print(f"Title: {dataset['title']}")
-        print(f"Description: {dataset['description']}")
-
         try:
             # Test with bare DOI format
             result = geoextent.from_repository(
                 dataset["bare_doi"], bbox=True, tbox=True, download_data=True
             )
-
-            print(f"Extraction result: {result}")
 
             assert result is not None
             assert result["format"] == "repository"
@@ -611,8 +591,6 @@ class TestOSFActualBoundingBoxVerification:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-                print(f"Detected bounding box: {bbox}")
-                print(f"Expected bounding box: {expected_bbox}")
 
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
@@ -660,10 +638,7 @@ class TestOSFActualBoundingBoxVerification:
 
         bboxes = []
 
-        print(f"\n=== Testing All OSF Identifier Formats ===")
-
         for identifier in identifiers:
-            print(f"Testing identifier: {identifier}")
             try:
                 result = geoextent.from_repository(
                     identifier, bbox=True, download_data=True
@@ -672,12 +647,8 @@ class TestOSFActualBoundingBoxVerification:
                 if result and "bbox" in result:
                     bbox = result["bbox"]
                     bboxes.append((identifier, bbox))
-                    print(f"  Result: {bbox}")
-                else:
-                    print(f"  No bbox in result: {result}")
 
             except Exception as e:
-                print(f"  Error: {e}")
                 continue
 
         # All successful extractions should return the same bounding box
@@ -688,5 +659,3 @@ class TestOSFActualBoundingBoxVerification:
                 assert abs(bbox[1] - reference_bbox[1]) < 0.001, f"South latitude mismatch for {identifier}"
                 assert abs(bbox[2] - reference_bbox[2]) < 0.001, f"East longitude mismatch for {identifier}"
                 assert abs(bbox[3] - reference_bbox[3]) < 0.001, f"North latitude mismatch for {identifier}"
-
-            print(f"✓ All {len(bboxes)} identifier formats returned consistent bounding boxes")

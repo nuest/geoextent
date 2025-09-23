@@ -47,10 +47,6 @@ class TestZenodoProvider:
         """Test Zenodo provider with actual bounding box verification"""
         dataset = self.TEST_DATASETS["landslide_imagery"]
 
-        print(f"\n=== Testing Zenodo Dataset ===")
-        print(f"DOI: {dataset['doi']}")
-        print(f"URL: {dataset['url']}")
-        print(f"Title: {dataset['title']}")
 
         try:
             # Test with download_data=True to get actual geospatial data
@@ -58,7 +54,6 @@ class TestZenodoProvider:
                 dataset["doi"], bbox=True, tbox=True, download_data=True
             )
 
-            print(f"Extraction result: {result}")
 
             assert result is not None
             assert result["format"] == "repository"
@@ -68,8 +63,6 @@ class TestZenodoProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-                print(f"Detected bounding box: {bbox}")
-                print(f"Expected bounding box: {expected_bbox}")
 
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
@@ -100,8 +93,6 @@ class TestZenodoProvider:
             if "tbox" in result and dataset["expected_tbox"]:
                 tbox = result["tbox"]
                 expected_tbox = dataset["expected_tbox"]
-                print(f"Detected temporal box: {tbox}")
-                print(f"Expected temporal box: {expected_tbox}")
 
                 assert len(tbox) == 2
                 # Allow flexibility in temporal extent matching
@@ -125,7 +116,6 @@ class TestZenodoProvider:
             assert result is not None
             assert result["format"] == "repository"
 
-            print(f"\nMetadata-only result: {result}")
 
             # For Zenodo, metadata-only may still extract bounding box from downloaded files
             # since Zenodo doesn't provide geospatial metadata directly
@@ -149,7 +139,6 @@ class TestZenodoProvider:
         zenodo = Zenodo()
 
         for identifier in identifiers:
-            print(f"Testing identifier: {identifier}")
             try:
                 assert zenodo.validate_provider(identifier) == True
 
@@ -159,10 +148,8 @@ class TestZenodoProvider:
                         identifier, bbox=True, download_data=True
                     )
                     assert result is not None
-                    print(f"Result for {identifier}: {result}")
 
             except Exception as e:
-                print(f"Error with {identifier}: {e}")
                 continue
 
     def test_zenodo_invalid_identifiers(self):

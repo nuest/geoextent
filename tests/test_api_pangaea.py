@@ -113,18 +113,11 @@ class TestPangaeaProvider:
         """Test full repository extraction with oceanography dataset (bbox + tbox)"""
         dataset = self.TEST_DATASETS["oceanography"]
 
-        print(f"\n=== Testing PANGAEA Dataset: Oceanography ===")
-        print(f"DOI: {dataset['doi']}")
-        print(f"URL: {dataset['url']}")
-        print(f"Title: {dataset['title']}")
-
         try:
             # Test with DOI
             result = geoextent.from_repository(
                 dataset["doi"], bbox=True, tbox=True
             )
-
-            print(f"Extraction result: {result}")
 
             assert result is not None
             assert "format" in result
@@ -134,9 +127,6 @@ class TestPangaeaProvider:
             if "bbox" in result:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
-
-                print(f"Detected bounding box: {bbox}")
-                print(f"Expected bounding box: {expected_bbox}")
 
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
@@ -166,9 +156,6 @@ class TestPangaeaProvider:
             if "tbox" in result:
                 tbox = result["tbox"]
                 expected_tbox = dataset["expected_tbox"]
-
-                print(f"Detected temporal box: {tbox}")
-                print(f"Expected temporal box: {expected_tbox}")
 
                 assert len(tbox) == 2
                 assert tbox[0].startswith(expected_tbox[0][:7])  # Year-month match

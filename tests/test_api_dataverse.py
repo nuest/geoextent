@@ -287,9 +287,6 @@ class TestDataverseProvider:
             assert "title" in metadata_dict
             assert "authors" in metadata_dict
 
-            print(f"✓ Successfully extracted metadata for: {metadata_dict.get('title', 'Unknown')}")
-            print(f"  Authors: {', '.join(metadata_dict.get('authors', []))}")
-
         except Exception as e:
             pytest.skip(f"Real dataset test skipped due to API access issue: {e}")
 
@@ -314,8 +311,6 @@ class TestDataverseProvider:
                     assert isinstance(file_info, dict)
                     # Should have either 'dataFile' or direct file properties
                     assert "dataFile" in file_info or "filename" in file_info or "label" in file_info
-
-            print(f"✓ Found {len(files)} files in dataset")
 
         except Exception as e:
             pytest.skip(f"Real file listing test skipped due to API access issue: {e}")
@@ -390,8 +385,6 @@ class TestDataverseProvider:
         # Test all identifier formats from the first dataset
         dataset = self.TEST_DATASETS[0]
 
-        print(f"\nTesting all identifier formats for: {dataset['name']}")
-
         successful_validations = 0
         total_identifiers = len(dataset["identifiers"])
 
@@ -401,12 +394,8 @@ class TestDataverseProvider:
 
             if is_valid:
                 successful_validations += 1
-                print(f"  ✓ {identifier}")
-            else:
-                print(f"  ✗ {identifier}")
 
         success_rate = successful_validations / total_identifiers * 100
-        print(f"\nValidation success rate: {successful_validations}/{total_identifiers} ({success_rate:.1f}%)")
 
         # All identifiers should validate successfully
         assert success_rate == 100, f"Some identifier formats failed validation. Success rate: {success_rate:.1f}%"
@@ -574,13 +563,6 @@ class TestDataverseProvider:
             if "crs" in output:
                 assert output["crs"] == "4326", "CRS should be WGS84 (EPSG:4326)"
 
-            print(f"✓ CLI integration test successful for DOI: {test_doi}")
-            print(f"  Extracted bounding box: {bbox}")
-            print(f"  Reference bounding box: {reference_bbox}")
-            print(f"  Coordinates match within tolerance of {tolerance}")
-            if "crs" in output:
-                print(f"  CRS: EPSG:{output['crs']}")
-
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")
         except json.JSONDecodeError as e:
@@ -639,14 +621,6 @@ class TestDataverseProvider:
                 details = result["details"]
                 assert isinstance(details, dict), "Details should be a dictionary"
 
-            print(f"✓ Python API integration test successful for DOI: {test_doi}")
-            if "bbox" in result:
-                print(f"  Extracted bounding box: {result['bbox']}")
-            if "crs" in result:
-                print(f"  CRS: EPSG:{result['crs']}")
-            if "details" in result:
-                print(f"  Details available for {len(result['details'])} items")
-
         except ValueError as e:
             if "not supported" in str(e).lower():
                 pytest.skip(f"Python API test skipped - provider validation failed: {e}")
@@ -699,8 +673,6 @@ class TestDataverseProvider:
                 if "crs" in cli_output and "crs" in api_result:
                     assert cli_output["crs"] == api_result["crs"], "CRS should match between CLI and API"
 
-                print("✓ CLI and Python API results are consistent")
-
         except Exception as e:
             pytest.skip(f"Integration comparison test skipped due to error: {e}")
 
@@ -709,11 +681,9 @@ if __name__ == "__main__":
     # Run basic tests if executed directly
     import sys
 
-    print("Running basic Dataverse provider tests...")
 
     # Test provider instantiation
     provider = Dataverse()
-    print("✓ Provider instantiated successfully")
 
     # Test validation with sample identifiers
     test_identifiers = [
@@ -728,9 +698,5 @@ if __name__ == "__main__":
         provider_instance = Dataverse()
         if provider_instance.validate_provider(identifier):
             successful += 1
-            print(f"✓ Valid: {identifier} -> {provider_instance.host}, {provider_instance.persistent_id}")
         else:
-            print(f"✗ Invalid: {identifier}")
 
-    print(f"\nValidation success rate: {successful}/{len(test_identifiers)} ({successful/len(test_identifiers)*100:.1f}%)")
-    print("\nTest suite completed. Run with pytest for full testing.")

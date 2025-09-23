@@ -65,11 +65,6 @@ class TestDryadProvider:
         """Test Dryad provider with actual bounding box verification - Pacific Atolls"""
         dataset = self.TEST_DATASETS["pacific_atolls"]
 
-        print(f"\n=== Testing Dryad Dataset: Pacific Atolls ===")
-        print(f"DOI: {dataset['doi']}")
-        print(f"URL: {dataset['url']}")
-        print(f"Title: {dataset['title']}")
-        print(f"Description: {dataset['description']}")
 
         try:
             # Test with download_data=True to get actual geospatial data
@@ -78,7 +73,6 @@ class TestDryadProvider:
                 dataset["url"], bbox=True, tbox=True, download_data=True, timeout=120
             )
 
-            print(f"Extraction result: {result}")
 
             assert result is not None
             assert result["format"] == "repository"
@@ -87,7 +81,6 @@ class TestDryadProvider:
             if "bbox" in result:
                 bbox = result["bbox"]
 
-                print(f"Detected bounding box: {bbox}")
 
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
@@ -133,7 +126,6 @@ class TestDryadProvider:
             assert result is not None
             assert result["format"] == "repository"
 
-            print(f"\nMetadata-only result: {result}")
 
         except ImportError:
             pytest.skip("Required libraries not available")
@@ -152,17 +144,14 @@ class TestDryadProvider:
         dryad = Dryad()
 
         for url in url_variants:
-            print(f"Testing URL variant: {url}")
             try:
                 is_valid = dryad.validate_provider(url)
                 if is_valid:
                     assert dryad.record_id == f"doi:{base_doi}"
                 else:
                     # Some URL formats may not be supported
-                    print(f"URL format not supported: {url}")
 
             except Exception as e:
-                print(f"Error with {url}: {e}")
                 continue
 
     def test_dryad_api_error_handling(self):
@@ -200,7 +189,6 @@ class TestDryadProvider:
             assert result is not None
             assert result["format"] == "repository"
 
-            print(f"Result for non-geospatial dataset: {result}")
 
             # This dataset likely won't have extractable geospatial extents
             # but the extraction should complete without errors

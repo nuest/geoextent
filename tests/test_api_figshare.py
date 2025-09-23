@@ -52,11 +52,6 @@ class TestFigshareProvider:
         """Test Figshare provider with actual bounding box verification - Prince Edward Islands"""
         dataset = self.TEST_DATASETS["prince_edward_islands"]
 
-        print(f"\n=== Testing Figshare Dataset: Prince Edward Islands ===")
-        print(f"DOI: {dataset['doi']}")
-        print(f"URL: {dataset['url']}")
-        print(f"Title: {dataset['title']}")
-        print(f"Description: {dataset['description']}")
 
         try:
             # Test with download_data=True to get actual geospatial data
@@ -64,7 +59,6 @@ class TestFigshareProvider:
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
 
-            print(f"Extraction result: {result}")
 
             assert result is not None
             assert result["format"] == "repository"
@@ -74,8 +68,6 @@ class TestFigshareProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-                print(f"Detected bounding box: {bbox}")
-                print(f"Expected bounding box: {expected_bbox}")
 
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
@@ -113,11 +105,6 @@ class TestFigshareProvider:
         """Test Figshare provider with actual bounding box verification - Raster Workshop Dataset"""
         dataset = self.TEST_DATASETS["raster_workshop"]
 
-        print(f"\n=== Testing Figshare Dataset: Raster Workshop ===")
-        print(f"DOI: {dataset['doi']}")
-        print(f"URL: {dataset['url']}")
-        print(f"Title: {dataset['title']}")
-        print(f"Description: {dataset['description']}")
 
         try:
             # Test with download_data=True to get actual geospatial data
@@ -125,7 +112,6 @@ class TestFigshareProvider:
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
 
-            print(f"Extraction result: {result}")
 
             assert result is not None
             assert result["format"] == "repository"
@@ -135,8 +121,6 @@ class TestFigshareProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-                print(f"Detected bounding box: {bbox}")
-                print(f"Expected bounding box: {expected_bbox}")
 
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
@@ -179,7 +163,6 @@ class TestFigshareProvider:
             assert result is not None
             assert result["format"] == "repository"
 
-            print(f"\nMetadata-only result: {result}")
 
             # For Figshare, metadata-only still downloads files since
             # Figshare doesn't provide geospatial metadata directly
@@ -204,7 +187,6 @@ class TestFigshareProvider:
         figshare = Figshare()
 
         for url in url_variants:
-            print(f"Testing URL variant: {url}")
             try:
                 is_valid = figshare.validate_provider(url)
                 if is_valid:
@@ -216,10 +198,8 @@ class TestFigshareProvider:
                             url, bbox=True, download_data=True
                         )
                         assert result is not None
-                        print(f"Result for {url}: {result}")
 
             except Exception as e:
-                print(f"Error with {url}: {e}")
                 continue
 
     def test_figshare_invalid_articles(self):

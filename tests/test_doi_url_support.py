@@ -22,7 +22,6 @@ class TestDOIURLSupport:
                 result = geoextent.from_repository(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
                 assert result["format"] == "repository", f"Wrong format for {doi_format}"
-                print(f"✓ Successfully processed: {doi_format}")
 
             except ImportError:
                 pytest.skip("pangaeapy not available")
@@ -46,7 +45,6 @@ class TestDOIURLSupport:
                 result = geoextent.from_repository(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
                 assert result["format"] == "repository", f"Wrong format for {doi_format}"
-                print(f"✓ Successfully processed: {doi_format}")
 
             except Exception as e:
                 pytest.skip(f"Network or API error for {doi_format}: {e}")
@@ -143,7 +141,6 @@ class TestDOIURLSupport:
                 resolved_url = pangaea.get_url
                 assert test_case["expected_pattern"] in resolved_url, \
                     f"Expected {test_case['expected_pattern']} in resolved URL {resolved_url} for input {test_case['input']}"
-                print(f"✓ {test_case['input']} -> {resolved_url}")
 
             except Exception as e:
                 pytest.skip(f"Network error resolving {test_case['input']}: {e}")
@@ -166,7 +163,6 @@ class TestDOIURLSupport:
                 result = geoextent.from_repository(test_case["doi"], bbox=True, tbox=True)
                 assert result is not None, f"Failed to process {test_case['doi']}"
                 assert result["format"] == "repository"
-                print(f"✓ {test_case['doi']} handled by {test_case['expected_provider']}")
 
             except ImportError:
                 pytest.skip("Required library not available")
@@ -220,7 +216,6 @@ class TestDOIURLSupport:
                 result = geoextent.from_repository(doi_variant, bbox=True)
                 if result is not None:
                     assert result["format"] == "repository"
-                    print(f"✓ Case variant works: {doi_variant}")
 
             except ImportError:
                 pytest.skip("pangaeapy not available")
