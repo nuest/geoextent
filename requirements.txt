@@ -9,5 +9,6 @@ pandas
 requests
 numpy
 traitlets
+beautifulsoup4
 wheel
 setuptools-scm

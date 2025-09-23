@@ -36,6 +36,7 @@ dependencies = [
     "requests",
     "numpy",
     "traitlets",
+    "beautifulsoup4",
     "wheel",
     "pangaeapy",
     "osfclient",

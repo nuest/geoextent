@@ -34,7 +34,12 @@
       "Bash(__NEW_LINE__ echo -e \"\\n5. Direct OSF URL:\")",
       "Bash(__NEW_LINE__ echo -e \"\\n6. Direct project ID:\")",
       "Bash(__NEW_LINE__ echo -e \"\\nAll OSF identifier formats working correctly! 🎉\")",
-      "Bash(timeout 60 python -m geoextent:*)"
+      "Bash(timeout 60 python -m geoextent:*)",
+      "WebFetch(domain:data.mendeley.com)",
+      "Bash(PYTHONPATH=. python -m geoextent https://data.mendeley.com/datasets/ybx6zp2rfp/1 -b -t)",
+      "Bash(PYTHONPATH=. python:*)",
+      "WebFetch(domain:dev.mendeley.com)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []

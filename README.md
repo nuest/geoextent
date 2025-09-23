@@ -194,6 +194,7 @@ Consult the documentation on [paired notebooks based on Jupytext](https://github
 - [Figshare](https://figshare.com/) - Research data sharing platform
 - [PANGAEA](https://www.pangaea.de/) - Earth & Environmental Science data publisher
 - [OSF](https://osf.io/) - Open Science Framework
+- [Mendeley Data](https://data.mendeley.com/) - Research data sharing platform
 
 ## Contribute
 

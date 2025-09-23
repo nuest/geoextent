@@ -47,6 +47,7 @@ Supported data repositories:
 - Figshare (figshare.com)
 - PANGAEA (pangaea.de)
 - OSF (osf.io)
+- Mendeley Data (data.mendeley.com)
 
 """
 
@@ -87,10 +88,10 @@ class readable_file_or_dir(argparse.Action):
     def _is_supported_repository(self, candidate):
         """Check if the candidate is supported by any content provider"""
         # Import content providers
-        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF
+        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF, Mendeley
 
         # Test against all content providers
-        content_providers = [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea, OSF.OSF]
+        content_providers = [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea, OSF.OSF, Mendeley.Mendeley]
 
         for provider_class in content_providers:
             provider = provider_class()
