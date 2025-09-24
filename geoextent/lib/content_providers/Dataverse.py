@@ -354,6 +354,9 @@ class Dataverse(DoiProvider):
 
             self.log.debug(f"Found {len(files)} files in dataset")
 
+            # Log download summary before starting
+            self.log.info(f"Starting download of {len(files)} files from Dataverse dataset {self.persistent_id or self.dataset_id}")
+
             counter = 1
             for file_info in files:
                 try:

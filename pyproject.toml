@@ -39,7 +39,8 @@ dependencies = [
     "wheel",
     "pangaeapy",
     "osfclient",
-    "setuptools-scm>=8"
+    "setuptools-scm>=8",
+    "tqdm"
 ]
 
 [project.optional-dependencies]

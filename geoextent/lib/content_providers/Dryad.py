@@ -94,6 +94,8 @@ class Dryad(DoiProvider):
         return file_list
 
     def download(self, folder, throttle=False, download_data=True):
+        from tqdm import tqdm
+
         self.throttle = throttle
         if not download_data:
             self.log.warning(
@@ -101,14 +103,18 @@ class Dryad(DoiProvider):
                 "Using download_data=False may result in limited or no spatial extent information. "
                 "Consider using download_data=True to download actual data files for better geospatial extraction."
             )
+            return
+
         self.log.debug("Downloading Dryad dataset id: {} ".format(self.record_id))
         try:
-            # very simple method for download only, instead of 2+ API queries, but without metadata capabilities
-            download_links = [self.host["api"] + self.record_id_html + "/download"]
-            counter = 1
-            for file_link in download_links:
+            # Try bulk ZIP download first with progress bar
+            download_url = self.host["api"] + self.record_id_html + "/download"
+
+            with tqdm(desc=f"Downloading Dryad dataset {self.record_id}", unit="B", unit_scale=True) as pbar:
+                pbar.set_postfix_str("Downloading dataset.zip (bulk)")
+
                 resp = self._request(
-                    file_link,
+                    download_url,
                     throttle=self.throttle,
                     stream=True,
                 )
@@ -116,15 +122,13 @@ class Dryad(DoiProvider):
                 filepath = os.path.join(folder, filename)
 
                 with open(filepath, "wb") as dst:
-                    for chunk in resp.iter_content(chunk_size=None):
-                        dst.write(chunk)
+                    for chunk in resp.iter_content(chunk_size=8192):
+                        if chunk:
+                            dst.write(chunk)
+                            pbar.update(len(chunk))
 
-                self.log.debug(
-                    "{} out of {} files downloaded.".format(
-                        counter, len(download_links)
-                    )
-                )
-                counter += 1
+            self.log.info(f"Downloaded Dryad dataset {self.record_id} as ZIP file")
+
         except ValueError as e:
             raise Exception(e)
         except HTTPError as e:
@@ -137,25 +141,68 @@ class Dryad(DoiProvider):
                 raise HTTPError(m)
 
         try:
-            print("Downloading individial files.")
-            download_links = self._get_file_links
-            counter = 1
-            for file_link, filename in download_links:
-                resp = self._request(
-                    file_link,
-                    throttle=self.throttle,
-                    stream=True,
-                )
-                filepath = Path(folder).joinpath(filename)
-                # TODO: catch http error (?)
-                with open(filepath, "wb") as dst:
-                    for chunk in resp.iter_content(chunk_size=None):
-                        dst.write(chunk)
-                self.log.debug(
-                    "{} out of {} files downloaded.".format(
-                        counter, len(download_links)
+            self.log.info("Dataset too large for ZIP, downloading individual files...")
+
+            # Get file information with sizes from metadata
+            try:
+                metadata = self._get_metadata()
+                files = metadata.get("_embedded", {}).get("stash:files", [])
+
+                # Calculate total size from metadata
+                total_size = 0
+                file_info = []
+                for file_data in files:
+                    file_link = "https://datadryad.org" + file_data["_links"]["stash:download"]["href"]
+                    file_path = file_data["path"]
+                    file_size = file_data.get("size", 0)  # Size in bytes
+
+                    file_info.append({
+                        'url': file_link,
+                        'path': file_path,
+                        'size': file_size
+                    })
+                    total_size += file_size
+
+            except Exception as metadata_error:
+                self.log.warning(f"Could not get file metadata: {metadata_error}, falling back to simple download")
+                # Fallback to original method without progress tracking
+                download_links = self._get_file_links
+                file_info = [{'url': link, 'path': path, 'size': 0} for link, path in download_links]
+                total_size = 0
+
+            if not file_info:
+                self.log.warning(f"No files found for Dryad dataset {self.record_id}")
+                return
+
+            # Log download summary before starting
+            self.log.info(f"Starting download of {len(file_info)} files from Dryad dataset {self.record_id} ({total_size:,} bytes total)")
+
+            # Download individual files with progress bar
+            with tqdm(total=total_size, desc=f"Downloading Dryad dataset {self.record_id}", unit="B", unit_scale=True) as pbar:
+                for i, file_data in enumerate(file_info, 1):
+                    file_link = file_data['url']
+                    file_path = file_data['path']
+                    file_size = file_data['size']
+
+                    pbar.set_postfix_str(f"File {i}/{len(file_info)}: {Path(file_path).name}")
+
+                    resp = self._request(
+                        file_link,
+                        throttle=self.throttle,
+                        stream=True,
                     )
-                )
-                counter += 1
+                    filepath = Path(folder).joinpath(file_path)
+                    filepath.parent.mkdir(parents=True, exist_ok=True)
+
+                    with open(filepath, "wb") as dst:
+                        for chunk in resp.iter_content(chunk_size=8192):
+                            if chunk:
+                                dst.write(chunk)
+                                pbar.update(len(chunk))
+
+                    self.log.debug(f"Downloaded Dryad file {i}/{len(file_info)}: {file_path}")
+
+            self.log.info(f"Downloaded {len(file_info)} files from Dryad dataset {self.record_id} ({total_size} bytes total)")
+
         except ValueError as e:
             raise Exception(e)

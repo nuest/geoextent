@@ -107,6 +107,7 @@ class OSF(ContentProvider):
         """Download files using osfclient library"""
         try:
             from osfclient import OSF as OSFClient
+            from tqdm import tqdm
         except ImportError:
             raise Exception("osfclient library is required for OSF support. Install with: pip install osfclient")
 
@@ -120,22 +121,37 @@ class OSF(ContentProvider):
             # Get the main storage
             storage = project.storage('osfstorage')
 
-            # Download all files
+            # First count the files to set up progress bar
+            files_list = list(storage.files)
+            total_files = len([f for f in files_list if hasattr(f, 'name')])
+
+            if total_files == 0:
+                self.log.warning(f"No files found in OSF project {self.project_id}")
+                return []
+
+            # Log download summary before starting
+            self.log.info(f"Starting download of {total_files} files from OSF project {self.project_id}")
+
+            # Download all files with progress bar
             downloaded_files = []
-            for file_obj in storage.files:
-                if hasattr(file_obj, 'name'):
-                    local_path = os.path.join(target_folder, file_obj.name)
+            with tqdm(total=total_files, desc=f"Downloading OSF files from {self.project_id}", unit="file") as pbar:
+                for file_obj in files_list:
+                    if hasattr(file_obj, 'name'):
+                        local_path = os.path.join(target_folder, file_obj.name)
 
-                    # Create directories if needed
-                    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+                        # Create directories if needed
+                        os.makedirs(os.path.dirname(local_path), exist_ok=True)
 
-                    # Download file
-                    with open(local_path, 'wb') as fp:
-                        file_obj.write_to(fp)
+                        # Download file with progress update
+                        pbar.set_postfix_str(f"Downloading {file_obj.name}")
+                        with open(local_path, 'wb') as fp:
+                            file_obj.write_to(fp)
 
-                    downloaded_files.append(local_path)
-                    self.log.debug(f"Downloaded OSF file: {file_obj.name}")
+                        downloaded_files.append(local_path)
+                        self.log.debug(f"Downloaded OSF file: {file_obj.name}")
+                        pbar.update(1)
 
+            self.log.info(f"Downloaded {len(downloaded_files)} files from OSF project {self.project_id}")
             return downloaded_files
 
         except Exception as e:
@@ -148,6 +164,7 @@ class OSF(ContentProvider):
             raise Exception("No project ID available")
 
         import requests
+        from tqdm import tqdm
 
         files_url = f"{self.host['api']}{self.project_id}/files/"
         self.log.debug(f"Fetching file list from {files_url}")
@@ -157,7 +174,8 @@ class OSF(ContentProvider):
             response.raise_for_status()
             data = response.json()
 
-            downloaded_files = []
+            # First pass: collect all downloadable files
+            downloadable_files = []
             for storage_provider in data.get("data", []):
                 if storage_provider.get("attributes", {}).get("name") == "osfstorage":
                     # Get files from osfstorage
@@ -171,21 +189,48 @@ class OSF(ContentProvider):
                             if file_info.get("attributes", {}).get("kind") == "file":
                                 file_name = file_info.get("attributes", {}).get("name")
                                 download_url = file_info.get("links", {}).get("download")
+                                file_size = file_info.get("attributes", {}).get("size", 0)
 
                                 if file_name and download_url:
-                                    local_path = os.path.join(target_folder, file_name)
+                                    downloadable_files.append({
+                                        "name": file_name,
+                                        "url": download_url,
+                                        "size": file_size
+                                    })
 
-                                    # Download file
-                                    file_response = requests.get(download_url, timeout=30, stream=True)
-                                    file_response.raise_for_status()
+            if not downloadable_files:
+                self.log.warning(f"No downloadable files found in OSF project {self.project_id}")
+                return []
 
-                                    with open(local_path, 'wb') as f:
-                                        for chunk in file_response.iter_content(chunk_size=8192):
-                                            f.write(chunk)
+            # Second pass: download files with progress tracking
+            downloaded_files = []
+            total_size = sum(f["size"] for f in downloadable_files)
 
-                                    downloaded_files.append(local_path)
-                                    self.log.debug(f"Downloaded OSF file via API: {file_name}")
+            # Log download summary before starting
+            self.log.info(f"Starting download of {len(downloadable_files)} files from OSF project {self.project_id} ({total_size:,} bytes total)")
 
+            with tqdm(total=total_size, desc=f"Downloading OSF files from {self.project_id}", unit="B", unit_scale=True) as pbar:
+                for file_info in downloadable_files:
+                    file_name = file_info["name"]
+                    download_url = file_info["url"]
+                    local_path = os.path.join(target_folder, file_name)
+
+                    pbar.set_postfix_str(f"Downloading {file_name}")
+
+                    # Download file
+                    file_response = requests.get(download_url, timeout=30, stream=True)
+                    file_response.raise_for_status()
+
+                    with open(local_path, 'wb') as f:
+                        for chunk in file_response.iter_content(chunk_size=8192):
+                            if chunk:
+                                f.write(chunk)
+                                pbar.update(len(chunk))
+
+                    downloaded_files.append(local_path)
+                    self.log.debug(f"Downloaded OSF file via API: {file_name}")
+
+            self.log.info(f"Downloaded {len(downloaded_files)} files from OSF project {self.project_id}")
             return downloaded_files
 
         except requests.RequestException as e:

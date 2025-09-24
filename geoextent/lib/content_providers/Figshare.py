@@ -78,6 +78,8 @@ class Figshare(DoiProvider):
         return file_list
 
     def download(self, folder, throttle=False, download_data=True):
+        from tqdm import tqdm
+
         self.throttle = throttle
         if not download_data:
             self.log.warning(
@@ -85,26 +87,70 @@ class Figshare(DoiProvider):
                 "Using download_data=False may result in limited or no spatial extent information. "
                 "Consider using download_data=True to download actual data files for better geospatial extraction."
             )
+            return
+
         self.log.debug("Downloading Figshare item id: {} ".format(self.record_id))
         try:
-            download_links = self._get_file_links
-            counter = 1
-            for filename, file_link in download_links:
-                resp = self._request(
-                    file_link,
-                    throttle=self.throttle,
-                    stream=True,
-                )
-                filepath = os.path.join(folder, filename)
-                # TODO: catch http error (?)
-                with open(filepath, "wb") as dst:
-                    for chunk in resp.iter_content(chunk_size=None):
-                        dst.write(chunk)
-                self.log.debug(
-                    "{} out of {} files downloaded.".format(
-                        counter, len(download_links)
+            # Get metadata to access file information including sizes
+            metadata = self._get_metadata()
+            files = metadata.get("files", [])
+
+            if not files:
+                self.log.warning(f"No files found in Figshare item {self.record_id}")
+                return
+
+            # Extract file information from metadata
+            file_info = []
+            total_size = 0
+            for file_data in files:
+                filename = file_data.get("name", "unknown")
+                file_url = file_data.get("download_url")
+                file_size = file_data.get("size", 0)
+
+                if file_url:
+                    file_info.append({
+                        'name': filename,
+                        'url': file_url,
+                        'size': file_size
+                    })
+                    total_size += file_size
+
+            if not file_info:
+                self.log.warning(f"No downloadable files found in Figshare item {self.record_id}")
+                return
+
+            # Log download summary before starting
+            self.log.info(f"Starting download of {len(file_info)} files from Figshare item {self.record_id} ({total_size:,} bytes total)")
+
+            # Download files with progress bar
+            with tqdm(total=total_size, desc=f"Downloading Figshare item {self.record_id}", unit="B", unit_scale=True) as pbar:
+                for i, file_data in enumerate(file_info, 1):
+                    filename = file_data['name']
+                    file_link = file_data['url']
+                    file_size = file_data['size']
+
+                    pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
+
+                    resp = self._request(
+                        file_link,
+                        throttle=self.throttle,
+                        stream=True,
                     )
-                )
-                counter += 1
+                    filepath = os.path.join(folder, filename)
+
+                    # Download with chunk-based progress tracking
+                    downloaded_bytes = 0
+                    with open(filepath, "wb") as dst:
+                        for chunk in resp.iter_content(chunk_size=8192):
+                            if chunk:
+                                dst.write(chunk)
+                                chunk_size = len(chunk)
+                                downloaded_bytes += chunk_size
+                                pbar.update(chunk_size)
+
+                    self.log.debug(f"Downloaded Figshare file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)")
+
+            self.log.info(f"Downloaded {len(file_info)} files from Figshare item {self.record_id} ({total_size} bytes total)")
+
         except ValueError as e:
             raise Exception(e)

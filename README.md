@@ -214,4 +214,4 @@ See also the `CITATION.cff` and `codemeta.json` files in this repository, which 
 
 `geoextent` is licensed under MIT license, see file [LICENSE](https://github.com/o2r-project/nuest/blob/main/LICENSE).
 
-Copyright (C) 2020 - o2r project.
+Copyright (C) 2025 - o2r project and project contributors.

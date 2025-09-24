@@ -37,7 +37,8 @@
       "Bash(timeout 60 python -m geoextent:*)",
       "WebFetch(domain:dataverse.harvard.edu)",
       "WebFetch(domain:guides.dataverse.org)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

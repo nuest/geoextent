@@ -375,50 +375,68 @@ class Pangaea(DoiProvider):
 
     def _download_metadata_only(self, target_folder):
         """Extract metadata without downloading actual data files"""
-        # Try web scraping first as fallback when pangaeapy fails or for no-download mode
-        try:
-            metadata = self._get_web_metadata()
-        except Exception as web_error:
-            self.log.warning(
-                f"Web metadata extraction failed: {web_error}, trying pangaeapy"
-            )
+        from tqdm import tqdm
+
+        # Log download summary before starting
+        self.log.info(f"Starting metadata extraction from Pangaea dataset {self.dataset_id}")
+
+        with tqdm(desc=f"Extracting Pangaea metadata for {self.dataset_id}", unit="step") as pbar:
+            # Try web scraping first as fallback when pangaeapy fails or for no-download mode
             try:
-                metadata = self._get_metadata()
-            except Exception as pangaeapy_error:
-                self.log.error(
-                    f"Both web and pangaeapy metadata extraction failed: {pangaeapy_error}"
+                pbar.set_postfix_str("Fetching web metadata")
+                metadata = self._get_web_metadata()
+                pbar.update(1)
+            except Exception as web_error:
+                self.log.warning(
+                    f"Web metadata extraction failed: {web_error}, trying pangaeapy"
                 )
-                raise Exception(
-                    f"Failed to extract metadata: web error: {web_error}, pangaeapy error: {pangaeapy_error}"
+                try:
+                    pbar.set_postfix_str("Fetching API metadata")
+                    metadata = self._get_metadata()
+                    pbar.update(1)
+                except Exception as pangaeapy_error:
+                    self.log.error(
+                        f"Both web and pangaeapy metadata extraction failed: {pangaeapy_error}"
+                    )
+                    raise Exception(
+                        f"Failed to extract metadata: web error: {web_error}, pangaeapy error: {pangaeapy_error}"
+                    )
+
+            # Create a GeoJSON file with the extracted spatial metadata for processing
+            import json
+            import os
+
+            pbar.set_postfix_str("Processing metadata")
+            processed_metadata = self._process_metadata_for_geoextent(metadata)
+            pbar.update(1)
+
+            # Create GeoJSON if geographic coverage is available
+            if "geographic_coverage" in processed_metadata:
+                geojson_file = os.path.join(
+                    target_folder, f"pangaea_{self.dataset_id}.geojson"
                 )
+                pbar.set_postfix_str("Creating GeoJSON file")
+                geojson_data = self._create_geojson_from_metadata(processed_metadata)
 
-        # Create a GeoJSON file with the extracted spatial metadata for processing
-        import json
-        import os
-
-        processed_metadata = self._process_metadata_for_geoextent(metadata)
-
-        # Create GeoJSON if geographic coverage is available
-        if "geographic_coverage" in processed_metadata:
-            geojson_file = os.path.join(
-                target_folder, f"pangaea_{self.dataset_id}.geojson"
-            )
-            geojson_data = self._create_geojson_from_metadata(processed_metadata)
-
-            with open(geojson_file, "w") as f:
-                json.dump(geojson_data, f, indent=2)
-        else:
-            # Fallback: create JSON metadata file for debugging
-            metadata_file = os.path.join(
-                target_folder, f"pangaea_{self.dataset_id}_metadata.json"
-            )
-            with open(metadata_file, "w") as f:
-                json.dump(processed_metadata, f, indent=2)
+                with open(geojson_file, "w") as f:
+                    json.dump(geojson_data, f, indent=2)
+                self.log.info(f"Created GeoJSON metadata file for Pangaea dataset {self.dataset_id}")
+            else:
+                # Fallback: create JSON metadata file for debugging
+                metadata_file = os.path.join(
+                    target_folder, f"pangaea_{self.dataset_id}_metadata.json"
+                )
+                pbar.set_postfix_str("Creating metadata file")
+                with open(metadata_file, "w") as f:
+                    json.dump(processed_metadata, f, indent=2)
+                self.log.info(f"Created metadata file for Pangaea dataset {self.dataset_id}")
+            pbar.update(1)
 
     def _download_data_files(self, target_folder):
         """Download actual data files from Pangaea for local GDAL-based extraction"""
         try:
             from pangaeapy.pandataset import PanDataSet
+            from tqdm import tqdm
             import os
 
             if self.dataset_id:
@@ -426,27 +444,40 @@ class Pangaea(DoiProvider):
                     f"Downloading Pangaea data files for dataset {self.dataset_id}"
                 )
 
-                # Create dataset using the numeric ID
-                dataset = PanDataSet(int(self.dataset_id))
+                # Log download summary before starting
+                self.log.info(f"Starting data file download from Pangaea dataset {self.dataset_id}")
 
-                # Check if dataset has downloadable data
-                if hasattr(dataset, "data") and dataset.data is not None:
-                    # Save data as CSV for GDAL processing
-                    csv_file = os.path.join(
-                        target_folder, f"pangaea_{self.dataset_id}.csv"
-                    )
-                    dataset.data.to_csv(csv_file, index=False)
-                    self.log.debug(f"Saved dataset data to {csv_file}")
+                # Show progress while fetching dataset metadata
+                with tqdm(desc=f"Fetching Pangaea dataset {self.dataset_id}", unit="step") as pbar:
+                    pbar.set_postfix_str("Connecting to Pangaea API")
+                    # Create dataset using the numeric ID
+                    dataset = PanDataSet(int(self.dataset_id))
+                    pbar.update(1)
 
-                    # Also save any geographic information as GeoJSON if available
-                    self._save_geographic_data(dataset, target_folder)
+                    # Check if dataset has downloadable data
+                    if hasattr(dataset, "data") and dataset.data is not None:
+                        pbar.set_postfix_str("Processing data")
+                        data_size = len(dataset.data) if hasattr(dataset.data, '__len__') else 1
 
-                else:
-                    self.log.warning(
-                        f"No data available for download from dataset {self.dataset_id}"
-                    )
-                    # Fallback to metadata-only extraction
-                    self._download_metadata_only(target_folder)
+                        # Save data as CSV for GDAL processing
+                        csv_file = os.path.join(
+                            target_folder, f"pangaea_{self.dataset_id}.csv"
+                        )
+                        pbar.set_postfix_str(f"Saving CSV ({data_size} records)")
+                        dataset.data.to_csv(csv_file, index=False)
+                        self.log.debug(f"Saved dataset data to {csv_file}")
+                        pbar.update(1)
+
+                        self.log.info(f"Downloaded Pangaea dataset {self.dataset_id} with {data_size} records")
+
+                    else:
+                        self.log.warning(
+                            f"No data available for download from dataset {self.dataset_id}"
+                        )
+                        # Fallback to metadata-only extraction
+                        pbar.set_postfix_str("Falling back to metadata extraction")
+                        self._download_metadata_only(target_folder)
+                        pbar.update(1)
 
         except ImportError:
             raise Exception("pangaeapy library is required for data download")
@@ -454,65 +485,6 @@ class Pangaea(DoiProvider):
             self.log.error(f"Error downloading Pangaea data files: {e}")
             # Fallback to metadata-only extraction
             self._download_metadata_only(target_folder)
-
-    def _save_geographic_data(self, dataset, target_folder):
-        """Save geographic data as GeoJSON if coordinates are available"""
-        try:
-            import os
-            import json
-
-            if hasattr(dataset, "data") and dataset.data is not None:
-                data = dataset.data
-
-                # Look for latitude/longitude columns
-                lat_cols = [col for col in data.columns if "lat" in col.lower()]
-                lon_cols = [col for col in data.columns if "lon" in col.lower()]
-
-                if lat_cols and lon_cols:
-                    lat_col = lat_cols[0]
-                    lon_col = lon_cols[0]
-
-                    # Create GeoJSON features
-                    features = []
-                    for idx, row in data.iterrows():
-                        if not (row[lat_col] is None or row[lon_col] is None):
-                            try:
-                                lat = float(row[lat_col])
-                                lon = float(row[lon_col])
-
-                                feature = {
-                                    "type": "Feature",
-                                    "geometry": {
-                                        "type": "Point",
-                                        "coordinates": [lon, lat],
-                                    },
-                                    "properties": {
-                                        col: row[col]
-                                        for col in data.columns
-                                        if col not in [lat_col, lon_col]
-                                        and row[col] is not None
-                                    },
-                                }
-                                features.append(feature)
-                            except (ValueError, TypeError):
-                                continue
-
-                    if features:
-                        geojson_data = {
-                            "type": "FeatureCollection",
-                            "features": features,
-                        }
-
-                        geojson_file = os.path.join(
-                            target_folder, f"pangaea_{self.dataset_id}.geojson"
-                        )
-                        with open(geojson_file, "w") as f:
-                            json.dump(geojson_data, f, indent=2)
-
-                        self.log.debug(f"Saved geographic data to {geojson_file}")
-
-        except Exception as e:
-            self.log.warning(f"Could not save geographic data as GeoJSON: {e}")
 
     def _process_metadata_for_geoextent(self, metadata):
         """Process Pangaea metadata into geoextent-compatible format"""

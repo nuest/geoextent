@@ -91,6 +91,8 @@ class Zenodo(DoiProvider):
         return file_list
 
     def download(self, folder, throttle=False, download_data=True):
+        from tqdm import tqdm
+
         self.throttle = throttle
         if not download_data:
             self.log.warning(
@@ -98,27 +100,65 @@ class Zenodo(DoiProvider):
                 "Using download_data=False may result in limited or no spatial extent information. "
                 "Consider using download_data=True to download actual data files for better geospatial extraction."
             )
+            return
+
         self.log.debug("Downloading Zenodo record id: {} ".format(self.record_id))
         try:
-            download_links = self._get_file_links
-            counter = 1
-            for file_link in download_links:
-                resp = self._request(
-                    file_link,
-                    throttle=self.throttle,
-                    stream=True,
-                )
-                filename = file_link.split("/")[-2]
-                filepath = os.path.join(folder, filename)
-                # TODO: catch http error (?)
-                with open(filepath, "wb") as dst:
-                    for chunk in resp.iter_content(chunk_size=None):
-                        dst.write(chunk)
-                self.log.debug(
-                    "{} out of {} files downloaded.".format(
-                        counter, len(download_links)
+            # Get metadata to access file information including sizes
+            metadata = self._get_metadata()
+            files = metadata.get("files", [])
+
+            if not files:
+                self.log.warning(f"No files found in Zenodo record {self.record_id}")
+                return
+
+            # Extract file information from metadata
+            file_info = []
+            total_size = 0
+            for file_data in files:
+                file_url = file_data["links"]["self"]
+                filename = file_data.get("key", file_url.split("/")[-2])
+                file_size = file_data.get("size", 0)
+
+                file_info.append({
+                    'url': file_url,
+                    'filename': filename,
+                    'size': file_size
+                })
+                total_size += file_size
+
+            # Log download summary before starting
+            self.log.info(f"Starting download of {len(file_info)} files from Zenodo record {self.record_id} ({total_size:,} bytes total)")
+
+            # Download files with progress bar
+            with tqdm(total=total_size, desc=f"Downloading Zenodo record {self.record_id}", unit="B", unit_scale=True) as pbar:
+                for i, file_data in enumerate(file_info, 1):
+                    file_link = file_data['url']
+                    filename = file_data['filename']
+                    file_size = file_data['size']
+
+                    pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
+
+                    resp = self._request(
+                        file_link,
+                        throttle=self.throttle,
+                        stream=True,
                     )
-                )
-                counter += 1
+                    filepath = os.path.join(folder, filename)
+
+                    # Download with chunk-based progress tracking
+                    downloaded_bytes = 0
+                    with open(filepath, "wb") as dst:
+                        for chunk in resp.iter_content(chunk_size=8192):
+                            if chunk:
+                                dst.write(chunk)
+                                chunk_size = len(chunk)
+                                downloaded_bytes += chunk_size
+                                pbar.update(chunk_size)
+
+                    self.log.debug(f"Downloaded Zenodo file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)")
+
+            self.log.info(f"Downloaded {len(file_info)} files from Zenodo record {self.record_id} ({total_size} bytes total)")
+
         except ValueError as e:
             raise Exception(e)
