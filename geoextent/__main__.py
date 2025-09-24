@@ -110,7 +110,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--no-download-data] file1 [file2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--no-download-data] [--no-progress] file1 [file2 ...]",
     )
 
     parser.add_argument(
@@ -163,6 +163,13 @@ def get_arg_parser():
         dest="download_data",
         default=True,
         help="for repositories: disable downloading data files and use metadata only (not recommended for most providers)",
+    )
+
+    parser.add_argument(
+        "--no-progress",
+        action="store_true",
+        default=False,
+        help="disable progress bars during download and extraction",
     )
 
     parser.add_argument(
@@ -256,11 +263,11 @@ def main():
 
             if is_file and not is_zipfile:
                 output = extent.fromFile(
-                    single_input, bbox=args["bounding_box"], tbox=args["time_box"]
+                    single_input, bbox=args["bounding_box"], tbox=args["time_box"], show_progress=not args["no_progress"]
                 )
             elif is_directory or is_zipfile:
                 output = extent.fromDirectory(
-                    single_input, bbox=args["bounding_box"], tbox=args["time_box"], details=True
+                    single_input, bbox=args["bounding_box"], tbox=args["time_box"], details=True, show_progress=not args["no_progress"]
                 )
             elif is_url or is_doi or is_repository:
                 output = extent.from_repository(
@@ -268,7 +275,8 @@ def main():
                     bbox=args["bounding_box"],
                     tbox=args["time_box"],
                     details=True,
-                    download_data=args["download_data"]
+                    download_data=args["download_data"],
+                    show_progress=not args["no_progress"]
                 )
         else:
             # Multiple files handling
@@ -283,13 +291,13 @@ def main():
                     # Only process individual files (not directories or URLs for multiple mode)
                     if os.path.isfile(file_path) and not zipfile.is_zipfile(file_path):
                         file_output = extent.fromFile(
-                            file_path, bbox=args["bounding_box"], tbox=args["time_box"]
+                            file_path, bbox=args["bounding_box"], tbox=args["time_box"], show_progress=not args["no_progress"]
                         )
                         if file_output is not None:
                             output["details"][file_path] = file_output
                     elif os.path.isdir(file_path) or zipfile.is_zipfile(file_path):
                         dir_output = extent.fromDirectory(
-                            file_path, bbox=args["bounding_box"], tbox=args["time_box"], details=True
+                            file_path, bbox=args["bounding_box"], tbox=args["time_box"], details=True, show_progress=not args["no_progress"]
                         )
                         if dir_output is not None:
                             output["details"][file_path] = dir_output

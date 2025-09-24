@@ -324,7 +324,7 @@ class Dataverse(DoiProvider):
 
         raise ValueError(f"Could not determine download URL for file: {file_info}")
 
-    def download(self, folder, throttle=False, download_data=True):
+    def download(self, folder, throttle=False, download_data=True, show_progress=True):
         """
         Download files from the Dataverse dataset.
 
@@ -333,6 +333,7 @@ class Dataverse(DoiProvider):
             throttle (bool): Whether to throttle requests
             download_data (bool): Whether to download actual data files
         """
+        from tqdm import tqdm
         self.throttle = throttle
 
         if not download_data:
@@ -358,44 +359,49 @@ class Dataverse(DoiProvider):
             self.log.info(f"Starting download of {len(files)} files from Dataverse dataset {self.persistent_id or self.dataset_id}")
 
             counter = 1
-            for file_info in files:
-                try:
-                    download_url = self._get_file_download_url(file_info)
+            # Process files with progress bar
+            with tqdm(total=len(files), desc=f"Downloading Dataverse files from {self.persistent_id or self.dataset_id}", unit="file") as pbar:
+                for file_info in files:
+                    try:
+                        download_url = self._get_file_download_url(file_info)
 
-                    # Get filename
-                    if "dataFile" in file_info and "filename" in file_info["dataFile"]:
-                        filename = file_info["dataFile"]["filename"]
-                    elif "filename" in file_info:
-                        filename = file_info["filename"]
-                    elif "label" in file_info:
-                        filename = file_info["label"]
-                    else:
-                        filename = f"file_{counter}"
+                        # Get filename
+                        if "dataFile" in file_info and "filename" in file_info["dataFile"]:
+                            filename = file_info["dataFile"]["filename"]
+                        elif "filename" in file_info:
+                            filename = file_info["filename"]
+                        elif "label" in file_info:
+                            filename = file_info["label"]
+                        else:
+                            filename = f"file_{counter}"
 
-                    filepath = os.path.join(folder, filename)
+                        pbar.set_postfix_str(f"Downloading {filename}")
 
-                    self.log.debug(f"Downloading file {counter}/{len(files)}: {filename}")
+                        filepath = os.path.join(folder, filename)
 
-                    # Download file
-                    response = self._request(
-                        download_url,
-                        throttle=self.throttle,
-                        stream=True,
-                    )
-                    response.raise_for_status()
+                        self.log.debug(f"Downloading file {counter}/{len(files)}: {filename}")
 
-                    # Write file to disk
-                    with open(filepath, "wb") as dst:
-                        for chunk in response.iter_content(chunk_size=8192):
-                            if chunk:
-                                dst.write(chunk)
+                        # Download file
+                        response = self._request(
+                            download_url,
+                            throttle=self.throttle,
+                            stream=True,
+                        )
+                        response.raise_for_status()
 
-                    self.log.debug(f"Downloaded: {filename} ({counter}/{len(files)})")
-                    counter += 1
+                        # Write file to disk
+                        with open(filepath, "wb") as dst:
+                            for chunk in response.iter_content(chunk_size=8192):
+                                if chunk:
+                                    dst.write(chunk)
 
-                except Exception as e:
-                    self.log.warning(f"Failed to download file {filename}: {e}")
-                    continue
+                        self.log.debug(f"Downloaded: {filename} ({counter}/{len(files)})")
+                        counter += 1
+                        pbar.update(1)
+
+                    except Exception as e:
+                        self.log.warning(f"Failed to download file {filename}: {e}")
+                        continue
 
         except Exception as e:
             self.log.error(f"Error downloading Dataverse dataset: {e}")

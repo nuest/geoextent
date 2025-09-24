@@ -93,7 +93,7 @@ class Dryad(DoiProvider):
             file_list.append([link, path])
         return file_list
 
-    def download(self, folder, throttle=False, download_data=True):
+    def download(self, folder, throttle=False, download_data=True, show_progress=True):
         from tqdm import tqdm
 
         self.throttle = throttle
@@ -148,20 +148,24 @@ class Dryad(DoiProvider):
                 metadata = self._get_metadata()
                 files = metadata.get("_embedded", {}).get("stash:files", [])
 
-                # Calculate total size from metadata
+                # Calculate total size from metadata with progress bar
                 total_size = 0
                 file_info = []
-                for file_data in files:
-                    file_link = "https://datadryad.org" + file_data["_links"]["stash:download"]["href"]
-                    file_path = file_data["path"]
-                    file_size = file_data.get("size", 0)  # Size in bytes
+                with tqdm(total=len(files), desc=f"Processing Dryad metadata for {self.record_id}", unit="file", leave=False) as metadata_pbar:
+                    for file_data in files:
+                        file_link = "https://datadryad.org" + file_data["_links"]["stash:download"]["href"]
+                        file_path = file_data["path"]
+                        file_size = file_data.get("size", 0)  # Size in bytes
 
-                    file_info.append({
-                        'url': file_link,
-                        'path': file_path,
-                        'size': file_size
-                    })
-                    total_size += file_size
+                        file_info.append({
+                            'url': file_link,
+                            'path': file_path,
+                            'size': file_size
+                        })
+                        total_size += file_size
+
+                        metadata_pbar.set_postfix_str(f"Processing {Path(file_path).name} ({file_size:,} bytes)")
+                        metadata_pbar.update(1)
 
             except Exception as metadata_error:
                 self.log.warning(f"Could not get file metadata: {metadata_error}, falling back to simple download")

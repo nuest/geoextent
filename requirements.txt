@@ -7,7 +7,7 @@ patool
 python-dateutil
 pandas
 requests
-numpy
+numpy<2
 traitlets
 wheel
 setuptools-scm

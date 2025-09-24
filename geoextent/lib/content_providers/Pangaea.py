@@ -347,7 +347,7 @@ class Pangaea(DoiProvider):
 
         return parameters
 
-    def download(self, target_folder, throttle=False, download_data=True):
+    def download(self, target_folder, throttle=False, download_data=True, show_progress=True):
         """
         Extract geospatial metadata from Pangaea dataset.
 

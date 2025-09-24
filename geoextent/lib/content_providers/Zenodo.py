@@ -90,7 +90,7 @@ class Zenodo(DoiProvider):
             file_list.append(j["links"]["self"])
         return file_list
 
-    def download(self, folder, throttle=False, download_data=True):
+    def download(self, folder, throttle=False, download_data=True, show_progress=True):
         from tqdm import tqdm
 
         self.throttle = throttle
@@ -112,32 +112,48 @@ class Zenodo(DoiProvider):
                 self.log.warning(f"No files found in Zenodo record {self.record_id}")
                 return
 
-            # Extract file information from metadata
+            # Extract file information from metadata with progress bar
             file_info = []
             total_size = 0
-            for file_data in files:
-                file_url = file_data["links"]["self"]
-                filename = file_data.get("key", file_url.split("/")[-2])
-                file_size = file_data.get("size", 0)
+            if show_progress:
+                metadata_pbar = tqdm(total=len(files), desc=f"Processing Zenodo metadata for {self.record_id}", unit="file", leave=False)
 
-                file_info.append({
-                    'url': file_url,
-                    'filename': filename,
-                    'size': file_size
-                })
-                total_size += file_size
+            try:
+                for file_data in files:
+                    file_url = file_data["links"]["self"]
+                    filename = file_data.get("key", file_url.split("/")[-2])
+                    file_size = file_data.get("size", 0)
+
+                    file_info.append({
+                        'url': file_url,
+                        'filename': filename,
+                        'size': file_size
+                    })
+                    total_size += file_size
+
+                    if show_progress:
+                        metadata_pbar.set_postfix_str(f"Processing {filename} ({file_size:,} bytes)")
+                        metadata_pbar.update(1)
+
+            finally:
+                if show_progress:
+                    metadata_pbar.close()
 
             # Log download summary before starting
             self.log.info(f"Starting download of {len(file_info)} files from Zenodo record {self.record_id} ({total_size:,} bytes total)")
 
             # Download files with progress bar
-            with tqdm(total=total_size, desc=f"Downloading Zenodo record {self.record_id}", unit="B", unit_scale=True) as pbar:
+            if show_progress:
+                pbar = tqdm(total=total_size, desc=f"Downloading Zenodo record {self.record_id}", unit="B", unit_scale=True)
+
+            try:
                 for i, file_data in enumerate(file_info, 1):
                     file_link = file_data['url']
                     filename = file_data['filename']
                     file_size = file_data['size']
 
-                    pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
+                    if show_progress:
+                        pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
 
                     resp = self._request(
                         file_link,
@@ -154,9 +170,14 @@ class Zenodo(DoiProvider):
                                 dst.write(chunk)
                                 chunk_size = len(chunk)
                                 downloaded_bytes += chunk_size
-                                pbar.update(chunk_size)
+                                if show_progress:
+                                    pbar.update(chunk_size)
 
                     self.log.debug(f"Downloaded Zenodo file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)")
+
+            finally:
+                if show_progress:
+                    pbar.close()
 
             self.log.info(f"Downloaded {len(file_info)} files from Zenodo record {self.record_id} ({total_size} bytes total)")
 

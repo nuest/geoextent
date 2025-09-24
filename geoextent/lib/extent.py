@@ -75,6 +75,7 @@ def fromDirectory(
     details: bool = False,
     timeout: None | int | float = None,
     level: int = 0,
+    show_progress: bool = True,
 ):
     """Extracts geoextent from a directory/archive
     Keyword arguments:
@@ -83,6 +84,8 @@ def fromDirectory(
     tbox -- True if time box is requested (default False)
     timeout -- maximal allowed run time in seconds (default None)
     """
+
+    from tqdm import tqdm
 
     logger.info("Extracting bbox={} tbox={} from Directory {}".format(bbox, tbox, path))
 
@@ -115,7 +118,14 @@ def fromDirectory(
         random.seed(0)
         random.shuffle(files)
 
-    for filename in files:
+    # Create progress bar for directory processing (only at top level)
+    dir_name = os.path.basename(path) or "root"
+    show_progress_bar = show_progress and level == 0  # Only show progress bar at top level to avoid nested bars
+
+    if show_progress_bar:
+        pbar = tqdm(total=len(files), desc=f"Processing directory: {dir_name}", unit="item")
+
+    for i, filename in enumerate(files):
         elapsed_time = time.time() - start_time
         if timeout and elapsed_time > timeout:
             if level == 0:
@@ -124,6 +134,9 @@ def fromDirectory(
                 )
                 timeout_flag = True
             break
+
+        if show_progress_bar:
+            pbar.set_postfix_str(f"Processing {filename}")
 
         logger.info("path {}, folder/archive {}".format(path, filename))
         absolute_path = os.path.join(path, filename)
@@ -144,6 +157,7 @@ def fromDirectory(
                 details=True,
                 timeout=remaining_time,
                 level=level + 1,
+                show_progress=show_progress,
             )
         else:
             logger.info(
@@ -159,10 +173,19 @@ def fromDirectory(
                     details=True,
                     timeout=remaining_time,
                     level=level + 1,
+                    show_progress=show_progress,
                 )
             else:
-                metadata_file = fromFile(absolute_path, bbox, tbox)
+                metadata_file = fromFile(absolute_path, bbox, tbox, show_progress=show_progress)
                 metadata_directory[str(filename)] = metadata_file
+
+        # Update progress bar
+        if show_progress_bar:
+            pbar.update(1)
+
+    # Close progress bar at top level
+    if show_progress_bar:
+        pbar.close()
 
     file_format = "archive" if is_archive else "folder"
     metadata["format"] = file_format
@@ -198,7 +221,7 @@ def fromDirectory(
     return metadata
 
 
-def fromFile(filepath, bbox=True, tbox=True, num_sample=None):
+def fromFile(filepath, bbox=True, tbox=True, num_sample=None, show_progress=True):
     """Extracts geoextent from a file
     Keyword arguments:
     path -- filepath
@@ -206,6 +229,8 @@ def fromFile(filepath, bbox=True, tbox=True, num_sample=None):
     tbox -- True if time box is requested (default False)
     num_sample -- sample size to determine time format (Only required for csv files)
     """
+    from tqdm import tqdm
+
     logger.info("Extracting bbox={} tbox={} from file {}".format(bbox, tbox, filepath))
 
     if not bbox and not tbox:
@@ -300,11 +325,34 @@ def fromFile(filepath, bbox=True, tbox=True, num_sample=None):
 
     logger.debug("Starting 2 threads for extraction.")
 
-    thread_bbox_except.start()
-    thread_temp_except.start()
+    # Calculate total tasks for progress bar
+    total_tasks = (1 if bbox else 0) + (1 if tbox else 0)
+    filename = os.path.basename(filepath)
 
-    thread_bbox_except.join()
-    thread_temp_except.join()
+    if show_progress:
+        with tqdm(total=total_tasks, desc=f"Processing {filename}", unit="task", leave=False) as pbar:
+            thread_bbox_except.start()
+            thread_temp_except.start()
+
+            # Wait for threads to complete while updating progress
+            if bbox:
+                thread_bbox_except.join()
+                pbar.set_postfix_str("Spatial extent extracted")
+                pbar.update(1)
+
+            if tbox:
+                thread_temp_except.join()
+                pbar.set_postfix_str("Temporal extent extracted")
+                pbar.update(1)
+    else:
+        # Run threads without progress bar
+        thread_bbox_except.start()
+        thread_temp_except.start()
+
+        if bbox:
+            thread_bbox_except.join()
+        if tbox:
+            thread_temp_except.join()
 
     logger.debug("Extraction finished: {}".format(str(metadata)))
 
@@ -319,11 +367,12 @@ def from_repository(
     throttle: bool = False,
     timeout: None | int | float = None,
     download_data: bool = True,
+    show_progress: bool = True,
 ):
     try:
         geoextent = geoextent_from_repository()
         metadata = geoextent.from_repository(
-            repository_identifier, bbox, tbox, details, throttle, timeout, download_data
+            repository_identifier, bbox, tbox, details, throttle, timeout, download_data, show_progress
         )
         metadata["format"] = "repository"
     except ValueError as e:
@@ -354,6 +403,7 @@ class geoextent_from_repository(Application):
         throttle=False,
         timeout=None,
         download_data=True,
+        show_progress=True,
     ):
 
         if bbox + tbox == 0:
@@ -376,8 +426,8 @@ class geoextent_from_repository(Application):
                 supported_by_geoextent = True
                 try:
                     with tempfile.TemporaryDirectory() as tmp:
-                        repository.download(tmp, throttle, download_data)
-                        metadata = fromDirectory(tmp, bbox, tbox, details, timeout)
+                        repository.download(tmp, throttle, download_data, show_progress)
+                        metadata = fromDirectory(tmp, bbox, tbox, details, timeout, show_progress=show_progress)
                     return metadata
                 except ValueError as e:
                     raise Exception(e)

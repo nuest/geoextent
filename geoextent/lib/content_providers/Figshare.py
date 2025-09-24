@@ -94,7 +94,7 @@ class Figshare(DoiProvider):
             # TODO: files can be empty
         return file_list
 
-    def download(self, folder, throttle=False, download_data=True):
+    def download(self, folder, throttle=False, download_data=True, show_progress=True):
         from tqdm import tqdm
 
         self.throttle = throttle
@@ -116,21 +116,33 @@ class Figshare(DoiProvider):
                 self.log.warning(f"No files found in Figshare item {self.record_id}")
                 return
 
-            # Extract file information from metadata
+            # Extract file information from metadata with progress bar
             file_info = []
             total_size = 0
-            for file_data in files:
-                filename = file_data.get("name", "unknown")
-                file_url = file_data.get("download_url")
-                file_size = file_data.get("size", 0)
+            if show_progress:
+                metadata_pbar = tqdm(total=len(files), desc=f"Processing Figshare metadata for {self.record_id}", unit="file", leave=False)
 
-                if file_url:
-                    file_info.append({
-                        'name': filename,
-                        'url': file_url,
-                        'size': file_size
-                    })
-                    total_size += file_size
+            try:
+                for file_data in files:
+                    filename = file_data.get("name", "unknown")
+                    file_url = file_data.get("download_url")
+                    file_size = file_data.get("size", 0)
+
+                    if file_url:
+                        file_info.append({
+                            'name': filename,
+                            'url': file_url,
+                            'size': file_size
+                        })
+                        total_size += file_size
+
+                    if show_progress:
+                        metadata_pbar.set_postfix_str(f"Processing {filename} ({file_size:,} bytes)")
+                        metadata_pbar.update(1)
+
+            finally:
+                if show_progress:
+                    metadata_pbar.close()
 
             if not file_info:
                 self.log.warning(f"No downloadable files found in Figshare item {self.record_id}")
@@ -140,13 +152,17 @@ class Figshare(DoiProvider):
             self.log.info(f"Starting download of {len(file_info)} files from Figshare item {self.record_id} ({total_size:,} bytes total)")
 
             # Download files with progress bar
-            with tqdm(total=total_size, desc=f"Downloading Figshare item {self.record_id}", unit="B", unit_scale=True) as pbar:
+            if show_progress:
+                pbar = tqdm(total=total_size, desc=f"Downloading Figshare item {self.record_id}", unit="B", unit_scale=True)
+
+            try:
                 for i, file_data in enumerate(file_info, 1):
                     filename = file_data['name']
                     file_link = file_data['url']
                     file_size = file_data['size']
 
-                    pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
+                    if show_progress:
+                        pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
 
                     resp = self._request(
                         file_link,
@@ -163,9 +179,14 @@ class Figshare(DoiProvider):
                                 dst.write(chunk)
                                 chunk_size = len(chunk)
                                 downloaded_bytes += chunk_size
-                                pbar.update(chunk_size)
+                                if show_progress:
+                                    pbar.update(chunk_size)
 
                     self.log.debug(f"Downloaded Figshare file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)")
+
+            finally:
+                if show_progress:
+                    pbar.close()
 
             self.log.info(f"Downloaded {len(file_info)} files from Figshare item {self.record_id} ({total_size} bytes total)")
 
