@@ -7,11 +7,9 @@ import patoolib
 import random
 import re
 import uuid
-import numpy as np
 import pandas as pd
 from osgeo import ogr
 from osgeo import osr
-from pandas.core.tools.datetimes import _guess_datetime_format_for_array as time_format
 from pathlib import Path
 
 
@@ -251,11 +249,20 @@ def get_time_format(time_list, num_sample):
         # Selects num_sample-2 elements
         time_sample = sum(time_sample, [])
 
-    # Primary method: pandas format detection
+    # Primary method: pandas format detection (fallback approach without numpy)
     format_list = []
     for i in range(0, len(time_sample)):
-        format_list.append(time_format(np.array([time_sample[i]])))
-    unique_formats = list(set(format_list))
+        try:
+            # Try to use pandas to infer format directly instead of _guess_datetime_format_for_array
+            sample_series = pd.to_datetime([time_sample[i]])
+            if not sample_series.isna().all():
+                # If pandas can parse it, we'll use 'flexible' as indicator
+                format_list.append('flexible')
+            else:
+                format_list.append(None)
+        except Exception:
+            format_list.append(None)
+    unique_formats = list(set([f for f in format_list if f is not None]))
 
     logger.info("UNIQUE_FORMATS {}".format(unique_formats))
     if unique_formats is not None:
@@ -720,3 +727,102 @@ def path_output(path):
         logger.error("Output target directory does not exist: {}".format(path))
         raise ValueError("Output target directory does not exist: {}".format(path))
     return absolute_file_path
+
+
+def format_extent_output(extent_output, output_format="geojson"):
+    """
+    Convert geoextent output to different formats
+
+    Args:
+        extent_output: Dict containing the geoextent output
+        output_format: String specifying the output format ("geojson", "wkt", "wkb")
+
+    Returns:
+        Dict with formatted output
+    """
+    if not extent_output or not extent_output.get("bbox"):
+        return extent_output
+
+    # Work with a copy to avoid modifying the original
+    formatted_output = extent_output.copy()
+
+    bbox = extent_output.get("bbox")
+    if bbox and len(bbox) == 4:
+        if output_format.lower() == "wkt":
+            formatted_output["bbox"] = bbox_to_wkt(bbox)
+        elif output_format.lower() == "wkb":
+            formatted_output["bbox"] = bbox_to_wkb(bbox)
+        elif output_format.lower() == "geojson":
+            formatted_output["bbox"] = bbox_to_geojson(bbox)
+
+    # Handle details if present (for directories/multiple files)
+    if "details" in formatted_output and isinstance(formatted_output["details"], dict):
+        for key, detail in formatted_output["details"].items():
+            if isinstance(detail, dict):
+                formatted_output["details"][key] = format_extent_output(detail, output_format)
+
+    return formatted_output
+
+
+def bbox_to_wkt(bbox):
+    """
+    Convert bounding box coordinates to WKT POLYGON format
+
+    Args:
+        bbox: List of [minx, miny, maxx, maxy]
+
+    Returns:
+        String containing WKT polygon representation
+    """
+    if not bbox or len(bbox) != 4:
+        return None
+
+    minx, miny, maxx, maxy = bbox
+    wkt = f"POLYGON(({minx} {miny},{maxx} {miny},{maxx} {maxy},{minx} {maxy},{minx} {miny}))"
+    return wkt
+
+
+def bbox_to_wkb(bbox):
+    """
+    Convert bounding box coordinates to WKB (Well-Known Binary) format
+
+    Args:
+        bbox: List of [minx, miny, maxx, maxy]
+
+    Returns:
+        String containing hexadecimal WKB representation
+    """
+    if not bbox or len(bbox) != 4:
+        return None
+
+    # Create WKT first, then convert to WKB using OGR
+    wkt = bbox_to_wkt(bbox)
+    if wkt:
+        geom = ogr.CreateGeometryFromWkt(wkt)
+        if geom:
+            return geom.ExportToWkb().hex().upper()
+    return None
+
+
+def bbox_to_geojson(bbox):
+    """
+    Convert bounding box coordinates to GeoJSON Polygon format
+
+    Args:
+        bbox: List of [minx, miny, maxx, maxy]
+
+    Returns:
+        Dict containing GeoJSON polygon representation
+    """
+    if not bbox or len(bbox) != 4:
+        return None
+
+    minx, miny, maxx, maxy = bbox
+
+    # Create a polygon from the bounding box
+    coordinates = [[[minx, miny], [maxx, miny], [maxx, maxy], [minx, maxy], [minx, miny]]]
+
+    return {
+        "type": "Polygon",
+        "coordinates": coordinates
+    }
