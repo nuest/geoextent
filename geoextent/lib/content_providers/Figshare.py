@@ -21,11 +21,28 @@ class Figshare(DoiProvider):
         self.throttle = False
 
     def validate_provider(self, reference):
+        import re
         self.reference = reference
         url = self.get_url
+
         if any([url.startswith(p) for p in self.host["hostname"]]):
-            self.record_id = url.rsplit("/", maxsplit=1)[1]
-            return True
+            # Handle different Figshare URL patterns:
+            # https://figshare.com/articles/dataset/title/RECORD_ID/VERSION
+            # https://figshare.com/articles/RECORD_ID
+            # https://api.figshare.com/v2/articles/RECORD_ID
+
+            # Try to extract numeric record ID from URL
+            # Pattern matches one or more digits that are followed by either end of string or /version
+            figshare_pattern = re.compile(r'/(\d+)(?:/\d+)?/?$')
+            match = figshare_pattern.search(url)
+
+            if match:
+                self.record_id = match.group(1)
+                return True
+            else:
+                # Fallback to original method for simple cases
+                self.record_id = url.rsplit("/", maxsplit=1)[1]
+                return True
         else:
             return False
 
