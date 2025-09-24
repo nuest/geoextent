@@ -11,8 +11,8 @@ class Zenodo(DoiProvider):
             "hostname": [
                 "https://zenodo.org/records/",
                 "http://zenodo.org/records/",
-                "https://zenodo.org/record/",    # Legacy format
-                "http://zenodo.org/record/",     # Legacy format
+                "https://zenodo.org/record/",  # Legacy format
+                "http://zenodo.org/record/",  # Legacy format
                 "https://zenodo.org/api/records/",
             ],
             "api": "https://zenodo.org/api/records/",
@@ -24,6 +24,7 @@ class Zenodo(DoiProvider):
 
     def validate_provider(self, reference):
         import re
+
         self.reference = reference
         url = self.get_url
 
@@ -36,7 +37,9 @@ class Zenodo(DoiProvider):
 
         # Check for legacy zenodo patterns and bare numeric IDs
         # This matches the original zenodo_regexp pattern: (https://zenodo.org/record/)?(.\d*)$
-        zenodo_pattern = re.compile(r"(https://zenodo\.org/record/)?(.\d*)$", flags=re.I)
+        zenodo_pattern = re.compile(
+            r"(https://zenodo\.org/record/)?(.\d*)$", flags=re.I
+        )
         match = zenodo_pattern.match(reference)
         if match:
             # Extract the numeric ID (second group)
@@ -116,7 +119,12 @@ class Zenodo(DoiProvider):
             file_info = []
             total_size = 0
             if show_progress:
-                metadata_pbar = tqdm(total=len(files), desc=f"Processing Zenodo metadata for {self.record_id}", unit="file", leave=False)
+                metadata_pbar = tqdm(
+                    total=len(files),
+                    desc=f"Processing Zenodo metadata for {self.record_id}",
+                    unit="file",
+                    leave=False,
+                )
 
             try:
                 for file_data in files:
@@ -124,15 +132,15 @@ class Zenodo(DoiProvider):
                     filename = file_data.get("key", file_url.split("/")[-2])
                     file_size = file_data.get("size", 0)
 
-                    file_info.append({
-                        'url': file_url,
-                        'filename': filename,
-                        'size': file_size
-                    })
+                    file_info.append(
+                        {"url": file_url, "filename": filename, "size": file_size}
+                    )
                     total_size += file_size
 
                     if show_progress:
-                        metadata_pbar.set_postfix_str(f"Processing {filename} ({file_size:,} bytes)")
+                        metadata_pbar.set_postfix_str(
+                            f"Processing {filename} ({file_size:,} bytes)"
+                        )
                         metadata_pbar.update(1)
 
             finally:
@@ -140,17 +148,24 @@ class Zenodo(DoiProvider):
                     metadata_pbar.close()
 
             # Log download summary before starting
-            self.log.info(f"Starting download of {len(file_info)} files from Zenodo record {self.record_id} ({total_size:,} bytes total)")
+            self.log.info(
+                f"Starting download of {len(file_info)} files from Zenodo record {self.record_id} ({total_size:,} bytes total)"
+            )
 
             # Download files with progress bar
             if show_progress:
-                pbar = tqdm(total=total_size, desc=f"Downloading Zenodo record {self.record_id}", unit="B", unit_scale=True)
+                pbar = tqdm(
+                    total=total_size,
+                    desc=f"Downloading Zenodo record {self.record_id}",
+                    unit="B",
+                    unit_scale=True,
+                )
 
             try:
                 for i, file_data in enumerate(file_info, 1):
-                    file_link = file_data['url']
-                    filename = file_data['filename']
-                    file_size = file_data['size']
+                    file_link = file_data["url"]
+                    filename = file_data["filename"]
+                    file_size = file_data["size"]
 
                     if show_progress:
                         pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
@@ -173,13 +188,17 @@ class Zenodo(DoiProvider):
                                 if show_progress:
                                     pbar.update(chunk_size)
 
-                    self.log.debug(f"Downloaded Zenodo file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)")
+                    self.log.debug(
+                        f"Downloaded Zenodo file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)"
+                    )
 
             finally:
                 if show_progress:
                     pbar.close()
 
-            self.log.info(f"Downloaded {len(file_info)} files from Zenodo record {self.record_id} ({total_size} bytes total)")
+            self.log.info(
+                f"Downloaded {len(file_info)} files from Zenodo record {self.record_id} ({total_size} bytes total)"
+            )
 
         except ValueError as e:
             raise Exception(e)

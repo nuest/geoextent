@@ -13,7 +13,12 @@ class TestZenodoProvider:
             "url": "https://zenodo.org/record/820562",
             "id": "820562",
             "title": "Landslide imagery from Hpakant, Myanmar",
-            "expected_bbox": [96.21146318274846, 25.56156568254296, 96.35495081696702, 25.6297452149091],  # [W, S, E, N]
+            "expected_bbox": [
+                96.21146318274846,
+                25.56156568254296,
+                96.35495081696702,
+                25.6297452149091,
+            ],  # [W, S, E, N]
             "expected_tbox": None,  # May not have temporal extent
         },
         "geospatial_dataset": {
@@ -23,7 +28,7 @@ class TestZenodoProvider:
             "title": "Geospatial data for coastal erosion analysis",
             # Bounding box will be determined by actual extraction
             "expected_bbox": None,  # To be filled after testing
-        }
+        },
     }
 
     def test_zenodo_doi_validation(self):
@@ -47,13 +52,11 @@ class TestZenodoProvider:
         """Test Zenodo provider with actual bounding box verification"""
         dataset = self.TEST_DATASETS["landslide_imagery"]
 
-
         try:
             # Test with download_data=True to get actual geospatial data
             result = geoextent.from_repository(
                 dataset["doi"], bbox=True, tbox=True, download_data=True
             )
-
 
             assert result is not None
             assert result["format"] == "repository"
@@ -63,7 +66,6 @@ class TestZenodoProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
                 assert isinstance(bbox[1], (int, float))
@@ -72,10 +74,18 @@ class TestZenodoProvider:
 
                 if expected_bbox:
                     # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
-                    assert abs(bbox[0] - expected_bbox[0]) < 0.01, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
-                    assert abs(bbox[1] - expected_bbox[1]) < 0.01, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
-                    assert abs(bbox[2] - expected_bbox[2]) < 0.01, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
-                    assert abs(bbox[3] - expected_bbox[3]) < 0.01, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                    assert (
+                        abs(bbox[0] - expected_bbox[0]) < 0.01
+                    ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                    assert (
+                        abs(bbox[1] - expected_bbox[1]) < 0.01
+                    ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                    assert (
+                        abs(bbox[2] - expected_bbox[2]) < 0.01
+                    ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                    assert (
+                        abs(bbox[3] - expected_bbox[3]) < 0.01
+                    ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
                 assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
@@ -116,7 +126,6 @@ class TestZenodoProvider:
             assert result is not None
             assert result["format"] == "repository"
 
-
             # For Zenodo, metadata-only may still extract bounding box from downloaded files
             # since Zenodo doesn't provide geospatial metadata directly
 
@@ -136,6 +145,7 @@ class TestZenodoProvider:
         ]
 
         from geoextent.lib.content_providers.Zenodo import Zenodo
+
         zenodo = Zenodo()
 
         for identifier in identifiers:

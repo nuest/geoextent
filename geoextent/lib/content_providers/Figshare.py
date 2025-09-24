@@ -22,6 +22,7 @@ class Figshare(DoiProvider):
 
     def validate_provider(self, reference):
         import re
+
         self.reference = reference
         url = self.get_url
 
@@ -33,7 +34,7 @@ class Figshare(DoiProvider):
 
             # Try to extract numeric record ID from URL
             # Pattern matches one or more digits that are followed by either end of string or /version
-            figshare_pattern = re.compile(r'/(\d+)(?:/\d+)?/?$')
+            figshare_pattern = re.compile(r"/(\d+)(?:/\d+)?/?$")
             match = figshare_pattern.search(url)
 
             if match:
@@ -120,7 +121,12 @@ class Figshare(DoiProvider):
             file_info = []
             total_size = 0
             if show_progress:
-                metadata_pbar = tqdm(total=len(files), desc=f"Processing Figshare metadata for {self.record_id}", unit="file", leave=False)
+                metadata_pbar = tqdm(
+                    total=len(files),
+                    desc=f"Processing Figshare metadata for {self.record_id}",
+                    unit="file",
+                    leave=False,
+                )
 
             try:
                 for file_data in files:
@@ -129,15 +135,15 @@ class Figshare(DoiProvider):
                     file_size = file_data.get("size", 0)
 
                     if file_url:
-                        file_info.append({
-                            'name': filename,
-                            'url': file_url,
-                            'size': file_size
-                        })
+                        file_info.append(
+                            {"name": filename, "url": file_url, "size": file_size}
+                        )
                         total_size += file_size
 
                     if show_progress:
-                        metadata_pbar.set_postfix_str(f"Processing {filename} ({file_size:,} bytes)")
+                        metadata_pbar.set_postfix_str(
+                            f"Processing {filename} ({file_size:,} bytes)"
+                        )
                         metadata_pbar.update(1)
 
             finally:
@@ -145,21 +151,30 @@ class Figshare(DoiProvider):
                     metadata_pbar.close()
 
             if not file_info:
-                self.log.warning(f"No downloadable files found in Figshare item {self.record_id}")
+                self.log.warning(
+                    f"No downloadable files found in Figshare item {self.record_id}"
+                )
                 return
 
             # Log download summary before starting
-            self.log.info(f"Starting download of {len(file_info)} files from Figshare item {self.record_id} ({total_size:,} bytes total)")
+            self.log.info(
+                f"Starting download of {len(file_info)} files from Figshare item {self.record_id} ({total_size:,} bytes total)"
+            )
 
             # Download files with progress bar
             if show_progress:
-                pbar = tqdm(total=total_size, desc=f"Downloading Figshare item {self.record_id}", unit="B", unit_scale=True)
+                pbar = tqdm(
+                    total=total_size,
+                    desc=f"Downloading Figshare item {self.record_id}",
+                    unit="B",
+                    unit_scale=True,
+                )
 
             try:
                 for i, file_data in enumerate(file_info, 1):
-                    filename = file_data['name']
-                    file_link = file_data['url']
-                    file_size = file_data['size']
+                    filename = file_data["name"]
+                    file_link = file_data["url"]
+                    file_size = file_data["size"]
 
                     if show_progress:
                         pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
@@ -182,13 +197,17 @@ class Figshare(DoiProvider):
                                 if show_progress:
                                     pbar.update(chunk_size)
 
-                    self.log.debug(f"Downloaded Figshare file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)")
+                    self.log.debug(
+                        f"Downloaded Figshare file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)"
+                    )
 
             finally:
                 if show_progress:
                     pbar.close()
 
-            self.log.info(f"Downloaded {len(file_info)} files from Figshare item {self.record_id} ({total_size} bytes total)")
+            self.log.info(
+                f"Downloaded {len(file_info)} files from Figshare item {self.record_id} ({total_size} bytes total)"
+            )
 
         except ValueError as e:
             raise Exception(e)

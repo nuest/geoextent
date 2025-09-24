@@ -110,7 +110,11 @@ class Dryad(DoiProvider):
             # Try bulk ZIP download first with progress bar
             download_url = self.host["api"] + self.record_id_html + "/download"
 
-            with tqdm(desc=f"Downloading Dryad dataset {self.record_id}", unit="B", unit_scale=True) as pbar:
+            with tqdm(
+                desc=f"Downloading Dryad dataset {self.record_id}",
+                unit="B",
+                unit_scale=True,
+            ) as pbar:
                 pbar.set_postfix_str("Downloading dataset.zip (bulk)")
 
                 resp = self._request(
@@ -151,27 +155,40 @@ class Dryad(DoiProvider):
                 # Calculate total size from metadata with progress bar
                 total_size = 0
                 file_info = []
-                with tqdm(total=len(files), desc=f"Processing Dryad metadata for {self.record_id}", unit="file", leave=False) as metadata_pbar:
+                with tqdm(
+                    total=len(files),
+                    desc=f"Processing Dryad metadata for {self.record_id}",
+                    unit="file",
+                    leave=False,
+                ) as metadata_pbar:
                     for file_data in files:
-                        file_link = "https://datadryad.org" + file_data["_links"]["stash:download"]["href"]
+                        file_link = (
+                            "https://datadryad.org"
+                            + file_data["_links"]["stash:download"]["href"]
+                        )
                         file_path = file_data["path"]
                         file_size = file_data.get("size", 0)  # Size in bytes
 
-                        file_info.append({
-                            'url': file_link,
-                            'path': file_path,
-                            'size': file_size
-                        })
+                        file_info.append(
+                            {"url": file_link, "path": file_path, "size": file_size}
+                        )
                         total_size += file_size
 
-                        metadata_pbar.set_postfix_str(f"Processing {Path(file_path).name} ({file_size:,} bytes)")
+                        metadata_pbar.set_postfix_str(
+                            f"Processing {Path(file_path).name} ({file_size:,} bytes)"
+                        )
                         metadata_pbar.update(1)
 
             except Exception as metadata_error:
-                self.log.warning(f"Could not get file metadata: {metadata_error}, falling back to simple download")
+                self.log.warning(
+                    f"Could not get file metadata: {metadata_error}, falling back to simple download"
+                )
                 # Fallback to original method without progress tracking
                 download_links = self._get_file_links
-                file_info = [{'url': link, 'path': path, 'size': 0} for link, path in download_links]
+                file_info = [
+                    {"url": link, "path": path, "size": 0}
+                    for link, path in download_links
+                ]
                 total_size = 0
 
             if not file_info:
@@ -179,16 +196,25 @@ class Dryad(DoiProvider):
                 return
 
             # Log download summary before starting
-            self.log.info(f"Starting download of {len(file_info)} files from Dryad dataset {self.record_id} ({total_size:,} bytes total)")
+            self.log.info(
+                f"Starting download of {len(file_info)} files from Dryad dataset {self.record_id} ({total_size:,} bytes total)"
+            )
 
             # Download individual files with progress bar
-            with tqdm(total=total_size, desc=f"Downloading Dryad dataset {self.record_id}", unit="B", unit_scale=True) as pbar:
+            with tqdm(
+                total=total_size,
+                desc=f"Downloading Dryad dataset {self.record_id}",
+                unit="B",
+                unit_scale=True,
+            ) as pbar:
                 for i, file_data in enumerate(file_info, 1):
-                    file_link = file_data['url']
-                    file_path = file_data['path']
-                    file_size = file_data['size']
+                    file_link = file_data["url"]
+                    file_path = file_data["path"]
+                    file_size = file_data["size"]
 
-                    pbar.set_postfix_str(f"File {i}/{len(file_info)}: {Path(file_path).name}")
+                    pbar.set_postfix_str(
+                        f"File {i}/{len(file_info)}: {Path(file_path).name}"
+                    )
 
                     resp = self._request(
                         file_link,
@@ -204,9 +230,13 @@ class Dryad(DoiProvider):
                                 dst.write(chunk)
                                 pbar.update(len(chunk))
 
-                    self.log.debug(f"Downloaded Dryad file {i}/{len(file_info)}: {file_path}")
+                    self.log.debug(
+                        f"Downloaded Dryad file {i}/{len(file_info)}: {file_path}"
+                    )
 
-            self.log.info(f"Downloaded {len(file_info)} files from Dryad dataset {self.record_id} ({total_size} bytes total)")
+            self.log.info(
+                f"Downloaded {len(file_info)} files from Dryad dataset {self.record_id} ({total_size} bytes total)"
+            )
 
         except ValueError as e:
             raise Exception(e)

@@ -13,17 +13,27 @@ class TestFigshareProvider:
             "url": "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626",
             "id": "19248626",
             "title": "Prince Edward Islands geospatial database",
-            "expected_bbox": [37.51696444333383, -47.00490880063488, 38.032055268506745, -46.58858378306222],  # [W, S, E, N]
+            "expected_bbox": [
+                37.51696444333383,
+                -47.00490880063488,
+                38.032055268506745,
+                -46.58858378306222,
+            ],  # [W, S, E, N]
             "description": "South African sub-Antarctic islands geospatial data",
         },
         "raster_workshop": {
             "doi": "10.6084/m9.figshare.20146919.v1",
             "url": "https://figshare.com/articles/dataset/Raster_dataset_for_workshop_Introduction_to_Geospatial_Raster_and_Vector_Data_with_Python_/20146919",
             "id": "20146919",
-            "title": "Raster dataset for workshop \"Introduction to Geospatial Raster and Vector Data with Python\"",
-            "expected_bbox": [4.464980367155466, 52.25345680616433, 6.141769904471917, 53.208217152152926],  # [W, S, E, N]
+            "title": 'Raster dataset for workshop "Introduction to Geospatial Raster and Vector Data with Python"',
+            "expected_bbox": [
+                4.464980367155466,
+                52.25345680616433,
+                6.141769904471917,
+                53.208217152152926,
+            ],  # [W, S, E, N]
             "description": "Geospatial raster data for Python workshop - covers parts of Netherlands",
-        }
+        },
     }
 
     def test_figshare_url_validation(self):
@@ -52,13 +62,11 @@ class TestFigshareProvider:
         """Test Figshare provider with actual bounding box verification - Prince Edward Islands"""
         dataset = self.TEST_DATASETS["prince_edward_islands"]
 
-
         try:
             # Test with download_data=True to get actual geospatial data
             result = geoextent.from_repository(
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
-
 
             assert result is not None
             assert result["format"] == "repository"
@@ -68,7 +76,6 @@ class TestFigshareProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
                 assert isinstance(bbox[1], (int, float))
@@ -76,10 +83,18 @@ class TestFigshareProvider:
                 assert isinstance(bbox[3], (int, float))
 
                 # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
-                assert abs(bbox[0] - expected_bbox[0]) < 0.01, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
-                assert abs(bbox[1] - expected_bbox[1]) < 0.01, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
-                assert abs(bbox[2] - expected_bbox[2]) < 0.01, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
-                assert abs(bbox[3] - expected_bbox[3]) < 0.01, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                assert (
+                    abs(bbox[0] - expected_bbox[0]) < 0.01
+                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                assert (
+                    abs(bbox[1] - expected_bbox[1]) < 0.01
+                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                assert (
+                    abs(bbox[2] - expected_bbox[2]) < 0.01
+                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                assert (
+                    abs(bbox[3] - expected_bbox[3]) < 0.01
+                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
                 assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
@@ -105,13 +120,11 @@ class TestFigshareProvider:
         """Test Figshare provider with actual bounding box verification - Raster Workshop Dataset"""
         dataset = self.TEST_DATASETS["raster_workshop"]
 
-
         try:
             # Test with download_data=True to get actual geospatial data
             result = geoextent.from_repository(
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
-
 
             assert result is not None
             assert result["format"] == "repository"
@@ -121,7 +134,6 @@ class TestFigshareProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
                 assert isinstance(bbox[1], (int, float))
@@ -129,10 +141,18 @@ class TestFigshareProvider:
                 assert isinstance(bbox[3], (int, float))
 
                 # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
-                assert abs(bbox[0] - expected_bbox[0]) < 0.01, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
-                assert abs(bbox[1] - expected_bbox[1]) < 0.01, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
-                assert abs(bbox[2] - expected_bbox[2]) < 0.01, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
-                assert abs(bbox[3] - expected_bbox[3]) < 0.01, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                assert (
+                    abs(bbox[0] - expected_bbox[0]) < 0.01
+                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                assert (
+                    abs(bbox[1] - expected_bbox[1]) < 0.01
+                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                assert (
+                    abs(bbox[2] - expected_bbox[2]) < 0.01
+                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                assert (
+                    abs(bbox[3] - expected_bbox[3]) < 0.01
+                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
                 assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
@@ -163,7 +183,6 @@ class TestFigshareProvider:
             assert result is not None
             assert result["format"] == "repository"
 
-
             # For Figshare, metadata-only still downloads files since
             # Figshare doesn't provide geospatial metadata directly
             # This behavior is expected and documented
@@ -184,6 +203,7 @@ class TestFigshareProvider:
         ]
 
         from geoextent.lib.content_providers.Figshare import Figshare
+
         figshare = Figshare()
 
         for url in url_variants:
@@ -210,7 +230,9 @@ class TestFigshareProvider:
 
         # Test nonexistent article
         nonexistent_url = "https://figshare.com/articles/dataset/nonexistent/999999999"
-        assert figshare.validate_provider(nonexistent_url) == True  # URL format is valid
+        assert (
+            figshare.validate_provider(nonexistent_url) == True
+        )  # URL format is valid
 
         # But trying to extract should fail gracefully
         try:
@@ -363,4 +385,8 @@ class TestFigshareEdgeCases:
                 assert isinstance(metadata, dict)
         except Exception as e:
             # Exception is expected for nonexistent articles
-            assert "does not exist" in str(e) or "404" in str(e) or "error" in str(e).lower()
+            assert (
+                "does not exist" in str(e)
+                or "404" in str(e)
+                or "error" in str(e).lower()
+            )

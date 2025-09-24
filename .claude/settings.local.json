@@ -38,7 +38,10 @@
       "WebFetch(domain:dataverse.harvard.edu)",
       "WebFetch(domain:guides.dataverse.org)",
       "Bash(python3:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(tree:*)",
+      "Bash(__NEW_LINE__ echo -e \"\\n=== Recursive processing (default) ===\")",
+      "Bash(__NEW_LINE__ echo -e \"\\n=== Non-recursive processing (--no-subdirs) ===\")"
     ],
     "deny": [],
     "ask": []

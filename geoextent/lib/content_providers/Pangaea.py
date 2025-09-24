@@ -347,7 +347,9 @@ class Pangaea(DoiProvider):
 
         return parameters
 
-    def download(self, target_folder, throttle=False, download_data=True, show_progress=True):
+    def download(
+        self, target_folder, throttle=False, download_data=True, show_progress=True
+    ):
         """
         Extract geospatial metadata from Pangaea dataset.
 
@@ -378,9 +380,13 @@ class Pangaea(DoiProvider):
         from tqdm import tqdm
 
         # Log download summary before starting
-        self.log.info(f"Starting metadata extraction from Pangaea dataset {self.dataset_id}")
+        self.log.info(
+            f"Starting metadata extraction from Pangaea dataset {self.dataset_id}"
+        )
 
-        with tqdm(desc=f"Extracting Pangaea metadata for {self.dataset_id}", unit="step") as pbar:
+        with tqdm(
+            desc=f"Extracting Pangaea metadata for {self.dataset_id}", unit="step"
+        ) as pbar:
             # Try web scraping first as fallback when pangaeapy fails or for no-download mode
             try:
                 pbar.set_postfix_str("Fetching web metadata")
@@ -420,7 +426,9 @@ class Pangaea(DoiProvider):
 
                 with open(geojson_file, "w") as f:
                     json.dump(geojson_data, f, indent=2)
-                self.log.info(f"Created GeoJSON metadata file for Pangaea dataset {self.dataset_id}")
+                self.log.info(
+                    f"Created GeoJSON metadata file for Pangaea dataset {self.dataset_id}"
+                )
             else:
                 # Fallback: create JSON metadata file for debugging
                 metadata_file = os.path.join(
@@ -429,7 +437,9 @@ class Pangaea(DoiProvider):
                 pbar.set_postfix_str("Creating metadata file")
                 with open(metadata_file, "w") as f:
                     json.dump(processed_metadata, f, indent=2)
-                self.log.info(f"Created metadata file for Pangaea dataset {self.dataset_id}")
+                self.log.info(
+                    f"Created metadata file for Pangaea dataset {self.dataset_id}"
+                )
             pbar.update(1)
 
     def _download_data_files(self, target_folder):
@@ -445,10 +455,14 @@ class Pangaea(DoiProvider):
                 )
 
                 # Log download summary before starting
-                self.log.info(f"Starting data file download from Pangaea dataset {self.dataset_id}")
+                self.log.info(
+                    f"Starting data file download from Pangaea dataset {self.dataset_id}"
+                )
 
                 # Show progress while fetching dataset metadata
-                with tqdm(desc=f"Fetching Pangaea dataset {self.dataset_id}", unit="step") as pbar:
+                with tqdm(
+                    desc=f"Fetching Pangaea dataset {self.dataset_id}", unit="step"
+                ) as pbar:
                     pbar.set_postfix_str("Connecting to Pangaea API")
                     # Create dataset using the numeric ID
                     dataset = PanDataSet(int(self.dataset_id))
@@ -457,7 +471,9 @@ class Pangaea(DoiProvider):
                     # Check if dataset has downloadable data
                     if hasattr(dataset, "data") and dataset.data is not None:
                         pbar.set_postfix_str("Processing data")
-                        data_size = len(dataset.data) if hasattr(dataset.data, '__len__') else 1
+                        data_size = (
+                            len(dataset.data) if hasattr(dataset.data, "__len__") else 1
+                        )
 
                         # Save data as CSV for GDAL processing
                         csv_file = os.path.join(
@@ -468,7 +484,9 @@ class Pangaea(DoiProvider):
                         self.log.debug(f"Saved dataset data to {csv_file}")
                         pbar.update(1)
 
-                        self.log.info(f"Downloaded Pangaea dataset {self.dataset_id} with {data_size} records")
+                        self.log.info(
+                            f"Downloaded Pangaea dataset {self.dataset_id} with {data_size} records"
+                        )
 
                     else:
                         self.log.warning(

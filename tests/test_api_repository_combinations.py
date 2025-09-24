@@ -204,7 +204,10 @@ class TestRepositoryURLvsDoiHandling:
 
     def test_repository_doi_vs_url_equivalence(self):
         """Test that DOI and URL formats return equivalent results"""
-        for provider_name, provider_data in TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA.items():
+        for (
+            provider_name,
+            provider_data,
+        ) in TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA.items():
             if "url" not in provider_data:
                 continue
 
@@ -271,7 +274,9 @@ class TestRepositoryErrorHandling:
 
     def test_repository_with_very_short_timeout(self):
         """Test repository with very short timeout"""
-        test_doi = list(TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA.values())[0]["doi"]
+        test_doi = list(
+            TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA.values()
+        )[0]["doi"]
 
         try:
             result = geoextent.from_repository(
@@ -287,7 +292,11 @@ class TestRepositoryErrorHandling:
             pytest.skip("Required library not available")
         except Exception as e:
             # Timeout or network error is expected
-            assert "timeout" in str(e).lower() or "network" in str(e).lower() or "error" in str(e).lower()
+            assert (
+                "timeout" in str(e).lower()
+                or "network" in str(e).lower()
+                or "error" in str(e).lower()
+            )
 
     def test_repository_unsupported_provider(self):
         """Test repository with unsupported provider URL"""
@@ -316,7 +325,9 @@ class TestRepositoryProviderValidation:
         assert len(geoextent_repo.content_providers) > 0
 
         # Check that Pangaea provider is in the list
-        provider_names = [provider.__name__ for provider in geoextent_repo.content_providers]
+        provider_names = [
+            provider.__name__ for provider in geoextent_repo.content_providers
+        ]
         assert "Pangaea" in provider_names
 
     def test_repository_provider_validation_methods(self):
@@ -369,7 +380,9 @@ class TestRepositorySpecialCases:
 
     def test_repository_with_whitespace_handling(self):
         """Test repository with whitespace in DOI/URL strings"""
-        base_doi = list(TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA.values())[0]["doi"]
+        base_doi = list(
+            TestRepositoryParameterCombinations.REPOSITORY_TEST_DATA.values()
+        )[0]["doi"]
 
         whitespace_cases = [
             f" {base_doi} ",  # Leading and trailing spaces
@@ -379,7 +392,9 @@ class TestRepositorySpecialCases:
 
         for doi_with_whitespace in whitespace_cases:
             try:
-                result = geoextent.from_repository(doi_with_whitespace.strip(), bbox=True)
+                result = geoextent.from_repository(
+                    doi_with_whitespace.strip(), bbox=True
+                )
                 # Should handle whitespace gracefully after stripping
                 if result is not None:
                     assert result["format"] == "repository"

@@ -15,7 +15,11 @@ class TestOSFProvider:
             "title": "GIS Dataset",
             "description": "Contains shapefiles for Mekong River analysis",
             # Expected results based on the shapefiles we saw downloaded
-            "expected_files": ["River_reach_3S.shp", "Mekong_River_Full.shp", "UderContract_Scenario_Modelled.shp"],
+            "expected_files": [
+                "River_reach_3S.shp",
+                "Mekong_River_Full.shp",
+                "UderContract_Scenario_Modelled.shp",
+            ],
             "has_shapefiles": True,
         },
         "niseko_gis": {
@@ -104,7 +108,9 @@ class TestOSFProvider:
             result = osf.validate_provider(url)
             assert result == expected_valid, f"URL {url} validation failed"
             if expected_valid:
-                assert osf.project_id == expected_id, f"Project ID extraction failed for {url}"
+                assert (
+                    osf.project_id == expected_id
+                ), f"Project ID extraction failed for {url}"
 
     def test_osf_provider_validation_dois(self):
         """Test OSF provider validation with DOIs"""
@@ -126,7 +132,9 @@ class TestOSFProvider:
             result = osf.validate_provider(doi)
             assert result == expected_valid, f"DOI {doi} validation failed"
             if expected_valid:
-                assert osf.project_id == expected_id, f"Project ID extraction failed for {doi}"
+                assert (
+                    osf.project_id == expected_id
+                ), f"Project ID extraction failed for {doi}"
 
     def test_osf_provider_validation_doi_variants(self):
         """Test OSF provider validation with various DOI URL formats and capitalizations"""
@@ -141,32 +149,25 @@ class TestOSFProvider:
             ("10.17605/OSF.IO/A5F3E", True, "a5f3e"),
             ("10.17605/OSF.IO/9JG2U", True, "9jg2u"),
             ("10.17605/OSF.IO/JXATU", True, "jxatu"),
-
             # Lowercase variants
             ("10.17605/osf.io/j2sta", True, "j2sta"),
             ("10.17605/osf.io/A5F3E", True, "a5f3e"),
-
             # Mixed case variants
             ("10.17605/Osf.Io/J2STA", True, "j2sta"),
-
             # DOI resolver URLs - https://doi.org
             ("https://doi.org/10.17605/OSF.IO/J2STA", True, "j2sta"),
             ("https://doi.org/10.17605/OSF.IO/A5F3E", True, "a5f3e"),
             ("https://doi.org/10.17605/osf.io/j2sta", True, "j2sta"),
             ("http://doi.org/10.17605/OSF.IO/J2STA", True, "j2sta"),
-
             # DOI resolver URLs - dx.doi.org (legacy)
             ("http://dx.doi.org/10.17605/OSF.IO/J2STA", True, "j2sta"),
             ("https://dx.doi.org/10.17605/OSF.IO/A5F3E", True, "a5f3e"),
-
             # With www prefix
             ("https://www.doi.org/10.17605/OSF.IO/J2STA", True, "j2sta"),
-
             # With trailing paths/queries/fragments
             ("https://doi.org/10.17605/OSF.IO/J2STA/", True, "j2sta"),
             ("https://doi.org/10.17605/OSF.IO/J2STA?tab=files", True, "j2sta"),
             ("https://doi.org/10.17605/OSF.IO/J2STA#readme", True, "j2sta"),
-
             # Invalid cases
             ("10.17605/OSF.IO/invalid_id", False, None),
             ("https://doi.org/10.1000/invalid", False, None),
@@ -175,9 +176,13 @@ class TestOSFProvider:
 
         for reference, expected_valid, expected_id in test_cases:
             result = osf.validate_provider(reference)
-            assert result == expected_valid, f"DOI variant {reference} validation failed"
+            assert (
+                result == expected_valid
+            ), f"DOI variant {reference} validation failed"
             if expected_valid:
-                assert osf.project_id == expected_id, f"Project ID extraction failed for {reference}"
+                assert (
+                    osf.project_id == expected_id
+                ), f"Project ID extraction failed for {reference}"
             osf.project_id = None  # Reset for next test
 
     def test_osf_provider_validation_plain_identifiers(self):
@@ -193,16 +198,13 @@ class TestOSFProvider:
             ("OSF.IO/J2STA", True, "j2sta"),
             ("OSF.IO/A5F3E", True, "a5f3e"),
             ("OSF.IO/JXATU", True, "jxatu"),
-
             # Lowercase variants
             ("osf.io/9jg2u", True, "9jg2u"),
             ("osf.io/j2sta", True, "j2sta"),
             ("osf.io/A5F3E", True, "a5f3e"),
-
             # Mixed case variants
             ("Osf.Io/9JG2U", True, "9jg2u"),
             ("Osf.Io/J2STA", True, "j2sta"),
-
             # Invalid cases
             ("OSF.IO/invalid_id", False, None),
             ("OSF.IO/", False, None),
@@ -215,9 +217,13 @@ class TestOSFProvider:
 
         for reference, expected_valid, expected_id in test_cases:
             result = osf.validate_provider(reference)
-            assert result == expected_valid, f"Plain OSF identifier {reference} validation failed"
+            assert (
+                result == expected_valid
+            ), f"Plain OSF identifier {reference} validation failed"
             if expected_valid:
-                assert osf.project_id == expected_id, f"Project ID extraction failed for {reference}"
+                assert (
+                    osf.project_id == expected_id
+                ), f"Project ID extraction failed for {reference}"
             osf.project_id = None  # Reset for next test
 
     def test_osf_metadata_extraction(self):
@@ -267,20 +273,27 @@ class TestOSFProvider:
                 # Check that expected files exist
                 downloaded_names = [os.path.basename(f) for f in files]
                 for expected_file in dataset["expected_files"]:
-                    assert expected_file in downloaded_names, f"Expected file {expected_file} not found"
+                    assert (
+                        expected_file in downloaded_names
+                    ), f"Expected file {expected_file} not found"
 
                 # Check for shapefile components if this is a GIS dataset
                 if dataset.get("has_shapefiles"):
-                    shp_files = [f for f in downloaded_names if f.endswith('.shp')]
+                    shp_files = [f for f in downloaded_names if f.endswith(".shp")]
                     assert len(shp_files) > 0, "No shapefile (.shp) files found"
 
                     # For each .shp file, check for associated files
                     for shp_file in shp_files:
                         base_name = shp_file[:-4]  # Remove .shp extension
-                        expected_extensions = ['.shx', '.dbf']  # Required shapefile components
+                        expected_extensions = [
+                            ".shx",
+                            ".dbf",
+                        ]  # Required shapefile components
                         for ext in expected_extensions:
                             expected_file = base_name + ext
-                            assert expected_file in downloaded_names, f"Missing shapefile component: {expected_file}"
+                            assert (
+                                expected_file in downloaded_names
+                            ), f"Missing shapefile component: {expected_file}"
 
             except ImportError:
                 pytest.skip("osfclient not available")
@@ -293,11 +306,7 @@ class TestOSFProvider:
 
         try:
             result = geoextent.from_repository(
-                dataset["url"],
-                bbox=True,
-                tbox=False,
-                timeout=60,
-                download_data=True
+                dataset["url"], bbox=True, tbox=False, timeout=60, download_data=True
             )
 
             # Check basic result structure
@@ -311,7 +320,9 @@ class TestOSFProvider:
                 assert "crs" in result
                 bbox = result["bbox"]
                 assert len(bbox) == 4, "Bounding box should have 4 coordinates"
-                assert all(isinstance(coord, (int, float)) for coord in bbox), "All bbox coordinates should be numeric"
+                assert all(
+                    isinstance(coord, (int, float)) for coord in bbox
+                ), "All bbox coordinates should be numeric"
 
         except ImportError:
             pytest.skip("osfclient not available")
@@ -324,11 +335,7 @@ class TestOSFProvider:
 
         try:
             result = geoextent.from_repository(
-                dataset["url"],
-                bbox=True,
-                tbox=False,
-                timeout=30,
-                download_data=False
+                dataset["url"], bbox=True, tbox=False, timeout=30, download_data=False
             )
 
             # Should complete without error, but may have limited results
@@ -368,8 +375,8 @@ class TestOSFProvider:
         assert osf_provider.name == "OSF"
 
         # Test validation method exists
-        assert hasattr(osf_provider, 'validate_provider')
-        assert hasattr(osf_provider, 'download')
+        assert hasattr(osf_provider, "validate_provider")
+        assert hasattr(osf_provider, "download")
 
 
 class TestOSFParameterCombinations:
@@ -381,11 +388,7 @@ class TestOSFParameterCombinations:
 
         try:
             result = geoextent.from_repository(
-                dataset["url"],
-                bbox=True,
-                tbox=False,
-                timeout=30,
-                download_data=True
+                dataset["url"], bbox=True, tbox=False, timeout=30, download_data=True
             )
 
             assert result is not None
@@ -404,10 +407,7 @@ class TestOSFParameterCombinations:
 
         with pytest.raises(Exception):
             geoextent.from_repository(
-                dataset["url"],
-                bbox=False,
-                tbox=False,
-                timeout=30
+                dataset["url"], bbox=False, tbox=False, timeout=30
             )
 
     def test_osf_repository_with_timeout(self):
@@ -421,7 +421,7 @@ class TestOSFParameterCombinations:
                 bbox=True,
                 tbox=False,
                 timeout=10,  # Short timeout
-                download_data=False  # Faster without download
+                download_data=False,  # Faster without download
             )
 
             assert result is not None
@@ -487,6 +487,7 @@ class TestOSFEdgeCases:
 
         # Test download method signature
         import inspect
+
         sig = inspect.signature(osf.download)
         param_names = list(sig.parameters.keys())
         assert "target_folder" in param_names
@@ -506,7 +507,12 @@ class TestOSFActualBoundingBoxVerification:
             "direct_url": "https://osf.io/9jg2u",
             "project_id": "9jg2u",
             "title": "Boston area geospatial data",
-            "expected_bbox": [-71.11696719686476, 42.33758042479756, -71.04845692576838, 42.37900158005487],  # [W, S, E, N]
+            "expected_bbox": [
+                -71.11696719686476,
+                42.33758042479756,
+                -71.04845692576838,
+                42.37900158005487,
+            ],  # [W, S, E, N]
             "description": "Boston metropolitan area spatial data",
         },
         "southeast_asia": {
@@ -516,9 +522,14 @@ class TestOSFActualBoundingBoxVerification:
             "direct_url": "https://osf.io/4xe6z",
             "project_id": "4xe6z",
             "title": "Southeast Asia regional data",
-            "expected_bbox": [93.885557, 10.0017, 108.72980074860037, 33.267781],  # [W, S, E, N]
+            "expected_bbox": [
+                93.885557,
+                10.0017,
+                108.72980074860037,
+                33.267781,
+            ],  # [W, S, E, N]
             "description": "Southeast Asia regional spatial dataset",
-        }
+        },
     }
 
     def test_osf_actual_bounding_box_verification_boston(self):
@@ -539,7 +550,6 @@ class TestOSFActualBoundingBoxVerification:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
                 assert isinstance(bbox[1], (int, float))
@@ -547,10 +557,18 @@ class TestOSFActualBoundingBoxVerification:
                 assert isinstance(bbox[3], (int, float))
 
                 # Verify bounding box with reasonable tolerance (0.001 degrees ~ 110 m)
-                assert abs(bbox[0] - expected_bbox[0]) < 0.001, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
-                assert abs(bbox[1] - expected_bbox[1]) < 0.001, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
-                assert abs(bbox[2] - expected_bbox[2]) < 0.001, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
-                assert abs(bbox[3] - expected_bbox[3]) < 0.001, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                assert (
+                    abs(bbox[0] - expected_bbox[0]) < 0.001
+                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                assert (
+                    abs(bbox[1] - expected_bbox[1]) < 0.001
+                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                assert (
+                    abs(bbox[2] - expected_bbox[2]) < 0.001
+                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                assert (
+                    abs(bbox[3] - expected_bbox[3]) < 0.001
+                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
                 assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
@@ -561,8 +579,12 @@ class TestOSFActualBoundingBoxVerification:
                 assert -90 <= bbox[3] <= 90, "North latitude should be valid"
 
                 # Boston area should be in reasonable geographic bounds
-                assert -75 <= bbox[0] <= -70, f"West longitude {bbox[0]} should be in Boston area"
-                assert 40 <= bbox[1] <= 45, f"South latitude {bbox[1]} should be in Boston area"
+                assert (
+                    -75 <= bbox[0] <= -70
+                ), f"West longitude {bbox[0]} should be in Boston area"
+                assert (
+                    40 <= bbox[1] <= 45
+                ), f"South latitude {bbox[1]} should be in Boston area"
 
             # Check CRS
             if "crs" in result:
@@ -591,7 +613,6 @@ class TestOSFActualBoundingBoxVerification:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
                 assert isinstance(bbox[1], (int, float))
@@ -599,10 +620,18 @@ class TestOSFActualBoundingBoxVerification:
                 assert isinstance(bbox[3], (int, float))
 
                 # Verify bounding box with reasonable tolerance (0.001 degrees ~ 110 m)
-                assert abs(bbox[0] - expected_bbox[0]) < 0.001, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
-                assert abs(bbox[1] - expected_bbox[1]) < 0.001, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
-                assert abs(bbox[2] - expected_bbox[2]) < 0.001, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
-                assert abs(bbox[3] - expected_bbox[3]) < 0.001, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                assert (
+                    abs(bbox[0] - expected_bbox[0]) < 0.001
+                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                assert (
+                    abs(bbox[1] - expected_bbox[1]) < 0.001
+                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                assert (
+                    abs(bbox[2] - expected_bbox[2]) < 0.001
+                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                assert (
+                    abs(bbox[3] - expected_bbox[3]) < 0.001
+                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
                 assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
@@ -613,8 +642,12 @@ class TestOSFActualBoundingBoxVerification:
                 assert -90 <= bbox[3] <= 90, "North latitude should be valid"
 
                 # Southeast Asia should be in reasonable geographic bounds
-                assert 90 <= bbox[0] <= 115, f"West longitude {bbox[0]} should be in Southeast Asia"
-                assert 5 <= bbox[1] <= 35, f"South latitude {bbox[1]} should be in Southeast Asia"
+                assert (
+                    90 <= bbox[0] <= 115
+                ), f"West longitude {bbox[0]} should be in Southeast Asia"
+                assert (
+                    5 <= bbox[1] <= 35
+                ), f"South latitude {bbox[1]} should be in Southeast Asia"
 
             # Check CRS
             if "crs" in result:
@@ -655,7 +688,15 @@ class TestOSFActualBoundingBoxVerification:
         if len(bboxes) > 1:
             reference_bbox = bboxes[0][1]
             for identifier, bbox in bboxes[1:]:
-                assert abs(bbox[0] - reference_bbox[0]) < 0.001, f"West longitude mismatch for {identifier}"
-                assert abs(bbox[1] - reference_bbox[1]) < 0.001, f"South latitude mismatch for {identifier}"
-                assert abs(bbox[2] - reference_bbox[2]) < 0.001, f"East longitude mismatch for {identifier}"
-                assert abs(bbox[3] - reference_bbox[3]) < 0.001, f"North latitude mismatch for {identifier}"
+                assert (
+                    abs(bbox[0] - reference_bbox[0]) < 0.001
+                ), f"West longitude mismatch for {identifier}"
+                assert (
+                    abs(bbox[1] - reference_bbox[1]) < 0.001
+                ), f"South latitude mismatch for {identifier}"
+                assert (
+                    abs(bbox[2] - reference_bbox[2]) < 0.001
+                ), f"East longitude mismatch for {identifier}"
+                assert (
+                    abs(bbox[3] - reference_bbox[3]) < 0.001
+                ), f"North latitude mismatch for {identifier}"

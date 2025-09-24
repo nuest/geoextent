@@ -21,7 +21,12 @@ class TestPangaeaProvider:
             "url": "https://doi.pangaea.de/10.1594/PANGAEA.786028",
             "id": "786028",
             "title": "Mineralogy and grain size composition of ODP Site 182-1128 sediments",
-            "expected_bbox": [127.590835, -34.391055, 127.590835, -34.391055],  # Point location
+            "expected_bbox": [
+                127.590835,
+                -34.391055,
+                127.590835,
+                -34.391055,
+            ],  # Point location
             "expected_tbox": ["1998-11-03", "1998-11-11"],
         },
         "reference": {
@@ -53,7 +58,12 @@ class TestPangaeaProvider:
             "url": "https://doi.pangaea.de/10.1594/PANGAEA.842589",
             "id": "842589",
             "title": "Dinoflagellate cyst measurements from sediment core HH11-134-BC",
-            "expected_bbox": [9.887500, 77.599330, 9.887500, 77.599330],  # Point location
+            "expected_bbox": [
+                9.887500,
+                77.599330,
+                9.887500,
+                77.599330,
+            ],  # Point location
             # Temporal coverage might be geological ages, not calendar dates
         },
         "radiosonde_momote": {
@@ -63,7 +73,7 @@ class TestPangaeaProvider:
             "title": "Radiosonde measurements from station Momote (2005-09)",
             "expected_bbox": [147.425, -2.058, 147.425, -2.058],  # Point location
             "expected_tbox": ["2005-09-01", "2005-09-30"],
-        }
+        },
     }
 
     def test_pangaea_doi_validation_multiple_datasets(self):
@@ -100,7 +110,9 @@ class TestPangaeaProvider:
 
                 # Check that title matches expected (partial match)
                 if "title" in dataset_info:
-                    expected_title_words = dataset_info["title"].lower().split()[:3]  # First 3 words
+                    expected_title_words = (
+                        dataset_info["title"].lower().split()[:3]
+                    )  # First 3 words
                     actual_title = metadata["title"].lower()
                     assert any(word in actual_title for word in expected_title_words)
 
@@ -115,9 +127,7 @@ class TestPangaeaProvider:
 
         try:
             # Test with DOI
-            result = geoextent.from_repository(
-                dataset["doi"], bbox=True, tbox=True
-            )
+            result = geoextent.from_repository(dataset["doi"], bbox=True, tbox=True)
 
             assert result is not None
             assert "format" in result
@@ -135,10 +145,18 @@ class TestPangaeaProvider:
                 assert isinstance(bbox[3], (int, float))
 
                 # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
-                assert abs(bbox[0] - expected_bbox[0]) < 0.01, f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
-                assert abs(bbox[1] - expected_bbox[1]) < 0.01, f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
-                assert abs(bbox[2] - expected_bbox[2]) < 0.01, f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
-                assert abs(bbox[3] - expected_bbox[3]) < 0.01, f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                assert (
+                    abs(bbox[0] - expected_bbox[0]) < 0.01
+                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                assert (
+                    abs(bbox[1] - expected_bbox[1]) < 0.01
+                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                assert (
+                    abs(bbox[2] - expected_bbox[2]) < 0.01
+                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                assert (
+                    abs(bbox[3] - expected_bbox[3]) < 0.01
+                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
                 assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
@@ -172,9 +190,7 @@ class TestPangaeaProvider:
 
         try:
             # Test with URL format
-            result = geoextent.from_repository(
-                dataset["url"], bbox=True, tbox=True
-            )
+            result = geoextent.from_repository(dataset["url"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
             assert result["format"] == "repository"
@@ -205,9 +221,7 @@ class TestPangaeaProvider:
         dataset = self.TEST_DATASETS["reference"]
 
         try:
-            result = geoextent.from_repository(
-                dataset["doi"], bbox=True, tbox=True
-            )
+            result = geoextent.from_repository(dataset["doi"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
             assert result["format"] == "repository"
@@ -259,7 +273,7 @@ class TestPangaeaProvider:
                 self.TEST_DATASETS["oceanography_meteor"]["doi"],
                 bbox=True,
                 tbox=True,
-                download_data=True
+                download_data=True,
             )
             assert result is not None
             assert "format" in result
@@ -268,7 +282,9 @@ class TestPangaeaProvider:
             # Should have extracted geographic and temporal data from actual files
             if "bbox" in result:
                 bbox = result["bbox"]
-                expected_bbox = self.TEST_DATASETS["oceanography_meteor"]["expected_bbox"]
+                expected_bbox = self.TEST_DATASETS["oceanography_meteor"][
+                    "expected_bbox"
+                ]
                 assert len(bbox) == 4
                 # Allow tolerance for extraction differences
                 assert abs(bbox[0] - expected_bbox[0]) < 5.0  # longitude tolerance
@@ -286,9 +302,7 @@ class TestPangaeaProvider:
         for dataset_name in radiosonde_datasets:
             dataset = self.TEST_DATASETS[dataset_name]
             try:
-                result = geoextent.from_repository(
-                    dataset["doi"], bbox=True, tbox=True
-                )
+                result = geoextent.from_repository(dataset["doi"], bbox=True, tbox=True)
                 assert result is not None
                 assert "format" in result
                 assert result["format"] == "repository"
@@ -319,9 +333,7 @@ class TestPangaeaProvider:
         dataset = self.TEST_DATASETS["sediment_core"]
 
         try:
-            result = geoextent.from_repository(
-                dataset["url"], bbox=True, tbox=True
-            )
+            result = geoextent.from_repository(dataset["url"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
             assert result["format"] == "repository"
@@ -346,7 +358,12 @@ class TestPangaeaProvider:
         """Test that all additional datasets can be validated"""
         from geoextent.lib.content_providers.Pangaea import Pangaea
 
-        additional_datasets = ["radiosonde_kwajalein", "oceanography_meteor", "sediment_core", "radiosonde_momote"]
+        additional_datasets = [
+            "radiosonde_kwajalein",
+            "oceanography_meteor",
+            "sediment_core",
+            "radiosonde_momote",
+        ]
         pangaea = Pangaea()
 
         for dataset_name in additional_datasets:
@@ -441,7 +458,9 @@ class TestPangaeaProvider:
                 pangaea.download(temp_dir, throttle=False, download_data=True)
             except Exception as e:
                 # Expect errors due to mock data, but not signature errors
-                assert "pangaeapy" in str(e) or "dataset" in str(e) or "metadata" in str(e)
+                assert (
+                    "pangaeapy" in str(e) or "dataset" in str(e) or "metadata" in str(e)
+                )
 
     def test_pangaea_local_vs_metadata_extraction(self):
         """Test comparing metadata-based vs local file extraction"""
@@ -450,18 +469,12 @@ class TestPangaeaProvider:
         try:
             # Test metadata-based extraction (default)
             result_metadata = geoextent.from_repository(
-                dataset["doi"],
-                bbox=True,
-                tbox=True,
-                download_data=False
+                dataset["doi"], bbox=True, tbox=True, download_data=False
             )
 
             # Test local file extraction
             result_local = geoextent.from_repository(
-                dataset["doi"],
-                bbox=True,
-                tbox=True,
-                download_data=True
+                dataset["doi"], bbox=True, tbox=True, download_data=True
             )
 
             # Both should succeed
@@ -493,7 +506,9 @@ class TestPangaeaProvider:
         parser = get_arg_parser()
 
         # Test that --no-download-data flag is accepted
-        args1 = parser.parse_args(["-b", "-t", "--no-download-data", "10.1594/PANGAEA.734969"])
+        args1 = parser.parse_args(
+            ["-b", "-t", "--no-download-data", "10.1594/PANGAEA.734969"]
+        )
         assert args1.download_data == False
         assert args1.bounding_box == True
         assert args1.time_box == True
@@ -513,9 +528,7 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
 
         try:
-            result = geoextent.from_repository(
-                dataset["doi"], bbox=True, tbox=False
-            )
+            result = geoextent.from_repository(dataset["doi"], bbox=True, tbox=False)
             assert result is not None
             assert "bbox" in result
             assert "tbox" not in result
@@ -530,9 +543,7 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
 
         try:
-            result = geoextent.from_repository(
-                dataset["doi"], bbox=False, tbox=True
-            )
+            result = geoextent.from_repository(dataset["doi"], bbox=False, tbox=True)
             assert result is not None
             assert "tbox" in result
             assert "bbox" not in result
@@ -547,9 +558,7 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
 
         with pytest.raises(Exception, match="No extraction options enabled"):
-            geoextent.from_repository(
-                dataset["doi"], bbox=False, tbox=False
-            )
+            geoextent.from_repository(dataset["doi"], bbox=False, tbox=False)
 
     def test_pangaea_repository_with_details_enabled(self):
         """Test Pangaea repository extraction with details enabled"""
@@ -639,7 +648,7 @@ class TestPangaeaParameterCombinations:
                 details=True,
                 throttle=True,
                 timeout=60,
-                download_data=True
+                download_data=True,
             )
             assert result is not None
             assert result["format"] == "repository"
@@ -655,23 +664,22 @@ class TestPangaeaParameterCombinations:
         test_cases = [
             {
                 "dataset": TestPangaeaProvider.TEST_DATASETS["oceanography"],
-                "params": {"bbox": True, "tbox": False, "details": False}
+                "params": {"bbox": True, "tbox": False, "details": False},
             },
             {
                 "dataset": TestPangaeaProvider.TEST_DATASETS["drilling"],
-                "params": {"bbox": False, "tbox": True, "details": True}
+                "params": {"bbox": False, "tbox": True, "details": True},
             },
             {
                 "dataset": TestPangaeaProvider.TEST_DATASETS["radiosonde_kwajalein"],
-                "params": {"bbox": True, "tbox": True, "download_data": True}
-            }
+                "params": {"bbox": True, "tbox": True, "download_data": True},
+            },
         ]
 
         for test_case in test_cases:
             try:
                 result = geoextent.from_repository(
-                    test_case["dataset"]["doi"],
-                    **test_case["params"]
+                    test_case["dataset"]["doi"], **test_case["params"]
                 )
                 assert result is not None
                 assert result["format"] == "repository"
@@ -710,10 +718,10 @@ class TestPangaeaEdgeCases:
         pangaea = Pangaea()
         invalid_dois = [
             "10.1594/INVALID.123",  # Wrong prefix
-            "10.5281/zenodo.123",   # Different repository
-            "not-a-doi-at-all",    # Not a DOI
-            "",                     # Empty string
-            "10.1594/PANGAEA.",     # Incomplete
+            "10.5281/zenodo.123",  # Different repository
+            "not-a-doi-at-all",  # Not a DOI
+            "",  # Empty string
+            "10.1594/PANGAEA.",  # Incomplete
             "10.1594/PANGAEA.abc",  # Non-numeric ID
         ]
 
@@ -731,9 +739,9 @@ class TestPangaeaEdgeCases:
 
         edge_case_urls = [
             f"https://doi.pangaea.de/10.1594/PANGAEA.{valid_id}/",  # Trailing slash
-            f"HTTP://DOI.PANGAEA.DE/10.1594/PANGAEA.{valid_id}",    # Uppercase
-            f"https://pangaea.de/10.1594/PANGAEA.{valid_id}",       # Different subdomain
-            f"http://pangaea.de/10.1594/PANGAEA.{valid_id}",        # HTTP instead of HTTPS
+            f"HTTP://DOI.PANGAEA.DE/10.1594/PANGAEA.{valid_id}",  # Uppercase
+            f"https://pangaea.de/10.1594/PANGAEA.{valid_id}",  # Different subdomain
+            f"http://pangaea.de/10.1594/PANGAEA.{valid_id}",  # HTTP instead of HTTPS
         ]
 
         for url in edge_case_urls:
@@ -757,7 +765,11 @@ class TestPangaeaEdgeCases:
                 assert isinstance(metadata, dict)
         except Exception as e:
             # Exception is expected for non-existent datasets
-            assert "Failed to fetch" in str(e) or "not available" in str(e) or "Error" in str(e)
+            assert (
+                "Failed to fetch" in str(e)
+                or "not available" in str(e)
+                or "Error" in str(e)
+            )
 
     def test_pangaea_coverage_extraction_with_invalid_data(self):
         """Test coverage extraction with various invalid data scenarios"""
@@ -776,6 +788,7 @@ class TestPangaeaEdgeCases:
         class MockDatasetEmptyData:
             def __init__(self):
                 import pandas as pd
+
                 self.data = pd.DataFrame()
 
         result = pangaea._extract_coverage(MockDatasetEmptyData())
@@ -791,10 +804,17 @@ class TestPangaeaEdgeCases:
         class MockDatasetInvalidDates:
             def __init__(self):
                 import pandas as pd
-                self.data = pd.DataFrame({
-                    'date_time': ['invalid-date', 'not-a-date', '2023-13-45'],  # Invalid dates
-                    'other_col': [1, 2, 3]
-                })
+
+                self.data = pd.DataFrame(
+                    {
+                        "date_time": [
+                            "invalid-date",
+                            "not-a-date",
+                            "2023-13-45",
+                        ],  # Invalid dates
+                        "other_col": [1, 2, 3],
+                    }
+                )
 
         result = pangaea._extract_temporal_coverage(MockDatasetInvalidDates())
         assert result == {}
@@ -833,11 +853,15 @@ class TestPangaeaEdgeCases:
                 pangaea.download(temp_dir, throttle=True, download_data=False)
             except Exception as e:
                 # Expected to fail with mock data
-                assert "pangaeapy" in str(e) or "metadata" in str(e) or "dataset" in str(e)
+                assert (
+                    "pangaeapy" in str(e) or "metadata" in str(e) or "dataset" in str(e)
+                )
 
             # Test download with download_data enabled
             try:
                 pangaea.download(temp_dir, throttle=False, download_data=True)
             except Exception as e:
                 # Expected to fail with mock data
-                assert "pangaeapy" in str(e) or "metadata" in str(e) or "dataset" in str(e)
+                assert (
+                    "pangaeapy" in str(e) or "metadata" in str(e) or "dataset" in str(e)
+                )

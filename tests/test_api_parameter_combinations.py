@@ -10,7 +10,9 @@ class TestParameterCombinations:
 
     def test_fromFile_both_bbox_and_tbox_enabled(self):
         """Test fromFile with both bbox and tbox enabled"""
-        result = geoextent.fromFile("tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=True, tbox=True)
+        result = geoextent.fromFile(
+            "tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=True, tbox=True
+        )
         assert result is not None
         assert "bbox" in result
         assert "crs" in result
@@ -19,11 +21,17 @@ class TestParameterCombinations:
     def test_fromFile_both_disabled_should_fail(self):
         """Test fromFile with both bbox and tbox disabled should raise exception"""
         with pytest.raises(Exception, match="No extraction options enabled"):
-            geoextent.fromFile("tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=False, tbox=False)
+            geoextent.fromFile(
+                "tests/testdata/geojson/muenster_ring_zeit.geojson",
+                bbox=False,
+                tbox=False,
+            )
 
     def test_fromFile_only_bbox_enabled(self):
         """Test fromFile with only bbox enabled"""
-        result = geoextent.fromFile("tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=True, tbox=False)
+        result = geoextent.fromFile(
+            "tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=True, tbox=False
+        )
         assert result is not None
         assert "bbox" in result
         assert "crs" in result
@@ -32,7 +40,9 @@ class TestParameterCombinations:
     def test_fromFile_only_tbox_enabled(self):
         """Test fromFile with only tbox enabled"""
         # Use a GeoJSON file with temporal data
-        result = geoextent.fromFile("tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=False, tbox=True)
+        result = geoextent.fromFile(
+            "tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=False, tbox=True
+        )
         assert result is not None
         # tbox might or might not be present depending on temporal data in the file
         assert "bbox" not in result
@@ -58,7 +68,12 @@ class TestParameterCombinations:
     def test_fromFile_num_sample_ignored_for_non_csv(self):
         """Test that num_sample parameter is ignored for non-CSV files"""
         # Should work without error but num_sample should be ignored
-        result = geoextent.fromFile("tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=True, tbox=True, num_sample=10)
+        result = geoextent.fromFile(
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+            bbox=True,
+            tbox=True,
+            num_sample=10,
+        )
         assert result is not None
         assert "bbox" in result
 
@@ -70,13 +85,17 @@ class TestParameterCombinations:
 
     def test_fromDirectory_with_details_enabled(self):
         """Test fromDirectory with details parameter"""
-        result = geoextent.fromDirectory("tests/testdata/geojson", bbox=True, tbox=True, details=True)
+        result = geoextent.fromDirectory(
+            "tests/testdata/geojson", bbox=True, tbox=True, details=True
+        )
         assert "details" in result
         assert isinstance(result["details"], dict)
 
     def test_fromDirectory_with_details_disabled(self):
         """Test fromDirectory with details disabled (default)"""
-        result = geoextent.fromDirectory("tests/testdata/geojson", bbox=True, tbox=True, details=False)
+        result = geoextent.fromDirectory(
+            "tests/testdata/geojson", bbox=True, tbox=True, details=False
+        )
         assert "details" not in result
 
     def test_fromDirectory_both_disabled_should_fail(self):
@@ -86,7 +105,9 @@ class TestParameterCombinations:
 
     def test_fromDirectory_only_bbox_enabled(self):
         """Test fromDirectory with only bbox enabled"""
-        result = geoextent.fromDirectory("tests/testdata/geojson", bbox=True, tbox=False)
+        result = geoextent.fromDirectory(
+            "tests/testdata/geojson", bbox=True, tbox=False
+        )
         assert "bbox" in result
         assert "tbox" not in result
 
@@ -99,7 +120,9 @@ class TestParameterCombinations:
     def test_fromDirectory_with_timeout_parameter(self):
         """Test fromDirectory with timeout parameter"""
         # Use a reasonable timeout that shouldn't be reached
-        result = geoextent.fromDirectory("tests/testdata/geojson", bbox=True, tbox=True, timeout=30)
+        result = geoextent.fromDirectory(
+            "tests/testdata/geojson", bbox=True, tbox=True, timeout=30
+        )
         assert "bbox" in result
         # timeout field should not be present if timeout wasn't reached
         assert "timeout" not in result
@@ -107,7 +130,9 @@ class TestParameterCombinations:
     def test_fromDirectory_with_very_short_timeout(self):
         """Test fromDirectory with very short timeout"""
         # Use a very short timeout that might be reached
-        result = geoextent.fromDirectory("tests/testdata", bbox=True, tbox=True, timeout=0.001)
+        result = geoextent.fromDirectory(
+            "tests/testdata", bbox=True, tbox=True, timeout=0.001
+        )
         # Should either complete normally or include timeout field
         assert "format" in result
         # If timeout was reached, it should be indicated
@@ -149,7 +174,9 @@ class TestEdgeCasesAndErrors:
     def test_fromDirectory_file_instead_of_directory(self):
         """Test fromDirectory with file path instead of directory"""
         # This should work as fromDirectory can handle individual files
-        result = geoextent.fromDirectory("tests/testdata/geojson/featureCollection.geojson", bbox=True)
+        result = geoextent.fromDirectory(
+            "tests/testdata/geojson/featureCollection.geojson", bbox=True
+        )
         assert "bbox" in result
 
     def test_fromFile_empty_file_path(self):
@@ -165,7 +192,9 @@ class TestEdgeCasesAndErrors:
     def test_fromFile_unsupported_file_format(self):
         """Test fromFile with unsupported file format"""
         # Create a temporary file with unsupported extension
-        with tempfile.NamedTemporaryFile(suffix=".unsupported", delete=False) as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            suffix=".unsupported", delete=False
+        ) as tmp_file:
             tmp_file.write(b"some content")
             tmp_file_path = tmp_file.name
 
@@ -187,17 +216,26 @@ class TestEdgeCasesAndErrors:
     def test_fromFile_csv_with_invalid_num_sample(self):
         """Test fromFile with CSV and invalid num_sample values"""
         # Test with negative num_sample
-        result1 = geoextent.fromFile("tests/testdata/csv/geolife_sample.csv", bbox=True, tbox=True, num_sample=-1)
+        result1 = geoextent.fromFile(
+            "tests/testdata/csv/geolife_sample.csv", bbox=True, tbox=True, num_sample=-1
+        )
         assert result1 is not None  # Should handle gracefully
 
         # Test with zero num_sample
-        result2 = geoextent.fromFile("tests/testdata/csv/geolife_sample.csv", bbox=True, tbox=True, num_sample=0)
+        result2 = geoextent.fromFile(
+            "tests/testdata/csv/geolife_sample.csv", bbox=True, tbox=True, num_sample=0
+        )
         assert result2 is not None  # Should handle gracefully
 
     def test_fromFile_csv_with_very_large_num_sample(self):
         """Test fromFile with CSV and very large num_sample"""
         # Test with num_sample larger than file content
-        result = geoextent.fromFile("tests/testdata/csv/geolife_sample.csv", bbox=True, tbox=True, num_sample=999999)
+        result = geoextent.fromFile(
+            "tests/testdata/csv/geolife_sample.csv",
+            bbox=True,
+            tbox=True,
+            num_sample=999999,
+        )
         assert result is not None  # Should handle gracefully
 
 
@@ -227,7 +265,9 @@ class TestSpecificFileFormats:
 
         # Test with different num_sample values
         for num_sample in [None, 5, 10, 50]:
-            result = geoextent.fromFile(file_path, bbox=True, tbox=True, num_sample=num_sample)
+            result = geoextent.fromFile(
+                file_path, bbox=True, tbox=True, num_sample=num_sample
+            )
             assert "bbox" in result
 
     def test_kml_all_parameter_combinations(self):

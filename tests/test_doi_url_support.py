@@ -12,7 +12,7 @@ class TestDOIURLSupport:
         doi_formats = [
             f"10.1594/PANGAEA.{pangaea_dataset_id}",  # Plain DOI
             f"https://doi.org/10.1594/PANGAEA.{pangaea_dataset_id}",  # HTTPS DOI resolver
-            f"http://doi.org/10.1594/PANGAEA.{pangaea_dataset_id}",   # HTTP DOI resolver
+            f"http://doi.org/10.1594/PANGAEA.{pangaea_dataset_id}",  # HTTP DOI resolver
             f"https://dx.doi.org/10.1594/PANGAEA.{pangaea_dataset_id}",  # Alternative DOI resolver
             f"https://doi.pangaea.de/10.1594/PANGAEA.{pangaea_dataset_id}",  # Direct Pangaea URL
         ]
@@ -21,7 +21,9 @@ class TestDOIURLSupport:
             try:
                 result = geoextent.from_repository(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
-                assert result["format"] == "repository", f"Wrong format for {doi_format}"
+                assert (
+                    result["format"] == "repository"
+                ), f"Wrong format for {doi_format}"
 
             except ImportError:
                 pytest.skip("pangaeapy not available")
@@ -35,7 +37,7 @@ class TestDOIURLSupport:
         doi_formats = [
             f"10.5281/zenodo.{zenodo_record_id}",  # Plain DOI
             f"https://doi.org/10.5281/zenodo.{zenodo_record_id}",  # HTTPS DOI resolver
-            f"http://doi.org/10.5281/zenodo.{zenodo_record_id}",   # HTTP DOI resolver
+            f"http://doi.org/10.5281/zenodo.{zenodo_record_id}",  # HTTP DOI resolver
             f"https://dx.doi.org/10.5281/zenodo.{zenodo_record_id}",  # Alternative DOI resolver
             f"https://zenodo.org/record/{zenodo_record_id}",  # Direct Zenodo URL
         ]
@@ -44,7 +46,9 @@ class TestDOIURLSupport:
             try:
                 result = geoextent.from_repository(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
-                assert result["format"] == "repository", f"Wrong format for {doi_format}"
+                assert (
+                    result["format"] == "repository"
+                ), f"Wrong format for {doi_format}"
 
             except Exception as e:
                 pytest.skip(f"Network or API error for {doi_format}: {e}")
@@ -67,7 +71,9 @@ class TestDOIURLSupport:
         for doi_format in valid_formats:
             is_valid = pangaea.validate_provider(doi_format)
             assert is_valid, f"Pangaea provider should validate {doi_format}"
-            assert pangaea.dataset_id == test_dataset_id, f"Wrong dataset ID extracted from {doi_format}"
+            assert (
+                pangaea.dataset_id == test_dataset_id
+            ), f"Wrong dataset ID extracted from {doi_format}"
 
         # Test invalid formats
         invalid_formats = [
@@ -79,7 +85,9 @@ class TestDOIURLSupport:
 
         for invalid_format in invalid_formats:
             is_valid = pangaea.validate_provider(invalid_format)
-            assert not is_valid, f"Pangaea provider should not validate {invalid_format}"
+            assert (
+                not is_valid
+            ), f"Pangaea provider should not validate {invalid_format}"
 
     def test_doi_url_validation_zenodo_provider(self):
         """Test that Zenodo provider correctly validates all DOI URL formats"""
@@ -99,7 +107,9 @@ class TestDOIURLSupport:
         for doi_format in valid_formats:
             is_valid = zenodo.validate_provider(doi_format)
             assert is_valid, f"Zenodo provider should validate {doi_format}"
-            assert zenodo.record_id == test_record_id, f"Wrong record ID extracted from {doi_format}"
+            assert (
+                zenodo.record_id == test_record_id
+            ), f"Wrong record ID extracted from {doi_format}"
 
         # Test invalid formats
         invalid_formats = [
@@ -123,24 +133,22 @@ class TestDOIURLSupport:
         test_cases = [
             {
                 "input": "https://doi.org/10.1594/PANGAEA.786028",
-                "expected_pattern": "pangaea.de"
+                "expected_pattern": "pangaea.de",
             },
             {
                 "input": "http://doi.org/10.1594/PANGAEA.786028",
-                "expected_pattern": "pangaea.de"
+                "expected_pattern": "pangaea.de",
             },
-            {
-                "input": "10.1594/PANGAEA.786028",
-                "expected_pattern": "pangaea.de"
-            }
+            {"input": "10.1594/PANGAEA.786028", "expected_pattern": "pangaea.de"},
         ]
 
         for test_case in test_cases:
             try:
                 pangaea.reference = test_case["input"]
                 resolved_url = pangaea.get_url
-                assert test_case["expected_pattern"] in resolved_url, \
-                    f"Expected {test_case['expected_pattern']} in resolved URL {resolved_url} for input {test_case['input']}"
+                assert (
+                    test_case["expected_pattern"] in resolved_url
+                ), f"Expected {test_case['expected_pattern']} in resolved URL {resolved_url} for input {test_case['input']}"
 
             except Exception as e:
                 pytest.skip(f"Network error resolving {test_case['input']}: {e}")
@@ -150,17 +158,19 @@ class TestDOIURLSupport:
         test_cases = [
             {
                 "doi": "https://doi.org/10.1594/PANGAEA.786028",
-                "expected_provider": "Pangaea"
+                "expected_provider": "Pangaea",
             },
             {
                 "doi": "https://doi.org/10.5281/zenodo.820562",
-                "expected_provider": "Zenodo"
-            }
+                "expected_provider": "Zenodo",
+            },
         ]
 
         for test_case in test_cases:
             try:
-                result = geoextent.from_repository(test_case["doi"], bbox=True, tbox=True)
+                result = geoextent.from_repository(
+                    test_case["doi"], bbox=True, tbox=True
+                )
                 assert result is not None, f"Failed to process {test_case['doi']}"
                 assert result["format"] == "repository"
 

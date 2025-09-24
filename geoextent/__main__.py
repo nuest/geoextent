@@ -90,7 +90,13 @@ class readable_file_or_dir(argparse.Action):
         from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF
 
         # Test against all content providers
-        content_providers = [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea, OSF.OSF]
+        content_providers = [
+            Dryad.Dryad,
+            Figshare.Figshare,
+            Zenodo.Zenodo,
+            Pangaea.Pangaea,
+            OSF.OSF,
+        ]
 
         for provider_class in content_providers:
             provider = provider_class()
@@ -110,7 +116,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] file1 [file2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] file1 [file2 ...]",
     )
 
     parser.add_argument(
@@ -187,9 +193,16 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--no-subdirs",
+        action="store_true",
+        default=False,
+        help="only process files in the top-level directory, ignore subdirectories",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
-        nargs='+',
+        nargs="+",
         help="input file or path (supports multiple files)",
     )
 
@@ -281,11 +294,19 @@ def main():
 
             if is_file and not is_zipfile:
                 output = extent.fromFile(
-                    single_input, bbox=args["bounding_box"], tbox=args["time_box"], show_progress=not args["no_progress"]
+                    single_input,
+                    bbox=args["bounding_box"],
+                    tbox=args["time_box"],
+                    show_progress=not args["no_progress"],
                 )
             elif is_directory or is_zipfile:
                 output = extent.fromDirectory(
-                    single_input, bbox=args["bounding_box"], tbox=args["time_box"], details=True, show_progress=not args["no_progress"]
+                    single_input,
+                    bbox=args["bounding_box"],
+                    tbox=args["time_box"],
+                    details=True,
+                    show_progress=not args["no_progress"],
+                    recursive=not args["no_subdirs"],
                 )
             elif is_url or is_doi or is_repository:
                 output = extent.from_repository(
@@ -294,7 +315,8 @@ def main():
                     tbox=args["time_box"],
                     details=True,
                     download_data=args["download_data"],
-                    show_progress=not args["no_progress"]
+                    show_progress=not args["no_progress"],
+                    recursive=not args["no_subdirs"],
                 )
         else:
             # Multiple files handling
@@ -309,20 +331,30 @@ def main():
                     # Only process individual files (not directories or URLs for multiple mode)
                     if os.path.isfile(file_path) and not zipfile.is_zipfile(file_path):
                         file_output = extent.fromFile(
-                            file_path, bbox=args["bounding_box"], tbox=args["time_box"], show_progress=not args["no_progress"]
+                            file_path,
+                            bbox=args["bounding_box"],
+                            tbox=args["time_box"],
+                            show_progress=not args["no_progress"],
                         )
                         if file_output is not None:
                             output["details"][file_path] = file_output
                     elif os.path.isdir(file_path) or zipfile.is_zipfile(file_path):
                         dir_output = extent.fromDirectory(
-                            file_path, bbox=args["bounding_box"], tbox=args["time_box"], details=True, show_progress=not args["no_progress"]
+                            file_path,
+                            bbox=args["bounding_box"],
+                            tbox=args["time_box"],
+                            details=True,
+                            show_progress=not args["no_progress"],
+                            recursive=not args["no_subdirs"],
                         )
                         if dir_output is not None:
                             output["details"][file_path] = dir_output
                     else:
                         logger.warning("Skipping unsupported input: %s", file_path)
                 except Exception as file_error:
-                    logger.warning("Error processing %s: %s", file_path, str(file_error))
+                    logger.warning(
+                        "Error processing %s: %s", file_path, str(file_error)
+                    )
                     continue
 
             # Merge spatial extents if bbox is requested

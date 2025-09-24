@@ -76,6 +76,7 @@ def fromDirectory(
     timeout: None | int | float = None,
     level: int = 0,
     show_progress: bool = True,
+    recursive: bool = True,
 ):
     """Extracts geoextent from a directory/archive
     Keyword arguments:
@@ -83,6 +84,7 @@ def fromDirectory(
     bbox -- True if bounding box is requested (default False)
     tbox -- True if time box is requested (default False)
     timeout -- maximal allowed run time in seconds (default None)
+    recursive -- True to process subdirectories recursively (default True)
     """
 
     from tqdm import tqdm
@@ -120,10 +122,14 @@ def fromDirectory(
 
     # Create progress bar for directory processing (only at top level)
     dir_name = os.path.basename(path) or "root"
-    show_progress_bar = show_progress and level == 0  # Only show progress bar at top level to avoid nested bars
+    show_progress_bar = (
+        show_progress and level == 0
+    )  # Only show progress bar at top level to avoid nested bars
 
     if show_progress_bar:
-        pbar = tqdm(total=len(files), desc=f"Processing directory: {dir_name}", unit="item")
+        pbar = tqdm(
+            total=len(files), desc=f"Processing directory: {dir_name}", unit="item"
+        )
 
     for i, filename in enumerate(files):
         elapsed_time = time.time() - start_time
@@ -150,22 +156,7 @@ def fromDirectory(
                     filename, str(is_archive)
                 )
             )
-            metadata_directory[filename] = fromDirectory(
-                absolute_path,
-                bbox,
-                tbox,
-                details=True,
-                timeout=remaining_time,
-                level=level + 1,
-                show_progress=show_progress,
-            )
-        else:
-            logger.info(
-                "Inspecting folder {}, is archive ? {}".format(
-                    filename, str(is_archive)
-                )
-            )
-            if os.path.isdir(absolute_path):
+            if recursive:
                 metadata_directory[filename] = fromDirectory(
                     absolute_path,
                     bbox,
@@ -174,9 +165,36 @@ def fromDirectory(
                     timeout=remaining_time,
                     level=level + 1,
                     show_progress=show_progress,
+                    recursive=recursive,
                 )
             else:
-                metadata_file = fromFile(absolute_path, bbox, tbox, show_progress=show_progress)
+                logger.info("Skipping archive {} (recursive=False)".format(filename))
+        else:
+            logger.info(
+                "Inspecting folder {}, is archive ? {}".format(
+                    filename, str(is_archive)
+                )
+            )
+            if os.path.isdir(absolute_path):
+                if recursive:
+                    metadata_directory[filename] = fromDirectory(
+                        absolute_path,
+                        bbox,
+                        tbox,
+                        details=True,
+                        timeout=remaining_time,
+                        level=level + 1,
+                        show_progress=show_progress,
+                        recursive=recursive,
+                    )
+                else:
+                    logger.info(
+                        "Skipping subdirectory {} (recursive=False)".format(filename)
+                    )
+            else:
+                metadata_file = fromFile(
+                    absolute_path, bbox, tbox, show_progress=show_progress
+                )
                 metadata_directory[str(filename)] = metadata_file
 
         # Update progress bar
@@ -330,7 +348,9 @@ def fromFile(filepath, bbox=True, tbox=True, num_sample=None, show_progress=True
     filename = os.path.basename(filepath)
 
     if show_progress:
-        with tqdm(total=total_tasks, desc=f"Processing {filename}", unit="task", leave=False) as pbar:
+        with tqdm(
+            total=total_tasks, desc=f"Processing {filename}", unit="task", leave=False
+        ) as pbar:
             thread_bbox_except.start()
             thread_temp_except.start()
 
@@ -368,11 +388,20 @@ def from_repository(
     timeout: None | int | float = None,
     download_data: bool = True,
     show_progress: bool = True,
+    recursive: bool = True,
 ):
     try:
         geoextent = geoextent_from_repository()
         metadata = geoextent.from_repository(
-            repository_identifier, bbox, tbox, details, throttle, timeout, download_data, show_progress
+            repository_identifier,
+            bbox,
+            tbox,
+            details,
+            throttle,
+            timeout,
+            download_data,
+            show_progress,
+            recursive,
         )
         metadata["format"] = "repository"
     except ValueError as e:
@@ -386,7 +415,14 @@ def from_repository(
 
 class geoextent_from_repository(Application):
     content_providers = List(
-        [Dryad.Dryad, Figshare.Figshare, Zenodo.Zenodo, Pangaea.Pangaea, OSF.OSF, Dataverse.Dataverse],
+        [
+            Dryad.Dryad,
+            Figshare.Figshare,
+            Zenodo.Zenodo,
+            Pangaea.Pangaea,
+            OSF.OSF,
+            Dataverse.Dataverse,
+        ],
         config=True,
         help="""
         Ordered list by priority of ContentProviders to try in turn to fetch
@@ -404,6 +440,7 @@ class geoextent_from_repository(Application):
         timeout=None,
         download_data=True,
         show_progress=True,
+        recursive=True,
     ):
 
         if bbox + tbox == 0:
@@ -427,7 +464,15 @@ class geoextent_from_repository(Application):
                 try:
                     with tempfile.TemporaryDirectory() as tmp:
                         repository.download(tmp, throttle, download_data, show_progress)
-                        metadata = fromDirectory(tmp, bbox, tbox, details, timeout, show_progress=show_progress)
+                        metadata = fromDirectory(
+                            tmp,
+                            bbox,
+                            tbox,
+                            details,
+                            timeout,
+                            show_progress=show_progress,
+                            recursive=recursive,
+                        )
                     return metadata
                 except ValueError as e:
                     raise Exception(e)

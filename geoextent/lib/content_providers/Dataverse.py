@@ -59,26 +59,23 @@ class Dataverse(DoiProvider):
         # URL patterns for validation
         self.url_patterns = {
             "dataset_page": re.compile(
-                r"https?://([^/]+)/dataset\.xhtml\?persistentId=(.+)",
-                re.IGNORECASE
+                r"https?://([^/]+)/dataset\.xhtml\?persistentId=(.+)", re.IGNORECASE
             ),
             "api_persistent_id": re.compile(
                 r"https?://([^/]+)/api/datasets/:persistentId\?persistentId=(.+)",
-                re.IGNORECASE
+                re.IGNORECASE,
             ),
             "api_dataset_id": re.compile(
-                r"https?://([^/]+)/api/datasets/(\d+)",
-                re.IGNORECASE
+                r"https?://([^/]+)/api/datasets/(\d+)", re.IGNORECASE
             ),
         }
 
         # DOI patterns
         self.doi_patterns = {
-            "full_doi": re.compile(r"^(doi:)?(10\..+)$", re.IGNORECASE),  # Only match DOI format (10.xxxx/xxxx)
-            "doi_url": re.compile(
-                r"https?://(?:dx\.)?doi\.org/(.+)",
-                re.IGNORECASE
-            ),
+            "full_doi": re.compile(
+                r"^(doi:)?(10\..+)$", re.IGNORECASE
+            ),  # Only match DOI format (10.xxxx/xxxx)
+            "doi_url": re.compile(r"https?://(?:dx\.)?doi\.org/(.+)", re.IGNORECASE),
         }
 
         self.reference = None
@@ -174,17 +171,20 @@ class Dataverse(DoiProvider):
         # Common Dataverse DOI patterns
         dataverse_patterns = [
             r"10\.7910/DVN/",  # Harvard Dataverse
-            r"10\.34894/",     # DataverseNL
-            r"10\.18710/",     # DataverseNO
-            r"10\.5064/",      # UNC Dataverse
+            r"10\.34894/",  # DataverseNL
+            r"10\.18710/",  # DataverseNO
+            r"10\.5064/",  # UNC Dataverse
         ]
 
-        return any(re.search(pattern, doi, re.IGNORECASE) for pattern in dataverse_patterns)
+        return any(
+            re.search(pattern, doi, re.IGNORECASE) for pattern in dataverse_patterns
+        )
 
     def _clean_persistent_id(self, persistent_id):
         """Clean and normalize persistent ID."""
         # Remove URL encoding
         import urllib.parse
+
         persistent_id = urllib.parse.unquote(persistent_id)
 
         # Ensure it starts with appropriate scheme
@@ -231,7 +231,9 @@ class Dataverse(DoiProvider):
             if not self.host:
                 # Default to Harvard Dataverse for unknown DOIs
                 self.host = "dataverse.harvard.edu"
-                self.log.warning(f"Could not determine Dataverse host, defaulting to {self.host}")
+                self.log.warning(
+                    f"Could not determine Dataverse host, defaulting to {self.host}"
+                )
 
         return f"https://{self.host}/api"
 
@@ -253,7 +255,9 @@ class Dataverse(DoiProvider):
                 url = f"{api_base}/datasets/:persistentId"
                 params = {"persistentId": self.persistent_id}
 
-                self.log.debug(f"Fetching metadata from {url} with persistentId={self.persistent_id}")
+                self.log.debug(
+                    f"Fetching metadata from {url} with persistentId={self.persistent_id}"
+                )
                 response = self._request(url, params=params, throttle=self.throttle)
 
             elif self.dataset_id:
@@ -270,7 +274,9 @@ class Dataverse(DoiProvider):
             data = response.json()
 
             if data.get("status") != "OK":
-                raise HTTPError(f"API returned error: {data.get('message', 'Unknown error')}")
+                raise HTTPError(
+                    f"API returned error: {data.get('message', 'Unknown error')}"
+                )
 
             self.dataset_metadata = data["data"]
             return self.dataset_metadata
@@ -320,7 +326,9 @@ class Dataverse(DoiProvider):
         # Fallback: try persistent ID if available
         if "dataFile" in file_info and "persistentId" in file_info["dataFile"]:
             persistent_id = file_info["dataFile"]["persistentId"]
-            return f"{api_base}/access/datafile/:persistentId?persistentId={persistent_id}"
+            return (
+                f"{api_base}/access/datafile/:persistentId?persistentId={persistent_id}"
+            )
 
         raise ValueError(f"Could not determine download URL for file: {file_info}")
 
@@ -334,6 +342,7 @@ class Dataverse(DoiProvider):
             download_data (bool): Whether to download actual data files
         """
         from tqdm import tqdm
+
         self.throttle = throttle
 
         if not download_data:
@@ -344,7 +353,9 @@ class Dataverse(DoiProvider):
             )
             return
 
-        self.log.debug(f"Downloading Dataverse dataset: {self.persistent_id or self.dataset_id}")
+        self.log.debug(
+            f"Downloading Dataverse dataset: {self.persistent_id or self.dataset_id}"
+        )
 
         try:
             files = self._get_file_list()
@@ -356,17 +367,26 @@ class Dataverse(DoiProvider):
             self.log.debug(f"Found {len(files)} files in dataset")
 
             # Log download summary before starting
-            self.log.info(f"Starting download of {len(files)} files from Dataverse dataset {self.persistent_id or self.dataset_id}")
+            self.log.info(
+                f"Starting download of {len(files)} files from Dataverse dataset {self.persistent_id or self.dataset_id}"
+            )
 
             counter = 1
             # Process files with progress bar
-            with tqdm(total=len(files), desc=f"Downloading Dataverse files from {self.persistent_id or self.dataset_id}", unit="file") as pbar:
+            with tqdm(
+                total=len(files),
+                desc=f"Downloading Dataverse files from {self.persistent_id or self.dataset_id}",
+                unit="file",
+            ) as pbar:
                 for file_info in files:
                     try:
                         download_url = self._get_file_download_url(file_info)
 
                         # Get filename
-                        if "dataFile" in file_info and "filename" in file_info["dataFile"]:
+                        if (
+                            "dataFile" in file_info
+                            and "filename" in file_info["dataFile"]
+                        ):
                             filename = file_info["dataFile"]["filename"]
                         elif "filename" in file_info:
                             filename = file_info["filename"]
@@ -379,7 +399,9 @@ class Dataverse(DoiProvider):
 
                         filepath = os.path.join(folder, filename)
 
-                        self.log.debug(f"Downloading file {counter}/{len(files)}: {filename}")
+                        self.log.debug(
+                            f"Downloading file {counter}/{len(files)}: {filename}"
+                        )
 
                         # Download file
                         response = self._request(
@@ -395,7 +417,9 @@ class Dataverse(DoiProvider):
                                 if chunk:
                                     dst.write(chunk)
 
-                        self.log.debug(f"Downloaded: {filename} ({counter}/{len(files)})")
+                        self.log.debug(
+                            f"Downloaded: {filename} ({counter}/{len(files)})"
+                        )
                         counter += 1
                         pbar.update(1)
 
