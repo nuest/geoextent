@@ -110,7 +110,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--no-download-data] [--no-progress] file1 [file2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] file1 [file2 ...]",
     )
 
     parser.add_argument(
@@ -173,6 +173,20 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="suppress all console messages including warnings and progress bars",
+    )
+
+    parser.add_argument(
+        "--format",
+        choices=["geojson", "wkt", "wkb"],
+        default="geojson",
+        help="output format for spatial extents (default: geojson)",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs='+',
@@ -225,10 +239,14 @@ def main():
         raise Exception("Invalid command, input file missing")
 
     logger.debug("Extracting from inputs %s", files)
-    # Set logging level
-    if args["debug"]:
+    # Set logging level and quiet mode
+    if args["quiet"]:
+        # Quiet mode: suppress all warnings and enable no-progress
+        logging.getLogger("geoextent").setLevel(logging.CRITICAL)
+        args["no_progress"] = True
+    elif args["debug"]:
         logging.getLogger("geoextent").setLevel(logging.DEBUG)
-    if os.environ.get("GEOEXTENT_DEBUG", None) == "1":
+    elif os.environ.get("GEOEXTENT_DEBUG", None) == "1":
         logging.getLogger("geoextent").setLevel(logging.DEBUG)
 
     # Check output path
@@ -338,7 +356,13 @@ def main():
         if not args["details"]:
             output.pop("details", None)
 
-    if type(output) == list or type(output) == dict:
+        # Apply output format conversion
+        output = hf.format_extent_output(output, args["format"])
+
+    # For WKT and WKB formats, output only the bbox value
+    if args["format"].lower() in ["wkt", "wkb"] and output and "bbox" in output:
+        print(output["bbox"])
+    elif type(output) == list or type(output) == dict:
         print(json.dumps(output))
     else:
         print(output)

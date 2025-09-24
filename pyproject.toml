@@ -33,6 +33,7 @@ dependencies = [
     "patool",
     "python-dateutil",
     "pandas",
+    "numpy<2",
     "requests",
     "traitlets",
     "wheel",

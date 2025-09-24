@@ -574,3 +574,343 @@ def test_export_overwrite_file(script_runner):
         )
         assert ret.success
         assert "Overwriting " + tmp in ret.stderr
+
+
+def test_format_geojson_default(script_runner):
+    """Test that GeoJSON format is the default"""
+    ret = script_runner.run(
+        "geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout
+    assert '"type": "Polygon"' in result
+    assert '"coordinates"' in result
+
+
+def test_format_geojson_explicit(script_runner):
+    """Test explicitly requesting GeoJSON format"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "geojson", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout
+    assert '"type": "Polygon"' in result
+    assert '"coordinates"' in result
+
+
+def test_format_wkt(script_runner):
+    """Test WKT format output"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout
+    assert 'POLYGON((' in result
+    # Check that it's not GeoJSON format
+    assert '"type": "Polygon"' not in result
+
+
+def test_format_wkb(script_runner):
+    """Test WKB format output"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkb", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout.strip().split('\n')[0]  # Get first line, ignore progress bars
+    # WKB should be a hex string (raw output for single files)
+    assert isinstance(result, str)
+    assert len(result) > 0
+    # Check that it's valid hex
+    try:
+        bytes.fromhex(result)
+    except ValueError:
+        pytest.fail(f"WKB output is not valid hex: {result}")
+    # Check that it's not WKT or GeoJSON format
+    assert 'POLYGON((' not in result
+    assert '"type": "Polygon"' not in result
+    assert '"bbox":' not in result
+
+
+def test_format_invalid(script_runner):
+    """Test invalid format parameter"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "invalid", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert not ret.success, "process should return failure for invalid format"
+    assert "invalid choice: 'invalid'" in ret.stderr
+
+
+def test_format_folder_geojson(script_runner):
+    """Test GeoJSON format with folder containing multiple files"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "geojson", "--details", "tests/testdata/folders/folder_two_files"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout
+    assert '"type": "Polygon"' in result
+    assert '"coordinates"' in result
+
+
+def test_format_folder_wkt(script_runner):
+    """Test WKT format with folder containing multiple files"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "tests/testdata/folders/folder_two_files"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout.strip().split('\n')[0]  # Get first line, ignore progress bars
+    # Should output raw WKT polygon
+    assert result.startswith('POLYGON((')
+    assert result.endswith('))')
+    # Check that it's not JSON format
+    assert not result.startswith("{")
+    assert '"coordinates"' not in result
+
+
+def test_format_multiple_files_wkb(script_runner):
+    """Test WKB format with multiple individual files"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkb",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        "tests/testdata/csv/cities_NL.csv"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout.strip().split('\n')[0]  # Get first line, ignore progress bars
+    # Should output raw WKB hex string (merged bbox from multiple files)
+    assert isinstance(result, str)
+    assert len(result) > 0
+    # Should be valid hex
+    try:
+        bytes.fromhex(result)
+    except ValueError:
+        pytest.fail(f"WKB output is not valid hex: {result}")
+    # Check that it's not WKT or JSON format
+    assert not result.startswith('POLYGON((')
+    assert not result.startswith("{")
+    assert '"type": "Polygon"' not in result
+
+
+def test_format_wkt_exact_output(script_runner):
+    """Test exact WKT output for muenster_ring_zeit.geojson"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret.success, "process should return success"
+    expected_wkt = "POLYGON((7.6016807556152335 51.94881477206191,7.647256851196289 51.94881477206191,7.647256851196289 51.974624029877454,7.6016807556152335 51.974624029877454,7.6016807556152335 51.94881477206191))"
+    # Get only the first line (WKT output), ignore progress bar output
+    actual_output = ret.stdout.strip().split('\n')[0]
+    assert actual_output == expected_wkt, f"Expected: {expected_wkt}, Got: {actual_output}"
+
+
+def test_format_wkb_exact_output(script_runner):
+    """Test exact WKB output for muenster_ring_zeit.geojson"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkb", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret.success, "process should return success"
+    expected_wkb = "00000000030000000100000005401E681EFFFFFFFF4049F972C32FFBDA401E96CA800000004049F972C32FFBDA401E96CA800000004049FCC07AEF1C15401E681EFFFFFFFF4049FCC07AEF1C15401E681EFFFFFFFF4049F972C32FFBDA"
+    # Get only the first line (WKB output), ignore progress bar output
+    actual_output = ret.stdout.strip().split('\n')[0]
+    assert actual_output == expected_wkb, f"Expected: {expected_wkb}, Got: {actual_output}"
+
+
+def test_format_directory_wkt_raw_output(script_runner):
+    """Test that WKT format for directories outputs raw WKT polygon"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout.strip().split('\n')[0]  # Get first line, ignore progress bars
+
+    # Should output raw WKT polygon, not JSON
+    expected_wkt = "POLYGON((6.220493316650391 50.52150360276628,7.647256851196289 50.52150360276628,7.647256851196289 51.974624029877454,6.220493316650391 51.974624029877454,6.220493316650391 50.52150360276628))"
+    assert result == expected_wkt
+
+    # Should not be JSON format
+    assert not result.startswith("{")
+    assert "format" not in result
+    assert "details" not in result
+
+
+def test_format_directory_wkb_raw_output(script_runner):
+    """Test that WKB format for directories outputs raw WKB hex string"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkb", "tests/testdata/geojson/"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout.strip().split('\n')[0]  # Get first line, ignore progress bars
+
+    # Should output raw WKB hex string, not JSON
+    assert isinstance(result, str)
+    assert len(result) > 0
+
+    # Should be valid hex
+    try:
+        bytes.fromhex(result)
+    except ValueError:
+        pytest.fail(f"WKB output is not valid hex: {result}")
+
+    # Should not be WKT or JSON format
+    assert not result.startswith("POLYGON((")
+    assert not result.startswith("{")
+    assert "format" not in result
+    assert "details" not in result
+
+
+def test_format_directory_wkt_vs_single_file(script_runner):
+    """Test that directory WKT output covers larger area than single file WKT output"""
+    # Get directory output
+    ret_dir = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/"
+    )
+    assert ret_dir.success, "directory process should return success"
+    dir_result = ret_dir.stdout.strip().split('\n')[0]
+
+    # Get single file output
+    ret_file = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret_file.success, "file process should return success"
+    file_result = ret_file.stdout.strip().split('\n')[0]
+
+    # Directory should output expected WKT polygon (covers all files)
+    expected_dir_wkt = "POLYGON((6.220493316650391 50.52150360276628,7.647256851196289 50.52150360276628,7.647256851196289 51.974624029877454,6.220493316650391 51.974624029877454,6.220493316650391 50.52150360276628))"
+    assert dir_result == expected_dir_wkt
+
+    # Single file should output raw WKT string (smaller area)
+    assert file_result.startswith("POLYGON((")
+    assert file_result.endswith("))")
+
+    # They should be different (directory covers larger area)
+    assert dir_result != file_result
+
+
+def test_format_directory_nested_wkt(script_runner):
+    """Test WKT format with nested directory structure outputs raw WKT"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "tests/testdata/folders"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout.strip().split('\n')[0]  # Get first line, ignore progress bars
+
+    # Should output raw WKT polygon, not JSON
+    assert result.startswith("POLYGON((")
+    assert result.endswith("))")
+    assert not result.startswith("{")
+    assert "details" not in result
+
+
+def test_format_directory_wkb_hex_validation(script_runner):
+    """Test that WKB format outputs valid hexadecimal string"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkb", "tests/testdata/geojson/"
+    )
+    assert ret.success, "process should return success"
+    result = ret.stdout.strip().split('\n')[0]  # Get first line, ignore progress bars
+
+    # Should be valid hex string
+    try:
+        bytes.fromhex(result)
+    except ValueError:
+        pytest.fail(f"WKB output is not valid hex: {result}")
+
+    # Should not be WKT or JSON format
+    assert not result.startswith("POLYGON((")
+    assert not result.startswith("{")
+    assert "details" not in result
+
+
+def test_quiet_mode_suppresses_progress_bars(script_runner):
+    """Test that --quiet suppresses progress bars and warnings"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "--quiet", "tests/testdata/geojson/"
+    )
+    assert ret.success, "process should return success"
+
+    # Stderr should be empty (no progress bars or warnings)
+    assert ret.stderr == "", "stderr should be empty in quiet mode"
+
+    # Stdout should contain only the result
+    result = ret.stdout.strip()
+    assert result.startswith("POLYGON(("), "should output WKT polygon"
+
+    # Should not contain any progress indicators or warnings
+    assert "Processing" not in ret.stdout
+    assert "%" not in ret.stdout
+    assert "WARNING" not in ret.stdout
+
+
+def test_quiet_mode_vs_normal_mode(script_runner):
+    """Test that --quiet produces different output than normal mode"""
+    # Normal mode
+    ret_normal = script_runner.run(
+        "geoextent", "-b", "tests/testdata/geojson/"
+    )
+    assert ret_normal.success, "normal process should return success"
+
+    # Quiet mode
+    ret_quiet = script_runner.run(
+        "geoextent", "-b", "--quiet", "tests/testdata/geojson/"
+    )
+    assert ret_quiet.success, "quiet process should return success"
+
+    # Both should have the same WKT result in stdout
+    normal_result = ret_normal.stdout.strip().split('\n')[0]
+    quiet_result = ret_quiet.stdout.strip()
+    assert normal_result == quiet_result, "WKT results should be identical"
+
+    # But stderr should be different (normal has progress, quiet doesn't)
+    assert len(ret_normal.stderr) > 0, "normal mode should have progress output"
+    assert ret_quiet.stderr == "", "quiet mode should have no stderr output"
+
+
+def test_quiet_mode_suppresses_warnings(script_runner):
+    """Test that --quiet suppresses warning messages"""
+    # Test with a file that generates warnings
+    ret = script_runner.run(
+        "geoextent", "-b", "--quiet", "tests/testdata/geojson/invalid_coordinate.geojson"
+    )
+    assert ret.success, "process should return success"
+
+    # Should not contain WARNING messages
+    assert "WARNING" not in ret.stdout
+    assert "WARNING" not in ret.stderr
+    assert ret.stderr == "", "stderr should be empty"
+
+    # Should still produce valid output
+    result = ret.stdout.strip()
+    assert '"format": "geojson"' in result
+
+
+def test_quiet_mode_enables_no_progress(script_runner):
+    """Test that --quiet automatically enables --no-progress behavior"""
+    ret = script_runner.run(
+        "geoextent", "-b", "--quiet", "tests/testdata/folders/folder_two_files"
+    )
+    assert ret.success, "process should return success"
+
+    # Should have no progress-related output
+    assert "Processing" not in ret.stderr
+    assert "%" not in ret.stderr
+    assert "|" not in ret.stderr  # Progress bar characters
+    assert ret.stderr == "", "stderr should be completely empty"
+
+
+def test_quiet_mode_with_format_options(script_runner):
+    """Test that --quiet works with different format options"""
+    # Test with WKT
+    ret_wkt = script_runner.run(
+        "geoextent", "-b", "--format", "wkt", "--quiet", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret_wkt.success, "WKT quiet process should return success"
+    assert ret_wkt.stderr == "", "WKT stderr should be empty"
+    assert ret_wkt.stdout.strip().startswith("POLYGON(("), "should output WKT"
+
+    # Test with WKB
+    ret_wkb = script_runner.run(
+        "geoextent", "-b", "--format", "wkb", "--quiet", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+    )
+    assert ret_wkb.success, "WKB quiet process should return success"
+    assert ret_wkb.stderr == "", "WKB stderr should be empty"
+    # WKB should be hex string
+    wkb_result = ret_wkb.stdout.strip()
+    assert len(wkb_result) > 0 and not wkb_result.startswith("POLYGON"), "should output WKB hex"

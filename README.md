@@ -93,9 +93,57 @@ python -m geoextent -b -t https://doi.org/10.17605/OSF.IO/J2STA
 python -m geoextent -b -t http://dx.doi.org/10.17605/OSF.IO/A5F3E
 python -m geoextent -b -t OSF.IO/9JG2U
 
-# Use metadata-only extraction for repositories (not recommended)
-python -m geoextent -b -t --no-download-data 10.5281/zenodo.4593540
+# Use metadata-only extraction for repositories (only partially supported)
+python -m geoextent -b -t --no-download-data 10.1594/PANGAEA.734969
 ```
+
+### Output Format Options
+
+geoextent supports multiple output formats for spatial extents to facilitate integration with different programming languages and tools:
+
+```bash
+# Default GeoJSON format (geographic coordinates as polygon)
+python -m geoextent -b tests/testdata/geojson/muenster_ring_zeit.geojson
+python -m geoextent -b --format geojson tests/testdata/geojson/muenster_ring_zeit.geojson
+
+# Well-Known Text (WKT) format
+python -m geoextent -b --format wkt tests/testdata/geojson/muenster_ring_zeit.geojson
+
+# Well-Known Binary (WKB) format as hex string
+python -m geoextent -b --format wkb tests/testdata/geojson/muenster_ring_zeit.geojson
+```
+
+**Format Details:**
+
+- **GeoJSON** (default): Returns spatial extent as a GeoJSON Polygon geometry with coordinate arrays
+- **WKT**: Returns spatial extent as [Well-Known Text](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry) POLYGON string, easily parsed by PostGIS, GDAL, and other geospatial tools
+- **WKB**: Returns spatial extent as [Well-Known Binary](https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry#Well-known_binary) hexadecimal string, compact binary format for database storage
+
+An easy way to verify these outputs is this online viewer/converter: <https://wkbrew.tszheichoi.com/>
+
+### Quiet Mode
+
+Use the `--quiet` option to suppress all console messages including warnings and progress bars. This is particularly useful for scripting, automation, or when you only want the final result:
+
+```bash
+# Normal output (shows progress bars and warnings)
+python -m geoextent -b tests/testdata/geojson/
+# Output: Progress bars, warnings, and result
+
+# Quiet mode (clean output, no progress or warnings)
+python -m geoextent -b --quiet tests/testdata/geojson/
+# Output: Only the final result
+
+# Quiet mode with specific format
+python -m geoextent -b --format wkt --quiet tests/testdata/geojson/
+# Output: POLYGON((6.220493316650391 50.52150360276628,7.647256851196289 50.52150360276628,7.647256851196289 51.974624029877454,6.220493316650391 51.974624029877454,6.220493316650391 50.52150360276628))
+
+# Perfect for shell scripts and pipelines
+BBOX=$(python -m geoextent -b --format wkt --quiet data/my_data.shp)
+echo "Bounding box: $BBOX"
+```
+
+**Note**: The `--quiet` option automatically enables `--no-progress` behavior and sets logging to only show critical errors.
 
 ### Repository Extraction Options
 
@@ -126,13 +174,40 @@ python -m geoextent -b -t --no-download-data https://doi.org/10.1594/PANGAEA.786
 
 ### Example Output
 
-Extracting from a single GeoJSON file:
+Extracting from a single GeoJSON file with default format:
 
 ```json
 {
   "format": "geojson",
   "geoextent_handler": "handleVector",
-  "bbox": [7.60, 51.95, 7.65, 51.97],
+  "bbox": {
+    "type": "Polygon",
+    "coordinates": [[[7.60, 51.95], [7.65, 51.95], [7.65, 51.97], [7.60, 51.97], [7.60, 51.95]]]
+  },
+  "crs": "4326",
+  "tbox": ["2018-11-14", "2018-11-14"]
+}
+```
+
+With WKT format (`--format wkt`):
+
+```json
+{
+  "format": "geojson",
+  "geoextent_handler": "handleVector",
+  "bbox": "POLYGON((7.60 51.95,7.65 51.95,7.65 51.97,7.60 51.97,7.60 51.95))",
+  "crs": "4326",
+  "tbox": ["2018-11-14", "2018-11-14"]
+}
+```
+
+With WKB format (`--format wkb`):
+
+```json
+{
+  "format": "geojson",
+  "geoextent_handler": "handleVector",
+  "bbox": "0103000000010000000500000033333333333F1E403D0AD7A3703D4A40CDCCCCCCCC2F1F403D0AD7A3703D4A40CDCCCCCCCC2F1F40A4703D0A17394A4033333333333F1E40A4703D0A17394A4033333333333F1E403D0AD7A3703D4A40",
   "crs": "4326",
   "tbox": ["2018-11-14", "2018-11-14"]
 }
