@@ -143,6 +143,16 @@ BBOX=$(python -m geoextent -b --format wkt --quiet data/my_data.shp)
 echo "Bounding box: $BBOX"
 ```
 
+You can call geoextent from within R scripts as well, for example using the `system2()` function, in combination with WKT format for creating R objects easily:
+
+```r
+sf::st_as_sfc(
+  system2("geoextent",
+    c("-b", "--format", "wkt", "--quiet", "tests/testdata/geojson"),
+    stdout=TRUE)
+  )
+```
+
 **Note**: The `--quiet` option automatically enables `--no-progress` behavior and sets logging to only show critical errors.
 
 ### Repository Extraction Options
