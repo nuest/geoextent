@@ -150,6 +150,7 @@ def fromDirectory(
     level: int = 0,
     show_progress: bool = True,
     recursive: bool = True,
+    include_geojsonio: bool = False,
 ):
     """Extracts geoextent from a directory/archive
     Keyword arguments:
@@ -159,6 +160,7 @@ def fromDirectory(
     convex_hull -- True if convex hull should be calculated instead of bounding box (default False)
     timeout -- maximal allowed run time in seconds (default None)
     recursive -- True to process subdirectories recursively (default True)
+    include_geojsonio -- True if geojson.io URL should be included in output (default False)
     """
 
     from tqdm import tqdm
@@ -241,6 +243,7 @@ def fromDirectory(
                     level=level + 1,
                     show_progress=show_progress,
                     recursive=recursive,
+                    include_geojsonio=include_geojsonio,
                 )
             else:
                 logger.info("Skipping archive {} (recursive=False)".format(filename))
@@ -262,6 +265,7 @@ def fromDirectory(
                         level=level + 1,
                         show_progress=show_progress,
                         recursive=recursive,
+                        include_geojsonio=include_geojsonio,
                     )
                 else:
                     logger.info(
@@ -269,7 +273,7 @@ def fromDirectory(
                     )
             else:
                 metadata_file = fromFile(
-                    absolute_path, bbox, tbox, convex_hull, show_progress=show_progress
+                    absolute_path, bbox, tbox, convex_hull, show_progress=show_progress, include_geojsonio=include_geojsonio
                 )
                 metadata_directory[str(filename)] = metadata_file
 
@@ -320,10 +324,16 @@ def fromDirectory(
     if timeout and timeout_flag:
         metadata["timeout"] = timeout
 
+    # Add geojson.io URL if requested and spatial extent is available
+    if include_geojsonio and metadata.get("bbox"):
+        geojsonio_url = hf.generate_geojsonio_url(metadata)
+        if geojsonio_url:
+            metadata["geojsonio_url"] = geojsonio_url
+
     return metadata
 
 
-def fromFile(filepath, bbox=True, tbox=True, convex_hull=False, num_sample=None, show_progress=True):
+def fromFile(filepath, bbox=True, tbox=True, convex_hull=False, num_sample=None, show_progress=True, include_geojsonio=False):
     """Extracts geoextent from a file
     Keyword arguments:
     path -- filepath
@@ -331,6 +341,7 @@ def fromFile(filepath, bbox=True, tbox=True, convex_hull=False, num_sample=None,
     tbox -- True if time box is requested (default False)
     convex_hull -- True if convex hull should be calculated instead of bounding box (default False)
     num_sample -- sample size to determine time format (Only required for csv files)
+    include_geojsonio -- True if geojson.io URL should be included in output (default False)
     """
     from tqdm import tqdm
 
@@ -471,6 +482,12 @@ def fromFile(filepath, bbox=True, tbox=True, convex_hull=False, num_sample=None,
 
     logger.debug("Extraction finished: {}".format(str(metadata)))
 
+    # Add geojson.io URL if requested and spatial extent is available
+    if include_geojsonio and metadata.get("bbox"):
+        geojsonio_url = hf.generate_geojsonio_url(metadata)
+        if geojsonio_url:
+            metadata["geojsonio_url"] = geojsonio_url
+
     return metadata
 
 
@@ -485,6 +502,7 @@ def from_repository(
     download_data: bool = True,
     show_progress: bool = True,
     recursive: bool = True,
+    include_geojsonio: bool = False,
 ):
     try:
         geoextent = geoextent_from_repository()
@@ -499,6 +517,7 @@ def from_repository(
             download_data,
             show_progress,
             recursive,
+            include_geojsonio,
         )
         metadata["format"] = "repository"
     except ValueError as e:
@@ -539,6 +558,7 @@ class geoextent_from_repository(Application):
         download_data=True,
         show_progress=True,
         recursive=True,
+        include_geojsonio=False,
     ):
 
         if bbox + tbox == 0:
@@ -571,6 +591,7 @@ class geoextent_from_repository(Application):
                             timeout,
                             show_progress=show_progress,
                             recursive=recursive,
+                            include_geojsonio=include_geojsonio,
                         )
                     return metadata
                 except ValueError as e:

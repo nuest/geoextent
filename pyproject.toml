@@ -27,6 +27,7 @@ requires-python = ">=3.10"
 dependencies = [
     "pyproj",
     "geojson>=2.4.1",
+    "geojsonio",
     "pygeoj",
     "pyshp",
     "gdal",

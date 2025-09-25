@@ -1,6 +1,7 @@
 import csv
 import datetime
 import itertools
+import json
 import logging
 import os
 import patoolib
@@ -11,6 +12,8 @@ import pandas as pd
 from osgeo import ogr
 from osgeo import osr
 from pathlib import Path
+
+import geojsonio
 
 
 # to suppress warning "FutureWarning: Neither gdal.UseExceptions() nor gdal.DontUseExceptions() has been explicitly called. In GDAL 4.0, exceptions will be enabled by default."
@@ -892,6 +895,68 @@ def path_output(path):
     return absolute_file_path
 
 
+def create_geojson_feature_collection(extent_output):
+    """
+    Convert geoextent output to a valid GeoJSON FeatureCollection
+
+    Args:
+        extent_output: Dict containing the geoextent output
+
+    Returns:
+        Dict containing a GeoJSON FeatureCollection with a single Feature
+    """
+    if not extent_output or not extent_output.get("bbox"):
+        return extent_output
+
+    bbox = extent_output.get("bbox")
+    is_convex_hull = extent_output.get("convex_hull", False)
+
+    # Convert bbox to GeoJSON geometry format
+    if isinstance(bbox, dict) and bbox.get("type") == "Polygon":
+        # Already in GeoJSON format
+        geom = bbox
+    elif is_convex_hull and isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+        # Handle convex hull coordinates (array of [x,y] points)
+        geom = convex_hull_coords_to_geojson(bbox)
+    elif isinstance(bbox, list) and len(bbox) == 4:
+        # Handle regular bounding box [min_x, min_y, max_x, max_y]
+        geom = bbox_to_geojson(bbox)
+    else:
+        # Fallback: return original output if bbox format is not recognized
+        return extent_output
+
+    # Create properties from metadata
+    properties = {}
+
+    # Add all original properties except bbox and details
+    for key, value in extent_output.items():
+        if key not in ["bbox", "details"]:
+            properties[key] = value
+
+    # Add descriptive properties
+    properties["extent_type"] = "convex_hull" if is_convex_hull else "bounding_box"
+    properties["description"] = f"{'Convex hull' if is_convex_hull else 'Bounding box'} extracted by geoextent"
+
+    # Create the Feature
+    feature = {
+        "type": "Feature",
+        "geometry": geom,
+        "properties": properties
+    }
+
+    # Create the FeatureCollection
+    feature_collection = {
+        "type": "FeatureCollection",
+        "features": [feature]
+    }
+
+    # Add details as a separate property if present (for directory/multiple file processing)
+    if "details" in extent_output:
+        feature_collection["details"] = extent_output["details"]
+
+    return feature_collection
+
+
 def format_extent_output(extent_output, output_format="geojson"):
     """
     Convert geoextent output to different formats
@@ -901,9 +966,17 @@ def format_extent_output(extent_output, output_format="geojson"):
         output_format: String specifying the output format ("geojson", "wkt", "wkb")
 
     Returns:
-        Dict with formatted output
+        Dict with formatted output - for GeoJSON format, returns a FeatureCollection
     """
-    if not extent_output or not extent_output.get("bbox"):
+    if not extent_output:
+        return extent_output
+
+    # For GeoJSON format, create a proper FeatureCollection
+    if output_format.lower() == "geojson" and extent_output.get("bbox"):
+        return create_geojson_feature_collection(extent_output)
+
+    # For other formats or when no bbox present, use the original logic
+    if not extent_output.get("bbox"):
         return extent_output
 
     # Work with a copy to avoid modifying the original
@@ -919,16 +992,22 @@ def format_extent_output(extent_output, output_format="geojson"):
                 formatted_output["bbox"] = convex_hull_coords_to_wkt(bbox)
             elif output_format.lower() == "wkb":
                 formatted_output["bbox"] = convex_hull_coords_to_wkb(bbox)
-            elif output_format.lower() == "geojson":
-                formatted_output["bbox"] = convex_hull_coords_to_geojson(bbox)
-        elif len(bbox) == 4:
+        elif isinstance(bbox, dict) and bbox.get("type") == "Polygon":
+            # Handle GeoJSON polygon format (from convex hull)
+            if output_format.lower() == "wkt":
+                # Convert GeoJSON polygon coordinates to WKT
+                coords = bbox["coordinates"][0]
+                formatted_output["bbox"] = convex_hull_coords_to_wkt(coords)
+            elif output_format.lower() == "wkb":
+                # Convert GeoJSON polygon coordinates to WKB
+                coords = bbox["coordinates"][0]
+                formatted_output["bbox"] = convex_hull_coords_to_wkb(coords)
+        elif isinstance(bbox, list) and len(bbox) == 4:
             # Handle regular bounding box [min_x, min_y, max_x, max_y]
             if output_format.lower() == "wkt":
                 formatted_output["bbox"] = bbox_to_wkt(bbox)
             elif output_format.lower() == "wkb":
                 formatted_output["bbox"] = bbox_to_wkb(bbox)
-            elif output_format.lower() == "geojson":
-                formatted_output["bbox"] = bbox_to_geojson(bbox)
 
     # Handle details if present (for directories/multiple files)
     if "details" in formatted_output and isinstance(formatted_output["details"], dict):
@@ -1085,3 +1164,80 @@ def convex_hull_coords_to_geojson(coords):
         "type": "Polygon",
         "coordinates": [coordinates]
     }
+
+
+def generate_geojsonio_url(extent_output):
+    """
+    Generate a geojson.io URL for the spatial extent
+    Always uses GeoJSON format regardless of the output format requested
+
+    Args:
+        extent_output: Dict containing the geoextent output with bbox data
+
+    Returns:
+        String containing the geojson.io URL, or None if no spatial extent available
+    """
+
+    if not extent_output or not extent_output.get("bbox"):
+        return None
+
+    # Force conversion to GeoJSON format for geojsonio URL generation
+    # This ensures that regardless of the requested output format (WKT, WKB, etc.),
+    # the geojsonio URL will always display proper GeoJSON geometry
+    geojson_output = format_extent_output(extent_output, "geojson")
+
+    # The format_extent_output function will return a FeatureCollection for GeoJSON format
+    if geojson_output and geojson_output.get("type") == "FeatureCollection":
+        try:
+            # Generate URL using geojsonio
+            geojson_string = json.dumps(geojson_output)
+            url = geojsonio.make_url(geojson_string)
+            return url
+        except Exception as e:
+            logger = logging.getLogger("geoextent")
+            logger.warning(f"Error generating geojson.io URL: {e}")
+            return None
+
+    # Fallback to original logic for cases where format_extent_output doesn't return FeatureCollection
+    bbox = extent_output.get("bbox")
+    is_convex_hull = extent_output.get("convex_hull", False)
+
+    # Convert bbox to GeoJSON format
+    if is_convex_hull and isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+        # Handle convex hull coordinates
+        geojson_geom = convex_hull_coords_to_geojson(bbox)
+    elif isinstance(bbox, list) and len(bbox) == 4:
+        # Handle regular bounding box
+        geojson_geom = bbox_to_geojson(bbox)
+    else:
+        return None
+
+    if not geojson_geom:
+        return None
+
+    try:
+        # Create a feature with the geometry
+        feature = {
+            "type": "Feature",
+            "geometry": geojson_geom,
+            "properties": {
+                "name": "Geoextent Spatial Extent",
+                "description": f"{'Convex Hull' if is_convex_hull else 'Bounding Box'} extracted by geoextent"
+            }
+        }
+
+        # Create a feature collection
+        feature_collection = {
+            "type": "FeatureCollection",
+            "features": [feature]
+        }
+
+        # Generate URL using geojsonio
+        geojson_string = json.dumps(feature_collection)
+        url = geojsonio.make_url(geojson_string)
+
+        return url
+    except Exception as e:
+        logger = logging.getLogger("geoextent")
+        logger.warning(f"Error generating geojson.io URL: {e}")
+        return None

@@ -107,6 +107,15 @@ python -m geoextent -b -t OSF.IO/9JG2U
 
 # Use metadata-only extraction for repositories (only partially supported)
 python -m geoextent -b -t --no-download-data 10.1594/PANGAEA.734969
+
+# Generate geojson.io URL for visualizing spatial extents
+python -m geoextent -b --geojsonio tests/testdata/geojson/muenster_ring.geojson
+
+# Generate geojson.io URL with convex hull
+python -m geoextent -b --convex-hull --geojsonio tests/testdata/geojson/ausgleichsflaechen_moers.geojson
+
+# Generate geojson.io URL with different output formats (URL always shows GeoJSON)
+python -m geoextent -b --format wkt --geojsonio tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp
 ```
 
 ### Output Format Options
