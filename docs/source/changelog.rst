@@ -2,9 +2,16 @@
 Changelog
 =========
 
-0.8.1
-^^^^^
+0.8.2 (unreleased)
+^^^^^^^^^^^^^^^^^^
 
+- Add ``--no-subdirs`` option to control recursive processing of subdirectories (:issue:`55`)
+- Add WKT and WKB output format support for spatial extents (:issue:`46`)
+- Add progress bars for file and directory processing with ``--no-progress`` option to disable (:issue:`32`)
+- Add ``--quiet`` option to suppress all console messages including warnings and progress bars
+- Add Dataverse repository support for data extraction (:issue:`57`)
+- Add FlatGeobuf format support (:issue:`43`)
+- Add support for processing multiple files with automatic extent merging
 - Add support for OSF (Open Science Framework) repository extraction (:pr:`19`)
 - Add Pangaea provider with web metadata extraction
 - Add ``--no-data-download`` option for metadata-only extraction from selected repositories
