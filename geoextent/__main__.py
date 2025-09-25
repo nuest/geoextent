@@ -252,8 +252,17 @@ def main():
         raise Exception("Invalid command, input file missing")
 
     logger.debug("Extracting from inputs %s", files)
-    # Set logging level and quiet mode
-    if args["quiet"]:
+    # Set logging level and handle conflicting options
+    if args["debug"] and args["quiet"]:
+        # Conflict detected: debug takes priority, reset quiet to default
+        logging.getLogger("geoextent").setLevel(logging.DEBUG)
+        logger.critical(
+            "Conflicting options --debug and --quiet provided. "
+            "Debug mode takes priority, quiet mode disabled."
+        )
+        args["quiet"] = False
+        args["no_progress"] = False
+    elif args["quiet"]:
         # Quiet mode: suppress all warnings and enable no-progress
         logging.getLogger("geoextent").setLevel(logging.CRITICAL)
         args["no_progress"] = True

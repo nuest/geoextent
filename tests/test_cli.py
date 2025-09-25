@@ -967,3 +967,67 @@ def test_quiet_mode_with_format_options(script_runner):
     assert len(wkb_result) > 0 and not wkb_result.startswith(
         "POLYGON"
     ), "should output WKB hex"
+
+
+def test_debug_quiet_conflict_prioritizes_debug(script_runner):
+    """Test that --debug and --quiet conflict shows critical message and prioritizes debug"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--debug",
+        "--quiet",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+    )
+    assert ret.success, "process should return success"
+
+    # Should contain critical message about conflicting options
+    assert "Conflicting options --debug and --quiet provided" in ret.stderr
+    assert "Debug mode takes priority, quiet mode disabled" in ret.stderr
+
+    # Should show progress bars (quiet mode disabled, debug mode active)
+    assert "Processing" in ret.stderr
+
+    # Should have JSON output (not raw format)
+    assert ret.stdout.strip().startswith("{")
+    assert "format" in ret.stdout
+
+
+def test_debug_only_works_normally(script_runner):
+    """Test that --debug alone works normally"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--debug",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+    )
+    assert ret.success, "process should return success"
+
+    # Should NOT contain critical message about conflicts
+    assert "Conflicting options --debug and --quiet provided" not in ret.stderr
+
+    # Should show progress bars (debug mode doesn't disable them)
+    assert "Processing" in ret.stderr
+
+    # Should have JSON output
+    assert ret.stdout.strip().startswith("{")
+    assert "format" in ret.stdout
+
+
+def test_quiet_only_works_normally(script_runner):
+    """Test that --quiet alone works normally"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--quiet",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+    )
+    assert ret.success, "process should return success"
+
+    # Should NOT contain critical message
+    assert "CRITICAL:geoextent:Conflicting options" not in ret.stderr
+
+    # Should be quiet (no debug, info, or progress output)
+    assert "DEBUG:" not in ret.stderr
+    assert "INFO:" not in ret.stderr
+    assert "Processing" not in ret.stderr
+    assert ret.stderr == ""
