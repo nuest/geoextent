@@ -1239,30 +1239,40 @@ def test_convex_hull_vs_gdal_direct_calculation(script_runner):
                 gdal_coords.append([x, y])
 
     # Get convex hull from geoextent
-    ret = script_runner.run(
-        "geoextent", "-b", "--convex-hull", "--quiet", test_file
-    )
+    ret = script_runner.run("geoextent", "-b", "--convex-hull", "--quiet", test_file)
     assert ret.success, "geoextent should return success"
 
     geoextent_result = json.loads(ret.stdout.strip())
 
     # New FeatureCollection format
-    assert geoextent_result["type"] == "FeatureCollection", "should be a FeatureCollection"
+    assert (
+        geoextent_result["type"] == "FeatureCollection"
+    ), "should be a FeatureCollection"
     assert len(geoextent_result["features"]) == 1, "should have exactly one feature"
 
     feature = geoextent_result["features"][0]
-    assert feature["properties"]["convex_hull"] is True, "should have convex hull flag in properties"
+    assert (
+        feature["properties"]["convex_hull"] is True
+    ), "should have convex hull flag in properties"
 
     # Extract coordinates from geoextent result
     geoextent_coords = feature["geometry"]["coordinates"][0]
 
     # Both should have the same number of points
-    assert len(gdal_coords) == len(geoextent_coords), f"Point counts should match: GDAL={len(gdal_coords)}, geoextent={len(geoextent_coords)}"
+    assert len(gdal_coords) == len(
+        geoextent_coords
+    ), f"Point counts should match: GDAL={len(gdal_coords)}, geoextent={len(geoextent_coords)}"
 
     # Coordinates should be very close (allowing for floating point precision)
-    for i, (gdal_point, geoextent_point) in enumerate(zip(gdal_coords, geoextent_coords)):
-        assert abs(gdal_point[0] - geoextent_point[0]) < 1e-10, f"X coordinates should match at point {i}: GDAL={gdal_point[0]}, geoextent={geoextent_point[0]}"
-        assert abs(gdal_point[1] - geoextent_point[1]) < 1e-10, f"Y coordinates should match at point {i}: GDAL={gdal_point[1]}, geoextent={geoextent_point[1]}"
+    for i, (gdal_point, geoextent_point) in enumerate(
+        zip(gdal_coords, geoextent_coords)
+    ):
+        assert (
+            abs(gdal_point[0] - geoextent_point[0]) < 1e-10
+        ), f"X coordinates should match at point {i}: GDAL={gdal_point[0]}, geoextent={geoextent_point[0]}"
+        assert (
+            abs(gdal_point[1] - geoextent_point[1]) < 1e-10
+        ), f"Y coordinates should match at point {i}: GDAL={gdal_point[1]}, geoextent={geoextent_point[1]}"
 
     datasource = None  # Close datasource
 
@@ -1272,72 +1282,111 @@ def test_convex_hull_ausgleichsflaechen_moers_baseline(script_runner):
     # Known baseline geometry for ausgleichsflaechen_moers.geojson convex hull
     expected_geometry = {
         "type": "Polygon",
-        "coordinates": [[[6.622876570001159, 51.422305272549615], [6.59839841092796, 51.43605055141643],
-        [6.598390453361757, 51.43606234977576], [6.598348865120752, 51.43612822971935], [6.597888191190831,
-        51.437157814826875], [6.59663465544554, 51.45390080555728], [6.600415284426673, 51.47441889630804], [6.62234874263546,
-        51.486636388722296], [6.627926433576252, 51.48620034107534], [6.66283120774708, 51.456988298214974],
-        [6.662839251596646, 51.45675480848453], [6.624742777588445, 51.42351615293587], [6.62460862066547, 51.4234290734008],
-        [6.623923921225536, 51.422984757324166], [6.622876570001159, 51.422305272549615]]]
+        "coordinates": [
+            [
+                [6.622876570001159, 51.422305272549615],
+                [6.59839841092796, 51.43605055141643],
+                [6.598390453361757, 51.43606234977576],
+                [6.598348865120752, 51.43612822971935],
+                [6.597888191190831, 51.437157814826875],
+                [6.59663465544554, 51.45390080555728],
+                [6.600415284426673, 51.47441889630804],
+                [6.62234874263546, 51.486636388722296],
+                [6.627926433576252, 51.48620034107534],
+                [6.66283120774708, 51.456988298214974],
+                [6.662839251596646, 51.45675480848453],
+                [6.624742777588445, 51.42351615293587],
+                [6.62460862066547, 51.4234290734008],
+                [6.623923921225536, 51.422984757324166],
+                [6.622876570001159, 51.422305272549615],
+            ]
+        ],
     }
 
     test_file = "tests/testdata/geojson/ausgleichsflaechen_moers.geojson"
 
     # Get convex hull from geoextent
-    ret = script_runner.run(
-        "geoextent", "-b", "--convex-hull", "--quiet", test_file
-    )
+    ret = script_runner.run("geoextent", "-b", "--convex-hull", "--quiet", test_file)
     assert ret.success, "geoextent should return success"
 
     geoextent_result = json.loads(ret.stdout.strip())
 
     # New FeatureCollection format
     assert "type" in geoextent_result, "should have type"
-    assert geoextent_result["type"] == "FeatureCollection", "should be a FeatureCollection"
+    assert (
+        geoextent_result["type"] == "FeatureCollection"
+    ), "should be a FeatureCollection"
     assert "features" in geoextent_result, "should have features"
     assert len(geoextent_result["features"]) == 1, "should have exactly one feature"
 
     feature = geoextent_result["features"][0]
     assert "geometry" in feature, "feature should have geometry"
     assert "properties" in feature, "feature should have properties"
-    assert feature["properties"]["convex_hull"] is True, "should have convex hull flag in properties"
+    assert (
+        feature["properties"]["convex_hull"] is True
+    ), "should have convex hull flag in properties"
 
     # Extract geometry from geoextent result
     actual_geometry = feature["geometry"]
 
     # Verify the geometry structure matches
-    assert actual_geometry["type"] == expected_geometry["type"], "geometry type should match"
-    assert len(actual_geometry["coordinates"]) == len(expected_geometry["coordinates"]), "coordinate structure should match"
+    assert (
+        actual_geometry["type"] == expected_geometry["type"]
+    ), "geometry type should match"
+    assert len(actual_geometry["coordinates"]) == len(
+        expected_geometry["coordinates"]
+    ), "coordinate structure should match"
 
     # Get coordinate arrays for comparison
     actual_coords = actual_geometry["coordinates"][0]
     expected_coords = expected_geometry["coordinates"][0]
 
     # Both should have the same number of points
-    assert len(actual_coords) == len(expected_coords), f"Point counts should match: expected={len(expected_coords)}, actual={len(actual_coords)}"
+    assert len(actual_coords) == len(
+        expected_coords
+    ), f"Point counts should match: expected={len(expected_coords)}, actual={len(actual_coords)}"
 
     # Coordinates should match exactly (or very close for floating point precision)
-    for i, (expected_point, actual_point) in enumerate(zip(expected_coords, actual_coords)):
-        assert abs(expected_point[0] - actual_point[0]) < 1e-10, f"X coordinates should match at point {i}: expected={expected_point[0]}, actual={actual_point[0]}"
-        assert abs(expected_point[1] - actual_point[1]) < 1e-10, f"Y coordinates should match at point {i}: expected={expected_point[1]}, actual={actual_point[1]}"
+    for i, (expected_point, actual_point) in enumerate(
+        zip(expected_coords, actual_coords)
+    ):
+        assert (
+            abs(expected_point[0] - actual_point[0]) < 1e-10
+        ), f"X coordinates should match at point {i}: expected={expected_point[0]}, actual={actual_point[0]}"
+        assert (
+            abs(expected_point[1] - actual_point[1]) < 1e-10
+        ), f"Y coordinates should match at point {i}: expected={expected_point[1]}, actual={actual_point[1]}"
 
 
 def test_geojsonio_option_with_bbox(script_runner):
     """Test --geojsonio option outputs a URL when bbox is extracted"""
-    ret = script_runner.run(["geoextent", "-b", "--geojsonio", "--quiet", "tests/testdata/geojson/muenster_ring_zeit.geojson"])
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--geojsonio",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
     assert ret.success, "process should return success"
     # Progress bars go to stderr but with --quiet they should be suppressed
     if ret.stderr:
         # Allow for any progress bar artifacts but shouldn't have errors
-        assert "error" not in ret.stderr.lower(), f"stderr should not contain errors: {ret.stderr}"
+        assert (
+            "error" not in ret.stderr.lower()
+        ), f"stderr should not contain errors: {ret.stderr}"
 
-    lines = ret.stdout.strip().split('\n')
+    lines = ret.stdout.strip().split("\n")
     # Check that JSON output is present
     assert len(lines) >= 2, "should have JSON output and geojsonio URL"
 
     # Parse the JSON output (should be on first line)
     json_output = json.loads(lines[0])
     # Check that it's a FeatureCollection (new GeoJSON format)
-    assert json_output.get("type") == "FeatureCollection", "should be a FeatureCollection"
+    assert (
+        json_output.get("type") == "FeatureCollection"
+    ), "should be a FeatureCollection"
     assert len(json_output.get("features", [])) > 0, "should have features"
     assert json_output["features"][0].get("geometry"), "should have geometry"
 
@@ -1349,17 +1398,29 @@ def test_geojsonio_option_with_bbox(script_runner):
             break
 
     assert geojsonio_line is not None, "should contain geojsonio URL"
-    assert "🌍 View spatial extent at: http" in geojsonio_line, "should have clickable URL message"
+    assert (
+        "🌍 View spatial extent at: http" in geojsonio_line
+    ), "should have clickable URL message"
     assert "geojson.io" in geojsonio_line, "URL should point to geojson.io"
 
 
 def test_geojsonio_option_with_different_formats(script_runner):
     """Test --geojsonio option works with different output formats (WKT, WKB)"""
     # Test with WKT format
-    ret = script_runner.run(["geoextent", "-b", "--format", "wkt", "--geojsonio", "--quiet", "tests/testdata/geojson/muenster_ring_zeit.geojson"])
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkt",
+            "--geojsonio",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
     assert ret.success, "process should return success"
 
-    lines = ret.stdout.strip().split('\n')
+    lines = ret.stdout.strip().split("\n")
     # First line should be WKT output
     assert lines[0].startswith("POLYGON"), "first line should be WKT format"
 
@@ -1370,34 +1431,59 @@ def test_geojsonio_option_with_different_formats(script_runner):
             geojsonio_line = line
             break
 
-    assert geojsonio_line is not None, "should contain geojsonio URL even with WKT format"
+    assert (
+        geojsonio_line is not None
+    ), "should contain geojsonio URL even with WKT format"
 
 
 def test_geojsonio_option_no_bbox(script_runner):
     """Test --geojsonio option with no bbox extraction"""
-    ret = script_runner.run(["geoextent", "-t", "--geojsonio", "--quiet", "tests/testdata/geojson/muenster_ring_zeit.geojson"])
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-t",
+            "--geojsonio",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
     assert ret.success, "process should return success"
 
-    lines = ret.stdout.strip().split('\n')
+    lines = ret.stdout.strip().split("\n")
     # Should not have geojsonio URL since no bbox was extracted
     geojsonio_found = any("geojson.io" in line for line in lines)
-    assert not geojsonio_found, "should not have geojsonio URL when no bbox is extracted"
+    assert (
+        not geojsonio_found
+    ), "should not have geojsonio URL when no bbox is extracted"
 
 
 def test_geojsonio_option_with_convex_hull(script_runner):
     """Test --geojsonio option works with convex hull"""
-    ret = script_runner.run(["geoextent", "-b", "--convex-hull", "--geojsonio", "--quiet", "tests/testdata/geojson/muenster_ring_zeit.geojson"])
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--convex-hull",
+            "--geojsonio",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
     assert ret.success, "process should return success"
 
-    lines = ret.stdout.strip().split('\n')
+    lines = ret.stdout.strip().split("\n")
     # Check that JSON output is present
     json_output = json.loads(lines[0])
     # Check that it's a FeatureCollection (new GeoJSON format)
-    assert json_output.get("type") == "FeatureCollection", "should be a FeatureCollection"
+    assert (
+        json_output.get("type") == "FeatureCollection"
+    ), "should be a FeatureCollection"
     assert len(json_output.get("features", [])) > 0, "should have features"
     # Check that it's marked as convex hull
     feature = json_output["features"][0]
-    assert feature.get("properties", {}).get("convex_hull") is True, "should be marked as convex hull"
+    assert (
+        feature.get("properties", {}).get("convex_hull") is True
+    ), "should be marked as convex hull"
 
     # Check for geojsonio URL
     geojsonio_line = None
@@ -1411,10 +1497,18 @@ def test_geojsonio_option_with_convex_hull(script_runner):
 
 def test_geojsonio_option_quiet_mode(script_runner):
     """Test --geojsonio option in quiet mode"""
-    ret = script_runner.run(["geoextent", "-b", "--geojsonio", "--quiet", "tests/testdata/geojson/muenster_ring_zeit.geojson"])
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--geojsonio",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
     assert ret.success, "process should return success"
 
-    lines = ret.stdout.strip().split('\n')
+    lines = ret.stdout.strip().split("\n")
     # In quiet mode, should still have geojsonio URL (it's not a warning, it's requested output)
     geojsonio_line = None
     for line in lines:

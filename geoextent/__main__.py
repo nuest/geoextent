@@ -88,7 +88,7 @@ class readable_file_or_dir(argparse.Action):
     def _is_supported_repository(self, candidate):
         """Check if the candidate is supported by any content provider"""
         # Import content providers
-        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF
+        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF, GFZ
 
         # Test against all content providers
         content_providers = [
@@ -97,6 +97,7 @@ class readable_file_or_dir(argparse.Action):
             Zenodo.Zenodo,
             Pangaea.Pangaea,
             OSF.OSF,
+            GFZ.GFZ,
         ]
 
         for provider_class in content_providers:
@@ -391,7 +392,9 @@ def main():
             # Merge spatial extents if bbox is requested
             if args["bounding_box"]:
                 if args["convex_hull"]:
-                    bbox_merge = hf.convex_hull_merge(output["details"], "multiple_files")
+                    bbox_merge = hf.convex_hull_merge(
+                        output["details"], "multiple_files"
+                    )
                 else:
                     bbox_merge = hf.bbox_merge(output["details"], "multiple_files")
 
@@ -447,7 +450,9 @@ def main():
         if geojsonio_url:
             print(f"\n🌍 View spatial extent at: {geojsonio_url}")
         elif not args["quiet"]:
-            print("\ngeojson.io URL could not be generated (no spatial extent found or geojsonio not available)")
+            print(
+                "\ngeojson.io URL could not be generated (no spatial extent found or geojsonio not available)"
+            )
 
 
 if __name__ == "__main__":

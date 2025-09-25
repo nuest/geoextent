@@ -206,7 +206,9 @@ def getConvexHull(filepath):
 
         if not geometries:
             logger.debug(
-                "Layer {} does not contain any geometries for convex hull calculation".format(layer_name)
+                "Layer {} does not contain any geometries for convex hull calculation".format(
+                    layer_name
+                )
             )
             continue
 
@@ -248,7 +250,9 @@ def getConvexHull(filepath):
                 crs = spatial_ref.GetAuthorityCode(None)
             except Exception as e:
                 logger.debug(
-                    "Error extracting EPSG CODE from layer {}: \n {}".format(layer_name, e)
+                    "Error extracting EPSG CODE from layer {}: \n {}".format(
+                        layer_name, e
+                    )
                 )
                 crs = None
 
@@ -257,7 +261,7 @@ def getConvexHull(filepath):
                 "bbox": bbox,
                 "crs": crs,
                 "convex_hull_coords": convex_hull_coords,  # Store convex hull coordinates
-                "convex_hull": convex_hull  # Store the actual geometry for merging
+                "convex_hull": convex_hull,  # Store the actual geometry for merging
             }
 
             if bbox == null_island or crs is None:
@@ -282,7 +286,7 @@ def getConvexHull(filepath):
             spatial_extent = {
                 "bbox": layer_data["bbox"],
                 "crs": layer_data["crs"],
-                "convex_hull": True
+                "convex_hull": True,
             }
             if "convex_hull_coords" in layer_data:
                 spatial_extent["convex_hull_coords"] = layer_data["convex_hull_coords"]

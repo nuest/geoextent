@@ -37,7 +37,6 @@ doi_regexp = re.compile(
 )
 
 
-
 def getAllRowElements(row_name, elements, exp_data=None):
     """
     Function purpose: help-function to get all row elements for a specific string \n
@@ -260,7 +259,7 @@ def get_time_format(time_list, num_sample):
             sample_series = pd.to_datetime([time_sample[i]])
             if not sample_series.isna().all():
                 # If pandas can parse it, we'll use 'flexible' as indicator
-                format_list.append('flexible')
+                format_list.append("flexible")
             else:
                 format_list.append(None)
         except Exception:
@@ -294,32 +293,32 @@ def get_time_format(time_list, num_sample):
     if date_time_format is None:
         logger.debug("Flexible parsing failed, trying common format patterns")
         common_formats = [
-            "%Y/%m/%d %H:%M:%S",            # 2023/03/23 23:23:23
-            "%Y-%m-%d %H:%M:%S",            # 2023-03-23 23:23:23
-            "%Y/%m/%d",                     # 2023/03/23
-            "%Y-%m-%d",                     # 2023-03-23
-            "%d/%m/%Y",                     # 23/03/2023
-            "%d-%m-%Y",                     # 23-03-2023
-            "%m/%d/%Y",                     # 03/23/2023
-            "%m-%d-%Y",                     # 03-23-2023
-            "%Y%m%d",                       # 20230323
-            "%d.%m.%Y",                     # 23.03.2023
-            "%Y.%m.%d",                     # 2023.03.23
-            "%Y-%m-%dT%H:%M:%S",            # 2023-03-23T23:23:23 (ISO 8601)
-            "%Y-%m-%dT%H:%M:%S.%f",         # 2023-03-23T23:23:23.123456 (ISO with fractional)
-            "%Y-%m-%dT%H:%M:%S%z",          # 2023-03-23T23:23:23+0200 (ISO with timezone offset)
-            "%Y-%m-%d %H:%M:%S.%f",         # 2023-03-23 23:23:23.123456 (space sep with fractional)
-            "%d %B %Y",                     # 23 March 2023 (verbose month)
-            "%d %b %Y",                     # 23 Mar 2023 (abbrev month)
-            "%a, %d %b %Y %H:%M:%S %z",     # Thu, 23 Mar 2023 23:23:23 +0200 (RFC 2822/email)
-            "%H:%M:%S",                     # 23:23:23 (time only)
-            "%H:%M:%S.%f",                  # 23:23:23.123 (time with fractional seconds)
-            "%Y-%m",                        # 2023-03 (year-month)
-            "%Y",                           # 2023 (year only)
-            "%Y-%j",                        # 2023-082 (ordinal day of year)
-            "%d/%m/%y",                     # 23/03/23 (two-digit year)
-            "%m/%d/%y",                     # 03/23/23 (US two-digit year)
-            "%Y.%m.%d %H:%M:%S",            # 2023.03.23 23:23:23 (dotted date with time)
+            "%Y/%m/%d %H:%M:%S",  # 2023/03/23 23:23:23
+            "%Y-%m-%d %H:%M:%S",  # 2023-03-23 23:23:23
+            "%Y/%m/%d",  # 2023/03/23
+            "%Y-%m-%d",  # 2023-03-23
+            "%d/%m/%Y",  # 23/03/2023
+            "%d-%m-%Y",  # 23-03-2023
+            "%m/%d/%Y",  # 03/23/2023
+            "%m-%d-%Y",  # 03-23-2023
+            "%Y%m%d",  # 20230323
+            "%d.%m.%Y",  # 23.03.2023
+            "%Y.%m.%d",  # 2023.03.23
+            "%Y-%m-%dT%H:%M:%S",  # 2023-03-23T23:23:23 (ISO 8601)
+            "%Y-%m-%dT%H:%M:%S.%f",  # 2023-03-23T23:23:23.123456 (ISO with fractional)
+            "%Y-%m-%dT%H:%M:%S%z",  # 2023-03-23T23:23:23+0200 (ISO with timezone offset)
+            "%Y-%m-%d %H:%M:%S.%f",  # 2023-03-23 23:23:23.123456 (space sep with fractional)
+            "%d %B %Y",  # 23 March 2023 (verbose month)
+            "%d %b %Y",  # 23 Mar 2023 (abbrev month)
+            "%a, %d %b %Y %H:%M:%S %z",  # Thu, 23 Mar 2023 23:23:23 +0200 (RFC 2822/email)
+            "%H:%M:%S",  # 23:23:23 (time only)
+            "%H:%M:%S.%f",  # 23:23:23.123 (time with fractional seconds)
+            "%Y-%m",  # 2023-03 (year-month)
+            "%Y",  # 2023 (year only)
+            "%Y-%j",  # 2023-082 (ordinal day of year)
+            "%d/%m/%y",  # 23/03/23 (two-digit year)
+            "%m/%d/%y",  # 03/23/23 (US two-digit year)
+            "%Y.%m.%d %H:%M:%S",  # 2023.03.23 23:23:23 (dotted date with time)
         ]
 
         for fmt in common_formats:
@@ -504,7 +503,11 @@ def convex_hull_merge(metadata, origin):
                     crs = y["crs"]
 
                     # Check if bbox contains actual convex hull coordinates
-                    if isinstance(bbox, dict) and bbox.get("type") == "Polygon" and "coordinates" in bbox:
+                    if (
+                        isinstance(bbox, dict)
+                        and bbox.get("type") == "Polygon"
+                        and "coordinates" in bbox
+                    ):
                         # This is GeoJSON polygon format with actual convex hull geometry data
                         coords = bbox["coordinates"][0]  # Get the outer ring
 
@@ -576,13 +579,17 @@ def convex_hull_merge(metadata, origin):
                     geometries.append(polygon)
             except Exception as e:
                 logger.debug(
-                    "{} does not have identifiable geographical extent for convex hull: {}".format(x, e)
+                    "{} does not have identifiable geographical extent for convex hull: {}".format(
+                        x, e
+                    )
                 )
                 pass
 
     if len(geometries) == 0:
         logger.debug(
-            " ** {} does not have geometries with identifiable geographical extent for convex hull".format(origin)
+            " ** {} does not have geometries with identifiable geographical extent for convex hull".format(
+                origin
+            )
         )
         return None
     elif len(geometries) > 0:
@@ -596,7 +603,11 @@ def convex_hull_merge(metadata, origin):
             convex_hull = geom_collection.ConvexHull()
 
             if convex_hull is None:
-                logger.debug("Could not calculate convex hull for merged geometries from {}".format(origin))
+                logger.debug(
+                    "Could not calculate convex hull for merged geometries from {}".format(
+                        origin
+                    )
+                )
                 return None
 
             # Extract the actual convex hull coordinates for the merged result
@@ -606,7 +617,12 @@ def convex_hull_merge(metadata, origin):
             geometry_type = convex_hull.GetGeometryType()
 
             # Check if it's a polygon (including 2.5D, 3D variants)
-            if geometry_type in [ogr.wkbPolygon, ogr.wkbPolygon25D, ogr.wkbPolygonM, ogr.wkbPolygonZM]:
+            if geometry_type in [
+                ogr.wkbPolygon,
+                ogr.wkbPolygon25D,
+                ogr.wkbPolygonM,
+                ogr.wkbPolygonZM,
+            ]:
                 # Get the exterior ring
                 ring = convex_hull.GetGeometryRef(0)
                 if ring is not None:
@@ -630,17 +646,21 @@ def convex_hull_merge(metadata, origin):
             # Store as GeoJSON polygon format
             metadata_merge["bbox"] = {
                 "type": "Polygon",
-                "coordinates": [convex_hull_coords]
+                "coordinates": [convex_hull_coords],
             }
             metadata_merge["crs"] = str(WGS84_EPSG_ID)
             metadata_merge["convex_hull"] = True
 
             logger.debug(
-                "{} contains {} geometries with convex hull merged".format(origin, len(geometries))
+                "{} contains {} geometries with convex hull merged".format(
+                    origin, len(geometries)
+                )
             )
 
         except Exception as e:
-            logger.debug("Error calculating merged convex hull for {}: {}".format(origin, e))
+            logger.debug(
+                "Error calculating merged convex hull for {}: {}".format(origin, e)
+            )
             return None
 
     return metadata_merge
@@ -915,7 +935,12 @@ def create_geojson_feature_collection(extent_output):
     if isinstance(bbox, dict) and bbox.get("type") == "Polygon":
         # Already in GeoJSON format
         geom = bbox
-    elif is_convex_hull and isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+    elif (
+        is_convex_hull
+        and isinstance(bbox, list)
+        and len(bbox) > 0
+        and isinstance(bbox[0], list)
+    ):
         # Handle convex hull coordinates (array of [x,y] points)
         geom = convex_hull_coords_to_geojson(bbox)
     elif isinstance(bbox, list) and len(bbox) == 4:
@@ -935,20 +960,15 @@ def create_geojson_feature_collection(extent_output):
 
     # Add descriptive properties
     properties["extent_type"] = "convex_hull" if is_convex_hull else "bounding_box"
-    properties["description"] = f"{'Convex hull' if is_convex_hull else 'Bounding box'} extracted by geoextent"
+    properties["description"] = (
+        f"{'Convex hull' if is_convex_hull else 'Bounding box'} extracted by geoextent"
+    )
 
     # Create the Feature
-    feature = {
-        "type": "Feature",
-        "geometry": geom,
-        "properties": properties
-    }
+    feature = {"type": "Feature", "geometry": geom, "properties": properties}
 
     # Create the FeatureCollection
-    feature_collection = {
-        "type": "FeatureCollection",
-        "features": [feature]
-    }
+    feature_collection = {"type": "FeatureCollection", "features": [feature]}
 
     # Add details as a separate property if present (for directory/multiple file processing)
     if "details" in extent_output:
@@ -986,7 +1006,12 @@ def format_extent_output(extent_output, output_format="geojson"):
     is_convex_hull = extent_output.get("convex_hull", False)
 
     if bbox:
-        if is_convex_hull and isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+        if (
+            is_convex_hull
+            and isinstance(bbox, list)
+            and len(bbox) > 0
+            and isinstance(bbox[0], list)
+        ):
             # Handle convex hull coordinates (array of [x,y] points)
             if output_format.lower() == "wkt":
                 formatted_output["bbox"] = convex_hull_coords_to_wkt(bbox)
@@ -1013,7 +1038,9 @@ def format_extent_output(extent_output, output_format="geojson"):
     if "details" in formatted_output and isinstance(formatted_output["details"], dict):
         for key, detail in formatted_output["details"].items():
             if isinstance(detail, dict):
-                formatted_output["details"][key] = format_extent_output(detail, output_format)
+                formatted_output["details"][key] = format_extent_output(
+                    detail, output_format
+                )
 
     return formatted_output
 
@@ -1074,12 +1101,11 @@ def bbox_to_geojson(bbox):
     minx, miny, maxx, maxy = bbox
 
     # Create a polygon from the bounding box
-    coordinates = [[[minx, miny], [maxx, miny], [maxx, maxy], [minx, maxy], [minx, miny]]]
+    coordinates = [
+        [[minx, miny], [maxx, miny], [maxx, maxy], [minx, maxy], [minx, miny]]
+    ]
 
-    return {
-        "type": "Polygon",
-        "coordinates": coordinates
-    }
+    return {"type": "Polygon", "coordinates": coordinates}
 
 
 def convex_hull_coords_to_wkt(coords):
@@ -1160,10 +1186,7 @@ def convex_hull_coords_to_geojson(coords):
     if coordinates[0] != coordinates[-1]:
         coordinates.append(coordinates[0])
 
-    return {
-        "type": "Polygon",
-        "coordinates": [coordinates]
-    }
+    return {"type": "Polygon", "coordinates": [coordinates]}
 
 
 def generate_geojsonio_url(extent_output):
@@ -1203,7 +1226,12 @@ def generate_geojsonio_url(extent_output):
     is_convex_hull = extent_output.get("convex_hull", False)
 
     # Convert bbox to GeoJSON format
-    if is_convex_hull and isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+    if (
+        is_convex_hull
+        and isinstance(bbox, list)
+        and len(bbox) > 0
+        and isinstance(bbox[0], list)
+    ):
         # Handle convex hull coordinates
         geojson_geom = convex_hull_coords_to_geojson(bbox)
     elif isinstance(bbox, list) and len(bbox) == 4:
@@ -1222,15 +1250,12 @@ def generate_geojsonio_url(extent_output):
             "geometry": geojson_geom,
             "properties": {
                 "name": "Geoextent Spatial Extent",
-                "description": f"{'Convex Hull' if is_convex_hull else 'Bounding Box'} extracted by geoextent"
-            }
+                "description": f"{'Convex Hull' if is_convex_hull else 'Bounding Box'} extracted by geoextent",
+            },
         }
 
         # Create a feature collection
-        feature_collection = {
-            "type": "FeatureCollection",
-            "features": [feature]
-        }
+        feature_collection = {"type": "FeatureCollection", "features": [feature]}
 
         # Generate URL using geojsonio
         geojson_string = json.dumps(feature_collection)

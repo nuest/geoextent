@@ -50,7 +50,8 @@
       "Bash(for:*)",
       "Bash(do echo \"=== Testing $file ===\")",
       "Bash(echo:*)",
-      "Bash(done)"
+      "Bash(done)",
+      "WebFetch(domain:dataservices.gfz-potsdam.de)"
     ],
     "deny": [],
     "ask": []

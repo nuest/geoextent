@@ -101,7 +101,11 @@ def test_cli_nested_mixed_recursive_vs_non_recursive(script_runner):
 
     # Test with --no-subdirs
     ret_non_recursive = script_runner.run(
-        "geoextent", "-b", "--no-progress", "--no-subdirs", "tests/testdata/folders/nested_mixed"
+        "geoextent",
+        "-b",
+        "--no-progress",
+        "--no-subdirs",
+        "tests/testdata/folders/nested_mixed",
     )
     assert ret_non_recursive.success, "non-recursive process should return success"
 
@@ -113,7 +117,9 @@ def test_cli_nested_mixed_recursive_vs_non_recursive(script_runner):
 
     # Both should have bboxes
     assert "bbox" in recursive_result, "Recursive processing should produce a bbox"
-    assert "bbox" in non_recursive_result, "Non-recursive should still have bbox from top-level file"
+    assert (
+        "bbox" in non_recursive_result
+    ), "Non-recursive should still have bbox from top-level file"
 
     # Extract bounding coordinates
     recursive_coords = recursive_result["bbox"]["coordinates"][0]
@@ -126,7 +132,9 @@ def test_cli_nested_mixed_recursive_vs_non_recursive(script_runner):
     non_recursive_max_x = max(coord[0] for coord in non_recursive_coords)
 
     # Recursive should have larger extent (includes both top-level and subdirectory files)
-    assert recursive_max_x > non_recursive_max_x, "Recursive should have larger max longitude"
+    assert (
+        recursive_max_x > non_recursive_max_x
+    ), "Recursive should have larger max longitude"
 
     # Both should have same minimum (from top-level file)
     assert pytest.approx(recursive_min_x, abs=tolerance) == non_recursive_min_x
@@ -145,17 +153,25 @@ def test_api_bbox_merging_recursive_vs_non_recursive():
     """Test that bbox merging works correctly with and without recursive processing using nested_mixed"""
     # Test with recursive (should merge both top-level and subdirectory file)
     result_recursive = geoextent.fromDirectory(
-        "tests/testdata/folders/nested_mixed", bbox=True, recursive=True, show_progress=False
+        "tests/testdata/folders/nested_mixed",
+        bbox=True,
+        recursive=True,
+        show_progress=False,
     )
 
     # Test without recursive (should only include top-level file)
     result_non_recursive = geoextent.fromDirectory(
-        "tests/testdata/folders/nested_mixed", bbox=True, recursive=False, show_progress=False
+        "tests/testdata/folders/nested_mixed",
+        bbox=True,
+        recursive=False,
+        show_progress=False,
     )
 
     # Both should have bboxes
     assert "bbox" in result_recursive, "Recursive processing should produce a bbox"
-    assert "bbox" in result_non_recursive, "Non-recursive should still have bbox from top-level file"
+    assert (
+        "bbox" in result_non_recursive
+    ), "Non-recursive should still have bbox from top-level file"
 
     # Extract bbox coordinates - API returns [min_x, min_y, max_x, max_y]
     recursive_bbox = result_recursive["bbox"]
@@ -167,10 +183,17 @@ def test_api_bbox_merging_recursive_vs_non_recursive():
     # Combined: [6.59663465544554, 51.422305272549615, 7.647256851196289, 51.974624029877454]
 
     recursive_min_x, recursive_min_y, recursive_max_x, recursive_max_y = recursive_bbox
-    non_recursive_min_x, non_recursive_min_y, non_recursive_max_x, non_recursive_max_y = non_recursive_bbox
+    (
+        non_recursive_min_x,
+        non_recursive_min_y,
+        non_recursive_max_x,
+        non_recursive_max_y,
+    ) = non_recursive_bbox
 
     # Verify the recursive extent is larger (includes subdirectory file)
-    assert recursive_max_x > non_recursive_max_x, "Recursive processing should include larger extent from subdirectory"
+    assert (
+        recursive_max_x > non_recursive_max_x
+    ), "Recursive processing should include larger extent from subdirectory"
 
     # The min_x should be the same (both include the top-level file)
     assert pytest.approx(recursive_min_x, abs=tolerance) == non_recursive_min_x
