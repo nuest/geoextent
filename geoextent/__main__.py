@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import sys
+import warnings
 import zipfile
 from .lib import extent
 from .lib import helpfunctions as hf
@@ -265,6 +266,8 @@ def main():
     elif args["quiet"]:
         # Quiet mode: suppress all warnings and enable no-progress
         logging.getLogger("geoextent").setLevel(logging.CRITICAL)
+        # Also suppress Python warnings (including pandas UserWarnings)
+        warnings.filterwarnings("ignore")
         args["no_progress"] = True
     elif args["debug"]:
         logging.getLogger("geoextent").setLevel(logging.DEBUG)
