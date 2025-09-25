@@ -480,6 +480,169 @@ def bbox_merge(metadata, origin):
     return metadata_merge
 
 
+def convex_hull_merge(metadata, origin):
+    """
+    Function purpose: merge convex hulls by creating a convex hull from all individual geometries
+    metadata: metadata with geoextent extraction from multiple files (dict)
+    origin: folder path or filepath (str)
+    Output: Merged convex hull as bbox (dict)
+    """
+    logger.debug("convex hull metadata {}".format(metadata))
+    geometries = []
+    metadata_merge = {}
+    num_files = len(metadata.items())
+
+    for x, y in metadata.items():
+        if isinstance(y, dict):
+            try:
+                if "convex_hull" in y and "bbox" in y and "crs" in y:
+                    # If we have an existing convex hull geometry from the vector handler, use it
+                    bbox = y["bbox"]
+                    crs = y["crs"]
+
+                    # Check if bbox contains actual convex hull coordinates
+                    if isinstance(bbox, dict) and bbox.get("type") == "Polygon" and "coordinates" in bbox:
+                        # This is GeoJSON polygon format with actual convex hull geometry data
+                        coords = bbox["coordinates"][0]  # Get the outer ring
+
+                        # Create a polygon from the convex hull coordinates
+                        ring = ogr.Geometry(ogr.wkbLinearRing)
+                        for coord in coords:
+                            ring.AddPoint(coord[0], coord[1])
+
+                        polygon = ogr.Geometry(ogr.wkbPolygon)
+                        polygon.AddGeometry(ring)
+                    elif isinstance(bbox, list) and len(bbox) > 4:
+                        # This is a coordinate array format with actual convex hull coordinates
+                        ring = ogr.Geometry(ogr.wkbLinearRing)
+                        for coord in bbox:
+                            ring.AddPoint(coord[0], coord[1])
+
+                        polygon = ogr.Geometry(ogr.wkbPolygon)
+                        polygon.AddGeometry(ring)
+                    elif isinstance(bbox, list) and len(bbox) == 4:
+                        # This is a regular bounding box [minx, miny, maxx, maxy] - create rectangle
+                        box = ogr.Geometry(ogr.wkbLinearRing)
+                        box.AddPoint(bbox[0], bbox[1])  # min_x, min_y
+                        box.AddPoint(bbox[2], bbox[1])  # max_x, min_y
+                        box.AddPoint(bbox[2], bbox[3])  # max_x, max_y
+                        box.AddPoint(bbox[0], bbox[3])  # min_x, max_y
+                        box.AddPoint(bbox[0], bbox[1])  # close ring
+
+                        polygon = ogr.Geometry(ogr.wkbPolygon)
+                        polygon.AddGeometry(box)
+                    else:
+                        # Skip invalid bbox formats (empty lists, etc.)
+                        continue
+
+                    # Transform to WGS84 if necessary
+                    if crs != str(WGS84_EPSG_ID):
+                        source = osr.SpatialReference()
+                        source.ImportFromEPSG(int(crs))
+                        des_crs = osr.SpatialReference()
+                        des_crs.ImportFromEPSG(WGS84_EPSG_ID)
+                        transform = osr.CoordinateTransformation(source, des_crs)
+                        polygon.Transform(transform)
+
+                    geometries.append(polygon)
+                elif "bbox" in y and "crs" in y:
+                    # Fallback to bbox if no convex hull flag
+                    bbox = y["bbox"]
+                    crs = y["crs"]
+
+                    # Create a polygon from the bounding box
+                    box = ogr.Geometry(ogr.wkbLinearRing)
+                    box.AddPoint(bbox[0], bbox[1])
+                    box.AddPoint(bbox[2], bbox[1])
+                    box.AddPoint(bbox[2], bbox[3])
+                    box.AddPoint(bbox[0], bbox[3])
+                    box.AddPoint(bbox[0], bbox[1])
+
+                    polygon = ogr.Geometry(ogr.wkbPolygon)
+                    polygon.AddGeometry(box)
+
+                    # Transform to WGS84 if necessary
+                    if crs != str(WGS84_EPSG_ID):
+                        source = osr.SpatialReference()
+                        source.ImportFromEPSG(int(crs))
+                        des_crs = osr.SpatialReference()
+                        des_crs.ImportFromEPSG(WGS84_EPSG_ID)
+                        transform = osr.CoordinateTransformation(source, des_crs)
+                        polygon.Transform(transform)
+
+                    geometries.append(polygon)
+            except Exception as e:
+                logger.debug(
+                    "{} does not have identifiable geographical extent for convex hull: {}".format(x, e)
+                )
+                pass
+
+    if len(geometries) == 0:
+        logger.debug(
+            " ** {} does not have geometries with identifiable geographical extent for convex hull".format(origin)
+        )
+        return None
+    elif len(geometries) > 0:
+        try:
+            # Create a geometry collection from all geometries
+            geom_collection = ogr.Geometry(ogr.wkbGeometryCollection)
+            for geom in geometries:
+                geom_collection.AddGeometry(geom)
+
+            # Calculate convex hull of all geometries together
+            convex_hull = geom_collection.ConvexHull()
+
+            if convex_hull is None:
+                logger.debug("Could not calculate convex hull for merged geometries from {}".format(origin))
+                return None
+
+            # Extract the actual convex hull coordinates for the merged result
+            convex_hull_coords = []
+
+            # Handle all polygon variants (2D, 3D, measured, etc.)
+            geometry_type = convex_hull.GetGeometryType()
+
+            # Check if it's a polygon (including 2.5D, 3D variants)
+            if geometry_type in [ogr.wkbPolygon, ogr.wkbPolygon25D, ogr.wkbPolygonM, ogr.wkbPolygonZM]:
+                # Get the exterior ring
+                ring = convex_hull.GetGeometryRef(0)
+                if ring is not None:
+                    point_count = ring.GetPointCount()
+                    for i in range(point_count):
+                        x, y, z = ring.GetPoint(i)
+                        convex_hull_coords.append([x, y])
+            else:
+                # Flatten the geometry type to handle 2.5D variants
+                base_geometry_type = ogr.Geometry.wkbFlatten(geometry_type)
+
+                if base_geometry_type == ogr.wkbPolygon:
+                    # Get the exterior ring
+                    ring = convex_hull.GetGeometryRef(0)
+                    if ring is not None:
+                        point_count = ring.GetPointCount()
+                        for i in range(point_count):
+                            x, y, z = ring.GetPoint(i)
+                            convex_hull_coords.append([x, y])
+
+            # Store as GeoJSON polygon format
+            metadata_merge["bbox"] = {
+                "type": "Polygon",
+                "coordinates": [convex_hull_coords]
+            }
+            metadata_merge["crs"] = str(WGS84_EPSG_ID)
+            metadata_merge["convex_hull"] = True
+
+            logger.debug(
+                "{} contains {} geometries with convex hull merged".format(origin, len(geometries))
+            )
+
+        except Exception as e:
+            logger.debug("Error calculating merged convex hull for {}: {}".format(origin, e))
+            return None
+
+    return metadata_merge
+
+
 def tbox_merge(metadata, path):
     """
     Function purpose: Merge time boxes
@@ -747,13 +910,25 @@ def format_extent_output(extent_output, output_format="geojson"):
     formatted_output = extent_output.copy()
 
     bbox = extent_output.get("bbox")
-    if bbox and len(bbox) == 4:
-        if output_format.lower() == "wkt":
-            formatted_output["bbox"] = bbox_to_wkt(bbox)
-        elif output_format.lower() == "wkb":
-            formatted_output["bbox"] = bbox_to_wkb(bbox)
-        elif output_format.lower() == "geojson":
-            formatted_output["bbox"] = bbox_to_geojson(bbox)
+    is_convex_hull = extent_output.get("convex_hull", False)
+
+    if bbox:
+        if is_convex_hull and isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+            # Handle convex hull coordinates (array of [x,y] points)
+            if output_format.lower() == "wkt":
+                formatted_output["bbox"] = convex_hull_coords_to_wkt(bbox)
+            elif output_format.lower() == "wkb":
+                formatted_output["bbox"] = convex_hull_coords_to_wkb(bbox)
+            elif output_format.lower() == "geojson":
+                formatted_output["bbox"] = convex_hull_coords_to_geojson(bbox)
+        elif len(bbox) == 4:
+            # Handle regular bounding box [min_x, min_y, max_x, max_y]
+            if output_format.lower() == "wkt":
+                formatted_output["bbox"] = bbox_to_wkt(bbox)
+            elif output_format.lower() == "wkb":
+                formatted_output["bbox"] = bbox_to_wkb(bbox)
+            elif output_format.lower() == "geojson":
+                formatted_output["bbox"] = bbox_to_geojson(bbox)
 
     # Handle details if present (for directories/multiple files)
     if "details" in formatted_output and isinstance(formatted_output["details"], dict):
@@ -825,4 +1000,88 @@ def bbox_to_geojson(bbox):
     return {
         "type": "Polygon",
         "coordinates": coordinates
+    }
+
+
+def convex_hull_coords_to_wkt(coords):
+    """
+    Convert convex hull coordinates to WKT POLYGON format
+
+    Args:
+        coords: List of [x,y] coordinate pairs representing convex hull vertices
+
+    Returns:
+        String containing WKT polygon representation
+    """
+    if not coords or len(coords) < 3:
+        return None
+
+    # Ensure the polygon is closed (first and last points should be the same)
+    if coords[0] != coords[-1]:
+        coords = coords + [coords[0]]
+
+    # Format coordinates as "x y" pairs
+    coord_strs = [f"{x} {y}" for x, y in coords]
+    wkt = f"POLYGON(({','.join(coord_strs)}))"
+    return wkt
+
+
+def convex_hull_coords_to_wkb(coords):
+    """
+    Convert convex hull coordinates to WKB (Well-Known Binary) format
+
+    Args:
+        coords: List of [x,y] coordinate pairs representing convex hull vertices
+
+    Returns:
+        String containing hexadecimal WKB representation
+    """
+    if not coords or len(coords) < 3:
+        return None
+
+    try:
+        # Create a geometry from the convex hull coordinates
+        ring = ogr.Geometry(ogr.wkbLinearRing)
+
+        # Ensure the polygon is closed
+        if coords[0] != coords[-1]:
+            coords = coords + [coords[0]]
+
+        for x, y in coords:
+            ring.AddPoint(x, y)
+
+        # Create polygon
+        polygon = ogr.Geometry(ogr.wkbPolygon)
+        polygon.AddGeometry(ring)
+
+        # Convert to WKB and then to hex string
+        wkb_bytes = polygon.ExportToWkb()
+        return wkb_bytes.hex().upper()
+
+    except Exception as e:
+        logger.debug(f"Error converting convex hull coords to WKB: {e}")
+        return None
+
+
+def convex_hull_coords_to_geojson(coords):
+    """
+    Convert convex hull coordinates to GeoJSON Polygon format
+
+    Args:
+        coords: List of [x,y] coordinate pairs representing convex hull vertices
+
+    Returns:
+        Dict containing GeoJSON polygon representation
+    """
+    if not coords or len(coords) < 3:
+        return None
+
+    # Ensure the polygon is closed (first and last points should be the same)
+    coordinates = coords[:]
+    if coordinates[0] != coordinates[-1]:
+        coordinates.append(coordinates[0])
+
+    return {
+        "type": "Polygon",
+        "coordinates": [coordinates]
     }

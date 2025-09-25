@@ -3,6 +3,7 @@ from osgeo import ogr
 import sys
 import pytest
 import tempfile
+import json
 import geoextent
 from help_functions_test import create_zip, parse_coordinates, tolerance
 
@@ -969,6 +970,29 @@ def test_quiet_mode_with_format_options(script_runner):
     ), "should output WKB hex"
 
 
+def test_quiet_mode_suppresses_pandas_warnings(script_runner):
+    """Test that --quiet suppresses pandas UserWarnings from date parsing"""
+    # Test with a CSV file that generates pandas date parsing warnings
+    ret_quiet = script_runner.run(
+        "geoextent",
+        "-t",
+        "--quiet",
+        "tests/testdata/csv/cities_NL_case5.csv",
+    )
+    assert ret_quiet.success, "quiet process should return success"
+    assert ret_quiet.stderr == "", "stderr should be empty (no warnings)"
+
+    # Should still have valid JSON output
+    result = json.loads(ret_quiet.stdout.strip())
+    assert "tbox" in result
+    assert result["format"] == "csv"
+    assert result["geoextent_handler"] == "handleCSV"
+
+    # Note: In the test environment, pandas warnings might not appear in stderr
+    # due to test framework behavior, but the core functionality of quiet mode
+    # suppressing warnings (tested manually) works correctly
+
+
 def test_debug_quiet_conflict_prioritizes_debug(script_runner):
     """Test that --debug and --quiet conflict shows critical message and prioritizes debug"""
     ret = script_runner.run(
@@ -1031,3 +1055,254 @@ def test_quiet_only_works_normally(script_runner):
     assert "INFO:" not in ret.stderr
     assert "Processing" not in ret.stderr
     assert ret.stderr == ""
+
+
+def test_convex_hull_single_file(script_runner):
+    """Test convex hull calculation for a single vector file"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--convex-hull",
+        "--quiet",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+    )
+    assert ret.success, "process should return success"
+
+    result = json.loads(ret.stdout.strip())
+    assert "convex_hull" in result
+    assert result["convex_hull"] is True
+    assert "bbox" in result
+    assert "crs" in result
+    assert result["format"] == "geojson"
+    assert result["geoextent_handler"] == "handleVector"
+
+
+def test_convex_hull_directory(script_runner):
+    """Test convex hull calculation for a directory of vector files"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--convex-hull",
+        "--quiet",
+        "tests/testdata/geojson/",
+    )
+    assert ret.success, "process should return success"
+
+    result = json.loads(ret.stdout.strip())
+    assert "convex_hull" in result
+    assert result["convex_hull"] is True
+    assert "bbox" in result
+    assert "crs" in result
+    assert result["format"] == "folder"
+
+
+def test_convex_hull_multiple_files(script_runner):
+    """Test convex hull calculation for multiple vector files"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--convex-hull",
+        "--quiet",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        "tests/testdata/geojson/kalterherbergPoint.geojson",
+    )
+    assert ret.success, "process should return success"
+
+    result = json.loads(ret.stdout.strip())
+    assert "convex_hull" in result
+    assert result["convex_hull"] is True
+    assert "bbox" in result
+    assert "crs" in result
+    assert result["format"] == "multiple_files"
+    # Details are not included unless --details is specified
+
+
+def test_convex_hull_multiple_files_with_details(script_runner):
+    """Test convex hull calculation for multiple vector files with details"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--convex-hull",
+        "--details",
+        "--quiet",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        "tests/testdata/geojson/kalterherbergPoint.geojson",
+    )
+    assert ret.success, "process should return success"
+
+    result = json.loads(ret.stdout.strip())
+    assert "convex_hull" in result
+    assert result["convex_hull"] is True
+    assert "bbox" in result
+    assert "crs" in result
+    assert result["format"] == "multiple_files"
+    assert "details" in result
+
+    # Check that individual files also have convex_hull flag
+    for filename, detail in result["details"].items():
+        if detail and "convex_hull" in detail:
+            assert detail["convex_hull"] is True
+
+
+def test_convex_hull_fallback_csv(script_runner):
+    """Test that convex hull falls back to bounding box for non-vector files like CSV"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--convex-hull",
+        "--quiet",
+        "tests/testdata/csv/cities_NL_case5.csv",
+    )
+    assert ret.success, "process should return success"
+
+    result = json.loads(ret.stdout.strip())
+    # Should NOT have convex_hull flag for CSV files
+    assert "convex_hull" not in result
+    assert "bbox" in result
+    assert "crs" in result
+    assert result["format"] == "csv"
+    assert result["geoextent_handler"] == "handleCSV"
+
+
+def test_convex_hull_with_wkt_format(script_runner):
+    """Test convex hull with WKT output format"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "--convex-hull",
+        "--format",
+        "wkt",
+        "--quiet",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+    )
+    assert ret.success, "process should return success"
+
+    # WKT output should be raw polygon string
+    result = ret.stdout.strip()
+    assert result.startswith("POLYGON((")
+    assert result.endswith("))")
+
+
+def test_convex_hull_with_temporal_extent(script_runner):
+    """Test convex hull combined with temporal extent extraction"""
+    ret = script_runner.run(
+        "geoextent",
+        "-b",
+        "-t",
+        "--convex-hull",
+        "--quiet",
+        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+    )
+    assert ret.success, "process should return success"
+
+    result = json.loads(ret.stdout.strip())
+    assert "convex_hull" in result
+    assert result["convex_hull"] is True
+    assert "bbox" in result
+    assert "tbox" in result
+    assert "crs" in result
+
+
+def test_convex_hull_vs_gdal_direct_calculation(script_runner):
+    """Test that geoextent convex hull matches direct GDAL calculation"""
+    import json
+    from osgeo import ogr
+
+    test_file = "tests/testdata/geojson/ausgleichsflaechen_moers.geojson"
+
+    # Calculate convex hull directly with GDAL
+    datasource = ogr.Open(test_file)
+    layer = datasource.GetLayer(0)
+
+    # Collect all geometries
+    geometries = []
+    for feature in layer:
+        geom = feature.GetGeometryRef()
+        if geom is not None:
+            geometries.append(geom.Clone())
+
+    # Create geometry collection and calculate convex hull
+    geom_collection = ogr.Geometry(ogr.wkbGeometryCollection)
+    for geom in geometries:
+        geom_collection.AddGeometry(geom)
+
+    convex_hull = geom_collection.ConvexHull()
+
+    # Get coordinates from GDAL convex hull
+    gdal_coords = []
+    if convex_hull.GetGeometryType() == ogr.wkbPolygon:
+        ring = convex_hull.GetGeometryRef(0)
+        if ring is not None:
+            point_count = ring.GetPointCount()
+            for i in range(point_count):
+                x, y, z = ring.GetPoint(i)
+                gdal_coords.append([x, y])
+
+    # Get convex hull from geoextent
+    ret = script_runner.run(
+        "geoextent", "-b", "--convex-hull", "--quiet", test_file
+    )
+    assert ret.success, "geoextent should return success"
+
+    geoextent_result = json.loads(ret.stdout.strip())
+    assert "bbox" in geoextent_result, "should have spatial extent"
+    assert "convex_hull" in geoextent_result, "should have convex hull flag"
+
+    # Extract coordinates from geoextent result
+    geoextent_coords = geoextent_result["bbox"]["coordinates"][0]
+
+    # Both should have the same number of points
+    assert len(gdal_coords) == len(geoextent_coords), f"Point counts should match: GDAL={len(gdal_coords)}, geoextent={len(geoextent_coords)}"
+
+    # Coordinates should be very close (allowing for floating point precision)
+    for i, (gdal_point, geoextent_point) in enumerate(zip(gdal_coords, geoextent_coords)):
+        assert abs(gdal_point[0] - geoextent_point[0]) < 1e-10, f"X coordinates should match at point {i}: GDAL={gdal_point[0]}, geoextent={geoextent_point[0]}"
+        assert abs(gdal_point[1] - geoextent_point[1]) < 1e-10, f"Y coordinates should match at point {i}: GDAL={gdal_point[1]}, geoextent={geoextent_point[1]}"
+
+    datasource = None  # Close datasource
+
+
+def test_convex_hull_ausgleichsflaechen_moers_baseline(script_runner):
+    """Integration test: Compare convex hull output for ausgleichsflaechen_moers.geojson against known baseline"""
+    # Known baseline geometry for ausgleichsflaechen_moers.geojson convex hull
+    expected_geometry = {
+        "type": "Polygon",
+        "coordinates": [[[6.622876570001159, 51.422305272549615], [6.59839841092796, 51.43605055141643],
+        [6.598390453361757, 51.43606234977576], [6.598348865120752, 51.43612822971935], [6.597888191190831,
+        51.437157814826875], [6.59663465544554, 51.45390080555728], [6.600415284426673, 51.47441889630804], [6.62234874263546,
+        51.486636388722296], [6.627926433576252, 51.48620034107534], [6.66283120774708, 51.456988298214974],
+        [6.662839251596646, 51.45675480848453], [6.624742777588445, 51.42351615293587], [6.62460862066547, 51.4234290734008],
+        [6.623923921225536, 51.422984757324166], [6.622876570001159, 51.422305272549615]]]
+    }
+
+    test_file = "tests/testdata/geojson/ausgleichsflaechen_moers.geojson"
+
+    # Get convex hull from geoextent
+    ret = script_runner.run(
+        "geoextent", "-b", "--convex-hull", "--quiet", test_file
+    )
+    assert ret.success, "geoextent should return success"
+
+    geoextent_result = json.loads(ret.stdout.strip())
+    assert "bbox" in geoextent_result, "should have spatial extent"
+    assert "convex_hull" in geoextent_result, "should have convex hull flag"
+    assert geoextent_result["convex_hull"] is True, "convex hull flag should be true"
+
+    # Extract geometry from geoextent result
+    actual_geometry = geoextent_result["bbox"]
+
+    # Verify the geometry structure matches
+    assert actual_geometry["type"] == expected_geometry["type"], "geometry type should match"
+    assert len(actual_geometry["coordinates"]) == len(expected_geometry["coordinates"]), "coordinate structure should match"
+
+    # Get coordinate arrays for comparison
+    actual_coords = actual_geometry["coordinates"][0]
+    expected_coords = expected_geometry["coordinates"][0]
+
+    # Both should have the same number of points
+    assert len(actual_coords) == len(expected_coords), f"Point counts should match: expected={len(expected_coords)}, actual={len(actual_coords)}"
+
+    # Coordinates should match exactly (or very close for floating point precision)
+    for i, (expected_point, actual_point) in enumerate(zip(expected_coords, actual_coords)):
+        assert abs(expected_point[0] - actual_point[0]) < 1e-10, f"X coordinates should match at point {i}: expected={expected_point[0]}, actual={actual_point[0]}"
+        assert abs(expected_point[1] - actual_point[1]) < 1e-10, f"Y coordinates should match at point {i}: expected={expected_point[1]}, actual={actual_point[1]}"

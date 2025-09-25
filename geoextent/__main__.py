@@ -117,7 +117,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] file1 [file2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] file1 [file2 ...]",
     )
 
     parser.add_argument(
@@ -162,6 +162,13 @@ def get_arg_parser():
         action="store_true",
         default=False,
         help="extract temporal extent (%%Y-%%m-%%d)",
+    )
+
+    parser.add_argument(
+        "--convex-hull",
+        action="store_true",
+        default=False,
+        help="extract convex hull instead of bounding box for vector geometries",
     )
 
     parser.add_argument(
@@ -309,6 +316,7 @@ def main():
                     single_input,
                     bbox=args["bounding_box"],
                     tbox=args["time_box"],
+                    convex_hull=args["convex_hull"],
                     show_progress=not args["no_progress"],
                 )
             elif is_directory or is_zipfile:
@@ -316,6 +324,7 @@ def main():
                     single_input,
                     bbox=args["bounding_box"],
                     tbox=args["time_box"],
+                    convex_hull=args["convex_hull"],
                     details=True,
                     show_progress=not args["no_progress"],
                     recursive=not args["no_subdirs"],
@@ -325,6 +334,7 @@ def main():
                     single_input,
                     bbox=args["bounding_box"],
                     tbox=args["time_box"],
+                    convex_hull=args["convex_hull"],
                     details=True,
                     download_data=args["download_data"],
                     show_progress=not args["no_progress"],
@@ -346,6 +356,7 @@ def main():
                             file_path,
                             bbox=args["bounding_box"],
                             tbox=args["time_box"],
+                            convex_hull=args["convex_hull"],
                             show_progress=not args["no_progress"],
                         )
                         if file_output is not None:
@@ -355,6 +366,7 @@ def main():
                             file_path,
                             bbox=args["bounding_box"],
                             tbox=args["time_box"],
+                            convex_hull=args["convex_hull"],
                             details=True,
                             show_progress=not args["no_progress"],
                             recursive=not args["no_subdirs"],
@@ -371,10 +383,17 @@ def main():
 
             # Merge spatial extents if bbox is requested
             if args["bounding_box"]:
-                bbox_merge = hf.bbox_merge(output["details"], "multiple_files")
+                if args["convex_hull"]:
+                    bbox_merge = hf.convex_hull_merge(output["details"], "multiple_files")
+                else:
+                    bbox_merge = hf.bbox_merge(output["details"], "multiple_files")
+
                 if bbox_merge is not None and len(bbox_merge) != 0:
                     output["crs"] = bbox_merge["crs"]
                     output["bbox"] = bbox_merge["bbox"]
+                    # Mark if this is from convex hull calculation
+                    if args["convex_hull"] and "convex_hull" in bbox_merge:
+                        output["convex_hull"] = bbox_merge["convex_hull"]
 
             # Merge temporal extents if tbox is requested
             if args["time_box"]:

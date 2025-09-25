@@ -184,3 +184,115 @@ def getBoundingBox(filepath):
             spatial_extent = bbox_merge
 
     return spatial_extent
+
+
+def getConvexHull(filepath):
+    """extracts convex hull from vector file \n
+    input "filepath": type string, file path to vector \n
+    returns convex hull as a bounding box: type dict with keys 'bbox' and 'crs'
+    """
+    datasource = ogr.Open(filepath)
+    geo_dict = {}
+
+    for layer in datasource:
+        layer_name = layer.GetDescription()
+
+        # Collect all geometries from the layer
+        geometries = []
+        for feature in layer:
+            geom = feature.GetGeometryRef()
+            if geom is not None:
+                geometries.append(geom.Clone())
+
+        if not geometries:
+            logger.debug(
+                "Layer {} does not contain any geometries for convex hull calculation".format(layer_name)
+            )
+            continue
+
+        # Create a geometry collection
+        geom_collection = ogr.Geometry(ogr.wkbGeometryCollection)
+        for geom in geometries:
+            geom_collection.AddGeometry(geom)
+
+        # Calculate convex hull
+        try:
+            convex_hull = geom_collection.ConvexHull()
+            if convex_hull is None:
+                logger.debug(
+                    "Could not calculate convex hull for layer {}".format(layer_name)
+                )
+                continue
+
+            # Convert convex hull geometry to coordinate points
+            convex_hull_coords = []
+            if convex_hull.GetGeometryType() == ogr.wkbPolygon:
+                # Get the exterior ring
+                ring = convex_hull.GetGeometryRef(0)
+                if ring is not None:
+                    point_count = ring.GetPointCount()
+                    for i in range(point_count):
+                        x, y, z = ring.GetPoint(i)
+                        convex_hull_coords.append([x, y])
+
+            # For compatibility with existing transformation logic, we still need a bbox
+            # But we'll store the convex hull coordinates separately
+            envelope = convex_hull.GetEnvelope()
+            # OGR envelope format: (min_x, max_x, min_y, max_y)
+            bbox = [envelope[0], envelope[2], envelope[1], envelope[3]]
+
+            # Get CRS information
+            try:
+                spatial_ref = layer.GetSpatialRef()
+                spatial_ref.AutoIdentifyEPSG()
+                crs = spatial_ref.GetAuthorityCode(None)
+            except Exception as e:
+                logger.debug(
+                    "Error extracting EPSG CODE from layer {}: \n {}".format(layer_name, e)
+                )
+                crs = None
+
+            # Store the convex hull geometry and its bbox
+            geo_dict[layer_name] = {
+                "bbox": bbox,
+                "crs": crs,
+                "convex_hull_coords": convex_hull_coords,  # Store convex hull coordinates
+                "convex_hull": convex_hull  # Store the actual geometry for merging
+            }
+
+            if bbox == null_island or crs is None:
+                logger.debug(
+                    "Layer {} convex hull does not have identifiable geographic extent. CRS may be missing.".format(
+                        layer_name
+                    )
+                )
+                if crs is None:
+                    del geo_dict[layer_name]["crs"]
+
+        except Exception as e:
+            logger.debug(
+                "Error calculating convex hull for layer {}: {}".format(layer_name, e)
+            )
+            continue
+
+    # For convex hull with single file, we don't need to merge - just return the first result
+    if len(geo_dict) == 1:
+        # Single layer case - return the convex hull directly
+        for layer_name, layer_data in geo_dict.items():
+            spatial_extent = {
+                "bbox": layer_data["bbox"],
+                "crs": layer_data["crs"],
+                "convex_hull": True
+            }
+            if "convex_hull_coords" in layer_data:
+                spatial_extent["convex_hull_coords"] = layer_data["convex_hull_coords"]
+            return spatial_extent
+    else:
+        # Multiple layers - need to merge using convex hull merge logic
+        bbox_merge = hf.convex_hull_merge(geo_dict, filepath)
+        spatial_extent = None
+        if bbox_merge is not None:
+            if len(bbox_merge) != 0:
+                spatial_extent = bbox_merge
+
+        return spatial_extent

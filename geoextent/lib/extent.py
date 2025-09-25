@@ -68,10 +68,83 @@ def compute_bbox_wgs84(module, path):
     return spatial_extent
 
 
+def compute_convex_hull_wgs84(module, path):
+    """
+    input "module": type module, module from which methods shall be used \n
+    input "path": type string, path to file \n
+    returns a convex hull as bounding box, type dict with keys 'bbox' and 'crs',
+        the bounding box has either its original crs or WGS84(transformed).
+    """
+    logger.debug("compute_convex_hull_wgs84: {}".format(path))
+
+    # Check if module has convex hull support
+    if not hasattr(module, 'getConvexHull'):
+        logger.warning("Module {} does not support convex hull calculation, falling back to bounding box".format(module.get_handler_name()))
+        return compute_bbox_wgs84(module, path)
+
+    spatial_extent_origin = module.getConvexHull(path)
+
+    if spatial_extent_origin is None:
+        return None
+
+    try:
+        if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
+            spatial_extent = spatial_extent_origin
+        else:
+            spatial_extent = {
+                "bbox": hf.transformingArrayIntoWGS84(
+                    spatial_extent_origin["crs"], spatial_extent_origin["bbox"]
+                ),
+                "crs": str(hf.WGS84_EPSG_ID),
+            }
+
+            # Transform convex hull coordinates if they exist
+            if "convex_hull_coords" in spatial_extent_origin and spatial_extent_origin["convex_hull_coords"]:
+                transformed_coords = []
+                for coord in spatial_extent_origin["convex_hull_coords"]:
+                    # Transform each coordinate point
+                    transformed_point = hf.transformingArrayIntoWGS84(
+                        spatial_extent_origin["crs"], [coord[0], coord[1], coord[0], coord[1]]
+                    )
+                    # Take the first two values (x, y)
+                    transformed_coords.append([transformed_point[0], transformed_point[1]])
+                spatial_extent["convex_hull_coords"] = transformed_coords
+
+            # Preserve convex hull flag and geometry
+            if "convex_hull" in spatial_extent_origin:
+                spatial_extent["convex_hull"] = spatial_extent_origin["convex_hull"]
+            if "convex_hull" in spatial_extent_origin:  # Geometry reference
+                spatial_extent["convex_hull_geom"] = spatial_extent_origin["convex_hull"]
+    except Exception as e:
+        raise Exception(
+            "The convex hull could not be transformed to the target CRS epsg:{} \n error {}".format(
+                hf.WGS84_EPSG_ID, e
+            )
+        )
+
+    validate = hf.validate_bbox_wgs84(spatial_extent["bbox"])
+    logger.debug("Validate convex hull: {}".format(validate))
+
+    if not hf.validate_bbox_wgs84(spatial_extent["bbox"]):
+        try:
+            flip_bbox = hf.flip_bbox(spatial_extent["bbox"])
+            spatial_extent["bbox"] = flip_bbox
+
+        except Exception as e:
+            raise Exception(
+                "The convex hull could not be transformed to the target CRS epsg:{} \n error {}".format(
+                    hf.WGS84_EPSG_ID, e
+                )
+            )
+
+    return spatial_extent
+
+
 def fromDirectory(
     path: str,
     bbox: bool = False,
     tbox: bool = False,
+    convex_hull: bool = False,
     details: bool = False,
     timeout: None | int | float = None,
     level: int = 0,
@@ -83,13 +156,14 @@ def fromDirectory(
     path -- directory/archive path
     bbox -- True if bounding box is requested (default False)
     tbox -- True if time box is requested (default False)
+    convex_hull -- True if convex hull should be calculated instead of bounding box (default False)
     timeout -- maximal allowed run time in seconds (default None)
     recursive -- True to process subdirectories recursively (default True)
     """
 
     from tqdm import tqdm
 
-    logger.info("Extracting bbox={} tbox={} from Directory {}".format(bbox, tbox, path))
+    logger.info("Extracting bbox={} tbox={} convex_hull={} from Directory {}".format(bbox, tbox, convex_hull, path))
 
     if not bbox and not tbox:
         logger.error(
@@ -161,6 +235,7 @@ def fromDirectory(
                     absolute_path,
                     bbox,
                     tbox,
+                    convex_hull,
                     details=True,
                     timeout=remaining_time,
                     level=level + 1,
@@ -181,6 +256,7 @@ def fromDirectory(
                         absolute_path,
                         bbox,
                         tbox,
+                        convex_hull,
                         details=True,
                         timeout=remaining_time,
                         level=level + 1,
@@ -193,7 +269,7 @@ def fromDirectory(
                     )
             else:
                 metadata_file = fromFile(
-                    absolute_path, bbox, tbox, show_progress=show_progress
+                    absolute_path, bbox, tbox, convex_hull, show_progress=show_progress
                 )
                 metadata_directory[str(filename)] = metadata_file
 
@@ -209,15 +285,23 @@ def fromDirectory(
     metadata["format"] = file_format
 
     if bbox:
-        bbox_ext = hf.bbox_merge(metadata_directory, path)
+        if convex_hull:
+            bbox_ext = hf.convex_hull_merge(metadata_directory, path)
+        else:
+            bbox_ext = hf.bbox_merge(metadata_directory, path)
+
         if bbox_ext is not None:
             if len(bbox_ext) != 0:
                 metadata["crs"] = bbox_ext["crs"]
                 metadata["bbox"] = bbox_ext["bbox"]
+                # Mark if this is from convex hull calculation
+                if convex_hull and "convex_hull" in bbox_ext:
+                    metadata["convex_hull"] = bbox_ext["convex_hull"]
         else:
+            hull_type = "convex hull" if convex_hull else "bbox"
             logger.warning(
-                "The {} {} has no identifiable bbox - Coordinate reference system (CRS) may be missing".format(
-                    file_format, path
+                "The {} {} has no identifiable {} - Coordinate reference system (CRS) may be missing".format(
+                    file_format, path, hull_type
                 )
             )
 
@@ -239,17 +323,18 @@ def fromDirectory(
     return metadata
 
 
-def fromFile(filepath, bbox=True, tbox=True, num_sample=None, show_progress=True):
+def fromFile(filepath, bbox=True, tbox=True, convex_hull=False, num_sample=None, show_progress=True):
     """Extracts geoextent from a file
     Keyword arguments:
     path -- filepath
     bbox -- True if bounding box is requested (default False)
     tbox -- True if time box is requested (default False)
+    convex_hull -- True if convex hull should be calculated instead of bounding box (default False)
     num_sample -- sample size to determine time format (Only required for csv files)
     """
     from tqdm import tqdm
 
-    logger.info("Extracting bbox={} tbox={} from file {}".format(bbox, tbox, filepath))
+    logger.info("Extracting bbox={} tbox={} convex_hull={} from file {}".format(bbox, tbox, convex_hull, filepath))
 
     if not bbox and not tbox:
         logger.error(
@@ -305,9 +390,19 @@ def fromFile(filepath, bbox=True, tbox=True, num_sample=None, show_progress=True
             if self.task == "bbox":
                 try:
                     if bbox:
-                        spatial_extent = compute_bbox_wgs84(usedModule, filepath)
+                        if convex_hull:
+                            spatial_extent = compute_convex_hull_wgs84(usedModule, filepath)
+                        else:
+                            spatial_extent = compute_bbox_wgs84(usedModule, filepath)
+
                         if spatial_extent is not None:
-                            metadata["bbox"] = spatial_extent["bbox"]
+                            # For convex hull, use the actual convex hull coordinates, not the envelope
+                            if convex_hull and "convex_hull_coords" in spatial_extent:
+                                metadata["bbox"] = spatial_extent["convex_hull_coords"]
+                                metadata["convex_hull"] = True
+                            else:
+                                metadata["bbox"] = spatial_extent["bbox"]
+
                             metadata["crs"] = spatial_extent["crs"]
                 except Exception as e:
                     logger.warning(
@@ -383,6 +478,7 @@ def from_repository(
     repository_identifier: str,
     bbox: bool = False,
     tbox: bool = False,
+    convex_hull: bool = False,
     details: bool = False,
     throttle: bool = False,
     timeout: None | int | float = None,
@@ -396,6 +492,7 @@ def from_repository(
             repository_identifier,
             bbox,
             tbox,
+            convex_hull,
             details,
             throttle,
             timeout,
@@ -435,6 +532,7 @@ class geoextent_from_repository(Application):
         repository_identifier,
         bbox=False,
         tbox=False,
+        convex_hull=False,
         details=False,
         throttle=False,
         timeout=None,
@@ -468,6 +566,7 @@ class geoextent_from_repository(Application):
                             tmp,
                             bbox,
                             tbox,
+                            convex_hull,
                             details,
                             timeout,
                             show_progress=show_progress,

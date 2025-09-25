@@ -46,7 +46,11 @@
       "WebFetch(domain:pypi.org)",
       "Bash(source:*)",
       "Bash(echo \"Exit code: $?\")",
-      "Bash(__NEW_LINE__ echo \"Quiet mode warnings:\")"
+      "Bash(__NEW_LINE__ echo \"Quiet mode warnings:\")",
+      "Bash(for:*)",
+      "Bash(do echo \"=== Testing $file ===\")",
+      "Bash(echo:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
