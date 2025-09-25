@@ -63,25 +63,37 @@ to see all available options including repository extraction settings.
 
 ```bash
 # Extract bounding box from a single file
-python -m geoextent -b data/cities.geojson
+python -m geoextent -b tests/testdata/geojson/muenster_ring_zeit.geojson
+
+# Extract convex hull instead of bounding box (vector files only)
+python -m geoextent -b --convex-hull tests/testdata/geojson/ausgleichsflaechen_moers.geojson
 
 # Extract temporal extent from a single file
-python -m geoextent -t data/measurements.csv
+python -m geoextent -t tests/testdata/csv/cities_NL_case5.csv
 
 # Extract both spatial and temporal extents
-python -m geoextent -b -t data/survey.shp
+python -m geoextent -b -t tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp
+
+# Extract convex hull with temporal extent
+python -m geoextent -b -t --convex-hull tests/testdata/geojson/muenster_ring_zeit.geojson
 
 # Process a directory of files
-python -m geoextent -b -t data/
+python -m geoextent -b -t tests/testdata/geojson/
+
+# Process a directory with convex hull calculation
+python -m geoextent -b --convex-hull tests/testdata/geojson/
 
 # Process multiple specific files
-python -m geoextent -b -t data/boundaries.shp data/points.csv data/tracks.gpkg
+python -m geoextent -b -t tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp tests/testdata/csv/cities_NL_case5.csv tests/testdata/geopackage/nc.gpkg
+
+# Process multiple files with convex hull merging
+python -m geoextent -b --convex-hull tests/testdata/geojson/ausgleichsflaechen_moers.geojson tests/testdata/geopackage/nc.gpkg
 
 # Process multiple files with wildcard (shell expansion)
-python -m geoextent -t data/*.geojson
+python -m geoextent -t tests/testdata/geojson/*.geojson
 
 # Show detailed results for each file
-python -m geoextent -b -t --details data/countries.fgb data/cities.geojson
+python -m geoextent -b -t --details tests/testdata/geojson/ausgleichsflaechen_moers.geojson tests/testdata/geojson/muenster_ring_zeit.geojson
 
 # Extract from research repositories (DOI, URL, or identifier)
 python -m geoextent -b -t https://zenodo.org/records/4593540
@@ -139,7 +151,7 @@ python -m geoextent -b --format wkt --quiet tests/testdata/geojson/
 # Output: POLYGON((6.220493316650391 50.52150360276628,7.647256851196289 50.52150360276628,7.647256851196289 51.974624029877454,6.220493316650391 51.974624029877454,6.220493316650391 50.52150360276628))
 
 # Perfect for shell scripts and pipelines
-BBOX=$(python -m geoextent -b --format wkt --quiet data/my_data.shp)
+BBOX=$(python -m geoextent -b --format wkt --quiet tests/testdata/geojson/muenster_ring_zeit.geojson)
 echo "Bounding box: $BBOX"
 ```
 
@@ -182,6 +194,35 @@ python -m geoextent -b -t --no-download-data https://doi.org/10.1594/PANGAEA.786
 
 **Note**: PANGAEA datasets often include rich geospatial metadata, but for best results and compatibility with all providers, the default data download mode is recommended.
 
+### Convex Hull Extraction
+
+The `--convex-hull` option calculates the [convex hull](https://en.wikipedia.org/wiki/Convex_hull) of all geometries instead of just the bounding box for vector data files. This provides a more accurate representation of the actual spatial extent of complex geometries.
+
+**Key Features:**
+- **Vector files only**: Works with GeoJSON, Shapefile, GeoPackage, GPX, GML, KML, and FlatGeobuf formats
+- **Automatic fallback**: Non-vector files (CSV, raster) automatically fall back to standard bounding box calculation
+- **Multiple file support**: When processing multiple files or directories, creates a convex hull from all merged geometries
+- **Format compatibility**: Works with all output formats (GeoJSON, WKT, WKB)
+
+```bash
+# Basic convex hull extraction
+python -m geoextent -b --convex-hull tests/testdata/geojson/ausgleichsflaechen_moers.geojson
+
+# Convex hull with quiet output and WKT format
+python -m geoextent -b --convex-hull --format wkt --quiet tests/testdata/geojson/muenster_ring_zeit.geojson
+
+# Process directory with convex hull calculation
+python -m geoextent -b --convex-hull tests/testdata/geojson/
+
+# Multiple files with convex hull merging
+python -m geoextent -b --convex-hull tests/testdata/geojson/ausgleichsflaechen_moers.geojson tests/testdata/geojson/muenster_ring_zeit.geojson
+```
+
+**Output differences:**
+- Convex hull results include `"convex_hull": true` in the JSON output
+- The spatial extent represents the convex hull boundary rather than just the bounding rectangle
+- For non-vector files, output remains unchanged (standard bounding box)
+
 ### Example Output
 
 Extracting from a single GeoJSON file with default format:
@@ -219,6 +260,22 @@ With WKB format (`--format wkb`):
   "geoextent_handler": "handleVector",
   "bbox": "0103000000010000000500000033333333333F1E403D0AD7A3703D4A40CDCCCCCCCC2F1F403D0AD7A3703D4A40CDCCCCCCCC2F1F40A4703D0A17394A4033333333333F1E40A4703D0A17394A4033333333333F1E403D0AD7A3703D4A40",
   "crs": "4326",
+  "tbox": ["2018-11-14", "2018-11-14"]
+}
+```
+
+Extracting with convex hull calculation:
+
+```json
+{
+  "format": "geojson",
+  "geoextent_handler": "handleVector",
+  "bbox": {
+    "type": "Polygon",
+    "coordinates": [[[7.60, 51.95], [7.65, 51.95], [7.65, 51.97], [7.60, 51.97], [7.60, 51.95]]]
+  },
+  "crs": "4326",
+  "convex_hull": true,
   "tbox": ["2018-11-14", "2018-11-14"]
 }
 ```
