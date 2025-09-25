@@ -104,6 +104,9 @@ python -m geoextent -b -t 10.17605/OSF.IO/4XE6Z
 python -m geoextent -b -t https://doi.org/10.17605/OSF.IO/J2STA
 python -m geoextent -b -t http://dx.doi.org/10.17605/OSF.IO/A5F3E
 python -m geoextent -b -t OSF.IO/9JG2U
+python -m geoextent -b -t https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id=escidoc:5148893
+python -m geoextent -b -t 10.5880/GFZ.2.1.2020.001
+python -m geoextent -b -t 10.5880/GFZ.4.8.2023.004
 
 # Use metadata-only extraction for repositories (only partially supported)
 python -m geoextent -b -t --no-download-data 10.1594/PANGAEA.734969
@@ -190,6 +193,10 @@ python -m geoextent -b -t https://doi.org/10.1594/PANGAEA.786028
 python -m geoextent -b -t 10.5281/zenodo.654321
 python -m geoextent -b -t https://osf.io/4xe6z
 python -m geoextent -b -t OSF.IO/J2STA
+
+# GFZ Data Services examples with geospatial datasets
+python -m geoextent -b -t 10.5880/GFZ.2.1.2020.001  # Photogrammetry data from Guatemala
+python -m geoextent -b -t 10.5880/GFZ.4.8.2023.004  # Geothermal resources in North German Basin
 ```
 
 #### Metadata-Only Mode (Limited)
@@ -345,6 +352,7 @@ Consult the documentation on [paired notebooks based on Jupytext](https://github
 - [Figshare](https://figshare.com/) - Research data sharing platform
 - [PANGAEA](https://www.pangaea.de/) - Earth & Environmental Science data publisher
 - [OSF](https://osf.io/) - Open Science Framework
+- [GFZ Data Services](https://dataservices.gfz-potsdam.de/) - Geoscientific research data from GFZ Potsdam
 
 ## Contribute
 

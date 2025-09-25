@@ -13,6 +13,7 @@ from .content_providers import Zenodo
 from .content_providers import Pangaea
 from .content_providers import OSF
 from .content_providers import Dataverse
+from .content_providers import GFZ
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -78,8 +79,12 @@ def compute_convex_hull_wgs84(module, path):
     logger.debug("compute_convex_hull_wgs84: {}".format(path))
 
     # Check if module has convex hull support
-    if not hasattr(module, 'getConvexHull'):
-        logger.warning("Module {} does not support convex hull calculation, falling back to bounding box".format(module.get_handler_name()))
+    if not hasattr(module, "getConvexHull"):
+        logger.warning(
+            "Module {} does not support convex hull calculation, falling back to bounding box".format(
+                module.get_handler_name()
+            )
+        )
         return compute_bbox_wgs84(module, path)
 
     spatial_extent_origin = module.getConvexHull(path)
@@ -99,22 +104,30 @@ def compute_convex_hull_wgs84(module, path):
             }
 
             # Transform convex hull coordinates if they exist
-            if "convex_hull_coords" in spatial_extent_origin and spatial_extent_origin["convex_hull_coords"]:
+            if (
+                "convex_hull_coords" in spatial_extent_origin
+                and spatial_extent_origin["convex_hull_coords"]
+            ):
                 transformed_coords = []
                 for coord in spatial_extent_origin["convex_hull_coords"]:
                     # Transform each coordinate point
                     transformed_point = hf.transformingArrayIntoWGS84(
-                        spatial_extent_origin["crs"], [coord[0], coord[1], coord[0], coord[1]]
+                        spatial_extent_origin["crs"],
+                        [coord[0], coord[1], coord[0], coord[1]],
                     )
                     # Take the first two values (x, y)
-                    transformed_coords.append([transformed_point[0], transformed_point[1]])
+                    transformed_coords.append(
+                        [transformed_point[0], transformed_point[1]]
+                    )
                 spatial_extent["convex_hull_coords"] = transformed_coords
 
             # Preserve convex hull flag and geometry
             if "convex_hull" in spatial_extent_origin:
                 spatial_extent["convex_hull"] = spatial_extent_origin["convex_hull"]
             if "convex_hull" in spatial_extent_origin:  # Geometry reference
-                spatial_extent["convex_hull_geom"] = spatial_extent_origin["convex_hull"]
+                spatial_extent["convex_hull_geom"] = spatial_extent_origin[
+                    "convex_hull"
+                ]
     except Exception as e:
         raise Exception(
             "The convex hull could not be transformed to the target CRS epsg:{} \n error {}".format(
@@ -165,7 +178,11 @@ def fromDirectory(
 
     from tqdm import tqdm
 
-    logger.info("Extracting bbox={} tbox={} convex_hull={} from Directory {}".format(bbox, tbox, convex_hull, path))
+    logger.info(
+        "Extracting bbox={} tbox={} convex_hull={} from Directory {}".format(
+            bbox, tbox, convex_hull, path
+        )
+    )
 
     if not bbox and not tbox:
         logger.error(
@@ -273,7 +290,12 @@ def fromDirectory(
                     )
             else:
                 metadata_file = fromFile(
-                    absolute_path, bbox, tbox, convex_hull, show_progress=show_progress, include_geojsonio=include_geojsonio
+                    absolute_path,
+                    bbox,
+                    tbox,
+                    convex_hull,
+                    show_progress=show_progress,
+                    include_geojsonio=include_geojsonio,
                 )
                 metadata_directory[str(filename)] = metadata_file
 
@@ -333,7 +355,15 @@ def fromDirectory(
     return metadata
 
 
-def fromFile(filepath, bbox=True, tbox=True, convex_hull=False, num_sample=None, show_progress=True, include_geojsonio=False):
+def fromFile(
+    filepath,
+    bbox=True,
+    tbox=True,
+    convex_hull=False,
+    num_sample=None,
+    show_progress=True,
+    include_geojsonio=False,
+):
     """Extracts geoextent from a file
     Keyword arguments:
     path -- filepath
@@ -345,7 +375,11 @@ def fromFile(filepath, bbox=True, tbox=True, convex_hull=False, num_sample=None,
     """
     from tqdm import tqdm
 
-    logger.info("Extracting bbox={} tbox={} convex_hull={} from file {}".format(bbox, tbox, convex_hull, filepath))
+    logger.info(
+        "Extracting bbox={} tbox={} convex_hull={} from file {}".format(
+            bbox, tbox, convex_hull, filepath
+        )
+    )
 
     if not bbox and not tbox:
         logger.error(
@@ -402,7 +436,9 @@ def fromFile(filepath, bbox=True, tbox=True, convex_hull=False, num_sample=None,
                 try:
                     if bbox:
                         if convex_hull:
-                            spatial_extent = compute_convex_hull_wgs84(usedModule, filepath)
+                            spatial_extent = compute_convex_hull_wgs84(
+                                usedModule, filepath
+                            )
                         else:
                             spatial_extent = compute_bbox_wgs84(usedModule, filepath)
 
@@ -538,6 +574,7 @@ class geoextent_from_repository(Application):
             Pangaea.Pangaea,
             OSF.OSF,
             Dataverse.Dataverse,
+            GFZ.GFZ,
         ],
         config=True,
         help="""
