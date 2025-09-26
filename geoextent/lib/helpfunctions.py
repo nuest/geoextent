@@ -526,14 +526,65 @@ def convex_hull_merge(metadata, origin):
 
                         polygon = ogr.Geometry(ogr.wkbPolygon)
                         polygon.AddGeometry(ring)
+                    elif (
+                        isinstance(bbox, list)
+                        and len(bbox) == 1
+                        and isinstance(bbox[0], list)
+                        and len(bbox[0]) == 2
+                    ):
+                        # This is a single point coordinate [[x, y]]
+                        x, y = bbox[0]
+                        epsilon = 1e-10  # Small value to avoid degenerate polygon
+                        box = ogr.Geometry(ogr.wkbLinearRing)
+                        box.AddPoint(x - epsilon, y - epsilon)
+                        box.AddPoint(x + epsilon, y - epsilon)
+                        box.AddPoint(x + epsilon, y + epsilon)
+                        box.AddPoint(x - epsilon, y + epsilon)
+                        box.AddPoint(x - epsilon, y - epsilon)  # close ring
+
+                        polygon = ogr.Geometry(ogr.wkbPolygon)
+                        polygon.AddGeometry(box)
                     elif isinstance(bbox, list) and len(bbox) == 4:
                         # This is a regular bounding box [minx, miny, maxx, maxy] - create rectangle
-                        box = ogr.Geometry(ogr.wkbLinearRing)
-                        box.AddPoint(bbox[0], bbox[1])  # min_x, min_y
-                        box.AddPoint(bbox[2], bbox[1])  # max_x, min_y
-                        box.AddPoint(bbox[2], bbox[3])  # max_x, max_y
-                        box.AddPoint(bbox[0], bbox[3])  # min_x, max_y
-                        box.AddPoint(bbox[0], bbox[1])  # close ring
+                        min_x, min_y, max_x, max_y = bbox
+
+                        # Check for degenerate cases
+                        if min_x == max_x and min_y == max_y:
+                            # Point data - create a very small rectangle around the point
+                            epsilon = 1e-10  # Small value to avoid degenerate polygon
+                            box = ogr.Geometry(ogr.wkbLinearRing)
+                            box.AddPoint(min_x - epsilon, min_y - epsilon)
+                            box.AddPoint(min_x + epsilon, min_y - epsilon)
+                            box.AddPoint(min_x + epsilon, min_y + epsilon)
+                            box.AddPoint(min_x - epsilon, min_y + epsilon)
+                            box.AddPoint(min_x - epsilon, min_y - epsilon)  # close ring
+                        elif min_x == max_x or min_y == max_y:
+                            # Line data - create a thin rectangle
+                            epsilon = 1e-10
+                            if min_x == max_x:
+                                # vertical line
+                                box = ogr.Geometry(ogr.wkbLinearRing)
+                                box.AddPoint(min_x - epsilon, min_y)
+                                box.AddPoint(min_x + epsilon, min_y)
+                                box.AddPoint(min_x + epsilon, max_y)
+                                box.AddPoint(min_x - epsilon, max_y)
+                                box.AddPoint(min_x - epsilon, min_y)  # close ring
+                            else:
+                                # horizontal line
+                                box = ogr.Geometry(ogr.wkbLinearRing)
+                                box.AddPoint(min_x, min_y - epsilon)
+                                box.AddPoint(max_x, min_y - epsilon)
+                                box.AddPoint(max_x, min_y + epsilon)
+                                box.AddPoint(min_x, min_y + epsilon)
+                                box.AddPoint(min_x, min_y - epsilon)  # close ring
+                        else:
+                            # Normal rectangle
+                            box = ogr.Geometry(ogr.wkbLinearRing)
+                            box.AddPoint(min_x, min_y)  # min_x, min_y
+                            box.AddPoint(max_x, min_y)  # max_x, min_y
+                            box.AddPoint(max_x, max_y)  # max_x, max_y
+                            box.AddPoint(min_x, max_y)  # min_x, max_y
+                            box.AddPoint(min_x, min_y)  # close ring
 
                         polygon = ogr.Geometry(ogr.wkbPolygon)
                         polygon.AddGeometry(box)
@@ -915,6 +966,64 @@ def path_output(path):
     return absolute_file_path
 
 
+def is_geometry_a_point(bbox, is_convex_hull=False, tolerance=1e-6):
+    """
+    Determine if a geometry is actually a point (all coordinates are the same within tolerance)
+
+    Args:
+        bbox: Bounding box or coordinates in various formats
+        is_convex_hull: Whether this is a convex hull geometry
+        tolerance: Tolerance for coordinate comparison (default 1e-6)
+
+    Returns:
+        tuple: (is_point, point_coords) where is_point is bool and point_coords is [x, y] or None
+    """
+    if isinstance(bbox, dict) and bbox.get("type") == "Polygon":
+        # GeoJSON polygon format - check if all coordinates are the same
+        try:
+            coords = bbox["coordinates"][0]  # Get outer ring
+            if len(coords) < 2:
+                return False, None
+
+            # Check if all coordinates are the same within tolerance
+            first_coord = coords[0]
+            for coord in coords[1:]:
+                if abs(coord[0] - first_coord[0]) > tolerance or abs(coord[1] - first_coord[1]) > tolerance:
+                    return False, None
+
+            return True, first_coord[:2]  # Return just [x, y]
+        except (KeyError, IndexError, TypeError):
+            return False, None
+
+    elif is_convex_hull and isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+        # Convex hull coordinates format - check if all points are the same
+        try:
+            if len(bbox) < 2:
+                return False, None
+
+            first_coord = bbox[0]
+            for coord in bbox[1:]:
+                if abs(coord[0] - first_coord[0]) > tolerance or abs(coord[1] - first_coord[1]) > tolerance:
+                    return False, None
+
+            return True, first_coord[:2]  # Return just [x, y]
+        except (IndexError, TypeError):
+            return False, None
+
+    elif isinstance(bbox, list) and len(bbox) == 4:
+        # Regular bounding box [minx, miny, maxx, maxy]
+        try:
+            minx, miny, maxx, maxy = bbox
+            if abs(minx - maxx) <= tolerance and abs(miny - maxy) <= tolerance:
+                # All coordinates are the same within tolerance - it's a point
+                return True, [minx, miny]
+            return False, None
+        except (ValueError, TypeError):
+            return False, None
+
+    return False, None
+
+
 def create_geojson_feature_collection(extent_output):
     """
     Convert geoextent output to a valid GeoJSON FeatureCollection
@@ -931,24 +1040,41 @@ def create_geojson_feature_collection(extent_output):
     bbox = extent_output.get("bbox")
     is_convex_hull = extent_output.get("convex_hull", False)
 
-    # Convert bbox to GeoJSON geometry format
-    if isinstance(bbox, dict) and bbox.get("type") == "Polygon":
-        # Already in GeoJSON format
-        geom = bbox
-    elif (
-        is_convex_hull
-        and isinstance(bbox, list)
-        and len(bbox) > 0
-        and isinstance(bbox[0], list)
-    ):
-        # Handle convex hull coordinates (array of [x,y] points)
-        geom = convex_hull_coords_to_geojson(bbox)
-    elif isinstance(bbox, list) and len(bbox) == 4:
-        # Handle regular bounding box [min_x, min_y, max_x, max_y]
-        geom = bbox_to_geojson(bbox)
+    # Check if the geometry is actually a point
+    is_point, point_coords = is_geometry_a_point(bbox, is_convex_hull)
+
+    if is_point and point_coords:
+        # Log warning that we're creating a point geometry instead of requested polygon
+        if is_convex_hull:
+            logger.warning(
+                f"Geometry at {point_coords} is a single point, creating Point geometry instead of convex hull"
+            )
+        else:
+            logger.warning(
+                f"Geometry at {point_coords} is a single point, creating Point geometry instead of bounding box"
+            )
+
+        # Create Point geometry
+        geom = {"type": "Point", "coordinates": point_coords}
     else:
-        # Fallback: return original output if bbox format is not recognized
-        return extent_output
+        # Convert bbox to GeoJSON geometry format (existing logic)
+        if isinstance(bbox, dict) and bbox.get("type") == "Polygon":
+            # Already in GeoJSON format
+            geom = bbox
+        elif (
+            is_convex_hull
+            and isinstance(bbox, list)
+            and len(bbox) > 0
+            and isinstance(bbox[0], list)
+        ):
+            # Handle convex hull coordinates (array of [x,y] points)
+            geom = convex_hull_coords_to_geojson(bbox)
+        elif isinstance(bbox, list) and len(bbox) == 4:
+            # Handle regular bounding box [min_x, min_y, max_x, max_y]
+            geom = bbox_to_geojson(bbox)
+        else:
+            # Fallback: return original output if bbox format is not recognized
+            return extent_output
 
     # Create properties from metadata
     properties = {}
@@ -959,10 +1085,14 @@ def create_geojson_feature_collection(extent_output):
             properties[key] = value
 
     # Add descriptive properties
-    properties["extent_type"] = "convex_hull" if is_convex_hull else "bounding_box"
-    properties["description"] = (
-        f"{'Convex hull' if is_convex_hull else 'Bounding box'} extracted by geoextent"
-    )
+    if is_point:
+        properties["extent_type"] = "point"
+        properties["description"] = "Point geometry extracted by geoextent"
+    else:
+        properties["extent_type"] = "convex_hull" if is_convex_hull else "bounding_box"
+        properties["description"] = (
+            f"{'Convex hull' if is_convex_hull else 'Bounding box'} extracted by geoextent"
+        )
 
     # Create the Feature
     feature = {"type": "Feature", "geometry": geom, "properties": properties}

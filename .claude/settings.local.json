@@ -53,7 +53,9 @@
       "Bash(done)",
       "WebFetch(domain:dataservices.gfz-potsdam.de)",
       "WebFetch(domain:doi.org)",
-      "Bash(pre-commit:*)"
+      "Bash(pre-commit:*)",
+      "Bash(wget:*)",
+      "Bash(unzip:*)"
     ],
     "deny": [],
     "ask": []

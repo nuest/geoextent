@@ -219,29 +219,62 @@ def getConvexHull(filepath):
 
         # Calculate convex hull
         try:
-            convex_hull = geom_collection.ConvexHull()
-            if convex_hull is None:
-                logger.debug(
-                    "Could not calculate convex hull for layer {}".format(layer_name)
-                )
-                continue
-
-            # Convert convex hull geometry to coordinate points
-            convex_hull_coords = []
-            if convex_hull.GetGeometryType() == ogr.wkbPolygon:
-                # Get the exterior ring
-                ring = convex_hull.GetGeometryRef(0)
-                if ring is not None:
-                    point_count = ring.GetPointCount()
-                    for i in range(point_count):
-                        x, y, z = ring.GetPoint(i)
-                        convex_hull_coords.append([x, y])
-
-            # For compatibility with existing transformation logic, we still need a bbox
-            # But we'll store the convex hull coordinates separately
-            envelope = convex_hull.GetEnvelope()
+            # Check if we have enough distinct points for a meaningful convex hull
+            # Get the envelope to check if we have a degenerate geometry
+            envelope = geom_collection.GetEnvelope()
             # OGR envelope format: (min_x, max_x, min_y, max_y)
-            bbox = [envelope[0], envelope[2], envelope[1], envelope[3]]
+            min_x, max_x, min_y, max_y = envelope
+
+            # Check if this is a degenerate geometry (point or line)
+            is_point = min_x == max_x and min_y == max_y
+            is_line = min_x == max_x or min_y == max_y
+
+            if is_point:
+                logger.debug(
+                    "Layer {} contains only a single point, using point as convex hull".format(
+                        layer_name
+                    )
+                )
+                # For point data, create a minimal convex hull as the point itself
+                convex_hull_coords = [[min_x, min_y]]
+                bbox = [min_x, min_y, max_x, max_y]
+                convex_hull = None  # No geometry object for point data
+            else:
+                # Try to calculate actual convex hull
+                convex_hull = geom_collection.ConvexHull()
+                if convex_hull is None:
+                    logger.debug(
+                        "Could not calculate convex hull for layer {}, falling back to bounding box".format(
+                            layer_name
+                        )
+                    )
+                    # Fall back to regular bounding box
+                    envelope = geom_collection.GetEnvelope()
+                    bbox = [envelope[0], envelope[2], envelope[1], envelope[3]]
+                    convex_hull_coords = [
+                        [envelope[0], envelope[2]],  # min_x, min_y
+                        [envelope[1], envelope[2]],  # max_x, min_y
+                        [envelope[1], envelope[3]],  # max_x, max_y
+                        [envelope[0], envelope[3]],  # min_x, max_y
+                        [envelope[0], envelope[2]],  # close the ring
+                    ]
+                else:
+                    # Convert convex hull geometry to coordinate points
+                    convex_hull_coords = []
+                    if convex_hull.GetGeometryType() == ogr.wkbPolygon:
+                        # Get the exterior ring
+                        ring = convex_hull.GetGeometryRef(0)
+                        if ring is not None:
+                            point_count = ring.GetPointCount()
+                            for i in range(point_count):
+                                x, y, z = ring.GetPoint(i)
+                                convex_hull_coords.append([x, y])
+
+                    # For compatibility with existing transformation logic, we still need a bbox
+                    # But we'll store the convex hull coordinates separately
+                    envelope = convex_hull.GetEnvelope()
+                    # OGR envelope format: (min_x, max_x, min_y, max_y)
+                    bbox = [envelope[0], envelope[2], envelope[1], envelope[3]]
 
             # Get CRS information
             try:

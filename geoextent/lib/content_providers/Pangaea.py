@@ -478,8 +478,11 @@ class Pangaea(DoiProvider):
                 )
 
                 # Show progress while fetching dataset metadata
+                # Estimate total steps: API connection (1) + data processing/fallback (1)
                 with tqdm(
-                    desc=f"Fetching Pangaea dataset {self.dataset_id}", unit="step"
+                    desc=f"Fetching Pangaea dataset {self.dataset_id}",
+                    unit="step",
+                    total=2,
                 ) as pbar:
                     pbar.set_postfix_str("Connecting to Pangaea API")
                     # Create dataset using the numeric ID
@@ -567,16 +570,19 @@ class Pangaea(DoiProvider):
 
             import requests
             import os
-            from urllib.parse import urlparse
             import zipfile
 
             success = False
             for i, url in enumerate(download_urls):
                 try:
                     if pbar:
-                        pbar.set_postfix_str(
-                            f"Downloading file {i+1}/{len(download_urls)}"
-                        )
+                        try:
+                            pbar.set_postfix_str(
+                                f"Downloading file {i+1}/{len(download_urls)}"
+                            )
+                        except Exception as pbar_error:
+                            # Ignore progress bar errors to avoid breaking the download
+                            self.log.debug(f"Progress bar update error: {pbar_error}")
 
                     self.log.debug(f"Downloading from URL: {url}")
                     response = requests.get(url, stream=True, timeout=300)
@@ -599,13 +605,20 @@ class Pangaea(DoiProvider):
                     if filepath.lower().endswith(".zip"):
                         try:
                             if pbar:
-                                pbar.set_postfix_str(f"Extracting {filename}")
+                                try:
+                                    pbar.set_postfix_str(f"Extracting {filename}")
+                                except Exception as pbar_error:
+                                    # Ignore progress bar errors
+                                    self.log.debug(
+                                        f"Progress bar update error: {pbar_error}"
+                                    )
 
                             with zipfile.ZipFile(filepath, "r") as zip_ref:
+                                # Get list of files before extracting
+                                extracted_files = zip_ref.namelist()
                                 zip_ref.extractall(target_folder)
 
-                            # List extracted files
-                            extracted_files = zip_ref.namelist()
+                            # Log extracted files
                             self.log.info(
                                 f"Extracted {len(extracted_files)} files from {filename}"
                             )
