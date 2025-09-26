@@ -230,8 +230,8 @@ class GFZ(DoiProvider):
         soup = BeautifulSoup(response.text, "html.parser")
 
         # Ensure listing URL ends with / for proper urljoin behavior
-        if not listing_url.endswith('/'):
-            listing_url = listing_url + '/'
+        if not listing_url.endswith("/"):
+            listing_url = listing_url + "/"
 
         # Find downloadable files (skip directories)
         file_links = []

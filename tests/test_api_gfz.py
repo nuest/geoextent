@@ -29,7 +29,7 @@ class TestGFZProvider:
             "title": "Dataset to Geothermal Resources and ATES Potential of Mesozoic Reservoirs in the North German Basin",
             # Expected bounding box for North German Basin
             "expected_bbox": [
-                3.93,   # W
+                3.93,  # W
                 51.32,  # S
                 15.38,  # E
                 55.91,  # N
@@ -231,6 +231,7 @@ class TestGFZProvider:
         # Test download URL extraction (if network available)
         try:
             from bs4 import BeautifulSoup
+
             response = gfz._request(dataset["url"], throttle=False)
             soup = BeautifulSoup(response.text, "html.parser")
             download_url = gfz._extract_download_url(soup)
@@ -250,16 +251,32 @@ class TestGFZProvider:
         expected_bbox = dataset["expected_bbox"]
 
         # Verify coordinates are in Europe (rough bounds check)
-        assert -10 <= expected_bbox[0] <= 30, "Western longitude should be in European range"
-        assert -10 <= expected_bbox[2] <= 30, "Eastern longitude should be in European range"
-        assert 40 <= expected_bbox[1] <= 70, "Southern latitude should be in Northern European range"
-        assert 40 <= expected_bbox[3] <= 70, "Northern latitude should be in Northern European range"
+        assert (
+            -10 <= expected_bbox[0] <= 30
+        ), "Western longitude should be in European range"
+        assert (
+            -10 <= expected_bbox[2] <= 30
+        ), "Eastern longitude should be in European range"
+        assert (
+            40 <= expected_bbox[1] <= 70
+        ), "Southern latitude should be in Northern European range"
+        assert (
+            40 <= expected_bbox[3] <= 70
+        ), "Northern latitude should be in Northern European range"
 
         # Verify this is specifically North German Basin region
-        assert 3 <= expected_bbox[0] <= 16, "Western longitude should be in German region"
-        assert 3 <= expected_bbox[2] <= 16, "Eastern longitude should be in German region"
-        assert 50 <= expected_bbox[1] <= 56, "Southern latitude should be in North German region"
-        assert 50 <= expected_bbox[3] <= 56, "Northern latitude should be in North German region"
+        assert (
+            3 <= expected_bbox[0] <= 16
+        ), "Western longitude should be in German region"
+        assert (
+            3 <= expected_bbox[2] <= 16
+        ), "Eastern longitude should be in German region"
+        assert (
+            50 <= expected_bbox[1] <= 56
+        ), "Southern latitude should be in North German region"
+        assert (
+            50 <= expected_bbox[3] <= 56
+        ), "Northern latitude should be in North German region"
 
     def test_gfz_directory_listing_url_fix(self):
         """Test that directory listings with URLs not ending in '/' work correctly"""
@@ -269,22 +286,34 @@ class TestGFZProvider:
         gfz = GFZ()
 
         # Test the specific issue: urljoin behavior with directory URLs
-        base_url_no_slash = "https://datapub.gfz-potsdam.de/download/10.5880.GFZ.4.8.2023.004sdsdfds"
+        base_url_no_slash = (
+            "https://datapub.gfz-potsdam.de/download/10.5880.GFZ.4.8.2023.004sdsdfds"
+        )
         base_url_with_slash = base_url_no_slash + "/"
         filename = "2023-004_Frick-et-al_Data.zip"
 
         # Without fix: urljoin replaces the last path component
         wrong_url = urljoin(base_url_no_slash, filename)
-        expected_wrong = "https://datapub.gfz-potsdam.de/download/2023-004_Frick-et-al_Data.zip"
-        assert wrong_url == expected_wrong, "Without fix, urljoin should replace last component"
+        expected_wrong = (
+            "https://datapub.gfz-potsdam.de/download/2023-004_Frick-et-al_Data.zip"
+        )
+        assert (
+            wrong_url == expected_wrong
+        ), "Without fix, urljoin should replace last component"
 
         # With fix: urljoin correctly appends to directory
         correct_url = urljoin(base_url_with_slash, filename)
         expected_correct = "https://datapub.gfz-potsdam.de/download/10.5880.GFZ.4.8.2023.004sdsdfds/2023-004_Frick-et-al_Data.zip"
-        assert correct_url == expected_correct, "With fix, urljoin should append to directory"
+        assert (
+            correct_url == expected_correct
+        ), "With fix, urljoin should append to directory"
 
         # Verify our fix logic works
-        fixed_base = base_url_no_slash if base_url_no_slash.endswith('/') else base_url_no_slash + '/'
+        fixed_base = (
+            base_url_no_slash
+            if base_url_no_slash.endswith("/")
+            else base_url_no_slash + "/"
+        )
         assert fixed_base == base_url_with_slash, "Fix should add trailing slash"
 
     def test_gfz_doi_resolution_fix(self):
@@ -312,7 +341,9 @@ class TestGFZProvider:
 
         # Verify the resolved URL is not the old incorrect format
         incorrect_url = f"https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id=escidoc:{doi.replace('10.5880/GFZ.', '')}"
-        assert resolved_url != incorrect_url, f"Should not use incorrect URL format: {incorrect_url}"
+        assert (
+            resolved_url != incorrect_url
+        ), f"Should not use incorrect URL format: {incorrect_url}"
 
 
 class TestGFZParameterCombinations:

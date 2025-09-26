@@ -194,6 +194,24 @@ class Pangaea(DoiProvider):
                                     # Parse polygon coordinates if available in future
                                     pass
 
+                        # Extract distribution/download URLs
+                        distribution = json_data.get("distribution")
+                        if distribution:
+                            download_urls = []
+                            if isinstance(distribution, list):
+                                for dist in distribution:
+                                    if isinstance(dist, dict):
+                                        content_url = dist.get("contentUrl")
+                                        if content_url:
+                                            download_urls.append(content_url)
+                            elif isinstance(distribution, dict):
+                                content_url = distribution.get("contentUrl")
+                                if content_url:
+                                    download_urls.append(content_url)
+
+                            if download_urls:
+                                metadata["download_urls"] = download_urls
+
                         # Extract temporal coverage
                         temporal_coverage = json_data.get("temporalCoverage")
                         if temporal_coverage:
@@ -469,11 +487,18 @@ class Pangaea(DoiProvider):
                     pbar.update(1)
 
                     # Check if dataset has downloadable data
-                    if hasattr(dataset, "data") and dataset.data is not None:
-                        pbar.set_postfix_str("Processing data")
+                    has_data = hasattr(dataset, "data") and dataset.data is not None
+                    if has_data:
                         data_size = (
                             len(dataset.data) if hasattr(dataset.data, "__len__") else 1
                         )
+
+                        # If we have data but it's empty (0 records), treat as no data
+                        if data_size == 0:
+                            has_data = False
+
+                    if has_data and data_size > 0:
+                        pbar.set_postfix_str("Processing data")
 
                         # Save data as CSV for GDAL processing
                         csv_file = os.path.join(
@@ -490,19 +515,147 @@ class Pangaea(DoiProvider):
 
                     else:
                         self.log.warning(
-                            f"No data available for download from dataset {self.dataset_id}"
+                            f"No tabular data available for download from dataset {self.dataset_id}"
                         )
-                        # Fallback to metadata-only extraction
-                        pbar.set_postfix_str("Falling back to metadata extraction")
-                        self._download_metadata_only(target_folder)
+                        # Fallback to actual file download using distribution URLs
+                        pbar.set_postfix_str("Trying direct file download fallback")
+                        fallback_success = self._download_files_fallback(
+                            target_folder, pbar
+                        )
+                        if not fallback_success:
+                            pbar.set_postfix_str("Falling back to metadata extraction")
+                            self._download_metadata_only(target_folder)
                         pbar.update(1)
 
         except ImportError:
             raise Exception("pangaeapy library is required for data download")
         except Exception as e:
             self.log.error(f"Error downloading Pangaea data files: {e}")
-            # Fallback to metadata-only extraction
+            # Try fallback to actual file download before giving up
+            try:
+                self.log.info("Attempting direct file download as fallback")
+                if self._download_files_fallback(target_folder):
+                    return
+            except Exception as fallback_error:
+                self.log.warning(
+                    f"File download fallback also failed: {fallback_error}"
+                )
+
+            # Final fallback to metadata-only extraction
             self._download_metadata_only(target_folder)
+
+    def _download_files_fallback(self, target_folder, pbar=None):
+        """
+        Fallback method to download actual data files using distribution URLs from schema.org metadata
+        when pangaeapy fails (e.g., for non-tabular data like GeoJSON, GeoTIFF archives)
+
+        Returns:
+            bool: True if download was successful, False otherwise
+        """
+        try:
+            # Get schema.org metadata to find distribution URLs
+            metadata = self._get_web_metadata()
+            download_urls = metadata.get("download_urls", [])
+
+            if not download_urls:
+                self.log.warning("No download URLs found in schema.org metadata")
+                return False
+
+            self.log.info(
+                f"Found {len(download_urls)} download URLs in schema.org metadata"
+            )
+
+            import requests
+            import os
+            from urllib.parse import urlparse
+            import zipfile
+
+            success = False
+            for i, url in enumerate(download_urls):
+                try:
+                    if pbar:
+                        pbar.set_postfix_str(
+                            f"Downloading file {i+1}/{len(download_urls)}"
+                        )
+
+                    self.log.debug(f"Downloading from URL: {url}")
+                    response = requests.get(url, stream=True, timeout=300)
+                    response.raise_for_status()
+
+                    # Determine filename from URL or content-disposition
+                    filename = self._get_filename_from_response(response, url)
+                    filepath = os.path.join(target_folder, filename)
+
+                    # Download the file
+                    with open(filepath, "wb") as f:
+                        for chunk in response.iter_content(chunk_size=8192):
+                            if chunk:
+                                f.write(chunk)
+
+                    file_size = os.path.getsize(filepath)
+                    self.log.info(f"Downloaded {filename} ({file_size} bytes)")
+
+                    # If it's a ZIP archive, extract it
+                    if filepath.lower().endswith(".zip"):
+                        try:
+                            if pbar:
+                                pbar.set_postfix_str(f"Extracting {filename}")
+
+                            with zipfile.ZipFile(filepath, "r") as zip_ref:
+                                zip_ref.extractall(target_folder)
+
+                            # List extracted files
+                            extracted_files = zip_ref.namelist()
+                            self.log.info(
+                                f"Extracted {len(extracted_files)} files from {filename}"
+                            )
+
+                            # Optionally remove the zip file to save space
+                            os.remove(filepath)
+
+                        except zipfile.BadZipFile:
+                            self.log.warning(
+                                f"File {filename} appears to be corrupted or not a valid ZIP"
+                            )
+                        except Exception as extract_error:
+                            self.log.warning(
+                                f"Failed to extract {filename}: {extract_error}"
+                            )
+
+                    success = True
+
+                except requests.RequestException as e:
+                    self.log.warning(f"Failed to download from {url}: {e}")
+                    continue
+                except Exception as e:
+                    self.log.warning(f"Error processing download from {url}: {e}")
+                    continue
+
+            return success
+
+        except Exception as e:
+            self.log.error(f"File download fallback failed: {e}")
+            return False
+
+    def _get_filename_from_response(self, response, url):
+        """Extract filename from HTTP response or URL"""
+        import os
+        from urllib.parse import urlparse
+
+        # Try to get filename from Content-Disposition header
+        content_disposition = response.headers.get("content-disposition", "")
+        if "filename=" in content_disposition:
+            filename = content_disposition.split("filename=")[1].strip("\"'")
+            return filename
+
+        # Fallback to URL path
+        parsed_url = urlparse(url)
+        filename = os.path.basename(parsed_url.path)
+        if filename and filename != "/":
+            return filename
+
+        # Final fallback using dataset ID
+        return f"pangaea_{self.dataset_id}_data"
 
     def _process_metadata_for_geoextent(self, metadata):
         """Process Pangaea metadata into geoextent-compatible format"""

@@ -52,7 +52,8 @@
       "Bash(echo:*)",
       "Bash(done)",
       "WebFetch(domain:dataservices.gfz-potsdam.de)",
-      "WebFetch(domain:doi.org)"
+      "WebFetch(domain:doi.org)",
+      "Bash(pre-commit:*)"
     ],
     "deny": [],
     "ask": []
