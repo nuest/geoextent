@@ -4,6 +4,7 @@ import logging
 from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from .providers import DoiProvider
+from .. import helpfunctions as hf
 
 logger = logging.getLogger("geoextent")
 
@@ -57,7 +58,7 @@ class GFZ(DoiProvider):
 
         return False
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True):
+    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
         """Download data from GFZ Data Services
 
         Args:
@@ -69,6 +70,9 @@ class GFZ(DoiProvider):
         Returns:
             str: Path to downloaded data directory
         """
+        if max_download_method_seed is None:
+            max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
+
         logger.info(f"Downloading from GFZ Data Services: {self.reference}")
 
         if not download_data:

@@ -4,6 +4,7 @@ import re
 import tempfile
 from requests import HTTPError
 from .providers import ContentProvider
+from .. import helpfunctions as hf
 
 
 class OSF(ContentProvider):
@@ -329,7 +330,7 @@ class OSF(ContentProvider):
             raise Exception(f"Failed to download files via OSF API: {e}")
 
     def download(
-        self, target_folder, throttle=False, download_data=True, show_progress=True
+        self, target_folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None
     ):
         """
         Extract geospatial metadata from OSF project.
@@ -340,6 +341,9 @@ class OSF(ContentProvider):
         - download_data: If True, downloads actual data files for local extraction.
                         If False, attempts metadata-only extraction (limited for OSF).
         """
+        if max_download_method_seed is None:
+            max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
+
         self.throttle = throttle
 
         if not download_data:

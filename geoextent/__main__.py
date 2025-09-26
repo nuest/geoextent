@@ -28,6 +28,8 @@ geoextent -b -t path/to/geospatial_files
 geoextent -b -t --details path/to/zipfile_with_geospatial_data
 geoextent -b -t file1.shp file2.csv file3.geopkg
 geoextent -t *.geojson
+geoextent -b -t https://doi.org/10.1594/PANGAEA.918707 https://doi.pangaea.de/10.1594/PANGAEA.858767
+geoextent -b --convex-hull https://zenodo.org/record/4567890 10.1594/PANGAEA.123456
 """
 
 supported_formats = """
@@ -118,7 +120,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] file1 [file2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -216,10 +218,31 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--max-download-size",
+        action="store",
+        default=None,
+        help="maximum download size limit (e.g. '100MB', '2GB'). Uses filesizelib for parsing.",
+    )
+
+    parser.add_argument(
+        "--max-download-method",
+        choices=["ordered", "random"],
+        default="ordered",
+        help="method for selecting files when size limit is exceeded (default: ordered)",
+    )
+
+    parser.add_argument(
+        "--max-download-method-seed",
+        type=int,
+        default=None,  # Will use DEFAULT_DOWNLOAD_SAMPLE_SEED if not specified
+        help="seed for random file selection when using --max-download-method random (default: 42)",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs="+",
-        help="input file or path (supports multiple files)",
+        help="input file, directory, DOI, or repository URL (supports multiple inputs including mixed types)",
     )
 
     return parser
@@ -347,6 +370,9 @@ def main():
                     download_data=args["download_data"],
                     show_progress=not args["no_progress"],
                     recursive=not args["no_subdirs"],
+                    max_download_size=args["max_download_size"],
+                    max_download_method=args["max_download_method"],
+                    max_download_method_seed=args["max_download_method_seed"] or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
                 )
         else:
             # Multiple files handling
@@ -354,12 +380,35 @@ def main():
             output["format"] = "multiple_files"
             output["details"] = {}
 
-            # Process each file
+            # Process each file or repository identifier
             for file_path in files:
-                logger.debug("Processing file: %s", file_path)
+                logger.debug("Processing input: %s", file_path)
                 try:
-                    # Only process individual files (not directories or URLs for multiple mode)
-                    if os.path.isfile(file_path) and not zipfile.is_zipfile(file_path):
+                    # Check if it's a repository identifier (URL, DOI, etc.)
+                    is_url = hf.https_regexp.match(file_path) is not None
+                    is_doi = hf.doi_regexp.match(file_path) is not None
+                    rfd_instance = readable_file_or_dir(None, None)
+                    is_repository = rfd_instance._is_supported_repository(file_path)
+
+                    if is_url or is_doi or is_repository:
+                        # Process repository identifier
+                        repo_output = extent.from_repository(
+                            file_path,
+                            bbox=args["bounding_box"],
+                            tbox=args["time_box"],
+                            convex_hull=args["convex_hull"],
+                            details=True,
+                            download_data=args["download_data"],
+                            show_progress=not args["no_progress"],
+                            recursive=not args["no_subdirs"],
+                            max_download_size=args["max_download_size"],
+                            max_download_method=args["max_download_method"],
+                            max_download_method_seed=args["max_download_method_seed"] or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+                        )
+                        if repo_output is not None:
+                            output["details"][file_path] = repo_output
+                    elif os.path.isfile(file_path) and not zipfile.is_zipfile(file_path):
+                        # Process individual file
                         file_output = extent.fromFile(
                             file_path,
                             bbox=args["bounding_box"],
@@ -370,6 +419,7 @@ def main():
                         if file_output is not None:
                             output["details"][file_path] = file_output
                     elif os.path.isdir(file_path) or zipfile.is_zipfile(file_path):
+                        # Process directory or zip file
                         dir_output = extent.fromDirectory(
                             file_path,
                             bbox=args["bounding_box"],

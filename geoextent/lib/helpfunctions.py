@@ -15,6 +15,8 @@ from pathlib import Path
 
 import geojsonio
 
+# Default seed for reproducible random sampling
+DEFAULT_DOWNLOAD_SAMPLE_SEED = 42
 
 # to suppress warning "FutureWarning: Neither gdal.UseExceptions() nor gdal.DontUseExceptions() has been explicitly called. In GDAL 4.0, exceptions will be enabled by default."
 ogr.UseExceptions()
@@ -1317,6 +1319,177 @@ def convex_hull_coords_to_geojson(coords):
         coordinates.append(coordinates[0])
 
     return {"type": "Polygon", "coordinates": [coordinates]}
+
+
+def parse_download_size(size_string):
+    """
+    Parse a download size string using filesizelib
+
+    Args:
+        size_string: Size string like '100MB', '2GB', etc.
+
+    Returns:
+        int: Size in bytes, or None if parsing fails
+    """
+    if size_string is None:
+        return None
+
+    try:
+        import filesizelib
+        storage = filesizelib.Storage.parse(size_string)
+        return int(storage.convert_to_bytes())
+    except Exception as e:
+        logger.warning(f"Failed to parse download size '{size_string}': {e}")
+        return None
+
+
+def _group_shapefile_components(files_info):
+    """
+    Group shapefile components together so they stay together during selection.
+
+    Args:
+        files_info: List of file dicts with 'name' and 'size' keys
+
+    Returns:
+        tuple: (shapefile_groups, standalone_files)
+            - shapefile_groups: List of lists, each inner list contains related shapefile components
+            - standalone_files: List of individual files that are not part of shapefiles
+    """
+    import os
+
+    # Common shapefile extensions
+    shapefile_extensions = {'.shp', '.shx', '.dbf', '.prj', '.sbn', '.sbx', '.cpg', '.shp.xml'}
+
+    # Group files by base name (without extension)
+    groups = {}
+    standalone_files = []
+
+    for file_info in files_info:
+        filename = file_info.get('name', '')
+
+        # Handle .shp.xml extension specially
+        if filename.endswith('.shp.xml'):
+            base_name = filename[:-8]  # Remove .shp.xml
+            extension = '.shp.xml'
+        else:
+            base_name, extension = os.path.splitext(filename)
+
+        if extension.lower() in shapefile_extensions:
+            # This is a shapefile component
+            if base_name not in groups:
+                groups[base_name] = []
+            groups[base_name].append(file_info)
+        else:
+            # Standalone file
+            standalone_files.append(file_info)
+
+    # Convert groups to list of lists, only include groups with multiple components
+    shapefile_groups = []
+    for base_name, components in groups.items():
+        if len(components) > 1:
+            # Sort components by extension to have consistent ordering
+            components.sort(key=lambda f: f.get('name', ''))
+            shapefile_groups.append(components)
+        else:
+            # Single component, treat as standalone
+            standalone_files.extend(components)
+
+    return shapefile_groups, standalone_files
+
+
+def filter_files_by_size(
+    files_info: list,
+    max_download_size: int,
+    method: str = "ordered",
+    seed: int = DEFAULT_DOWNLOAD_SAMPLE_SEED
+):
+    """
+    Filter files based on cumulative download size limit and selection method.
+
+    The max_download_size applies to the total of all files combined, not individual files.
+    Files are selected until the cumulative total would exceed the limit.
+
+    Args:
+        files_info: List of dicts with 'name' and 'size' keys (size in bytes)
+        max_download_size: Maximum cumulative download size in bytes for all files combined
+        method: Selection method - 'ordered' or 'random'
+        seed: Random seed for reproducible random selection
+
+    Returns:
+        tuple: (selected_files, total_size, skipped_files)
+    """
+    if not files_info or max_download_size is None:
+        return files_info, sum(f.get('size', 0) for f in files_info), []
+
+    # Filter out files without size information
+    files_with_size = [f for f in files_info if f.get('size') is not None and f.get('size') > 0]
+    files_without_size = [f for f in files_info if f.get('size') is None or f.get('size') <= 0]
+
+    # Group shapefile components together to ensure they stay together
+    shapefile_groups, standalone_files = _group_shapefile_components(files_with_size)
+
+    # Apply selection method to groups and standalone files
+    all_items = shapefile_groups + standalone_files
+
+    if method == "random":
+        # Set seed for reproducible results
+        random.seed(seed)
+        random.shuffle(all_items)
+    # For "ordered" method, items are processed in original order
+
+    selected_files = []
+    total_size = 0
+    skipped_items = []
+
+    # Select items that fit within the cumulative size limit
+    # Stop as soon as adding the next item would exceed the limit
+    for item in all_items:
+        if isinstance(item, list):
+            # Shapefile group - all components stay together
+            group_size = sum(f.get('size', 0) for f in item)
+            if total_size + group_size <= max_download_size:
+                selected_files.extend(item)
+                total_size += group_size
+                group_names = [f.get('name', 'unknown') for f in item]
+                logger.debug(f"Selected shapefile group ({', '.join(group_names)}): {group_size:,} bytes")
+            else:
+                # This group would exceed the cumulative limit, skip it and all remaining items
+                skipped_items.extend(item)
+                for remaining_item in all_items[all_items.index(item) + 1:]:
+                    if isinstance(remaining_item, list):
+                        skipped_items.extend(remaining_item)
+                    else:
+                        skipped_items.append(remaining_item)
+                logger.debug(f"Cumulative limit reached. Skipping shapefile group and remaining files.")
+                break
+        else:
+            # Individual file
+            file_size = item.get('size', 0)
+            if total_size + file_size <= max_download_size:
+                selected_files.append(item)
+                total_size += file_size
+                logger.debug(f"Selected file {item.get('name', 'unknown')}: {file_size:,} bytes")
+            else:
+                # This file would exceed the cumulative limit, skip it and all remaining items
+                skipped_items.append(item)
+                for remaining_item in all_items[all_items.index(item) + 1:]:
+                    if isinstance(remaining_item, list):
+                        skipped_items.extend(remaining_item)
+                    else:
+                        skipped_items.append(remaining_item)
+                logger.debug(f"Cumulative limit reached. Skipping file and remaining files.")
+                break
+
+    # Add files without size info (these will be handled by individual providers)
+    # Note: These are added to selected files but not counted toward the size limit
+    selected_files.extend(files_without_size)
+
+    if skipped_items:
+        logger.info(f"Cumulative download size limit reached ({max_download_size:,} bytes).")
+        logger.info(f"Selected {len(selected_files)} files totaling {total_size:,} bytes ({total_size / (1024*1024):.1f} MB)")
+        logger.info(f"Skipped {len(skipped_items)} files due to cumulative size limit.")
+
+    return selected_files, total_size, skipped_items
 
 
 def generate_geojsonio_url(extent_output):

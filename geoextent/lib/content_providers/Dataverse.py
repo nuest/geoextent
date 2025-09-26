@@ -31,6 +31,7 @@ import json
 from urllib.parse import urlparse, parse_qs
 from requests import HTTPError
 from .providers import DoiProvider
+from .. import helpfunctions as hf
 
 
 class Dataverse(DoiProvider):
@@ -332,7 +333,7 @@ class Dataverse(DoiProvider):
 
         raise ValueError(f"Could not determine download URL for file: {file_info}")
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True):
+    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
         """
         Download files from the Dataverse dataset.
 
@@ -342,6 +343,9 @@ class Dataverse(DoiProvider):
             download_data (bool): Whether to download actual data files
         """
         from tqdm import tqdm
+
+        if max_download_method_seed is None:
+            max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
 
         self.throttle = throttle
 

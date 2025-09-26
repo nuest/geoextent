@@ -2,6 +2,7 @@ from pathlib import Path
 from requests import HTTPError
 import urllib.parse
 from .providers import DoiProvider
+from .. import helpfunctions as hf
 from ..extent import *
 
 
@@ -93,8 +94,11 @@ class Dryad(DoiProvider):
             file_list.append([link, path])
         return file_list
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True):
+    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
         from tqdm import tqdm
+
+        if max_download_method_seed is None:
+            max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
 
         self.throttle = throttle
         if not download_data:

@@ -119,7 +119,114 @@ python -m geoextent -b --convex-hull --geojsonio tests/testdata/geojson/ausgleic
 
 # Generate geojson.io URL with different output formats (URL always shows GeoJSON)
 python -m geoextent -b --format wkt --geojsonio tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp
+
+# Combine multiple remote records
+python -m geoextent -b -t --convex-hull --geojsonio 10.5281/zenodo.4593540 https://osf.io/4xe6z
 ```
+
+### Download Size Limiting for Repositories
+
+When extracting data from large research repositories, you can limit the total download size to control processing time and storage usage. This is particularly useful for exploring datasets or when working with limited bandwidth/storage.
+
+#### Basic Size Limiting
+
+```bash
+# Limit total download to 100MB across all files
+python -m geoextent -b --max-download-size 100MB https://doi.org/10.5281/zenodo.7080016
+
+# Limit to 50MB - useful for quick exploration
+python -m geoextent -b --max-download-size 50MB https://osf.io/4xe6z/
+
+# Limit to 2GB for larger datasets
+python -m geoextent -b --max-download-size 2GB https://doi.org/10.1594/PANGAEA.858767
+```
+
+**Supported size formats**: `KB`, `MB`, `GB`, `TB` (e.g., `500KB`, `1.5GB`, `100MB`)
+
+#### File Selection Methods
+
+The `--max-download-method` parameter controls how files are selected when the size limit is reached:
+
+```bash
+# Ordered method (default): Select files in original order until limit reached
+python -m geoextent -b --max-download-size 100MB --max-download-method ordered https://doi.org/10.5281/zenodo.7080016
+
+# Random method: Randomly shuffle files before selection (useful for sampling)
+python -m geoextent -b --max-download-size 100MB --max-download-method random https://doi.org/10.5281/zenodo.7080016
+
+# Random with custom seed for reproducible results
+python -m geoextent -b --max-download-size 100MB --max-download-method random --max-download-method-seed 123 https://doi.org/10.5281/zenodo.7080016
+```
+
+#### Comparing Selection Methods
+
+Different selection methods can produce different spatial extents depending on the geographic distribution of files:
+
+**Example with Zenodo European Land Use dataset (https://doi.org/10.5281/zenodo.7080016):**
+
+```bash
+# Ordered method (50MB limit) - selects first few countries alphabetically
+python -m geoextent -b --max-download-size 50MB --max-download-method ordered https://doi.org/10.5281/zenodo.7080016
+# Result: Covers Albania, Andorra, Austria, Belarus, Belgium (Western/Central Europe)
+# Bounding box: approximately [2.5°W to 30°E, 35°N to 60°N]
+
+# Random method (50MB limit, seed 42) - selects random geographic sample
+python -m geoextent -b --max-download-size 50MB --max-download-method random --max-download-method-seed 42 https://doi.org/10.5281/zenodo.7080016
+# Result: Covers Belgium, Liechtenstein, Luxembourg, Norway, Romania (scattered across Europe)
+# Bounding box: approximately [5°W to 30°E, 40°N to 75°N] - larger extent due to Norway
+
+# Different seed produces different sample
+python -m geoextent -b --max-download-size 50MB --max-download-method random --max-download-method-seed 789 https://doi.org/10.5281/zenodo.7080016
+# Result: Covers Finland, Poland, Spain, Sweden, Ukraine (different geographic spread)
+# Bounding box: approximately [10°W to 35°E, 35°N to 70°N]
+```
+
+**Key Observations:**
+- **Ordered method**: Predictable but may be geographically biased (alphabetical selection often clusters regions)
+- **Random method**: Better geographic sampling but results vary with different seeds
+- **Larger random samples**: Often produce more representative spatial extents
+- **Shapefile preservation**: Related files (.shp, .shx, .dbf, .prj) always stay together as a unit
+
+#### Size Limiting Behavior
+
+```bash
+# The limit applies to the cumulative total of all selected files
+# Files are selected until adding the next file would exceed the limit
+
+# Real Zenodo example with 100MB limit:
+# Files processed in repository order: albania.zip (22MB), andorra.zip (0.2MB), austria.zip (73MB), ...
+# Result: Selects albania.zip + andorra.zip + austria.zip = 95.3MB total (within 100MB limit)
+# The next file belarus.zip (132MB) is skipped because 95.3MB + 132MB = 227MB > 100MB
+
+# Example showing when first file exceeds limit:
+# Files: [huge.zip (200MB), small1.zip (5MB), small2.zip (3MB)] with 50MB limit
+# Result: No files selected - first file alone exceeds the limit
+
+# Shapefile components are kept together as a single unit
+# If a shapefile's total size (.shp + .shx + .dbf + .prj) fits within remaining space,
+# all components are selected together. Otherwise, all are skipped together.
+```
+
+**Important Notes:**
+- Large individual files may still be downloaded if they fit within the cumulative limit
+- File processing order depends on the repository (alphabetical, upload order, etc.)
+- Use smaller limits (e.g., 10MB, 20MB) to exclude large files entirely
+- Use random method for different file selection patterns
+
+#### Advanced Examples
+
+```bash
+# Combine size limiting with other options
+python -m geoextent -b -t --max-download-size 200MB --convex-hull --geojsonio https://doi.org/10.5281/zenodo.7080016
+
+# Use size limiting for quick dataset exploration
+python -m geoextent -b --max-download-size 10MB --max-download-method random https://osf.io/4xe6z/
+
+# Process multiple repositories with size limits
+python -m geoextent -b --max-download-size 50MB https://doi.org/10.5281/zenodo.7080016 https://osf.io/4xe6z/
+```
+
+**Note**: When no size limit is specified, all available files are downloaded and processed.
 
 ### Output Format Options
 

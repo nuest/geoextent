@@ -1,5 +1,6 @@
 from requests import HTTPError
 from .providers import DoiProvider
+from .. import helpfunctions as hf
 from ..extent import *
 
 
@@ -93,8 +94,11 @@ class Zenodo(DoiProvider):
             file_list.append(j["links"]["self"])
         return file_list
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True):
+    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
         from tqdm import tqdm
+
+        if max_download_method_seed is None:
+            max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
 
         self.throttle = throttle
         if not download_data:
@@ -146,6 +150,30 @@ class Zenodo(DoiProvider):
             finally:
                 if show_progress:
                     metadata_pbar.close()
+
+            # Apply size filtering if specified
+            if max_size_bytes is not None:
+                from ..helpfunctions import filter_files_by_size
+                # Convert to format expected by filter_files_by_size
+                files_for_filtering = [
+                    {"name": f["filename"], "size": f["size"]} for f in file_info
+                ]
+                selected_files, filtered_total_size, skipped_files = filter_files_by_size(
+                    files_for_filtering, max_size_bytes, max_download_method, max_download_method_seed
+                )
+
+                if not selected_files:
+                    self.log.warning(f"No files selected for download within size limit of {max_size_bytes:,} bytes")
+                    return
+
+                # Create mapping from filename to original file_info
+                filename_to_info = {f["filename"]: f for f in file_info}
+
+                # Filter file_info to only include selected files
+                file_info = [filename_to_info[f["name"]] for f in selected_files if f["name"] in filename_to_info]
+                total_size = filtered_total_size
+
+                self.log.info(f"Size limit applied: Selected {len(file_info)} of {len(files)} files")
 
             # Log download summary before starting
             self.log.info(

@@ -539,6 +539,9 @@ def from_repository(
     show_progress: bool = True,
     recursive: bool = True,
     include_geojsonio: bool = False,
+    max_download_size: str | None = None,
+    max_download_method: str = "ordered",
+    max_download_method_seed: int = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
 ):
     try:
         geoextent = geoextent_from_repository()
@@ -554,6 +557,9 @@ def from_repository(
             show_progress,
             recursive,
             include_geojsonio,
+            max_download_size,
+            max_download_method,
+            max_download_method_seed,
         )
         metadata["format"] = "repository"
     except ValueError as e:
@@ -596,6 +602,9 @@ class geoextent_from_repository(Application):
         show_progress=True,
         recursive=True,
         include_geojsonio=False,
+        max_download_size=None,
+        max_download_method="ordered",
+        max_download_method_seed=hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
     ):
 
         if bbox + tbox == 0:
@@ -618,7 +627,22 @@ class geoextent_from_repository(Application):
                 supported_by_geoextent = True
                 try:
                     with tempfile.TemporaryDirectory() as tmp:
-                        repository.download(tmp, throttle, download_data, show_progress)
+                        # Parse download size if provided
+                        max_size_bytes = None
+                        if max_download_size:
+                            max_size_bytes = hf.parse_download_size(max_download_size)
+                            if max_size_bytes is None:
+                                logger.warning(f"Invalid download size format: {max_download_size}")
+
+                        repository.download(
+                            tmp,
+                            throttle,
+                            download_data,
+                            show_progress,
+                            max_size_bytes=max_size_bytes,
+                            max_download_method=max_download_method,
+                            max_download_method_seed=max_download_method_seed,
+                        )
                         metadata = fromDirectory(
                             tmp,
                             bbox,
