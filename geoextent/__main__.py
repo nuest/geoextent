@@ -50,6 +50,8 @@ Supported data repositories:
 - Figshare (figshare.com)
 - PANGAEA (pangaea.de)
 - OSF (osf.io)
+- GFZ Data Services (dataservices.gfz-potsdam.de)
+- Pensoft Journals (e.g., bdj.pensoft.net)
 
 """
 
@@ -90,7 +92,7 @@ class readable_file_or_dir(argparse.Action):
     def _is_supported_repository(self, candidate):
         """Check if the candidate is supported by any content provider"""
         # Import content providers
-        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF, GFZ
+        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF, GFZ, Pensoft
 
         # Test against all content providers
         content_providers = [
@@ -100,6 +102,7 @@ class readable_file_or_dir(argparse.Action):
             Pangaea.Pangaea,
             OSF.OSF,
             GFZ.GFZ,
+            Pensoft.Pensoft,
         ]
 
         for provider_class in content_providers:
@@ -361,7 +364,7 @@ def main():
                     recursive=not args["no_subdirs"],
                 )
             elif is_url or is_doi or is_repository:
-                output = extent.from_repository(
+                output = extent.fromRemote(
                     single_input,
                     bbox=args["bounding_box"],
                     tbox=args["time_box"],
@@ -392,7 +395,7 @@ def main():
 
                     if is_url or is_doi or is_repository:
                         # Process repository identifier
-                        repo_output = extent.from_repository(
+                        repo_output = extent.fromRemote(
                             file_path,
                             bbox=args["bounding_box"],
                             tbox=args["time_box"],

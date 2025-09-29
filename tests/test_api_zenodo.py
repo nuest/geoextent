@@ -59,7 +59,7 @@ class TestZenodoProvider:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:
@@ -124,7 +124,7 @@ class TestZenodoProvider:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # For Zenodo, metadata-only may still extract bounding box from downloaded files
             # since Zenodo doesn't provide geospatial metadata directly
@@ -192,7 +192,7 @@ class TestZenodoParameterCombinations:
                 test_doi, bbox=True, tbox=False, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "tbox" not in result
 
         except ImportError:
@@ -209,7 +209,7 @@ class TestZenodoParameterCombinations:
                 test_doi, bbox=False, tbox=True, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "bbox" not in result
 
         except ImportError:
@@ -226,7 +226,7 @@ class TestZenodoParameterCombinations:
                 test_doi, bbox=True, tbox=True, details=True, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "details" in result
             assert isinstance(result["details"], dict)
 

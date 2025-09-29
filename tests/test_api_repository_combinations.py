@@ -30,7 +30,7 @@ class TestRepositoryParameterCombinations:
                     provider_data["doi"], bbox=True, tbox=False
                 )
                 assert result is not None
-                assert result["format"] == "repository"
+                assert result["format"] == "remote"
                 assert "tbox" not in result
                 # bbox might or might not be present depending on data content
 
@@ -47,7 +47,7 @@ class TestRepositoryParameterCombinations:
                     provider_data["doi"], bbox=False, tbox=True
                 )
                 assert result is not None
-                assert result["format"] == "repository"
+                assert result["format"] == "remote"
                 assert "bbox" not in result
                 # tbox might or might not be present depending on data content
 
@@ -64,7 +64,7 @@ class TestRepositoryParameterCombinations:
                     provider_data["doi"], bbox=True, tbox=True
                 )
                 assert result is not None
-                assert result["format"] == "repository"
+                assert result["format"] == "remote"
 
             except ImportError:
                 pytest.skip(f"Required library not available for {provider_name}")
@@ -164,7 +164,7 @@ class TestRepositoryParameterCombinations:
             assert result_local is not None
 
             # Both should have same format
-            assert result_metadata["format"] == result_local["format"] == "repository"
+            assert result_metadata["format"] == result_local["format"] == "remote"
 
         except ImportError:
             pytest.skip("pangaeapy not available")
@@ -190,7 +190,7 @@ class TestRepositoryParameterCombinations:
 
                 result = geoextent.from_repository(provider_data["doi"], **kwargs)
                 assert result is not None
-                assert result["format"] == "repository"
+                assert result["format"] == "remote"
                 assert "details" in result
 
             except ImportError:
@@ -224,7 +224,7 @@ class TestRepositoryURLvsDoiHandling:
 
                 assert result_doi is not None
                 assert result_url is not None
-                assert result_doi["format"] == result_url["format"] == "repository"
+                assert result_doi["format"] == result_url["format"] == "remote"
 
                 # Results should be structurally similar
                 assert ("bbox" in result_doi) == ("bbox" in result_url)
@@ -371,7 +371,7 @@ class TestRepositorySpecialCases:
             try:
                 result = geoextent.from_repository(url, bbox=True)
                 if result is not None:
-                    assert result["format"] == "repository"
+                    assert result["format"] == "remote"
             except ImportError:
                 pytest.skip("Required library not available")
             except Exception as e:
@@ -397,7 +397,7 @@ class TestRepositorySpecialCases:
                 )
                 # Should handle whitespace gracefully after stripping
                 if result is not None:
-                    assert result["format"] == "repository"
+                    assert result["format"] == "remote"
             except ImportError:
                 pytest.skip("Required library not available")
             except Exception as e:

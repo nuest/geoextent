@@ -72,7 +72,7 @@ class TestPointDetection:
         extent_output_bbox = {
             "bbox": [-21.5, 76.5, -21.5, 76.5],
             "crs": "4326",
-            "format": "repository"
+            "format": "remote"
         }
 
         with patch('geoextent.lib.helpfunctions.logger') as mock_logger:
@@ -100,7 +100,7 @@ class TestPointDetection:
         extent_output_convex = {
             "bbox": [[-21.5, 76.5], [-21.5, 76.5], [-21.5, 76.5]],
             "crs": "4326",
-            "format": "repository",
+            "format": "remote",
             "convex_hull": True
         }
 

@@ -13,6 +13,7 @@ from . import Pangaea
 from . import OSF
 from . import Dataverse
 from . import GFZ
+from . import Pensoft
 
 __all__ = [
     'providers',
@@ -22,5 +23,6 @@ __all__ = [
     'Pangaea',
     'OSF',
     'Dataverse',
-    'GFZ'
+    'GFZ',
+    'Pensoft'
 ]

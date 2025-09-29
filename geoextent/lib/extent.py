@@ -14,6 +14,7 @@ from .content_providers import Pangaea
 from .content_providers import OSF
 from .content_providers import Dataverse
 from .content_providers import GFZ
+from .content_providers import Pensoft
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -313,6 +314,44 @@ def fromDirectory(
     if bbox:
         if convex_hull:
             bbox_ext = hf.convex_hull_merge(metadata_directory, path)
+            # If convex hull fails, fall back to regular bounding box
+            if bbox_ext is None:
+                logger.warning(
+                    "Convex hull calculation failed for {} {} - insufficient data points or geometric constraints. Falling back to bounding box.".format(
+                        file_format, path
+                    )
+                )
+                # Recompute metadata with regular bbox format for fallback
+                fallback_metadata = {}
+                for filename, file_metadata in metadata_directory.items():
+                    if isinstance(file_metadata, dict) and "bbox" in file_metadata:
+                        fallback_file_metadata = file_metadata.copy()
+
+                        # Convert convex hull coordinates back to [W,S,E,N] format if needed
+                        bbox = file_metadata["bbox"]
+                        if isinstance(bbox, list) and len(bbox) >= 3 and isinstance(bbox[0], list):
+                            # This is coordinate array format, convert to envelope
+                            x_coords = [coord[0] for coord in bbox if len(coord) >= 2]
+                            y_coords = [coord[1] for coord in bbox if len(coord) >= 2]
+                            if x_coords and y_coords:
+                                fallback_file_metadata["bbox"] = [
+                                    min(x_coords), min(y_coords), max(x_coords), max(y_coords)
+                                ]
+
+                        # Remove convex hull flag for fallback
+                        if "convex_hull" in fallback_file_metadata:
+                            del fallback_file_metadata["convex_hull"]
+
+                        fallback_metadata[filename] = fallback_file_metadata
+
+                bbox_ext = hf.bbox_merge(fallback_metadata, path)
+                # If fallback succeeds, we still have a valid spatial extent, just not convex hull
+                if bbox_ext is not None:
+                    logger.info(
+                        "Successfully generated bounding box as fallback for {} {}".format(
+                            file_format, path
+                        )
+                    )
         else:
             bbox_ext = hf.bbox_merge(metadata_directory, path)
 
@@ -527,8 +566,8 @@ def fromFile(
     return metadata
 
 
-def from_repository(
-    repository_identifier: str,
+def fromRemote(
+    remote_identifier: str,
     bbox: bool = False,
     tbox: bool = False,
     convex_hull: bool = False,
@@ -545,8 +584,8 @@ def from_repository(
 ):
     try:
         geoextent = geoextent_from_repository()
-        metadata = geoextent.from_repository(
-            repository_identifier,
+        metadata = geoextent.fromRemote(
+            remote_identifier,
             bbox,
             tbox,
             convex_hull,
@@ -561,14 +600,62 @@ def from_repository(
             max_download_method,
             max_download_method_seed,
         )
-        metadata["format"] = "repository"
+        metadata["format"] = "remote"
     except ValueError as e:
         logger.debug(
-            "Error while inspecting repository {}: {}".format(repository_identifier, e)
+            "Error while inspecting remote source {}: {}".format(remote_identifier, e)
         )
         raise Exception(e)
 
     return metadata
+
+
+# Backward compatibility alias
+def from_repository(
+    repository_identifier: str,
+    bbox: bool = False,
+    tbox: bool = False,
+    convex_hull: bool = False,
+    details: bool = False,
+    throttle: bool = False,
+    timeout: None | int | float = None,
+    download_data: bool = True,
+    show_progress: bool = True,
+    recursive: bool = True,
+    include_geojsonio: bool = False,
+    max_download_size: str | None = None,
+    max_download_method: str = "ordered",
+    max_download_method_seed: int = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+):
+    """
+    DEPRECATED: Use fromRemote() instead.
+    Extract geospatial extent from remote sources (repositories, journals, preprint servers).
+
+    This function is maintained for backward compatibility.
+    """
+    import warnings
+    warnings.warn(
+        "from_repository() is deprecated. Use fromRemote() instead to better reflect "
+        "support for journals and preprint servers in addition to repositories.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    return fromRemote(
+        repository_identifier,
+        bbox,
+        tbox,
+        convex_hull,
+        details,
+        throttle,
+        timeout,
+        download_data,
+        show_progress,
+        recursive,
+        include_geojsonio,
+        max_download_size,
+        max_download_method,
+        max_download_method_seed,
+    )
 
 
 class geoextent_from_repository(Application):
@@ -581,6 +668,7 @@ class geoextent_from_repository(Application):
             OSF.OSF,
             Dataverse.Dataverse,
             GFZ.GFZ,
+            Pensoft.Pensoft,
         ],
         config=True,
         help="""
@@ -589,9 +677,9 @@ class geoextent_from_repository(Application):
         """,
     )
 
-    def from_repository(
+    def fromRemote(
         self,
-        repository_identifier,
+        remote_identifier,
         bbox=False,
         tbox=False,
         convex_hull=False,
@@ -618,10 +706,10 @@ class geoextent_from_repository(Application):
         supported_by_geoextent = False
         for h in self.content_providers:
             repository = h()
-            if repository.validate_provider(reference=repository_identifier):
+            if repository.validate_provider(reference=remote_identifier):
                 logger.debug(
                     "Using {} to extract {}".format(
-                        repository.name, repository_identifier
+                        repository.name, remote_identifier
                     )
                 )
                 supported_by_geoextent = True
@@ -663,6 +751,6 @@ class geoextent_from_repository(Application):
             logger.error(
                 "Geoextent can not handle this repository identifier {}"
                 "\n Check for typos or if the repository exists. ".format(
-                    repository_identifier
+                    remote_identifier
                 )
             )

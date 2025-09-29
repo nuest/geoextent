@@ -312,7 +312,7 @@ class TestOSFProvider:
             # Check basic result structure
             assert result is not None
             assert "format" in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check for bbox if the dataset contains geospatial data
             if dataset.get("has_shapefiles"):
@@ -341,7 +341,7 @@ class TestOSFProvider:
             # Should complete without error, but may have limited results
             assert result is not None
             assert "format" in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Note: bbox may not be available in no-download mode for OSF
 
@@ -543,7 +543,7 @@ class TestOSFActualBoundingBoxVerification:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:
@@ -606,7 +606,7 @@ class TestOSFActualBoundingBoxVerification:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:

@@ -131,7 +131,7 @@ class TestPangaeaProvider:
 
             assert result is not None
             assert "format" in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:
@@ -193,7 +193,7 @@ class TestPangaeaProvider:
             result = geoextent.from_repository(dataset["url"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage (point location)
             if "bbox" in result:
@@ -224,7 +224,7 @@ class TestPangaeaProvider:
             result = geoextent.from_repository(dataset["doi"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # This dataset may not have geographic/temporal extents
             # Test should succeed even if bbox/tbox are not present
@@ -277,7 +277,7 @@ class TestPangaeaProvider:
             )
             assert result is not None
             assert "format" in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Should have extracted geographic and temporal data from actual files
             if "bbox" in result:
@@ -305,7 +305,7 @@ class TestPangaeaProvider:
                 result = geoextent.from_repository(dataset["doi"], bbox=True, tbox=True)
                 assert result is not None
                 assert "format" in result
-                assert result["format"] == "repository"
+                assert result["format"] == "remote"
 
                 # Check point location
                 if "bbox" in result:
@@ -336,7 +336,7 @@ class TestPangaeaProvider:
             result = geoextent.from_repository(dataset["url"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage (point location)
             if "bbox" in result:
@@ -480,8 +480,8 @@ class TestPangaeaProvider:
             # Both should succeed
             assert result_metadata is not None
             assert result_local is not None
-            assert result_metadata["format"] == "repository"
-            assert result_local["format"] == "repository"
+            assert result_metadata["format"] == "remote"
+            assert result_local["format"] == "remote"
 
             # Compare results - they should be similar but may differ slightly
             if "bbox" in result_metadata and "bbox" in result_local:
@@ -532,7 +532,7 @@ class TestPangaeaParameterCombinations:
             assert result is not None
             assert "bbox" in result
             assert "tbox" not in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
         except ImportError:
             pytest.skip("pangaeapy not available")
         except Exception as e:
@@ -547,7 +547,7 @@ class TestPangaeaParameterCombinations:
             assert result is not None
             assert "tbox" in result
             assert "bbox" not in result
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
         except ImportError:
             pytest.skip("pangaeapy not available")
         except Exception as e:
@@ -571,7 +571,7 @@ class TestPangaeaParameterCombinations:
             assert result is not None
             assert "details" in result
             assert isinstance(result["details"], dict)
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
         except ImportError:
             pytest.skip("pangaeapy not available")
         except Exception as e:
@@ -586,7 +586,7 @@ class TestPangaeaParameterCombinations:
                 dataset["doi"], bbox=True, tbox=True, throttle=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
         except ImportError:
             pytest.skip("pangaeapy not available")
         except Exception as e:
@@ -601,7 +601,7 @@ class TestPangaeaParameterCombinations:
                 dataset["doi"], bbox=True, tbox=True, timeout=30
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             # timeout field should not be present if timeout wasn't reached
             assert "timeout" not in result
         except ImportError:
@@ -619,14 +619,14 @@ class TestPangaeaParameterCombinations:
                 dataset["doi"], bbox=True, tbox=True, download_data=False
             )
             assert result1 is not None
-            assert result1["format"] == "repository"
+            assert result1["format"] == "remote"
 
             # Test with download_data=True (local file download)
             result2 = geoextent.from_repository(
                 dataset["doi"], bbox=True, tbox=True, download_data=True
             )
             assert result2 is not None
-            assert result2["format"] == "repository"
+            assert result2["format"] == "remote"
 
             # Both results should have similar structure
             assert ("bbox" in result1) == ("bbox" in result2)
@@ -651,7 +651,7 @@ class TestPangaeaParameterCombinations:
                 download_data=True,
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "details" in result
 
         except ImportError:
@@ -682,7 +682,7 @@ class TestPangaeaParameterCombinations:
                     test_case["dataset"]["doi"], **test_case["params"]
                 )
                 assert result is not None
-                assert result["format"] == "repository"
+                assert result["format"] == "remote"
 
                 # Check parameter-specific expectations
                 if test_case["params"].get("bbox", False):

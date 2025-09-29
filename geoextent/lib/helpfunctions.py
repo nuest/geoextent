@@ -656,12 +656,14 @@ def convex_hull_merge(metadata, origin):
             convex_hull = geom_collection.ConvexHull()
 
             if convex_hull is None:
-                logger.debug(
-                    "Could not calculate convex hull for merged geometries from {}".format(
+                logger.warning(
+                    "Could not calculate convex hull for merged geometries from {} - "
+                    "insufficient data points or collinear coordinates. Falling back to bounding box.".format(
                         origin
                     )
                 )
-                return None
+                # Fall back to regular bounding box merge
+                return bbox_merge(metadata, origin)
 
             # Extract the actual convex hull coordinates for the merged result
             convex_hull_coords = []
@@ -711,10 +713,11 @@ def convex_hull_merge(metadata, origin):
             )
 
         except Exception as e:
-            logger.debug(
-                "Error calculating merged convex hull for {}: {}".format(origin, e)
+            logger.warning(
+                "Error calculating merged convex hull for {}: {}. Falling back to bounding box.".format(origin, e)
             )
-            return None
+            # Fall back to regular bounding box merge
+            return bbox_merge(metadata, origin)
 
     return metadata_merge
 

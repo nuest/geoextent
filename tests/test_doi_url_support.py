@@ -22,7 +22,7 @@ class TestDOIURLSupport:
                 result = geoextent.from_repository(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
                 assert (
-                    result["format"] == "repository"
+                    result["format"] == "remote"
                 ), f"Wrong format for {doi_format}"
 
             except ImportError:
@@ -47,7 +47,7 @@ class TestDOIURLSupport:
                 result = geoextent.from_repository(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
                 assert (
-                    result["format"] == "repository"
+                    result["format"] == "remote"
                 ), f"Wrong format for {doi_format}"
 
             except Exception as e:
@@ -172,7 +172,7 @@ class TestDOIURLSupport:
                     test_case["doi"], bbox=True, tbox=True
                 )
                 assert result is not None, f"Failed to process {test_case['doi']}"
-                assert result["format"] == "repository"
+                assert result["format"] == "remote"
 
             except ImportError:
                 pytest.skip("Required library not available")
@@ -225,7 +225,7 @@ class TestDOIURLSupport:
             try:
                 result = geoextent.from_repository(doi_variant, bbox=True)
                 if result is not None:
-                    assert result["format"] == "repository"
+                    assert result["format"] == "remote"
 
             except ImportError:
                 pytest.skip("pangaeapy not available")

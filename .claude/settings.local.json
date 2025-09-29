@@ -55,7 +55,8 @@
       "WebFetch(domain:doi.org)",
       "Bash(pre-commit:*)",
       "Bash(wget:*)",
-      "Bash(unzip:*)"
+      "Bash(unzip:*)",
+      "WebFetch(domain:bdj.pensoft.net)"
     ],
     "deny": [],
     "ask": []

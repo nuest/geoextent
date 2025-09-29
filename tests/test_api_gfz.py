@@ -113,7 +113,7 @@ class TestGFZProvider:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:
@@ -160,7 +160,7 @@ class TestGFZProvider:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # GFZ may have limited metadata without file downloads
 
@@ -358,7 +358,7 @@ class TestGFZParameterCombinations:
                 test_url, bbox=True, tbox=False, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "tbox" not in result
 
         except ImportError:
@@ -375,7 +375,7 @@ class TestGFZParameterCombinations:
                 test_url, bbox=False, tbox=True, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "bbox" not in result
 
         except ImportError:
@@ -392,7 +392,7 @@ class TestGFZParameterCombinations:
                 test_url, bbox=True, tbox=True, details=True, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "details" in result
             assert isinstance(result["details"], dict)
 
@@ -491,7 +491,7 @@ class TestGFZIntegration:
 
             # Step 3: Verify results
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # At minimum, we should get some spatial or temporal information
             has_spatial = "bbox" in result and result["bbox"] is not None

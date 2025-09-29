@@ -23,7 +23,7 @@ class TestMultipleRepositories:
         def mock_from_repository(repo_id, **kwargs):
             if "918707" in repo_id:
                 return {
-                    "format": "repository",
+                    "format": "remote",
                     "crs": "4326",
                     "bbox": [-21.5, 76.5, -21.5, 76.5],
                     "details": {
@@ -36,7 +36,7 @@ class TestMultipleRepositories:
                 }
             elif "858767" in repo_id:
                 return {
-                    "format": "repository",
+                    "format": "remote",
                     "details": {
                         "pangaea_858767_metadata.json": None
                     }
@@ -87,7 +87,7 @@ class TestMultipleRepositories:
             # Mock the from_repository function
             def mock_from_repository(repo_id, **kwargs):
                 return {
-                    "format": "repository",
+                    "format": "remote",
                     "crs": "4326",
                     "bbox": [-21.5, 76.5, -21.5, 76.5],
                     "details": {}
@@ -177,7 +177,7 @@ class TestMultipleRepositories:
         # Mock metadata from multiple repositories
         mock_details = {
             "https://doi.org/10.1594/PANGAEA.918707": {
-                "format": "repository",
+                "format": "remote",
                 "bbox": [-21.5, 76.5, -21.5, 76.5],
                 "crs": "4326"
             },
@@ -228,7 +228,7 @@ class TestMultipleRepositories:
             # Mock the from_repository to avoid network calls
             def mock_from_repository(repo_id, **kwargs):
                 return {
-                    "format": "repository",
+                    "format": "remote",
                     "crs": "4326",
                     "bbox": [-21.5, 76.5, -21.5, 76.5],
                     "details": {}
@@ -308,5 +308,5 @@ class TestMultipleRepositoriesIntegration:
 
         # Check that results have proper format
         for repo, result in results.items():
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             # May or may not have bbox depending on dataset

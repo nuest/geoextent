@@ -275,12 +275,12 @@ class TestRepositoryExtentComparison:
         # Mock repository responses with different file selections
         mock_small_extent = {
             "bbox": "POLYGON((2 48, 8 48, 8 51, 2 51, 2 48))",  # Germany + France
-            "format": "repository"
+            "format": "remote"
         }
 
         mock_large_extent = {
             "bbox": "POLYGON((2 48, 12 48, 12 70, 2 70, 2 48))",  # Including Norway
-            "format": "repository"
+            "format": "remote"
         }
 
         # Test with small size limit

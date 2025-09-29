@@ -69,7 +69,7 @@ class TestFigshareProvider:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:
@@ -127,7 +127,7 @@ class TestFigshareProvider:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:
@@ -181,7 +181,7 @@ class TestFigshareProvider:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # For Figshare, metadata-only still downloads files since
             # Figshare doesn't provide geospatial metadata directly
@@ -259,7 +259,7 @@ class TestFigshareParameterCombinations:
                 test_url, bbox=True, tbox=False, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "tbox" not in result
 
         except ImportError:
@@ -276,7 +276,7 @@ class TestFigshareParameterCombinations:
                 test_url, bbox=False, tbox=True, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "bbox" not in result
 
         except ImportError:
@@ -293,7 +293,7 @@ class TestFigshareParameterCombinations:
                 test_url, bbox=True, tbox=True, details=True, download_data=True
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "details" in result
             assert isinstance(result["details"], dict)
 
@@ -312,14 +312,14 @@ class TestFigshareParameterCombinations:
                 test_url, bbox=True, download_data=True
             )
             assert result_with_data is not None
-            assert result_with_data["format"] == "repository"
+            assert result_with_data["format"] == "remote"
 
             # Test with download_data=False (metadata-only, limited for Figshare)
             result_metadata = geoextent.from_repository(
                 test_url, bbox=True, download_data=False
             )
             assert result_metadata is not None
-            assert result_metadata["format"] == "repository"
+            assert result_metadata["format"] == "remote"
 
             # Both should return similar structure (Figshare downloads files regardless)
             assert ("bbox" in result_with_data) == ("bbox" in result_metadata)

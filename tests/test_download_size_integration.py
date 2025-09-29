@@ -186,7 +186,7 @@ class TestDownloadSizeIntegration:
                 with patch('geoextent.lib.extent.geoextent_from_repository') as mock_geoext:
                     mock_geoext.return_value.from_repository.return_value = {
                         "bbox": "POLYGON((0 50, 5 50, 5 55, 0 55, 0 50))",  # Only region_a
-                        "format": "repository"
+                        "format": "remote"
                     }
 
                     result_small = extent.from_repository(
@@ -199,7 +199,7 @@ class TestDownloadSizeIntegration:
                 with patch('geoextent.lib.extent.geoextent_from_repository') as mock_geoext:
                     mock_geoext.return_value.from_repository.return_value = {
                         "bbox": "POLYGON((0 50, 25 50, 25 55, 0 55, 0 50))",  # All regions
-                        "format": "repository"
+                        "format": "remote"
                     }
 
                     result_large = extent.from_repository(

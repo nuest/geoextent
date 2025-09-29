@@ -106,6 +106,8 @@ python -m geoextent -b -t OSF.IO/9JG2U
 python -m geoextent -b -t https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id=escidoc:5148893
 python -m geoextent -b -t 10.5880/GFZ.2.1.2020.001
 python -m geoextent -b -t 10.5880/GFZ.4.8.2023.004
+python -m geoextent -b -t 10.3897/BDJ.2.e1068  # Pensoft journals (Biodiversity Data Journal)
+python -m geoextent -b -t https://doi.org/10.3897/BDJ.13.e159973  # Vietnam amphibian records
 
 # Use metadata-only extraction for repositories (only partially supported)
 python -m geoextent -b -t --no-download-data 10.1594/PANGAEA.734969

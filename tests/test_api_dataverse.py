@@ -528,7 +528,7 @@ class TestDataverseProvider:
             # Verify the basic structure
             assert isinstance(output, dict), "Output should be a dictionary"
             assert "format" in output, "Output should contain format field"
-            assert output["format"] == "repository", "Format should be 'repository'"
+            assert output["format"] == "remote", "Format should be 'remote'"
 
             # Verify bounding box extraction and comparison with reference
             assert "bbox" in output, "Output should contain bounding box"
@@ -593,7 +593,7 @@ class TestDataverseProvider:
             # Verify the basic structure
             assert isinstance(result, dict), "Result should be a dictionary"
             assert "format" in result, "Result should contain format field"
-            assert result["format"] == "repository", "Format should be 'repository'"
+            assert result["format"] == "remote", "Format should be 'remote'"
 
             # Verify bounding box extraction
             if "bbox" in result:

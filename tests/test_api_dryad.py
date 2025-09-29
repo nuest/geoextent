@@ -75,7 +75,7 @@ class TestDryadProvider:
 
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:
@@ -124,7 +124,7 @@ class TestDryadProvider:
             # For Dryad, metadata-only extraction has very limited capabilities
             # The test should succeed but may not return geospatial extents
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
 
         except ImportError:
@@ -187,7 +187,7 @@ class TestDryadProvider:
             )
 
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
 
 
             # This dataset likely won't have extractable geospatial extents
@@ -212,7 +212,7 @@ class TestDryadParameterCombinations:
                 test_url, bbox=True, tbox=False, download_data=True, timeout=60
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "tbox" not in result
 
         except ImportError:
@@ -229,7 +229,7 @@ class TestDryadParameterCombinations:
                 test_url, bbox=False, tbox=True, download_data=True, timeout=60
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "bbox" not in result
 
         except ImportError:
@@ -246,7 +246,7 @@ class TestDryadParameterCombinations:
                 test_url, bbox=True, tbox=True, details=True, download_data=True, timeout=60
             )
             assert result is not None
-            assert result["format"] == "repository"
+            assert result["format"] == "remote"
             assert "details" in result
             assert isinstance(result["details"], dict)
 
@@ -265,14 +265,14 @@ class TestDryadParameterCombinations:
                 test_url, bbox=True, download_data=False
             )
             assert result_metadata is not None
-            assert result_metadata["format"] == "repository"
+            assert result_metadata["format"] == "remote"
 
             # Test with download_data=True (file download)
             result_with_data = geoextent.from_repository(
                 test_url, bbox=True, download_data=True, timeout=60
             )
             assert result_with_data is not None
-            assert result_with_data["format"] == "repository"
+            assert result_with_data["format"] == "remote"
 
         except ImportError:
             pytest.skip("Required libraries not available")
@@ -328,7 +328,7 @@ class TestDryadEdgeCases:
 
             # If it completes within timeout, result should be valid
             if result is not None:
-                assert result["format"] == "repository"
+                assert result["format"] == "remote"
 
         except ImportError:
             pytest.skip("Required libraries not available")

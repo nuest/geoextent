@@ -11,3 +11,4 @@ requests
 traitlets
 wheel
 setuptools-scm
+beautifulsoup4
