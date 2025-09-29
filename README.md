@@ -24,7 +24,6 @@ See the list in `travis.yml` for a full list of dependencies on Linux.
 
 ### Install from PyPI
 
-
 ```bash
 python -m venv .env
 source .env/bin/activate
@@ -131,8 +130,11 @@ When extracting data from large research repositories, you can limit the total d
 #### Basic Size Limiting
 
 ```bash
-# Limit total download to 100MB across all files
+# Limit total download to 100MB across all files, will download as many files as fit within this limit
 python -m geoextent -b --max-download-size 100MB https://doi.org/10.5281/zenodo.7080016
+
+# Limit total download to 1000KB - download is not started
+python -m geoextent -b --max-download-size 1000KB https://doi.org/10.5281/zenodo.7080016
 
 # Limit to 50MB - useful for quick exploration
 python -m geoextent -b --max-download-size 50MB https://osf.io/4xe6z/
@@ -140,8 +142,6 @@ python -m geoextent -b --max-download-size 50MB https://osf.io/4xe6z/
 # Limit to 2GB for larger datasets
 python -m geoextent -b --max-download-size 2GB https://doi.org/10.1594/PANGAEA.858767
 ```
-
-**Supported size formats**: `KB`, `MB`, `GB`, `TB` (e.g., `500KB`, `1.5GB`, `100MB`)
 
 #### File Selection Methods
 
@@ -152,7 +152,7 @@ The `--max-download-method` parameter controls how files are selected when the s
 python -m geoextent -b --max-download-size 100MB --max-download-method ordered https://doi.org/10.5281/zenodo.7080016
 
 # Random method: Randomly shuffle files before selection (useful for sampling)
-python -m geoextent -b --max-download-size 100MB --max-download-method random https://doi.org/10.5281/zenodo.7080016
+python -m geoextent -b --max-download-size 200MB --max-download-method random https://doi.org/10.5281/zenodo.7080016
 
 # Random with custom seed for reproducible results
 python -m geoextent -b --max-download-size 100MB --max-download-method random --max-download-method-seed 123 https://doi.org/10.5281/zenodo.7080016
@@ -162,7 +162,7 @@ python -m geoextent -b --max-download-size 100MB --max-download-method random --
 
 Different selection methods can produce different spatial extents depending on the geographic distribution of files:
 
-**Example with Zenodo European Land Use dataset (https://doi.org/10.5281/zenodo.7080016):**
+**Example with Zenodo European Land Use dataset (<https://doi.org/10.5281/zenodo.7080016>):**
 
 ```bash
 # Ordered method (50MB limit) - selects first few countries alphabetically
@@ -182,6 +182,7 @@ python -m geoextent -b --max-download-size 50MB --max-download-method random --m
 ```
 
 **Key Observations:**
+
 - **Ordered method**: Predictable but may be geographically biased (alphabetical selection often clusters regions)
 - **Random method**: Better geographic sampling but results vary with different seeds
 - **Larger random samples**: Often produce more representative spatial extents
@@ -189,29 +190,16 @@ python -m geoextent -b --max-download-size 50MB --max-download-method random --m
 
 #### Size Limiting Behavior
 
-```bash
-# The limit applies to the cumulative total of all selected files
-# Files are selected until adding the next file would exceed the limit
+The limit applies to the cumulative total of all selected files
+Files are selected until adding the next file would exceed the limit
 
-# Real Zenodo example with 100MB limit:
-# Files processed in repository order: albania.zip (22MB), andorra.zip (0.2MB), austria.zip (73MB), ...
-# Result: Selects albania.zip + andorra.zip + austria.zip = 95.3MB total (within 100MB limit)
-# The next file belarus.zip (132MB) is skipped because 95.3MB + 132MB = 227MB > 100MB
+Example: With files of sizes [10MB, 15MB, 8MB, 12MB] and 20MB limit:
 
-# Example showing when first file exceeds limit:
-# Files: [huge.zip (200MB), small1.zip (5MB), small2.zip (3MB)] with 50MB limit
-# Result: No files selected - first file alone exceeds the limit
+- Ordered: Selects 10MB file only (10MB total) - next file would exceed 20MB
+- The 15MB file is skipped because 10MB + 15MB = 25MB > 20MB limit
 
-# Shapefile components are kept together as a single unit
-# If a shapefile's total size (.shp + .shx + .dbf + .prj) fits within remaining space,
-# all components are selected together. Otherwise, all are skipped together.
-```
-
-**Important Notes:**
-- Large individual files may still be downloaded if they fit within the cumulative limit
-- File processing order depends on the repository (alphabetical, upload order, etc.)
-- Use smaller limits (e.g., 10MB, 20MB) to exclude large files entirely
-- Use random method for different file selection patterns
+Shapefile components are kept together as a single unit.
+If a shapefile's total size (.shp + .shx + .dbf + .prj) fits within remaining space, all components are selected together. Otherwise, all are skipped together.
 
 #### Advanced Examples
 
