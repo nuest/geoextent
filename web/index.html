@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geoextent Web - Extract Geospatial Extents</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="assets/lib/leaflet/leaflet.css" />
+
+    <!-- Bootstrap CSS for responsive design -->
+    <link href="assets/lib/bootstrap/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="assets/lib/fontawesome/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="container-fluid">
+        <header class="row bg-primary text-white py-3 mb-4">
+            <div class="col">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-globe-americas me-2"></i>
+                    Geoextent Web
+                </h1>
+                <p class="mb-0 text-light">Extract geospatial extents from URLs and DOIs in your browser</p>
+            </div>
+        </header>
+
+        <main class="row">
+            <!-- Left Panel: Controls -->
+            <div class="col-lg-4 col-md-12 mb-4">
+                <div class="card h-100">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-cog me-2"></i>
+                            Extract Geospatial Extent
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Initialization Status -->
+                        <div id="init-status" class="alert alert-info" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span id="init-message">Initializing Pyodide...</span>
+                            </div>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div id="init-progress" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Main Form -->
+                        <form id="geoextent-form">
+                            <div class="mb-3">
+                                <label for="url-input" class="form-label">
+                                    <i class="fas fa-link me-1"></i>
+                                    URL or DOI
+                                </label>
+                                <input type="url" class="form-control" id="url-input"
+                                       placeholder="https://zenodo.org/record/123456 or doi:10.5281/zenodo.123456"
+                                       disabled>
+                                <div class="form-text">
+                                    Supported: Zenodo, Figshare, Dryad, OSF, Dataverse, GFZ
+                                    <br><small class="text-muted">(Note: PANGAEA support requires pangaeapy, not available in WASM environment)</small>
+                                </div>
+                            </div>
+
+                            <!-- Collapsible Options -->
+                            <div class="accordion" id="options-accordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#basic-options"
+                                                aria-expanded="false" aria-controls="basic-options">
+                                            <i class="fas fa-sliders-h me-2"></i>
+                                            Basic Options
+                                        </button>
+                                    </h2>
+                                    <div id="basic-options" class="accordion-collapse collapse"
+                                         data-bs-parent="#options-accordion">
+                                        <div class="accordion-body">
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox"
+                                                           id="bbox-toggle" checked>
+                                                    <label class="form-check-label" for="bbox-toggle">
+                                                        Extract Bounding Box
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox"
+                                                           id="tbox-toggle">
+                                                    <label class="form-check-label" for="tbox-toggle">
+                                                        Extract Temporal Extent
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="format-select" class="form-label">Output Format</label>
+                                                <select class="form-select" id="format-select">
+                                                    <option value="geojson" selected>GeoJSON</option>
+                                                    <option value="wkt">WKT (Well-Known Text)</option>
+                                                    <option value="wkb">WKB (Well-Known Binary)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse" data-bs-target="#advanced-options"
+                                                aria-expanded="false" aria-controls="advanced-options">
+                                            <i class="fas fa-cogs me-2"></i>
+                                            Advanced Options
+                                        </button>
+                                    </h2>
+                                    <div id="advanced-options" class="accordion-collapse collapse"
+                                         data-bs-parent="#options-accordion">
+                                        <div class="accordion-body">
+                                            <div class="mb-3">
+                                                <label for="max-download-size" class="form-label">
+                                                    Max Download Size
+                                                </label>
+                                                <input type="text" class="form-control" id="max-download-size"
+                                                       placeholder="e.g., 100MB, 1GB (optional)">
+                                                <div class="form-text">
+                                                    Limit the total size of files to download
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="download-method" class="form-label">Download Method</label>
+                                                <select class="form-select" id="download-method">
+                                                    <option value="ordered" selected>Ordered (first files)</option>
+                                                    <option value="random">Random sampling</option>
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="timeout" class="form-label">
+                                                    Timeout (seconds)
+                                                </label>
+                                                <input type="number" class="form-control" id="timeout"
+                                                       value="30" min="5" max="300">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg" id="extract-btn" disabled>
+                                    <i class="fas fa-search me-2"></i>
+                                    Extract Extent
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Processing Status -->
+                        <div id="processing-status" class="alert alert-info mt-3" style="display: none;">
+                            <div class="d-flex align-items-center">
+                                <div class="spinner-border spinner-border-sm me-2" role="status">
+                                    <span class="visually-hidden">Processing...</span>
+                                </div>
+                                <span id="processing-message">Processing...</span>
+                            </div>
+                        </div>
+
+                        <!-- Results -->
+                        <div id="results-section" style="display: none;">
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h6 class="card-title mb-0">
+                                        <i class="fas fa-chart-area me-2"></i>
+                                        Results
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div id="results-content"></div>
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                id="copy-results-btn">
+                                            <i class="fas fa-copy me-1"></i>
+                                            Copy JSON
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Error Display -->
+                        <div id="error-section" style="display: none;">
+                            <div class="alert alert-danger mt-3" role="alert">
+                                <h6 class="alert-heading">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    Error
+                                </h6>
+                                <div id="error-content"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Map -->
+            <div class="col-lg-8 col-md-12">
+                <div class="card h-100">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-map me-2"></i>
+                            Spatial Extent Visualization
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="map" style="height: 600px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="row mt-4 py-3 border-top">
+            <div class="col">
+                <div class="text-muted small">
+                    <p class="mb-1">
+                        <strong>Geoextent Web</strong> - Powered by
+                        <a href="https://pyodide.org/" target="_blank">Pyodide</a> and
+                        <a href="https://leafletjs.com/" target="_blank">Leaflet</a>
+                    </p>
+                    <p class="mb-0">
+                        <a href="https://github.com/nuest/geoextent" target="_blank">
+                            <i class="fab fa-github me-1"></i>
+                            View on GitHub
+                        </a>
+                        |
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#about-modal">
+                            <i class="fas fa-info-circle me-1"></i>
+                            About
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal fade" id="about-modal" tabindex="-1" aria-labelledby="about-modal-label" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="about-modal-label">
+                        <i class="fas fa-info-circle me-2"></i>
+                        About Geoextent Web
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        <strong>Geoextent Web</strong> is a browser-based version of the geoextent Python package,
+                        enabling geospatial extent extraction directly in your web browser without requiring
+                        any local installation.
+                    </p>
+                    <h6>Features:</h6>
+                    <ul>
+                        <li>Extract spatial and temporal extents from research data repositories</li>
+                        <li>Support for multiple repository platforms (Zenodo, Figshare, Dryad, etc.)</li>
+                        <li>Interactive map visualization using Leaflet</li>
+                        <li>Multiple output formats (GeoJSON, WKT, WKB)</li>
+                        <li>No server required - runs entirely in your browser</li>
+                    </ul>
+                    <h6>Technology:</h6>
+                    <ul>
+                        <li><strong>Pyodide:</strong> Python in the browser via WebAssembly</li>
+                        <li><strong>GDAL:</strong> Geospatial data processing</li>
+                        <li><strong>Leaflet:</strong> Interactive maps</li>
+                        <li><strong>Bootstrap:</strong> Responsive UI framework</li>
+                    </ul>
+                    <h6>Limitations:</h6>
+                    <ul>
+                        <li>Processing large datasets may be slower than the Python version</li>
+                        <li>Memory constraints may limit the size of files that can be processed</li>
+                        <li>CORS restrictions may prevent access to some URLs</li>
+                    </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Libraries -->
+    <script src="assets/lib/pyodide/pyodide.js"></script>
+    <script src="assets/lib/leaflet/leaflet.js"></script>
+    <script src="assets/lib/bootstrap/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script src="assets/js/geoextent-loader.js"></script>
+    <script src="assets/js/map-handler.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

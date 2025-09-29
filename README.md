@@ -8,6 +8,35 @@ Python library for extracting geospatial extent of files and directories with mu
 
 This project was originally developed as part of the [DFG-funded](https://o2r.info/about/#funding) research project Opening Reproducible Research (o2r, [https://o2r.info](https://o2r.info)).
 
+## 🌐 Geoextent Web (NEW!)
+
+**Try geoextent directly in your browser!** No installation required.
+
+We now offer a WebAssembly-powered version that runs entirely in your web browser using Pyodide. Perfect for:
+
+- Quick extent extraction without local setup
+- Interactive visualization with Leaflet maps
+- Educational demonstrations and workshops
+- CORS-free access to repository data
+
+### Features
+
+- ✅ **No Installation**: Runs in any modern browser
+- ✅ **Interactive Maps**: Visualize extents on Leaflet maps
+- ✅ **Repository Support**: Zenodo, Figshare, Dryad, PANGAEA, OSF, and more
+- ✅ **Multiple Formats**: GeoJSON, WKT, WKB output
+- ✅ **Responsive Design**: Works on desktop, tablet, and mobile
+
+### Quick Start
+
+1. **Navigate to the web directory**: `cd web/`
+2. **Start the server**: `python serve.py`
+3. **Open browser**: Go to `http://localhost:8088`
+
+For detailed information, see [`web/README.md`](web/README.md).
+
+> **Note**: The web version has some limitations compared to the Python package (no local file support, slower performance for large datasets). For full functionality, use the Python package below.
+
 ## Installation
 
 ### System requirements

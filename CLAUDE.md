@@ -55,6 +55,22 @@ python -m geoextent --help
 python -m geoextent --version
 ```
 
+### Web Development (WASM)
+
+For developing the browser-based WebAssembly version:
+
+```bash
+# Set up web dependencies (first time)
+cd web/
+./setup-dependencies.sh
+
+# Start development server
+python serve.py
+
+# Rebuild geoextent package for web
+python build.py
+```
+
 ## Architecture Overview
 
 The project follows a modular handler-based architecture:

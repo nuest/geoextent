@@ -1,0 +1,56 @@
+{
+  "name": "geoextent",
+  "version": "0.8.0",
+  "description": "WebAssembly version of geoextent for browser-based geospatial extent extraction",
+  "dependencies": {
+    "pyodide": "0.24.1",
+    "micropip_packages": [
+      "pyproj",
+      "geojson>=2.4.1",
+      "pyshp",
+      "python-dateutil",
+      "pandas",
+      "numpy<2",
+      "requests",
+      "traitlets",
+      "tqdm"
+    ],
+    "optional_packages": [
+      "pygeoj",
+      "wheel",
+      "pangaeapy",
+      "osfclient"
+    ],
+    "excluded_packages": [
+      "geojsonio",
+      "patool",
+      "setuptools-scm"
+    ],
+    "pyodide_packages": [
+      "gdal",
+      "geopandas",
+      "fiona"
+    ]
+  },
+  "build": {
+    "exclude_files": [
+      "tests/",
+      "*.pyc",
+      "__pycache__/",
+      ".git/",
+      ".pytest_cache/",
+      "docs/",
+      "examples/"
+    ],
+    "include_files": [
+      "geoextent/",
+      "README.md",
+      "LICENSE"
+    ]
+  },
+  "runtime": {
+    "memory_limit": "512MB",
+    "timeout": 30000,
+    "cors_proxy": true
+  }
+}

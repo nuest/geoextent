@@ -4,11 +4,17 @@ import itertools
 import json
 import logging
 import os
-import patoolib
 import random
 import re
 import uuid
 import pandas as pd
+
+try:
+    import patoolib
+    HAS_PATOOLIB = True
+except ImportError:
+    patoolib = None
+    HAS_PATOOLIB = False
 from osgeo import ogr
 from osgeo import osr
 from pathlib import Path
@@ -379,10 +385,11 @@ def extract_archive(filepath) -> Path:
             break
 
     try:
-        patoolib.extract_archive(
-            archive=filepath, outdir=folder_to_extract, verbosity=-1
-        )
-    except patoolib.util.PatoolError:
+        if HAS_PATOOLIB:
+            patoolib.extract_archive(
+                archive=filepath, outdir=folder_to_extract, verbosity=-1
+            )
+    except patoolib.util.PatoolError if HAS_PATOOLIB else ImportError:
         pass
     except TypeError:
         # exception to prevent this error:

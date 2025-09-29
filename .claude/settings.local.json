@@ -55,7 +55,11 @@
       "WebFetch(domain:doi.org)",
       "Bash(pre-commit:*)",
       "Bash(wget:*)",
-      "Bash(unzip:*)"
+      "Bash(unzip:*)",
+      "WebFetch(domain:pyodide.org)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "Bash(chmod:*)",
+      "Bash(./setup-dependencies.sh:*)"
     ],
     "deny": [],
     "ask": []

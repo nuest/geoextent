@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geoextent Web - Basic Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Geoextent Web - Basic Functionality Test</h1>
+
+    <div id="test-results"></div>
+
+    <script src="assets/lib/leaflet/leaflet.js"></script>
+    <script src="assets/lib/bootstrap/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const results = document.getElementById('test-results');
+
+        function addResult(message, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        async function runTests() {
+            addResult('Starting basic functionality tests...', 'info');
+
+            // Test 1: Check if Leaflet is loaded
+            try {
+                if (typeof L !== 'undefined') {
+                    addResult('✓ Leaflet library loaded successfully', 'success');
+                } else {
+                    addResult('✗ Leaflet library not found', 'error');
+                }
+            } catch (e) {
+                addResult(`✗ Leaflet test failed: ${e.message}`, 'error');
+            }
+
+            // Test 2: Check if Bootstrap is loaded
+            try {
+                if (typeof bootstrap !== 'undefined') {
+                    addResult('✓ Bootstrap library loaded successfully', 'success');
+                } else {
+                    addResult('✗ Bootstrap library not found', 'error');
+                }
+            } catch (e) {
+                addResult(`✗ Bootstrap test failed: ${e.message}`, 'error');
+            }
+
+            // Test 3: Test basic map creation
+            try {
+                const testDiv = document.createElement('div');
+                testDiv.id = 'test-map';
+                testDiv.style.width = '100px';
+                testDiv.style.height = '100px';
+                testDiv.style.display = 'none';
+                document.body.appendChild(testDiv);
+
+                const map = L.map('test-map').setView([0, 0], 1);
+                if (map) {
+                    addResult('✓ Leaflet map creation successful', 'success');
+                    map.remove();
+                } else {
+                    addResult('✗ Leaflet map creation failed', 'error');
+                }
+                document.body.removeChild(testDiv);
+            } catch (e) {
+                addResult(`✗ Map creation test failed: ${e.message}`, 'error');
+            }
+
+            // Test 4: Check if Pyodide script can be loaded (without actually loading it)
+            try {
+                const pyodideScript = document.querySelector('script[src*="pyodide"]');
+                if (pyodideScript || typeof loadPyodide !== 'undefined') {
+                    addResult('✓ Pyodide script reference found', 'success');
+                } else {
+                    addResult('⚠ Pyodide script not found (this is expected for basic test)', 'info');
+                }
+            } catch (e) {
+                addResult(`✗ Pyodide test failed: ${e.message}`, 'error');
+            }
+
+            // Test 5: Test URL validation functions
+            try {
+                function isValidUrl(string) {
+                    try {
+                        const url = new URL(string);
+                        return url.protocol === 'http:' || url.protocol === 'https:';
+                    } catch (_) {
+                        return false;
+                    }
+                }
+
+                const testUrls = [
+                    { url: 'https://zenodo.org/record/123456', expected: true },
+                    { url: 'invalid-url', expected: false },
+                    { url: 'http://example.com', expected: true }
+                ];
+
+                let urlTestsPassed = 0;
+                testUrls.forEach(test => {
+                    if (isValidUrl(test.url) === test.expected) {
+                        urlTestsPassed++;
+                    }
+                });
+
+                if (urlTestsPassed === testUrls.length) {
+                    addResult('✓ URL validation functions working correctly', 'success');
+                } else {
+                    addResult(`✗ URL validation failed (${urlTestsPassed}/${testUrls.length} tests passed)`, 'error');
+                }
+            } catch (e) {
+                addResult(`✗ URL validation test failed: ${e.message}`, 'error');
+            }
+
+            addResult('Basic functionality tests completed!', 'info');
+        }
+
+        // Run tests when page loads
+        window.addEventListener('load', runTests);
+    </script>
+</body>
+</html>

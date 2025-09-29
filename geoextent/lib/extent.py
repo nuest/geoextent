@@ -1,19 +1,31 @@
 import logging
 import os
-import patoolib
 import random
 import threading
 import time
 import tempfile
+
+try:
+    import patoolib
+    HAS_PATOOLIB = True
+except ImportError:
+    patoolib = None
+    HAS_PATOOLIB = False
 from traitlets import List
 from traitlets.config import Application
 from .content_providers import Dryad
 from .content_providers import Figshare
 from .content_providers import Zenodo
-from .content_providers import Pangaea
 from .content_providers import OSF
 from .content_providers import Dataverse
 from .content_providers import GFZ
+
+try:
+    from .content_providers import Pangaea
+    HAS_PANGAEA_PROVIDER = True
+except ImportError:
+    Pangaea = None
+    HAS_PANGAEA_PROVIDER = False
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -200,7 +212,7 @@ def fromDirectory(
 
     # TODO: eventually delete all extracted content
 
-    is_archive = patoolib.is_archive(path)
+    is_archive = HAS_PATOOLIB and patoolib.is_archive(path)
 
     if is_archive:
         logger.info("Inspecting archive {}".format(path))
@@ -239,7 +251,7 @@ def fromDirectory(
 
         logger.info("path {}, folder/archive {}".format(path, filename))
         absolute_path = os.path.join(path, filename)
-        is_archive = patoolib.is_archive(absolute_path)
+        is_archive = HAS_PATOOLIB and patoolib.is_archive(absolute_path)
 
         remaining_time = timeout - elapsed_time if timeout else None
 
@@ -572,16 +584,20 @@ def from_repository(
 
 
 class geoextent_from_repository(Application):
+    # Build content providers list conditionally
+    _base_providers = [
+        Dryad.Dryad,
+        Figshare.Figshare,
+        Zenodo.Zenodo,
+        OSF.OSF,
+        Dataverse.Dataverse,
+        GFZ.GFZ,
+    ]
+    if HAS_PANGAEA_PROVIDER:
+        _base_providers.insert(3, Pangaea.Pangaea)  # Insert at original position
+
     content_providers = List(
-        [
-            Dryad.Dryad,
-            Figshare.Figshare,
-            Zenodo.Zenodo,
-            Pangaea.Pangaea,
-            OSF.OSF,
-            Dataverse.Dataverse,
-            GFZ.GFZ,
-        ],
+        _base_providers,
         config=True,
         help="""
         Ordered list by priority of ContentProviders to try in turn to fetch
