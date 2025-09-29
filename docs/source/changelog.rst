@@ -5,6 +5,12 @@ Changelog
 0.8.2 (unreleased)
 ^^^^^^^^^^^^^^^^^^
 
+- Add ``--placename`` option for automatic geographic placename lookup using gazetteer services
+  - Support for GeoNames, Nominatim, and Photon gazetteer services
+  - Placenames added to GeoJSON feature properties for meaningful location context
+  - Environment variable support for API keys via ``.env`` files
+  - Intelligent sampling of geometry points for optimal placename identification
+  - Add ``--placename-escape`` option for Unicode character escaping in placenames
 - Add ``--no-subdirs`` option to control recursive processing of subdirectories (:issue:`55`)
 - Add WKT and WKB output format support for spatial extents (:issue:`46`)
 - Add progress bars for file and directory processing with ``--no-progress`` option to disable (:issue:`32`)
@@ -17,6 +23,7 @@ Changelog
 - Add ``--no-data-download`` option for metadata-only extraction from selected repositories
 - Restructure regex patterns for better repository candidate detection
 - Add comprehensive test coverage for multiple providers
+- Add geopy and python-dotenv dependencies for placename functionality
 
 0.8.0
 ^^^^^

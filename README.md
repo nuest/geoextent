@@ -43,8 +43,8 @@ See the list in `travis.yml` for a full list of dependencies on Linux.
 ### Install from PyPI
 
 ```bash
-python -m venv .env
-source .env/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 
 pip install geoextent
 ```
@@ -55,15 +55,14 @@ pip install geoextent
 git clone https://github.com/nuest/geoextent
 cd geoextent
 
-python -m venv .env
-source .env/bin/activate
+python -m venv .venv
+source .venv/bin/activate
 
 # installs deps from pyproject.toml
 pip install -e .
 
 # install dev, test, and docs dependencies
 pip install -e ".[dev,test,docs]"
-
 ```
 
 ## Use
@@ -142,6 +141,117 @@ python -m geoextent -b --format wkt --geojsonio tests/testdata/shapefile/Abgrabu
 # Combine multiple remote records
 python -m geoextent -b -t --convex-hull --geojsonio 10.5281/zenodo.4593540 https://osf.io/4xe6z
 ```
+
+### Placename Lookup
+
+Geoextent can automatically identify place names for extracted geographic areas using various gazetteer services. This feature adds meaningful location context to your spatial data extracts.
+
+#### Basic Placename Usage
+
+```bash
+# Add placename using default gazetteer (GeoNames)
+python -m geoextent -b --placename tests/testdata/geojson/muenster_ring.geojson
+
+# Specify a specific gazetteer service
+python -m geoextent -b --placename nominatim tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp
+python -m geoextent -b --placename photon tests/testdata/geojson/ausgleichsflaechen_moers.geojson
+python -m geoextent -b --placename geonames tests/testdata/geopackage/nc.gpkg
+
+# Use placename with convex hull extraction
+python -m geoextent -b --convex-hull --placename nominatim tests/testdata/geojson/muenster_ring.geojson
+
+# Add placenames to repository extracts
+python -m geoextent -b --placename nominatim https://zenodo.org/record/4593540
+python -m geoextent -b --placename photon 10.1594/PANGAEA.734969
+
+# Use placename with Unicode escape sequences (for special characters)
+python -m geoextent -b --placename photon --placename-escape https://doi.org/10.3897/BDJ.13.e159973
+```
+
+#### Supported Gazetteer Services
+
+- **GeoNames** (`geonames`): Comprehensive geographic database with global coverage
+  - Requires free account registration at [geonames.org](https://www.geonames.org/login)
+  - Set `GEONAMES_USERNAME` in your `.env` file
+  - Most detailed results, best for scientific applications
+
+- **Nominatim** (`nominatim`): OpenStreetMap-based geocoding service
+  - No API key required
+  - Good global coverage with detailed local information
+  - Optionally set `NOMINATIM_USER_AGENT` in `.env` file
+
+- **Photon** (`photon`): Fast OpenStreetMap-based geocoding
+  - No API key required
+  - Good performance for European locations
+  - Optionally set `PHOTON_DOMAIN` in `.env` file for custom server
+
+#### Setting Up API Keys
+
+1. **Copy the example environment file:**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Edit `.env` file with your credentials:**
+
+   ```bash
+   # For GeoNames (required for --placename geonames)
+   GEONAMES_USERNAME=your_username_here
+
+   # Optional: Custom user agent for Nominatim
+   NOMINATIM_USER_AGENT=your_app_name/1.0
+
+   # Optional: Custom Photon server
+   PHOTON_DOMAIN=photon.komoot.io
+   ```
+
+3. **Get a free GeoNames account:**
+   - Visit [geonames.org/login](https://www.geonames.org/login)
+   - Register for a free account
+   - Use your username in the `.env` file
+
+#### Example Output with Placename
+
+```json
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[...]]
+      },
+      "properties": {
+        "extent_type": "bounding_box",
+        "format": "vector",
+        "crs": "4326",
+        "placename": "Münster, North Rhine-Westphalia, Germany"
+      }
+    }
+  ]
+}
+```
+
+The placename appears in the GeoJSON output's feature properties, providing geographical context for the extracted extent.
+
+#### Unicode Character Handling
+
+The `--placename-escape` option controls how Unicode characters are handled in placename output:
+
+```bash
+# Normal output (default): "Chỗ chôn ông nội, Hải Phòng, Việt Nam"
+python -m geoextent -b --placename photon https://doi.org/10.3897/BDJ.13.e159973
+
+# Escaped output: "Ch\u1ed7 ch\xf4n \xf4ng n\u1ed9i, H\u1ea3i Ph\xf2ng, Vi\u1ec7t Nam"
+python -m geoextent -b --placename photon --placename-escape https://doi.org/10.3897/BDJ.13.e159973
+```
+
+The escaped format is useful for:
+- Systems that don't handle Unicode well
+- Data interchange with legacy applications
+- Debugging character encoding issues
 
 ### Download Size Limiting for Repositories
 
@@ -330,6 +440,7 @@ python -m geoextent -b -t --no-download-data https://doi.org/10.1594/PANGAEA.786
 The `--convex-hull` option calculates the [convex hull](https://en.wikipedia.org/wiki/Convex_hull) of all geometries instead of just the bounding box for vector data files. This provides a more accurate representation of the actual spatial extent of complex geometries.
 
 **Key Features:**
+
 - **Vector files only**: Works with GeoJSON, Shapefile, GeoPackage, GPX, GML, KML, and FlatGeobuf formats
 - **Automatic fallback**: Non-vector files (CSV, raster) automatically fall back to standard bounding box calculation
 - **Multiple file support**: When processing multiple files or directories, creates a convex hull from all merged geometries
@@ -350,6 +461,7 @@ python -m geoextent -b --convex-hull tests/testdata/geojson/ausgleichsflaechen_m
 ```
 
 **Output differences:**
+
 - Convex hull results include `"convex_hull": true` in the JSON output
 - The spatial extent represents the convex hull boundary rather than just the bounding rectangle
 - For non-vector files, output remains unchanged (standard bounding box)
@@ -432,7 +544,7 @@ Extracting from multiple files:
 
 To run the showcase notebooks, install [JupyterLab](https://jupyter.org/) or the classic Jupyter Notebook and then start a local server as shown below.
 If your IDE has support for the Jupyter format, installing `ipykernel` might be enough.
-We recommend running the below commands in a virtual environment as described [here](https://jupyter-tutorial.readthedocs.io/en/latest/first-steps/install.html).
+We recommend running the below commands in a virtual environment as described [in this Jupyter tutorial](https://jupyter-tutorial.readthedocs.io/en/latest/first-steps/install.html).
 The notebook must be [trusted](https://jupyter-notebook.readthedocs.io/en/stable/security.html#notebook-security) and [python-markdown extension](https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html) must be installed so that variables within Markdown text can be shown.
 
 ```bash

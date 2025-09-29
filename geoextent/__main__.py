@@ -30,6 +30,9 @@ geoextent -b -t file1.shp file2.csv file3.geopkg
 geoextent -t *.geojson
 geoextent -b -t https://doi.org/10.1594/PANGAEA.918707 https://doi.pangaea.de/10.1594/PANGAEA.858767
 geoextent -b --convex-hull https://zenodo.org/record/4567890 10.1594/PANGAEA.123456
+geoextent -b --placename file.geojson
+geoextent -b --placename --placename-service nominatim https://zenodo.org/record/123456
+geoextent -b --placename --placename-service photon --placename-escape https://doi.org/10.3897/BDJ.13.e159973
 """
 
 supported_formats = """
@@ -117,13 +120,15 @@ class readable_file_or_dir(argparse.Action):
         return False
 
 
+
+
 def get_arg_parser():
     """Get arguments to extract geoextent"""
     parser = argparse.ArgumentParser(
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -242,6 +247,28 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--placename",
+        action="store_true",
+        default=False,
+        help="enable placename lookup using default gazetteer (geonames). Use --placename-service to specify a different gazetteer",
+    )
+
+    parser.add_argument(
+        "--placename-service",
+        choices=["geonames", "nominatim", "photon"],
+        default=None,
+        metavar="GAZETTEER",
+        help="specify gazetteer service for placename lookup (requires --placename)",
+    )
+
+    parser.add_argument(
+        "--placename-escape",
+        action="store_true",
+        default=False,
+        help="escape Unicode characters in placename output (requires --placename)",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs="+",
@@ -292,6 +319,18 @@ def main():
 
     if files is None or len(files) == 0:
         raise Exception("Invalid command, input file missing")
+
+    # Validate placename options
+    if args["placename_escape"] and not args["placename"]:
+        raise ValueError("--placename-escape requires --placename to be specified")
+
+    if args["placename_service"] and not args["placename"]:
+        raise ValueError("--placename-service requires --placename to be specified")
+
+    # Determine gazetteer service to use
+    placename_service = None
+    if args["placename"]:
+        placename_service = args["placename_service"] or "geonames"
 
     logger.debug("Extracting from inputs %s", files)
     # Set logging level and handle conflicting options
@@ -352,6 +391,8 @@ def main():
                     tbox=args["time_box"],
                     convex_hull=args["convex_hull"],
                     show_progress=not args["no_progress"],
+                    placename=placename_service,
+                    placename_escape=args["placename_escape"],
                 )
             elif is_directory or is_zipfile:
                 output = extent.fromDirectory(
@@ -362,6 +403,8 @@ def main():
                     details=True,
                     show_progress=not args["no_progress"],
                     recursive=not args["no_subdirs"],
+                    placename=placename_service,
+                    placename_escape=args["placename_escape"],
                 )
             elif is_url or is_doi or is_repository:
                 output = extent.fromRemote(
@@ -376,6 +419,8 @@ def main():
                     max_download_size=args["max_download_size"],
                     max_download_method=args["max_download_method"],
                     max_download_method_seed=args["max_download_method_seed"] or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+                    placename=placename_service,
+                    placename_escape=args["placename_escape"],
                 )
         else:
             # Multiple files handling
@@ -407,6 +452,8 @@ def main():
                             max_download_size=args["max_download_size"],
                             max_download_method=args["max_download_method"],
                             max_download_method_seed=args["max_download_method_seed"] or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+                            placename=placename_service,
+                            placename_escape=args["placename_escape"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output
@@ -418,6 +465,8 @@ def main():
                             tbox=args["time_box"],
                             convex_hull=args["convex_hull"],
                             show_progress=not args["no_progress"],
+                            placename=placename_service,
+                            placename_escape=args["placename_escape"],
                         )
                         if file_output is not None:
                             output["details"][file_path] = file_output
@@ -431,6 +480,8 @@ def main():
                             details=True,
                             show_progress=not args["no_progress"],
                             recursive=not args["no_subdirs"],
+                            placename=placename_service,
+                            placename_escape=args["placename_escape"],
                         )
                         if dir_output is not None:
                             output["details"][file_path] = dir_output
@@ -494,7 +545,7 @@ def main():
     if args["format"].lower() in ["wkt", "wkb"] and output and "bbox" in output:
         print(output["bbox"])
     elif type(output) == list or type(output) == dict:
-        print(json.dumps(output))
+        print(json.dumps(output, ensure_ascii=False))
     else:
         print(output)
 

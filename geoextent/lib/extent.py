@@ -165,6 +165,8 @@ def fromDirectory(
     show_progress: bool = True,
     recursive: bool = True,
     include_geojsonio: bool = False,
+    placename: str | None = None,
+    placename_escape: bool = False,
 ):
     """Extracts geoextent from a directory/archive
     Keyword arguments:
@@ -175,6 +177,7 @@ def fromDirectory(
     timeout -- maximal allowed run time in seconds (default None)
     recursive -- True to process subdirectories recursively (default True)
     include_geojsonio -- True if geojson.io URL should be included in output (default False)
+    placename -- gazetteer to use for placename lookup (geonames, nominatim, photon) (default None)
     """
 
     from tqdm import tqdm
@@ -262,6 +265,8 @@ def fromDirectory(
                     show_progress=show_progress,
                     recursive=recursive,
                     include_geojsonio=include_geojsonio,
+                    placename=placename,
+                    placename_escape=placename_escape,
                 )
             else:
                 logger.info("Skipping archive {} (recursive=False)".format(filename))
@@ -284,6 +289,8 @@ def fromDirectory(
                         show_progress=show_progress,
                         recursive=recursive,
                         include_geojsonio=include_geojsonio,
+                        placename=placename,
+                        placename_escape=placename_escape,
                     )
                 else:
                     logger.info(
@@ -297,6 +304,8 @@ def fromDirectory(
                     convex_hull,
                     show_progress=show_progress,
                     include_geojsonio=include_geojsonio,
+                    placename=placename,
+                    placename_escape=placename_escape,
                 )
                 metadata_directory[str(filename)] = metadata_file
 
@@ -385,6 +394,36 @@ def fromDirectory(
     if timeout and timeout_flag:
         metadata["timeout"] = timeout
 
+    # Add placename if requested and spatial extent is available
+    if placename and metadata.get("bbox"):
+        try:
+            from .gazetteer import get_placename_for_geometry
+
+            # Determine if we have convex hull coordinates
+            convex_hull_coords = None
+            bbox_coords = metadata.get("bbox")
+            is_convex_hull = metadata.get("convex_hull", False)
+
+            if is_convex_hull and isinstance(bbox_coords, list) and len(bbox_coords) > 0 and isinstance(bbox_coords[0], list):
+                convex_hull_coords = bbox_coords
+                bbox_coords = None
+
+            placename_result = get_placename_for_geometry(
+                bbox=bbox_coords if not is_convex_hull else None,
+                convex_hull_coords=convex_hull_coords,
+                service_name=placename,
+                escape_unicode=placename_escape
+            )
+
+            if placename_result:
+                metadata["placename"] = placename_result
+                logger.info(f"Found placename: {placename_result}")
+            else:
+                logger.warning("No placename found for the extracted geometry")
+
+        except Exception as e:
+            logger.warning(f"Failed to extract placename: {e}")
+
     # Add geojson.io URL if requested and spatial extent is available
     if include_geojsonio and metadata.get("bbox"):
         geojsonio_url = hf.generate_geojsonio_url(metadata)
@@ -402,6 +441,8 @@ def fromFile(
     num_sample=None,
     show_progress=True,
     include_geojsonio=False,
+    placename=None,
+    placename_escape=False,
 ):
     """Extracts geoextent from a file
     Keyword arguments:
@@ -411,6 +452,7 @@ def fromFile(
     convex_hull -- True if convex hull should be calculated instead of bounding box (default False)
     num_sample -- sample size to determine time format (Only required for csv files)
     include_geojsonio -- True if geojson.io URL should be included in output (default False)
+    placename -- gazetteer to use for placename lookup (geonames, nominatim, photon) (default None)
     """
     from tqdm import tqdm
 
@@ -557,6 +599,36 @@ def fromFile(
 
     logger.debug("Extraction finished: {}".format(str(metadata)))
 
+    # Add placename if requested and spatial extent is available
+    if placename and metadata.get("bbox"):
+        try:
+            from .gazetteer import get_placename_for_geometry
+
+            # Determine if we have convex hull coordinates
+            convex_hull_coords = None
+            bbox_coords = metadata.get("bbox")
+            is_convex_hull = metadata.get("convex_hull", False)
+
+            if is_convex_hull and isinstance(bbox_coords, list) and len(bbox_coords) > 0 and isinstance(bbox_coords[0], list):
+                convex_hull_coords = bbox_coords
+                bbox_coords = None
+
+            placename_result = get_placename_for_geometry(
+                bbox=bbox_coords if not is_convex_hull else None,
+                convex_hull_coords=convex_hull_coords,
+                service_name=placename,
+                escape_unicode=placename_escape
+            )
+
+            if placename_result:
+                metadata["placename"] = placename_result
+                logger.info(f"Found placename: {placename_result}")
+            else:
+                logger.warning("No placename found for the extracted geometry")
+
+        except Exception as e:
+            logger.warning(f"Failed to extract placename: {e}")
+
     # Add geojson.io URL if requested and spatial extent is available
     if include_geojsonio and metadata.get("bbox"):
         geojsonio_url = hf.generate_geojsonio_url(metadata)
@@ -581,6 +653,8 @@ def fromRemote(
     max_download_size: str | None = None,
     max_download_method: str = "ordered",
     max_download_method_seed: int = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+    placename: str | None = None,
+    placename_escape: bool = False,
 ):
     try:
         geoextent = geoextent_from_repository()
@@ -599,6 +673,8 @@ def fromRemote(
             max_download_size,
             max_download_method,
             max_download_method_seed,
+            placename,
+            placename_escape,
         )
         metadata["format"] = "remote"
     except ValueError as e:
@@ -646,6 +722,8 @@ class geoextent_from_repository(Application):
         max_download_size=None,
         max_download_method="ordered",
         max_download_method_seed=hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+        placename=None,
+        placename_escape=False,
     ):
 
         if bbox + tbox == 0:
@@ -694,6 +772,8 @@ class geoextent_from_repository(Application):
                             show_progress=show_progress,
                             recursive=recursive,
                             include_geojsonio=include_geojsonio,
+                            placename=placename,
+                            placename_escape=placename_escape,
                         )
                     return metadata
                 except ValueError as e:

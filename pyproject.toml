@@ -41,7 +41,10 @@ dependencies = [
     "pangaeapy",
     "osfclient",
     "setuptools-scm>=8",
-    "tqdm"
+    "tqdm",
+    "bs4",
+    "geopy",
+    "python-dotenv"
 ]
 
 [project.optional-dependencies]

@@ -1118,6 +1118,10 @@ def create_geojson_feature_collection(extent_output):
             f"{'Convex hull' if is_convex_hull else 'Bounding box'} extracted by geoextent"
         )
 
+    # Add placename if available
+    if "placename" in extent_output:
+        properties["placename"] = extent_output["placename"]
+
     # Create the Feature
     feature = {"type": "Feature", "geometry": geom, "properties": properties}
 
