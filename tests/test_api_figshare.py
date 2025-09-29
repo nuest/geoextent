@@ -64,7 +64,7 @@ class TestFigshareProvider:
 
         try:
             # Test with download_data=True to get actual geospatial data
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
 
@@ -122,7 +122,7 @@ class TestFigshareProvider:
 
         try:
             # Test with download_data=True to get actual geospatial data
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
 
@@ -176,7 +176,7 @@ class TestFigshareProvider:
         dataset = self.TEST_DATASETS["prince_edward_islands"]
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["url"], bbox=True, tbox=True, download_data=False
             )
 
@@ -214,7 +214,7 @@ class TestFigshareProvider:
 
                     # Test actual extraction with one variant
                     if url == base_url:
-                        result = geoextent.from_repository(
+                        result = geoextent.fromRemote(
                             url, bbox=True, download_data=True
                         )
                         assert result is not None
@@ -236,7 +236,7 @@ class TestFigshareProvider:
 
         # But trying to extract should fail gracefully
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 nonexistent_url, bbox=True, download_data=True
             )
             # Should either raise exception or return error indicator
@@ -255,7 +255,7 @@ class TestFigshareParameterCombinations:
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=True, tbox=False, download_data=True
             )
             assert result is not None
@@ -272,7 +272,7 @@ class TestFigshareParameterCombinations:
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=False, tbox=True, download_data=True
             )
             assert result is not None
@@ -289,7 +289,7 @@ class TestFigshareParameterCombinations:
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=True, tbox=True, details=True, download_data=True
             )
             assert result is not None
@@ -308,14 +308,14 @@ class TestFigshareParameterCombinations:
 
         try:
             # Test with download_data=True (default for geospatial extraction)
-            result_with_data = geoextent.from_repository(
+            result_with_data = geoextent.fromRemote(
                 test_url, bbox=True, download_data=True
             )
             assert result_with_data is not None
             assert result_with_data["format"] == "remote"
 
             # Test with download_data=False (metadata-only, limited for Figshare)
-            result_metadata = geoextent.from_repository(
+            result_metadata = geoextent.fromRemote(
                 test_url, bbox=True, download_data=False
             )
             assert result_metadata is not None

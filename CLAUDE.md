@@ -6,6 +6,61 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 geoextent is a Python library for extracting geospatial extent (bounding boxes and temporal extents) from files and directories containing geospatial data. It supports multiple formats including GeoJSON, CSV, Shapefile, and GeoTIFF files.
 
+## API Stability
+
+This project is currently in version 0.x, which means:
+
+- **Breaking changes are allowed** between minor versions
+- **API is under active development** and improvement
+- **Semantic versioning** will be followed starting from version 1.0
+
+### Current API Functions
+
+1. **fromFile()** - Extract extent from individual files
+2. **fromDirectory()** - Extract extent from directories
+3. **fromRemote()** - Extract extent from remote sources (repositories, journals, preprint servers)
+
+### Function Naming Convention
+
+All main API functions use **camelCase** for consistency:
+- `fromFile` (not `from_file`)
+- `fromDirectory` (not `from_directory`)
+- `fromRemote` (not `from_remote`)
+
+### Recent Breaking Changes
+
+- **v0.8.0**: Removed deprecated `from_repository()` function
+- **v0.8.0**: Renamed parameter `repository_identifier` to `remote_identifier`
+- **v0.8.0**: Changed format metadata from `"repository"` to `"remote"`
+- **v0.8.0**: Standardized internal data structures to use GeoJSON format
+
+### Coordinate Format Standards
+
+All spatial data in geoextent follows these conventions:
+
+1. **Coordinate Order**: Always `[longitude, latitude]` (GeoJSON standard)
+   - NOT `[latitude, longitude]`
+   - X-coordinate (longitude) comes first, Y-coordinate (latitude) second
+
+2. **Bounding Box Format**: `[minx, miny, maxx, maxy]`
+   - `minx` = westernmost longitude
+   - `miny` = southernmost latitude
+   - `maxx` = easternmost longitude
+   - `maxy` = northernmost latitude
+
+3. **GeoJSON Geometries**: Standard GeoJSON format
+   - Points: `{"type": "Point", "coordinates": [lon, lat]}`
+   - Polygons: `{"type": "Polygon", "coordinates": [[[lon1, lat1], [lon2, lat2], ...]]}`
+
+4. **CRS**: Default to WGS84 (EPSG:4326) unless otherwise specified
+
+### Internal Function Contracts
+
+- `bbox_merge()`: Expects `[minx, miny, maxx, maxy]` format from each file
+- `convex_hull_merge()`: Can handle both bbox format and coordinate arrays
+- All coordinate transformations use `[longitude, latitude]` order
+- Handler modules should return standardized bbox format
+
 ## Development Commands
 
 ### Installation and Setup

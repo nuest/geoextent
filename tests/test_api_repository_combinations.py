@@ -26,7 +26,7 @@ class TestRepositoryParameterCombinations:
         """Test repository extraction with only bbox enabled for all providers"""
         for provider_name, provider_data in self.REPOSITORY_TEST_DATA.items():
             try:
-                result = geoextent.from_repository(
+                result = geoextent.fromRemote(
                     provider_data["doi"], bbox=True, tbox=False
                 )
                 assert result is not None
@@ -43,7 +43,7 @@ class TestRepositoryParameterCombinations:
         """Test repository extraction with only tbox enabled for all providers"""
         for provider_name, provider_data in self.REPOSITORY_TEST_DATA.items():
             try:
-                result = geoextent.from_repository(
+                result = geoextent.fromRemote(
                     provider_data["doi"], bbox=False, tbox=True
                 )
                 assert result is not None
@@ -60,7 +60,7 @@ class TestRepositoryParameterCombinations:
         """Test repository extraction with both bbox and tbox enabled for all providers"""
         for provider_name, provider_data in self.REPOSITORY_TEST_DATA.items():
             try:
-                result = geoextent.from_repository(
+                result = geoextent.fromRemote(
                     provider_data["doi"], bbox=True, tbox=True
                 )
                 assert result is not None
@@ -76,14 +76,14 @@ class TestRepositoryParameterCombinations:
         test_doi = list(self.REPOSITORY_TEST_DATA.values())[0]["doi"]
 
         with pytest.raises(Exception, match="No extraction options enabled"):
-            geoextent.from_repository(test_doi, bbox=False, tbox=False)
+            geoextent.fromRemote(test_doi, bbox=False, tbox=False)
 
     def test_repository_with_details_parameter(self):
         """Test repository extraction with details parameter"""
         for provider_name, provider_data in self.REPOSITORY_TEST_DATA.items():
             try:
                 # Test with details enabled
-                result_with_details = geoextent.from_repository(
+                result_with_details = geoextent.fromRemote(
                     provider_data["doi"], bbox=True, tbox=True, details=True
                 )
                 assert result_with_details is not None
@@ -91,7 +91,7 @@ class TestRepositoryParameterCombinations:
                 assert isinstance(result_with_details["details"], dict)
 
                 # Test with details disabled (default)
-                result_without_details = geoextent.from_repository(
+                result_without_details = geoextent.fromRemote(
                     provider_data["doi"], bbox=True, tbox=True, details=False
                 )
                 assert result_without_details is not None
@@ -107,13 +107,13 @@ class TestRepositoryParameterCombinations:
         for provider_name, provider_data in self.REPOSITORY_TEST_DATA.items():
             try:
                 # Test with throttle enabled
-                result_throttled = geoextent.from_repository(
+                result_throttled = geoextent.fromRemote(
                     provider_data["doi"], bbox=True, tbox=True, throttle=True
                 )
                 assert result_throttled is not None
 
                 # Test with throttle disabled (default)
-                result_normal = geoextent.from_repository(
+                result_normal = geoextent.fromRemote(
                     provider_data["doi"], bbox=True, tbox=True, throttle=False
                 )
                 assert result_normal is not None
@@ -131,7 +131,7 @@ class TestRepositoryParameterCombinations:
         for provider_name, provider_data in self.REPOSITORY_TEST_DATA.items():
             try:
                 # Test with reasonable timeout
-                result = geoextent.from_repository(
+                result = geoextent.fromRemote(
                     provider_data["doi"], bbox=True, tbox=True, timeout=30
                 )
                 assert result is not None
@@ -152,13 +152,13 @@ class TestRepositoryParameterCombinations:
 
         try:
             # Test with download_data=False (metadata-based, default)
-            result_metadata = geoextent.from_repository(
+            result_metadata = geoextent.fromRemote(
                 pangaea_data["doi"], bbox=True, tbox=True, download_data=False
             )
             assert result_metadata is not None
 
             # Test with download_data=True (local file download)
-            result_local = geoextent.from_repository(
+            result_local = geoextent.fromRemote(
                 pangaea_data["doi"], bbox=True, tbox=True, download_data=True
             )
             assert result_local is not None
@@ -188,7 +188,7 @@ class TestRepositoryParameterCombinations:
                 if provider_name == "pangaea":
                     kwargs["download_data"] = True
 
-                result = geoextent.from_repository(provider_data["doi"], **kwargs)
+                result = geoextent.fromRemote(provider_data["doi"], **kwargs)
                 assert result is not None
                 assert result["format"] == "remote"
                 assert "details" in result
@@ -213,12 +213,12 @@ class TestRepositoryURLvsDoiHandling:
 
             try:
                 # Test with DOI format
-                result_doi = geoextent.from_repository(
+                result_doi = geoextent.fromRemote(
                     provider_data["doi"], bbox=True, tbox=True
                 )
 
                 # Test with URL format
-                result_url = geoextent.from_repository(
+                result_url = geoextent.fromRemote(
                     provider_data["url"], bbox=True, tbox=True
                 )
 
@@ -252,7 +252,7 @@ class TestRepositoryErrorHandling:
 
         for invalid_doi in invalid_dois:
             with pytest.raises(Exception):
-                geoextent.from_repository(invalid_doi, bbox=True)
+                geoextent.fromRemote(invalid_doi, bbox=True)
 
     def test_repository_nonexistent_doi(self):
         """Test repository with nonexistent DOI"""
@@ -263,7 +263,7 @@ class TestRepositoryErrorHandling:
 
         for doi in nonexistent_dois:
             try:
-                result = geoextent.from_repository(doi, bbox=True)
+                result = geoextent.fromRemote(doi, bbox=True)
                 # If it doesn't raise an exception, result should indicate failure
                 if result is not None:
                     # Some providers might return partial results
@@ -279,7 +279,7 @@ class TestRepositoryErrorHandling:
         )[0]["doi"]
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_doi, bbox=True, tbox=True, timeout=0.001
             )
             # Should either complete or indicate timeout
@@ -308,7 +308,7 @@ class TestRepositoryErrorHandling:
 
         for url in unsupported_urls:
             with pytest.raises(Exception):
-                geoextent.from_repository(url, bbox=True)
+                geoextent.fromRemote(url, bbox=True)
 
 
 class TestRepositoryProviderValidation:
@@ -369,7 +369,7 @@ class TestRepositorySpecialCases:
 
         for url in redirect_cases:
             try:
-                result = geoextent.from_repository(url, bbox=True)
+                result = geoextent.fromRemote(url, bbox=True)
                 if result is not None:
                     assert result["format"] == "remote"
             except ImportError:
@@ -392,7 +392,7 @@ class TestRepositorySpecialCases:
 
         for doi_with_whitespace in whitespace_cases:
             try:
-                result = geoextent.from_repository(
+                result = geoextent.fromRemote(
                     doi_with_whitespace.strip(), bbox=True
                 )
                 # Should handle whitespace gracefully after stripping

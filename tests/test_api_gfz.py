@@ -108,7 +108,7 @@ class TestGFZProvider:
 
         try:
             # Test with download_data=True to get actual geospatial data
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
 
@@ -155,7 +155,7 @@ class TestGFZProvider:
 
         try:
             # Note: GFZ doesn't provide structured geospatial metadata without downloading
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["url"], bbox=True, tbox=True, download_data=False
             )
 
@@ -354,7 +354,7 @@ class TestGFZParameterCombinations:
         test_url = "https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id=escidoc:5148893"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=True, tbox=False, download_data=True
             )
             assert result is not None
@@ -371,7 +371,7 @@ class TestGFZParameterCombinations:
         test_url = "https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id=escidoc:5148893"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=False, tbox=True, download_data=True
             )
             assert result is not None
@@ -388,7 +388,7 @@ class TestGFZParameterCombinations:
         test_url = "https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id=escidoc:5148893"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=True, tbox=True, details=True, download_data=True
             )
             assert result is not None
@@ -410,7 +410,7 @@ class TestGFZEdgeCases:
         nonexistent_url = "https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id=escidoc:nonexistent"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 nonexistent_url, bbox=True, download_data=True
             )
             # Should either raise exception or return error indicator
@@ -485,7 +485,7 @@ class TestGFZIntegration:
             assert gfz.validate_provider(test_url) == True
 
             # Step 2: Full extraction
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=True, tbox=True, download_data=True
             )
 

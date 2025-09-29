@@ -13,7 +13,7 @@ except ImportError:
     __version__ = "unknown"
 
 # Import main functions for easy access
-from .lib.extent import fromFile, fromDirectory, fromRemote, from_repository
+from .lib.extent import fromFile, fromDirectory, fromRemote
 
 # Import main modules for advanced usage
 from . import lib
@@ -22,7 +22,6 @@ __all__ = [
     'fromFile',
     'fromDirectory',
     'fromRemote',
-    'from_repository',  # Backward compatibility (deprecated)
     'lib',
     '__version__'
 ]

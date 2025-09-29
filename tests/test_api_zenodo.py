@@ -54,7 +54,7 @@ class TestZenodoProvider:
 
         try:
             # Test with download_data=True to get actual geospatial data
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["doi"], bbox=True, tbox=True, download_data=True
             )
 
@@ -119,7 +119,7 @@ class TestZenodoProvider:
         dataset = self.TEST_DATASETS["landslide_imagery"]
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["doi"], bbox=True, tbox=True, download_data=False
             )
 
@@ -154,7 +154,7 @@ class TestZenodoProvider:
 
                 # Test actual extraction with one identifier
                 if identifier == base_doi:
-                    result = geoextent.from_repository(
+                    result = geoextent.fromRemote(
                         identifier, bbox=True, download_data=True
                     )
                     assert result is not None
@@ -188,7 +188,7 @@ class TestZenodoParameterCombinations:
         test_doi = "10.5281/zenodo.820562"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_doi, bbox=True, tbox=False, download_data=True
             )
             assert result is not None
@@ -205,7 +205,7 @@ class TestZenodoParameterCombinations:
         test_doi = "10.5281/zenodo.820562"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_doi, bbox=False, tbox=True, download_data=True
             )
             assert result is not None
@@ -222,7 +222,7 @@ class TestZenodoParameterCombinations:
         test_doi = "10.5281/zenodo.820562"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_doi, bbox=True, tbox=True, details=True, download_data=True
             )
             assert result is not None
@@ -244,7 +244,7 @@ class TestZenodoEdgeCases:
         nonexistent_doi = "10.5281/zenodo.999999999"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 nonexistent_doi, bbox=True, download_data=True
             )
             # Should either raise exception or return error indicator

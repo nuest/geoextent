@@ -610,53 +610,6 @@ def fromRemote(
     return metadata
 
 
-# Backward compatibility alias
-def from_repository(
-    repository_identifier: str,
-    bbox: bool = False,
-    tbox: bool = False,
-    convex_hull: bool = False,
-    details: bool = False,
-    throttle: bool = False,
-    timeout: None | int | float = None,
-    download_data: bool = True,
-    show_progress: bool = True,
-    recursive: bool = True,
-    include_geojsonio: bool = False,
-    max_download_size: str | None = None,
-    max_download_method: str = "ordered",
-    max_download_method_seed: int = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
-):
-    """
-    DEPRECATED: Use fromRemote() instead.
-    Extract geospatial extent from remote sources (repositories, journals, preprint servers).
-
-    This function is maintained for backward compatibility.
-    """
-    import warnings
-    warnings.warn(
-        "from_repository() is deprecated. Use fromRemote() instead to better reflect "
-        "support for journals and preprint servers in addition to repositories.",
-        DeprecationWarning,
-        stacklevel=2
-    )
-    return fromRemote(
-        repository_identifier,
-        bbox,
-        tbox,
-        convex_hull,
-        details,
-        throttle,
-        timeout,
-        download_data,
-        show_progress,
-        recursive,
-        include_geojsonio,
-        max_download_size,
-        max_download_method,
-        max_download_method_seed,
-    )
-
 
 class geoextent_from_repository(Application):
     content_providers = List(

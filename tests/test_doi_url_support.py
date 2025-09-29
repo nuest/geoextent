@@ -19,7 +19,7 @@ class TestDOIURLSupport:
 
         for doi_format in doi_formats:
             try:
-                result = geoextent.from_repository(doi_format, bbox=True, tbox=True)
+                result = geoextent.fromRemote(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
                 assert (
                     result["format"] == "remote"
@@ -44,7 +44,7 @@ class TestDOIURLSupport:
 
         for doi_format in doi_formats:
             try:
-                result = geoextent.from_repository(doi_format, bbox=True, tbox=True)
+                result = geoextent.fromRemote(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
                 assert (
                     result["format"] == "remote"
@@ -168,7 +168,7 @@ class TestDOIURLSupport:
 
         for test_case in test_cases:
             try:
-                result = geoextent.from_repository(
+                result = geoextent.fromRemote(
                     test_case["doi"], bbox=True, tbox=True
                 )
                 assert result is not None, f"Failed to process {test_case['doi']}"
@@ -191,7 +191,7 @@ class TestDOIURLSupport:
 
         for invalid_doi in invalid_dois:
             try:
-                result = geoextent.from_repository(invalid_doi, bbox=True)
+                result = geoextent.fromRemote(invalid_doi, bbox=True)
                 # If no exception is raised, the result should indicate failure
                 if result is not None:
                     # Some providers might return partial results for invalid DOIs
@@ -223,7 +223,7 @@ class TestDOIURLSupport:
 
         for doi_variant in all_variations:
             try:
-                result = geoextent.from_repository(doi_variant, bbox=True)
+                result = geoextent.fromRemote(doi_variant, bbox=True)
                 if result is not None:
                     assert result["format"] == "remote"
 

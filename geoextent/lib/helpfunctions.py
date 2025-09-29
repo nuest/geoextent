@@ -401,9 +401,17 @@ def extract_archive(filepath) -> Path:
 def bbox_merge(metadata, origin):
     """
     Function purpose: merge bounding boxes
-    metadata: metadata with geoextent extraction from multiple files (dict)
-    origin: folder path or filepath (str)
-    Output: Merged bbox (dict)
+
+    Args:
+        metadata: metadata with geoextent extraction from multiple files (dict)
+                 Each file should have a "bbox" field with [minx, miny, maxx, maxy] format
+                 and a "crs" field with CRS identifier
+        origin: folder path or filepath (str)
+
+    Returns:
+        Merged bbox dict with "bbox" (list) and "crs" (str) fields, or None if no valid extents
+
+    Note: All coordinates are expected to be in [longitude, latitude] order (GeoJSON standard)
     """
     logger.debug("metadata {}".format(metadata))
     boxes_extent = []
@@ -487,9 +495,20 @@ def bbox_merge(metadata, origin):
 def convex_hull_merge(metadata, origin):
     """
     Function purpose: merge convex hulls by creating a convex hull from all individual geometries
-    metadata: metadata with geoextent extraction from multiple files (dict)
-    origin: folder path or filepath (str)
-    Output: Merged convex hull as bbox (dict)
+
+    Args:
+        metadata: metadata with geoextent extraction from multiple files (dict)
+                 Each file should have:
+                 - "bbox" field: either [minx, miny, maxx, maxy] or coordinate array
+                 - "crs" field: CRS identifier
+                 - "convex_hull" field: True if convex hull data is available
+        origin: folder path or filepath (str)
+
+    Returns:
+        Merged convex hull as GeoJSON polygon dict with "bbox", "crs", and "convex_hull" fields
+        Returns None if convex hull calculation fails (will trigger fallback to bbox_merge)
+
+    Note: All coordinates are expected to be in [longitude, latitude] order (GeoJSON standard)
     """
     logger.debug("convex hull metadata {}".format(metadata))
     geometries = []
@@ -1225,7 +1244,7 @@ def bbox_to_geojson(bbox):
     Convert bounding box coordinates to GeoJSON Polygon format
 
     Args:
-        bbox: List of [minx, miny, maxx, maxy]
+        bbox: List of [minx, miny, maxx, maxy] (WGS84 coordinates)
 
     Returns:
         Dict containing GeoJSON polygon representation
@@ -1235,12 +1254,97 @@ def bbox_to_geojson(bbox):
 
     minx, miny, maxx, maxy = bbox
 
-    # Create a polygon from the bounding box
+    # Create a polygon from the bounding box (GeoJSON format: [longitude, latitude])
     coordinates = [
         [[minx, miny], [maxx, miny], [maxx, maxy], [minx, maxy], [minx, miny]]
     ]
 
     return {"type": "Polygon", "coordinates": coordinates}
+
+
+def geojson_to_bbox(geojson_geom):
+    """
+    Extract bounding box from GeoJSON geometry
+
+    Args:
+        geojson_geom: GeoJSON geometry object
+
+    Returns:
+        List of [minx, miny, maxx, maxy] or None
+    """
+    if not geojson_geom or "coordinates" not in geojson_geom:
+        return None
+
+    coords = geojson_geom["coordinates"]
+
+    # Flatten all coordinates to find bounds
+    all_coords = []
+
+    def flatten_coords(coord_array):
+        if isinstance(coord_array, list):
+            if len(coord_array) == 2 and isinstance(coord_array[0], (int, float)):
+                # This is a coordinate pair [x, y]
+                all_coords.append(coord_array)
+            else:
+                # This is a nested array, recurse
+                for item in coord_array:
+                    flatten_coords(item)
+
+    flatten_coords(coords)
+
+    if not all_coords:
+        return None
+
+    # Extract x and y coordinates
+    x_coords = [coord[0] for coord in all_coords]
+    y_coords = [coord[1] for coord in all_coords]
+
+    return [min(x_coords), min(y_coords), max(x_coords), max(y_coords)]
+
+
+def create_spatial_extent(geometry, crs="4326", extent_type="bounding_box"):
+    """
+    Create a standardized spatial extent structure
+
+    Args:
+        geometry: GeoJSON geometry object
+        crs: Coordinate reference system (default "4326")
+        extent_type: Type of extent ("bounding_box" or "convex_hull")
+
+    Returns:
+        Standardized spatial extent dictionary
+    """
+    bbox = geojson_to_bbox(geometry)
+
+    return {
+        "geometry": geometry,
+        "bbox": bbox,
+        "crs": crs,
+        "extent_type": extent_type
+    }
+
+
+def coords_to_geojson_polygon(coords):
+    """
+    Convert coordinate array to GeoJSON Polygon
+
+    Args:
+        coords: Array of [x, y] coordinate pairs
+
+    Returns:
+        GeoJSON Polygon geometry
+    """
+    if not coords or len(coords) < 3:
+        return None
+
+    # Ensure the polygon is closed
+    if coords[0] != coords[-1]:
+        coords = coords + [coords[0]]
+
+    return {
+        "type": "Polygon",
+        "coordinates": [coords]
+    }
 
 
 def convex_hull_coords_to_wkt(coords):

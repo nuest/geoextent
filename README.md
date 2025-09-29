@@ -8,6 +8,22 @@ Python library for extracting geospatial extent of files and directories with mu
 
 This project was originally developed as part of the [DFG-funded](https://o2r.info/about/#funding) research project Opening Reproducible Research (o2r, [https://o2r.info](https://o2r.info)).
 
+## API Stability
+
+**Version 0.x (Current)**: Breaking changes may occur between minor versions. The API is under active development and improvement.
+
+**Version 1.0+**: Will follow semantic versioning with stable API guarantees.
+
+### Current API Functions
+- `fromFile()` - Extract extent from individual files
+- `fromDirectory()` - Extract extent from directories
+- `fromRemote()` - Extract extent from remote sources (repositories, journals, preprint servers)
+
+### Recent Breaking Changes
+- **v0.8.0**: Renamed `from_repository()` to `fromRemote()` for consistency
+- **v0.8.0**: Changed format metadata from `"repository"` to `"remote"`
+- **v0.8.0**: Standardized all functions to use camelCase naming
+
 ## Installation
 
 ### System requirements

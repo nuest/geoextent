@@ -69,7 +69,7 @@ class TestDryadProvider:
         try:
             # Test with download_data=True to get actual geospatial data
             # Note: This dataset may be large and could timeout
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["url"], bbox=True, tbox=True, download_data=True, timeout=120
             )
 
@@ -117,7 +117,7 @@ class TestDryadProvider:
         dataset = self.TEST_DATASETS["pacific_atolls"]
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 dataset["url"], bbox=True, tbox=True, download_data=False
             )
 
@@ -182,7 +182,7 @@ class TestDryadProvider:
         try:
             # This dataset has Excel files, not typical geospatial formats
             # Should handle gracefully without crashing
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=True, tbox=True, download_data=True, timeout=60
             )
 
@@ -208,7 +208,7 @@ class TestDryadParameterCombinations:
         test_url = "https://datadryad.org/dataset/doi:10.5061/dryad.0k6djhb7x"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=True, tbox=False, download_data=True, timeout=60
             )
             assert result is not None
@@ -225,7 +225,7 @@ class TestDryadParameterCombinations:
         test_url = "https://datadryad.org/dataset/doi:10.5061/dryad.0k6djhb7x"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=False, tbox=True, download_data=True, timeout=60
             )
             assert result is not None
@@ -242,7 +242,7 @@ class TestDryadParameterCombinations:
         test_url = "https://datadryad.org/dataset/doi:10.5061/dryad.j432q"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 test_url, bbox=True, tbox=True, details=True, download_data=True, timeout=60
             )
             assert result is not None
@@ -261,14 +261,14 @@ class TestDryadParameterCombinations:
 
         try:
             # Test with download_data=False (metadata-only, very limited for Dryad)
-            result_metadata = geoextent.from_repository(
+            result_metadata = geoextent.fromRemote(
                 test_url, bbox=True, download_data=False
             )
             assert result_metadata is not None
             assert result_metadata["format"] == "remote"
 
             # Test with download_data=True (file download)
-            result_with_data = geoextent.from_repository(
+            result_with_data = geoextent.fromRemote(
                 test_url, bbox=True, download_data=True, timeout=60
             )
             assert result_with_data is not None
@@ -304,7 +304,7 @@ class TestDryadEdgeCases:
         nonexistent_url = "https://datadryad.org/dataset/doi:10.5061/dryad.nonexistent999"
 
         try:
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 nonexistent_url, bbox=True, download_data=True
             )
             # Should either raise exception or return error indicator
@@ -322,7 +322,7 @@ class TestDryadEdgeCases:
 
         try:
             # Use a very short timeout to test timeout handling
-            result = geoextent.from_repository(
+            result = geoextent.fromRemote(
                 large_dataset_url, bbox=True, download_data=True, timeout=5
             )
 
