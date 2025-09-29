@@ -3,3 +3,4 @@ from . import handleVector
 from . import handleRaster
 from . import helpfunctions
 from . import extent
+from . import content_providers
