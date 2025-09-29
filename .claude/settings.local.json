@@ -56,7 +56,8 @@
       "Bash(pre-commit:*)",
       "Bash(wget:*)",
       "Bash(unzip:*)",
-      "WebFetch(domain:bdj.pensoft.net)"
+      "WebFetch(domain:bdj.pensoft.net)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

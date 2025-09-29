@@ -110,6 +110,87 @@ python -m geoextent --help
 python -m geoextent --version
 ```
 
+### Local GitHub Actions Testing with act
+
+The project includes configuration for testing GitHub Actions workflows locally using [act](https://github.com/nektos/act).
+
+#### Installation
+
+Install act on your system:
+
+```bash
+# macOS
+brew install act
+
+# Linux
+curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+# Windows
+choco install act-cli
+```
+
+#### Configuration Files
+
+- `.actrc` - act configuration with Ubuntu 24.04 image and verbose logging
+
+#### Running Tests Locally
+
+Use the provided script for easy local testing:
+
+```bash
+# Run main Python package tests (default)
+./scripts/test-local-ci.sh
+
+# Run specific workflow
+./scripts/test-local-ci.sh --workflow comprehensive-tests
+
+# Run specific test category
+./scripts/test-local-ci.sh --workflow comprehensive-tests --test-category api-core
+
+# Run with specific Python version
+./scripts/test-local-ci.sh --python-version 3.11
+
+# List all available jobs
+./scripts/test-local-ci.sh --list-jobs
+
+# Show what would be executed (dry run)
+./scripts/test-local-ci.sh --dry-run
+
+# Run all workflows
+./scripts/test-local-ci.sh --workflow all
+```
+
+#### Available Workflows
+
+1. **pythonpackage** - Main test suite with code formatting and comprehensive tests
+2. **comprehensive-tests** - Category-based testing (api-core, api-repositories, api-formats, cli, integration)
+3. **documentation** - Documentation build and deployment
+4. **codeql** - Security analysis
+
+#### Test Categories
+
+- `api-core` - Core API functionality tests
+- `api-repositories` - Remote repository provider tests (Zenodo, Figshare, Dryad, PANGAEA, OSF, GFZ, Pensoft, Dataverse)
+- `api-formats` - Format handler tests (CSV, GeoJSON, GeoTIFF, Shapefile, FlatGeobuf)
+- `cli` - Command-line interface tests
+- `integration` - Integration and special feature tests
+
+#### Direct act Commands
+
+```bash
+# Run main test workflow
+act -W .github/workflows/pythonpackage.yml
+
+# Run comprehensive tests for api-core category
+act -W .github/workflows/comprehensive-tests.yml --matrix test-category:api-core
+
+# Run with specific Python version
+act -W .github/workflows/pythonpackage.yml --matrix python-version:3.11
+
+# List all jobs in a workflow
+act -W .github/workflows/comprehensive-tests.yml --list
+```
+
 ## Architecture Overview
 
 The project follows a modular handler-based architecture:

@@ -58,7 +58,8 @@ dev = [
 ]
 test = [
         "pytest",
-        "pytest-cov"
+        "pytest-cov",
+        "geojson-validator"
 ]
 docs = [
         "sphinx",
@@ -86,6 +87,12 @@ minversion = "6.0"
 testpaths = [
     "tests",
     #"integration",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "network: marks tests that require network access",
+    "repository: marks tests that access remote repositories",
 ]
 
 [tool.setuptools_scm]

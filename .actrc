@@ -1,0 +1,22 @@
+# act configuration file for local GitHub Actions testing
+# See https://github.com/nektos/act for more information
+
+# Use Ubuntu 24.04 image to match CI environment
+-P ubuntu-24.04=catthehacker/ubuntu:act-24.04
+-P ubuntu-latest=catthehacker/ubuntu:act-24.04
+
+# Enable verbose logging for debugging
+--verbose
+
+# Set default platform
+--platform ubuntu-24.04
+
+# Enable container user to match local user (avoid permission issues)
+--container-daemon-socket /var/run/docker.sock
+
+# Set environment variables for testing
+--env PYTHONPATH=/workspace
+--env PYTHONUNBUFFERED=1
+
+# Use bind mount for workspace to allow file modifications
+--bind

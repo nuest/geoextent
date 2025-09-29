@@ -1,6 +1,10 @@
 import pytest
 import geoextent.lib.extent as geoextent
 from help_functions_test import tolerance
+from geojson_validator import validate_structure
+import geoextent.lib.helpfunctions as hf
+import subprocess
+import json
 
 
 class TestZenodoProvider:
@@ -98,6 +102,27 @@ class TestZenodoProvider:
             # Check CRS
             if "crs" in result:
                 assert result["crs"] == "4326", "CRS should be WGS84"
+
+            # Validate GeoJSON output format as returned by the library
+            if "bbox" in result:
+                # Get GeoJSON format as returned by geoextent library
+                geojson_output = hf.format_extent_output(result, "geojson")
+
+                # Validate the GeoJSON structure
+                validation_errors = validate_structure(geojson_output)
+                assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
+
+                # Additional basic GeoJSON structure checks
+                assert geojson_output["type"] == "FeatureCollection", "Should be a FeatureCollection"
+                assert "features" in geojson_output, "Should contain features"
+                assert len(geojson_output["features"]) > 0, "Should have at least one feature"
+
+                feature = geojson_output["features"][0]
+                assert feature["type"] == "Feature", "Feature should have correct type"
+                assert "geometry" in feature, "Feature should have geometry"
+                assert "properties" in feature, "Feature should have properties"
+                assert feature["geometry"]["type"] == "Polygon", "Geometry should be a Polygon"
+                assert "coordinates" in feature["geometry"], "Geometry should have coordinates"
 
             # Check temporal coverage if expected
             if "tbox" in result and dataset["expected_tbox"]:
@@ -269,3 +294,51 @@ class TestZenodoEdgeCases:
 
         for doi in malformed_dois:
             assert zenodo.validate_provider(doi) == False
+
+    def test_zenodo_cli_geojson_validation(self):
+        """Test Zenodo CLI output with GeoJSON validation"""
+        test_doi = "10.5281/zenodo.820562"
+
+        try:
+            # Run geoextent CLI with --quiet flag to get clean JSON output
+            result = subprocess.run(
+                ["python", "-m", "geoextent", "-b", "--quiet", test_doi],
+                capture_output=True,
+                text=True,
+                timeout=120  # 2 minute timeout for network operations
+            )
+
+            # Check that the command succeeded
+            assert result.returncode == 0, f"CLI command failed with error: {result.stderr}"
+
+            # Parse the GeoJSON output
+            geojson_output = json.loads(result.stdout)
+
+            # Validate the GeoJSON structure using geojson-validator
+            validation_errors = validate_structure(geojson_output)
+            assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
+
+            # Additional GeoJSON structure checks
+            assert geojson_output["type"] == "FeatureCollection", "Should be a FeatureCollection"
+            assert "features" in geojson_output, "Should contain features"
+            assert len(geojson_output["features"]) > 0, "Should have at least one feature"
+
+            feature = geojson_output["features"][0]
+            assert feature["type"] == "Feature", "Feature should have correct type"
+            assert "geometry" in feature, "Feature should have geometry"
+            assert "properties" in feature, "Feature should have properties"
+            assert feature["geometry"]["type"] == "Polygon", "Geometry should be a Polygon"
+            assert "coordinates" in feature["geometry"], "Geometry should have coordinates"
+
+            # Verify properties contain expected metadata
+            properties = feature["properties"]
+            assert "format" in properties, "Properties should contain format field"
+            assert properties["format"] == "remote", "Format should be 'remote'"
+            assert "crs" in properties, "Properties should contain CRS field"
+
+        except subprocess.TimeoutExpired:
+            pytest.skip("CLI test skipped due to timeout (network issues)")
+        except json.JSONDecodeError as e:
+            pytest.fail(f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")

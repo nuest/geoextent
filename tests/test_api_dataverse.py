@@ -525,19 +525,36 @@ class TestDataverseProvider:
             # Parse the JSON output
             output = json.loads(result.stdout)
 
-            # Verify the basic structure
+            # Verify the basic structure (GeoJSON FeatureCollection)
             assert isinstance(output, dict), "Output should be a dictionary"
-            assert "format" in output, "Output should contain format field"
-            assert output["format"] == "remote", "Format should be 'remote'"
+            assert output["type"] == "FeatureCollection", "Output should be a GeoJSON FeatureCollection"
+            assert "features" in output, "Output should contain features"
+            assert len(output["features"]) > 0, "Output should contain at least one feature"
 
-            # Verify bounding box extraction and comparison with reference
-            assert "bbox" in output, "Output should contain bounding box"
-            bbox = output["bbox"]
-            assert isinstance(bbox, list), "Bounding box should be a list"
-            assert len(bbox) == 4, "Bounding box should have 4 coordinates"
+            feature = output["features"][0]
+            assert feature["type"] == "Feature", "Feature should have type 'Feature'"
+            assert "properties" in feature, "Feature should have properties"
+            assert "geometry" in feature, "Feature should have geometry"
 
-            # Verify coordinate order: [minX, minY, maxX, maxY]
-            minX, minY, maxX, maxY = bbox
+            # Check format in properties
+            properties = feature["properties"]
+            assert "format" in properties, "Properties should contain format field"
+            assert properties["format"] == "remote", "Format should be 'remote'"
+
+            # Extract bounding box from geometry coordinates
+            geometry = feature["geometry"]
+            assert geometry["type"] == "Polygon", "Geometry should be a Polygon"
+            assert "coordinates" in geometry, "Geometry should have coordinates"
+
+            # Extract bbox from polygon coordinates [[[x1,y1], [x2,y2], [x3,y3], [x4,y4], [x1,y1]]]
+            polygon_coords = geometry["coordinates"][0]  # First (and only) ring
+            assert len(polygon_coords) == 5, "Polygon should have 5 coordinate pairs (closed)"
+
+            # Calculate bounding box from polygon coordinates
+            lons = [coord[0] for coord in polygon_coords[:-1]]  # Exclude last (duplicate) point
+            lats = [coord[1] for coord in polygon_coords[:-1]]
+            minX, maxX = min(lons), max(lons)
+            minY, maxY = min(lats), max(lats)
             assert minX <= maxX, "minX should be <= maxX"
             assert minY <= maxY, "minY should be <= maxY"
 
@@ -560,8 +577,8 @@ class TestDataverseProvider:
                 f"MaxY differs from reference: extracted={maxY}, reference={ref_maxY}, diff={abs(maxY - ref_maxY)}"
 
             # Verify CRS information
-            if "crs" in output:
-                assert output["crs"] == "4326", "CRS should be WGS84 (EPSG:4326)"
+            if "crs" in properties:
+                assert properties["crs"] == "4326", "CRS should be WGS84 (EPSG:4326)"
 
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")
@@ -699,4 +716,5 @@ if __name__ == "__main__":
         if provider_instance.validate_provider(identifier):
             successful += 1
         else:
+            pass  # Validation failed, continue to next
 

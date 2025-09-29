@@ -1,0 +1,133 @@
+name: Comprehensive Test Suite
+
+on: [push, pull_request]
+
+jobs:
+  test-by-category:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11']
+        test-category: [
+          'api-core',
+          'api-repositories',
+          'api-formats',
+          'cli',
+          'integration'
+        ]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml', '**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          ${{ runner.os }}-pip-
+
+    - name: Install system dependencies (Ubuntu)
+      run: |
+        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo apt-get update
+        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
+        gdal-config --version
+
+    - name: Install pygdal Python package
+      run: |
+        export CPLUS_INCLUDE_PATH=/usr/include/gdal
+        export C_INCLUDE_PATH=/usr/include/gdal
+        pip install pygdal=="`gdal-config --version`.*"
+
+    - name: Install geoextent and dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev,test]
+
+    # Test categories
+    - name: Test Core API
+      if: matrix.test-category == 'api-core'
+      run: |
+        echo "Running core API tests..."
+        pytest -v tests/test_api.py tests/test_point_detection.py tests/test_wkt_extent_comparison.py
+
+    - name: Test Repository Providers
+      if: matrix.test-category == 'api-repositories'
+      run: |
+        echo "Running repository provider tests..."
+        pytest -v tests/test_api_*zenodo.py tests/test_api_*figshare.py tests/test_api_*dryad.py tests/test_api_*pangaea.py tests/test_api_*osf.py tests/test_api_*gfz.py tests/test_api_*pensoft.py tests/test_api_*dataverse.py tests/test_multiple_repositories.py tests/test_api_repository_combinations.py tests/test_doi_url_support.py
+
+    - name: Test Format Handlers
+      if: matrix.test-category == 'api-formats'
+      run: |
+        echo "Running format handler tests..."
+        pytest -v tests/test_api_csv.py tests/test_api_geojson.py tests/test_api_geotiff.py tests/test_api_shapefile.py tests/test_api_flatgeobuf.py
+
+    - name: Test CLI Interface
+      if: matrix.test-category == 'cli'
+      run: |
+        echo "Running CLI tests..."
+        pytest -v tests/test_cli.py tests/test_cli_*.py
+
+    - name: Test Integration & Special Features
+      if: matrix.test-category == 'integration'
+      run: |
+        echo "Running integration and special feature tests..."
+        pytest -v tests/test_download_size_*.py tests/test_recursive_option.py tests/test_api_parameter_combinations.py
+
+  verify-all-tests-discovered:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install system dependencies
+      run: |
+        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo apt-get update
+        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
+
+    - name: Install pygdal
+      run: |
+        export CPLUS_INCLUDE_PATH=/usr/include/gdal
+        export C_INCLUDE_PATH=/usr/include/gdal
+        pip install pygdal=="`gdal-config --version`.*"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[dev,test]
+
+    - name: Discover and list all tests
+      run: |
+        echo "=== Discovering all test files ==="
+        find tests/ -name "test_*.py" -type f | sort
+
+        echo -e "\n=== Test collection verification ==="
+        pytest --collect-only -q | grep "test session starts\|collected"
+
+        echo -e "\n=== Running test collection with detailed output ==="
+        pytest --collect-only --tb=short
+
+    - name: Verify no tests are skipped due to missing dependencies
+      run: |
+        echo "=== Running a dry run to check for import errors ==="
+        pytest --collect-only --tb=line 2>&1 | tee test_collection.log
+
+        echo -e "\n=== Checking for common issues ==="
+        if grep -i "import.*error\|module.*not.*found\|no.*module.*named" test_collection.log; then
+          echo "❌ Found import errors in test collection"
+          exit 1
+        else
+          echo "✅ No import errors found in test collection"
+        fi

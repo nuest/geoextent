@@ -15,11 +15,13 @@ This project was originally developed as part of the [DFG-funded](https://o2r.in
 **Version 1.0+**: Will follow semantic versioning with stable API guarantees.
 
 ### Current API Functions
+
 - `fromFile()` - Extract extent from individual files
 - `fromDirectory()` - Extract extent from directories
 - `fromRemote()` - Extract extent from remote sources (repositories, journals, preprint servers)
 
 ### Recent Breaking Changes
+
 - **v0.8.0**: Renamed `from_repository()` to `fromRemote()` for consistency
 - **v0.8.0**: Changed format metadata from `"repository"` to `"remote"`
 - **v0.8.0**: Standardized all functions to use camelCase naming
@@ -466,6 +468,68 @@ Consult the documentation on [paired notebooks based on Jupytext](https://github
 - [PANGAEA](https://www.pangaea.de/) - Earth & Environmental Science data publisher
 - [OSF](https://osf.io/) - Open Science Framework
 - [GFZ Data Services](https://dataservices.gfz-potsdam.de/) - Geoscientific research data from GFZ Potsdam
+
+## Development
+
+### Testing
+
+Run tests using pytest:
+
+```bash
+# Install development dependencies
+pip install -e .[dev,test]
+
+# Run all tests
+pytest
+
+# Run specific test categories
+pytest tests/test_api_*.py         # API tests
+pytest tests/test_cli*.py          # CLI tests
+pytest -m "not slow"               # Exclude slow tests
+
+# Run with coverage
+pytest --cov=geoextent --cov-report=term-missing
+```
+
+### Local GitHub Actions Testing
+
+Test workflows locally using [act](https://github.com/nektos/act):
+
+```bash
+# Install act (macOS/Linux)
+curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+# Run main test suite
+./scripts/test-local-ci.sh
+
+# Run specific test categories
+./scripts/test-local-ci.sh --workflow comprehensive-tests --test-category api-core
+
+# List all available workflows and jobs
+./scripts/test-local-ci.sh --list-jobs
+
+# See all options
+./scripts/test-local-ci.sh --help
+```
+
+Available test categories:
+
+- `api-core`: Core API functionality
+- `api-repositories`: Repository providers (Zenodo, Figshare, Dryad, PANGAEA, OSF, GFZ, Pensoft, Dataverse)
+- `api-formats`: Format handlers (CSV, GeoJSON, GeoTIFF, Shapefile, FlatGeobuf)
+- `cli`: Command-line interface
+- `integration`: Integration and special features
+
+### Code Formatting
+
+```bash
+# Format code with black
+black geoextent/ tests/
+
+# Set up pre-commit hooks
+pre-commit install
+pre-commit run --all-files
+```
 
 ## Contribute
 

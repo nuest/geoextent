@@ -5,8 +5,9 @@ import pytest
 from unittest.mock import patch
 import logging
 
-from geoextent.lib.extent import from_repository
-from geoextent.lib.helpfunctions import is_geometry_a_point, create_geojson_feature_collection
+from geoextent.lib.extent import fromRemote
+from geoextent.lib.helpfunctions import is_geometry_a_point, create_geojson_feature_collection, format_extent_output
+from geojson_validator import validate_structure
 
 
 class TestPointDetection:
@@ -127,7 +128,7 @@ class TestPangaeaDataset918707:
         """Test extraction of bounding box from PANGAEA dataset 918707 metadata"""
         # This dataset contains a single point location in metadata
         # Use metadata-only mode to avoid downloading actual data files
-        result = from_repository(
+        result = fromRemote(
             "https://doi.org/10.1594/PANGAEA.918707",
             bbox=True,
             tbox=False,
@@ -157,7 +158,7 @@ class TestPangaeaDataset918707:
 
     def test_pangaea_918707_convex_hull(self):
         """Test extraction of convex hull from PANGAEA dataset 918707 metadata"""
-        result = from_repository(
+        result = fromRemote(
             "https://doi.org/10.1594/PANGAEA.918707",
             bbox=True,
             tbox=False,
@@ -183,7 +184,7 @@ class TestPangaeaDataset918707:
 
     def test_pangaea_918707_geojson_output_point_geometry(self):
         """Test that PANGAEA 918707 metadata outputs Point geometry in GeoJSON format"""
-        result = from_repository(
+        result = fromRemote(
             "https://doi.org/10.1594/PANGAEA.918707",
             bbox=True,
             tbox=False,
@@ -192,8 +193,11 @@ class TestPangaeaDataset918707:
         )
 
         # Convert to GeoJSON format
-        from geoextent.lib.helpfunctions import format_extent_output
         geojson_output = format_extent_output(result, "geojson")
+
+        # Validate the GeoJSON structure using geojson-validator
+        validation_errors = validate_structure(geojson_output)
+        assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
 
         assert geojson_output["type"] == "FeatureCollection"
         assert len(geojson_output["features"]) == 1
@@ -218,7 +222,7 @@ class TestPangaeaDataset918707:
 
     def test_pangaea_918707_convex_hull_geojson_output_point_geometry(self):
         """Test that PANGAEA 918707 metadata with convex hull outputs Point geometry in GeoJSON format"""
-        result = from_repository(
+        result = fromRemote(
             "https://doi.org/10.1594/PANGAEA.918707",
             bbox=True,
             tbox=False,
@@ -227,10 +231,17 @@ class TestPangaeaDataset918707:
         )
 
         # Convert to GeoJSON format
-        from geoextent.lib.helpfunctions import format_extent_output
         geojson_output = format_extent_output(result, "geojson")
 
+        # Validate the GeoJSON structure using geojson-validator
+        validation_errors = validate_structure(geojson_output)
+        assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
+
+        assert geojson_output["type"] == "FeatureCollection"
+        assert len(geojson_output["features"]) == 1
+
         feature = geojson_output["features"][0]
+        assert feature["type"] == "Feature"
 
         # Even with convex_hull=True, this should be a Point geometry
         geometry = feature["geometry"]
@@ -238,6 +249,7 @@ class TestPangaeaDataset918707:
 
         # Verify coordinates are in Northeast Greenland region
         coords = geometry["coordinates"]
+        assert len(coords) == 2
         assert abs(coords[0] - (-21.5)) < 0.1  # Longitude
         assert abs(coords[1] - 76.5) < 0.1     # Latitude
 

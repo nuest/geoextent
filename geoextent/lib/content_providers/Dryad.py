@@ -27,6 +27,29 @@ class Dryad(DoiProvider):
         self.reference = reference
         url = self.get_url
         if any([url.startswith(p) for p in self.host["hostname"]]):
+            # Extract the part after the hostname
+            for hostname in self.host["hostname"]:
+                if url.startswith(hostname):
+                    remaining_path = url[len(hostname):]
+                    break
+
+            # Check if there's actually a DOI or meaningful identifier
+            if not remaining_path or remaining_path == "/" or len(remaining_path.strip("/")) == 0:
+                return False
+
+            # Check if it looks like a valid DOI pattern
+            if "doi:" in remaining_path:
+                # Check for complete DOI after "doi:"
+                doi_part = remaining_path.split("doi:")[-1]
+                if not doi_part or len(doi_part.strip("/")) < 5:  # Minimal DOI length
+                    return False
+            elif remaining_path.startswith("10."):
+                # Check for complete DOI starting with "10."
+                if len(remaining_path.split(".")) < 2 or len(remaining_path) < 10:
+                    return False
+            else:
+                return False
+
             self.record_id = url.rsplit("/")[-2] + "/" + url.rsplit("/")[-1]
             self.record_id_html = urllib.parse.quote(self.record_id, safe="")
             return True
