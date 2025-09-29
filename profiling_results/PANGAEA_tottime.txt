@@ -1,0 +1,37 @@
+Content Provider: PANGAEA
+Identifier: 10.1594/PANGAEA.734969
+Description: PANGAEA marine dataset
+Success: True
+Execution Time: 8.20 seconds
+
+================================================================================
+TOTAL TIME STATS (Top functions by total/own time)
+================================================================================
+         1746131 function calls (1742399 primitive calls) in 8.201 seconds
+
+   Ordered by: internal time
+   List reduced from 2689 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       59    3.132    0.053    3.132    0.053 {method 'read' of '_ssl._SSLSocket' objects}
+        9    1.422    0.158    1.422    0.158 {method 'do_handshake' of '_ssl._SSLSocket' objects}
+        9    0.858    0.095    0.858    0.095 {method 'connect' of '_socket.socket' objects}
+        9    0.531    0.059    0.531    0.059 {method 'load_verify_locations' of '_ssl._SSLContext' objects}
+      208    0.310    0.001    0.310    0.001 {method 'acquire' of '_thread.lock' objects}
+        9    0.270    0.030    0.270    0.030 {built-in method _socket.getaddrinfo}
+   263648    0.212    0.000    0.540    0.000 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/core/strings/object_array.py:527(f)
+   263648    0.204    0.000    0.204    0.000 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/core/strings/object_array.py:532(<listcomp>)
+       22    0.137    0.006    0.138    0.006 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/core/dtypes/astype.py:56(_astype_nansafe)
+       23    0.130    0.006    0.133    0.006 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/core/tools/numeric.py:47(to_numeric)
+   263794    0.089    0.000    0.089    0.000 {method 'search' of 're.Pattern' objects}
+       88    0.069    0.001    0.069    0.001 {method 'astype' of 'numpy.ndarray' objects}
+    12/11    0.068    0.006    0.075    0.007 {built-in method _imp.exec_dynamic}
+       11    0.057    0.005    0.597    0.054 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/core/strings/object_array.py:536(<listcomp>)
+        3    0.051    0.017    0.150    0.050 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/io/formats/csvs.py:315(_save_chunk)
+    48071    0.046    0.000    0.046    0.000 {method 'sub' of 're.Pattern' objects}
+       12    0.042    0.003    0.043    0.004 {built-in method _imp.create_dynamic}
+384634/384473    0.026    0.000    0.029    0.000 {built-in method builtins.isinstance}
+        1    0.025    0.025    0.026    0.026 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/io/parsers/c_parser_wrapper.py:222(read)
+        3    0.022    0.007    0.023    0.008 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/core/arrays/datetimes.py:746(_format_native_types)
+
+

@@ -1,0 +1,47 @@
+Content Provider: Zenodo
+Identifier: 10.5281/zenodo.820562
+Description: Landslide imagery from Hpakant, Myanmar
+Success: True
+Execution Time: 12.25 seconds
+
+================================================================================
+CUMULATIVE TIME STATS (Top functions by cumulative time)
+================================================================================
+         200486 function calls (199893 primitive calls) in 12.246 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1123 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   12.246   12.246 /home/daniel/git/geoextent/geoextent/lib/extent.py:569(fromRemote)
+        1    0.000    0.000   12.244   12.244 /home/daniel/git/geoextent/geoextent/lib/extent.py:633(fromRemote)
+       10    0.000    0.000    8.594    0.859 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:18(_request)
+       10    0.000    0.000    8.594    0.859 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:593(get)
+       10    0.000    0.000    8.594    0.859 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:500(request)
+    16/10    0.001    0.000    8.570    0.857 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:673(send)
+       16    0.000    0.000    8.456    0.528 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/adapters.py:590(send)
+       16    0.001    0.000    8.441    0.528 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:592(urlopen)
+       16    0.000    0.000    8.436    0.527 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:377(_make_request)
+        3    0.000    0.000    7.815    2.605 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:91(get_url)
+       10    0.000    0.000    7.268    0.727 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:724(<listcomp>)
+    25/16    0.000    0.000    7.268    0.454 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:159(resolve_redirects)
+     2581    0.008    0.000    5.982    0.002 /usr/lib/python3.10/socket.py:691(readinto)
+        1    0.000    0.000    5.973    5.973 /home/daniel/git/geoextent/geoextent/lib/content_providers/Dryad.py:26(validate_provider)
+     2581    0.008    0.000    5.969    0.002 /usr/lib/python3.10/ssl.py:1292(recv_into)
+     2581    0.007    0.000    5.959    0.002 /usr/lib/python3.10/ssl.py:1150(read)
+     2581    5.952    0.002    5.952    0.002 {method 'read' of '_ssl._SSLSocket' objects}
+       16    0.000    0.000    5.719    0.357 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:1085(_validate_conn)
+        6    0.000    0.000    5.719    0.953 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connection.py:718(connect)
+        6    0.000    0.000    5.182    0.864 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connection.py:192(_new_conn)
+        6    0.000    0.000    5.181    0.864 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/util/connection.py:27(create_connection)
+        6    0.000    0.000    5.035    0.839 /usr/lib/python3.10/socket.py:938(getaddrinfo)
+        6    5.034    0.839    5.035    0.839 {built-in method _socket.getaddrinfo}
+        1    0.007    0.007    4.237    4.237 /home/daniel/git/geoextent/geoextent/lib/content_providers/Zenodo.py:97(download)
+     1775    0.002    0.000    3.451    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/models.py:816(generate)
+     1775    0.007    0.000    3.448    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:1069(stream)
+     1723    0.016    0.000    3.355    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
+     1732    0.018    0.000    3.292    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:889(_raw_read)
+     1811    0.027    0.000    3.241    0.002 {method 'read' of '_io.BufferedReader' objects}
+     1732    0.004    0.000    3.240    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:832(_fp_read)
+
+

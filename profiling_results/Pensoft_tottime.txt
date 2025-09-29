@@ -1,0 +1,38 @@
+Content Provider: Pensoft
+Identifier: 10.3897/bdj.11.e98731
+Description: Pensoft biodiversity journal data
+Success: False
+Execution Time: 2.70 seconds
+Error: 'NoneType' object does not support item assignment
+
+================================================================================
+TOTAL TIME STATS (Top functions by total/own time)
+================================================================================
+         29463 function calls (29380 primitive calls) in 2.699 seconds
+
+   Ordered by: internal time
+   List reduced from 652 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       29    1.527    0.053    1.527    0.053 {method 'read' of '_ssl._SSLSocket' objects}
+        6    0.577    0.096    0.577    0.096 {method 'do_handshake' of '_ssl._SSLSocket' objects}
+        6    0.369    0.062    0.369    0.062 {method 'load_verify_locations' of '_ssl._SSLContext' objects}
+        6    0.165    0.027    0.165    0.027 {method 'connect' of '_socket.socket' objects}
+        6    0.007    0.001    0.008    0.001 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connection.py:369(close)
+        6    0.006    0.001    0.006    0.001 {built-in method _socket.getaddrinfo}
+      125    0.004    0.000    0.004    0.000 {built-in method __new__ of type object at 0x65158ee1f9a0}
+      266    0.002    0.000    0.002    0.000 {method 'match' of 're.Pattern' objects}
+       14    0.001    0.000    0.004    0.000 /usr/lib/python3.10/urllib/request.py:2487(getproxies_environment)
+     1610    0.001    0.000    0.002    0.000 /usr/lib/python3.10/os.py:698(__iter__)
+       21    0.001    0.000    0.001    0.000 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/util/url.py:227(_encode_invalid_chars)
+        7    0.001    0.000    0.001    0.000 {method 'decompress' of 'zlib.Decompress' objects}
+     1624    0.001    0.000    0.001    0.000 /usr/lib/python3.10/os.py:759(decode)
+       91    0.001    0.000    0.001    0.000 {method 'search' of 're.Pattern' objects}
+     1610    0.001    0.000    0.003    0.000 /usr/lib/python3.10/_collections_abc.py:885(__iter__)
+     2125    0.001    0.000    0.001    0.000 {method 'decode' of 'bytes' objects}
+1618/1590    0.001    0.000    0.001    0.000 {built-in method builtins.isinstance}
+       77    0.001    0.000    0.001    0.000 /usr/lib/python3.10/urllib/parse.py:473(urlsplit)
+        6    0.000    0.000    0.001    0.000 /usr/lib/python3.10/ssl.py:1360(_real_close)
+       35    0.000    0.000    0.000    0.000 {built-in method posix.stat}
+
+

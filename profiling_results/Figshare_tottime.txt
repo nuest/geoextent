@@ -1,0 +1,37 @@
+Content Provider: Figshare
+Identifier: 10.6084/m9.figshare.19248626.v2
+Description: Prince Edward Islands geospatial database
+Success: True
+Execution Time: 357.75 seconds
+
+================================================================================
+TOTAL TIME STATS (Top functions by total/own time)
+================================================================================
+         9595989 function calls (9595748 primitive calls) in 358.181 seconds
+
+   Ordered by: internal time
+   List reduced from 1015 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   248746  307.432    0.001  307.432    0.001 {method 'read' of '_ssl._SSLSocket' objects}
+      184   20.605    0.112   20.605    0.112 {built-in method posix.waitpid}
+   162789    5.671    0.000    5.671    0.000 {method 'write' of '_io.BufferedWriter' objects}
+      580    2.970    0.005    2.970    0.005 {method 'acquire' of '_thread.lock' objects}
+       90    1.970    0.022    1.970    0.022 {built-in method posix.unlink}
+   162799    1.572    0.000  314.754    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:889(_raw_read)
+   162794    1.396    0.000  320.282    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
+   162789    1.000    0.000    1.577    0.000 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:281(get)
+      180    0.983    0.005    0.987    0.005 {method 'read' of '_io.TextIOWrapper' objects}
+   162799    0.862    0.000  309.916    0.002 /usr/lib/python3.10/http/client.py:450(read)
+   162814    0.803    0.000  308.963    0.002 {method 'read' of '_io.BufferedReader' objects}
+   248746    0.728    0.000  310.135    0.001 /usr/lib/python3.10/socket.py:691(readinto)
+   248746    0.677    0.000  308.938    0.001 /usr/lib/python3.10/ssl.py:1292(recv_into)
+1556986/1556971    0.644    0.000    0.755    0.000 {built-in method builtins.len}
+   248746    0.629    0.000  308.116    0.001 /usr/lib/python3.10/ssl.py:1150(read)
+   162827    0.615    0.000    0.694    0.000 /usr/lib/python3.10/contextlib.py:102(__init__)
+        1    0.594    0.594  329.659  329.659 /home/daniel/git/geoextent/geoextent/lib/content_providers/Figshare.py:99(download)
+   162799    0.594    0.000    1.540    0.000 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:475(_init_decoder)
+   162815    0.562    0.000  321.079    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:1069(stream)
+   162827    0.551    0.000    1.263    0.000 /usr/lib/python3.10/contextlib.py:139(__exit__)
+
+

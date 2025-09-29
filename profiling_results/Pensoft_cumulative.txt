@@ -1,0 +1,48 @@
+Content Provider: Pensoft
+Identifier: 10.3897/bdj.11.e98731
+Description: Pensoft biodiversity journal data
+Success: False
+Execution Time: 2.70 seconds
+Error: 'NoneType' object does not support item assignment
+
+================================================================================
+CUMULATIVE TIME STATS (Top functions by cumulative time)
+================================================================================
+         29463 function calls (29380 primitive calls) in 2.699 seconds
+
+   Ordered by: cumulative time
+   List reduced from 652 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000    2.699    2.699 /home/daniel/git/geoextent/geoextent/lib/extent.py:569(fromRemote)
+        1    0.000    0.000    2.697    2.697 /home/daniel/git/geoextent/geoextent/lib/extent.py:633(fromRemote)
+        7    0.000    0.000    2.684    0.383 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:18(_request)
+        7    0.000    0.000    2.684    0.383 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:593(get)
+        7    0.000    0.000    2.684    0.383 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:500(request)
+        7    0.000    0.000    2.674    0.382 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:673(send)
+        7    0.000    0.000    2.670    0.381 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/adapters.py:590(send)
+        7    0.000    0.000    2.664    0.381 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:592(urlopen)
+        7    0.000    0.000    2.662    0.380 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:377(_make_request)
+        6    0.000    0.000    2.469    0.411 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:91(get_url)
+        7    0.000    0.000    1.534    0.219 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connection.py:534(getresponse)
+        7    0.000    0.000    1.532    0.219 /usr/lib/python3.10/http/client.py:1331(getresponse)
+        7    0.000    0.000    1.532    0.219 /usr/lib/python3.10/http/client.py:311(begin)
+       29    0.000    0.000    1.528    0.053 /usr/lib/python3.10/socket.py:691(readinto)
+       29    0.000    0.000    1.528    0.053 /usr/lib/python3.10/ssl.py:1292(recv_into)
+       29    0.000    0.000    1.528    0.053 /usr/lib/python3.10/ssl.py:1150(read)
+      133    0.000    0.000    1.528    0.011 {method 'readline' of '_io.BufferedReader' objects}
+        7    0.000    0.000    1.528    0.218 /usr/lib/python3.10/http/client.py:278(_read_status)
+       29    1.527    0.053    1.527    0.053 {method 'read' of '_ssl._SSLSocket' objects}
+        7    0.000    0.000    1.126    0.161 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:1085(_validate_conn)
+        6    0.000    0.000    1.126    0.188 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connection.py:718(connect)
+        6    0.000    0.000    0.954    0.159 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connection.py:895(_ssl_wrap_socket_and_match_hostname)
+        6    0.000    0.000    0.948    0.158 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/util/ssl_.py:410(ssl_wrap_socket)
+        1    0.000    0.000    0.638    0.638 /home/daniel/git/geoextent/geoextent/lib/content_providers/Pensoft.py:46(validate_provider)
+        6    0.000    0.000    0.578    0.096 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/util/ssl_.py:508(_ssl_wrap_socket_impl)
+        6    0.000    0.000    0.578    0.096 /usr/lib/python3.10/ssl.py:507(wrap_socket)
+        6    0.000    0.000    0.578    0.096 /usr/lib/python3.10/ssl.py:1014(_create)
+        6    0.000    0.000    0.578    0.096 /usr/lib/python3.10/ssl.py:1364(do_handshake)
+        6    0.577    0.096    0.577    0.096 {method 'do_handshake' of '_ssl._SSLSocket' objects}
+        1    0.000    0.000    0.460    0.460 /home/daniel/git/geoextent/geoextent/lib/content_providers/Zenodo.py:26(validate_provider)
+
+

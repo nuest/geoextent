@@ -1,0 +1,47 @@
+Content Provider: OSF
+Identifier: https://osf.io/4xe6z
+Description: OSF research project data
+Success: True
+Execution Time: 64.67 seconds
+
+================================================================================
+CUMULATIVE TIME STATS (Top functions by cumulative time)
+================================================================================
+         344060 function calls (343489 primitive calls) in 64.674 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1041 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   64.675   64.675 /home/daniel/git/geoextent/geoextent/lib/extent.py:569(fromRemote)
+        1    0.000    0.000   64.674   64.674 /home/daniel/git/geoextent/geoextent/lib/extent.py:633(fromRemote)
+        1    0.000    0.000   64.302   64.302 /home/daniel/git/geoextent/geoextent/lib/content_providers/OSF.py:332(download)
+        1    0.001    0.001   64.298   64.298 /home/daniel/git/geoextent/geoextent/lib/content_providers/OSF.py:115(_get_files_via_osfclient)
+       32    0.000    0.000   62.758    1.961 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osfclient/models/core.py:22(_get)
+       32    0.000    0.000   62.758    1.961 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osfclient/models/session.py:16(wrapper)
+      431    0.002    0.000   59.880    0.139 /usr/lib/python3.10/socket.py:691(readinto)
+      431    0.001    0.000   59.877    0.139 /usr/lib/python3.10/ssl.py:1292(recv_into)
+      431    0.001    0.000   59.875    0.139 /usr/lib/python3.10/ssl.py:1150(read)
+      431   59.874    0.139   59.874    0.139 {method 'read' of '_ssl._SSLSocket' objects}
+       32    0.000    0.000   59.801    1.869 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osfclient/models/session.py:73(get)
+       32    0.000    0.000   59.801    1.869 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:593(get)
+       32    0.001    0.000   59.801    1.869 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:500(request)
+    58/32    0.002    0.000   59.746    1.867 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:673(send)
+       58    0.002    0.000   59.678    1.029 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/adapters.py:590(send)
+       58    0.002    0.000   59.641    1.028 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:592(urlopen)
+       58    0.001    0.000   59.567    1.027 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:377(_make_request)
+       58    0.002    0.000   58.453    1.008 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connection.py:534(getresponse)
+       58    0.001    0.000   58.434    1.007 /usr/lib/python3.10/http/client.py:1331(getresponse)
+       58    0.002    0.000   58.432    1.007 /usr/lib/python3.10/http/client.py:311(begin)
+       58    0.001    0.000   58.394    1.007 /usr/lib/python3.10/http/client.py:278(_read_status)
+     1215    0.002    0.000   58.394    0.048 {method 'readline' of '_io.BufferedReader' objects}
+       25    0.000    0.000   57.653    2.306 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osfclient/models/file.py:48(write_to)
+       32    0.000    0.000    7.658    0.239 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:724(<listcomp>)
+    84/58    0.001    0.000    7.658    0.132 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:159(resolve_redirects)
+       26    0.000    0.000    4.306    0.166 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osfclient/models/file.py:98(_iter_children)
+        2    0.000    0.000    4.305    2.152 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osfclient/models/core.py:65(_follow_next)
+        8    2.956    0.369    2.956    0.369 {built-in method time.sleep}
+       25    0.001    0.000    1.523    0.061 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osfclient/models/file.py:7(copyfileobj)
+      101    0.001    0.000    1.500    0.015 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
+
+
