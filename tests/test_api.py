@@ -286,8 +286,8 @@ def test_gml_extract_bbox_time():
     assert result["tbox"] == ["2005-12-31", "2013-11-30"]
 
 
-def test_jpge_2000_extract_bbox():
-    result = geoextent.fromFile("tests/testdata/jpge2000/MSK_SNWPRB_60m.jp2", bbox=True)
+def test_jpeg_2000_extract_bbox():
+    result = geoextent.fromFile("tests/testdata/jpeg2000/MSK_SNWPRB_60m.jp2", bbox=True)
     assert result["bbox"] == pytest.approx(
         [-74.09868, 4.434354, -73.10649, 5.425259], abs=tolerance
     )
