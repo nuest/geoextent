@@ -2,28 +2,55 @@
 Changelog
 =========
 
-0.8.2 (unreleased)
+0.9.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^
 
-- Add ``--placename`` option for automatic geographic placename lookup using gazetteer services
+- **Performance and Infrastructure Improvements**
+
+  - Refactor CI workflows to use custom GDAL installation script instead of pygdal (:issue:``)
+  - Remove deprecated pygdal dependency from GitHub Actions for improved build reliability
+  - Add file filtering and parallel downloads to improve performance (:issue:`75`)
+  - Implement ``--download-skip-nogeo`` option to skip downloading non-geospatial files
+  - Add ``--max-download-size`` and ``--max-download-workers`` options for download control
+  - Optimize file download process using parallel downloads for multi-file datasets
+  - Add comprehensive test refactoring to eliminate duplication and focus on single aspects
+
+- **Placename Lookup Feature** (:issue:`74`)
+
+  - Add ``--placename`` option for automatic geographic placename lookup using gazetteer services
   - Support for GeoNames, Nominatim, and Photon gazetteer services
   - Placenames added to GeoJSON feature properties for meaningful location context
   - Environment variable support for API keys via ``.env`` files
   - Intelligent sampling of geometry points for optimal placename identification
   - Add ``--placename-escape`` option for Unicode character escaping in placenames
-- Add ``--no-subdirs`` option to control recursive processing of subdirectories (:issue:`55`)
-- Add WKT and WKB output format support for spatial extents (:issue:`46`)
-- Add progress bars for file and directory processing with ``--no-progress`` option to disable (:issue:`32`)
-- Add ``--quiet`` option to suppress all console messages including warnings and progress bars
-- Add Dataverse repository support for data extraction (:issue:`57`)
-- Add FlatGeobuf format support (:issue:`43`)
-- Add support for processing multiple files with automatic extent merging
-- Add support for OSF (Open Science Framework) repository extraction (:pr:`19`)
-- Add Pangaea provider with web metadata extraction
-- Add ``--no-data-download`` option for metadata-only extraction from selected repositories
-- Restructure regex patterns for better repository candidate detection
-- Add comprehensive test coverage for multiple providers
-- Add geopy and python-dotenv dependencies for placename functionality
+  - Shared component algorithm for extracting common location components
+  - Progress bar integration for gazetteer API calls
+
+- **Repository Support Enhancements**
+
+  - Add GFZ Data Services as content provider (:issue:`17`)
+  - Add download size limiting for repositories (:issue:`70`)
+  - Enhance content provider support for Dryad and OSF with full filtering capabilities
+  - Add support for OSF (Open Science Framework) repository extraction (:pr:`19`)
+  - Add Pangaea provider with web metadata extraction
+  - Add Dataverse repository support for data extraction (:issue:`57`)
+  - Add ``--no-data-download`` option for metadata-only extraction from selected repositories
+  - Restructure regex patterns for better repository candidate detection
+
+- **Format and Processing Improvements**
+
+  - Add ``--no-subdirs`` option to control recursive processing of subdirectories (:issue:`55`)
+  - Add WKT and WKB output format support for spatial extents (:issue:`46`)
+  - Add FlatGeobuf format support (:issue:`43`)
+  - Add support for processing multiple files with automatic extent merging
+  - Run code formatter to improve code consistency (:issue:`54`)
+
+- **User Experience Enhancements**
+
+  - Add progress bars for file and directory processing with ``--no-progress`` option to disable (:issue:`32`)
+  - Add ``--quiet`` option to suppress all console messages including warnings and progress bars
+  - Add comprehensive test coverage for multiple providers
+  - Add geopy, python-dotenv, and filesizelib dependencies for enhanced functionality
 
 0.8.0
 ^^^^^
