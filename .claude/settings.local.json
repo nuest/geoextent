@@ -62,7 +62,14 @@
       "Bash(grep:*)",
       "Bash(rg \"max-download-workers\" --max-count=5 echo \"\" echo \"2. --download-skip-nogeo-exts option:\" python -m geoextent --help)",
       "Bash(rg:*)",
-      "WebFetch(domain:datadryad.org)"
+      "WebFetch(domain:datadryad.org)",
+      "Bash(gh run list:*)",
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent pytest --cov=geoextent --cov-report=term-missing tests/test_api_csv.py -v)",
+      "Bash(gh run view:*)",
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent pytest --cov=geoextent --cov-report=term-missing tests/test_api_csv.py::TestCSVBboxExtraction -v)",
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent pytest --cov=geoextent --cov-report=term-missing --cov-report=html tests/test_api_csv.py::TestCSVBboxExtraction::test_extract_bbox_lat_long_columns -v)",
+      "Bash(PYTHONPATH=. pytest --cov=geoextent --cov-report=term-missing)",
+      "Bash(PYTHONPATH=. pytest --cov=geoextent --cov-report=term-missing tests/test_api_csv.py::TestCSVBboxExtraction -v)"
     ],
     "deny": [],
     "ask": []

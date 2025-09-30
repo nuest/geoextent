@@ -33,14 +33,23 @@ jobs:
           ${{ runner.os }}-pip-${{ matrix.python-version }}-
           ${{ runner.os }}-pip-
 
-    - name: Install GDAL using custom script
-      run: |
-        chmod +x etc/gdal-ubuntu-latest.sh
-        ./etc/gdal-ubuntu-latest.sh
+    - name: Cache system dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          /usr/include/gdal
+          /usr/lib/x86_64-linux-gnu/libgdal*
+          /usr/bin/gdal*
+        key: ${{ runner.os }}-gdal-${{ hashFiles('.github/workflows/comprehensive-tests.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-gdal-
 
-    - name: Install additional dependencies
+    - name: Install system dependencies
       run: |
-        sudo apt-get install -y netcdf-bin libspatialite-dev
+        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo apt-get update
+        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
+        gdal-config --version
 
 
     - name: Install geoextent and dependencies
@@ -53,31 +62,39 @@ jobs:
       if: matrix.test-category == 'api-core'
       run: |
         echo "Running core API tests..."
-        pytest -v tests/test_api.py tests/test_point_detection.py tests/test_wkt_extent_comparison.py
+        pytest -v --cov=geoextent --cov-report=xml --cov-report=term-missing tests/test_api.py tests/test_point_detection.py tests/test_wkt_extent_comparison.py
 
     - name: Test Repository Providers
       if: matrix.test-category == 'api-repositories'
       run: |
         echo "Running repository provider tests..."
-        pytest -v tests/test_api_*zenodo.py tests/test_api_*figshare.py tests/test_api_*dryad.py tests/test_api_*pangaea.py tests/test_api_*osf.py tests/test_api_*gfz.py tests/test_api_*pensoft.py tests/test_api_*dataverse.py tests/test_multiple_repositories.py tests/test_api_repository_combinations.py tests/test_doi_url_support.py
+        pytest -v --cov=geoextent --cov-report=xml --cov-report=term-missing tests/test_api_*zenodo.py tests/test_api_*figshare.py tests/test_api_*dryad.py tests/test_api_*pangaea.py tests/test_api_*osf.py tests/test_api_*gfz.py tests/test_api_*pensoft.py tests/test_api_*dataverse.py tests/test_multiple_repositories.py tests/test_api_repository_combinations.py tests/test_doi_url_support.py
 
     - name: Test Format Handlers
       if: matrix.test-category == 'api-formats'
       run: |
         echo "Running format handler tests..."
-        pytest -v tests/test_api_csv.py tests/test_api_geojson.py tests/test_api_geotiff.py tests/test_api_shapefile.py tests/test_api_flatgeobuf.py
+        pytest -v --cov=geoextent --cov-report=xml --cov-report=term-missing tests/test_api_csv.py tests/test_api_geojson.py tests/test_api_geotiff.py tests/test_api_shapefile.py tests/test_api_flatgeobuf.py
 
     - name: Test CLI Interface
       if: matrix.test-category == 'cli'
       run: |
         echo "Running CLI tests..."
-        pytest -v tests/test_cli.py tests/test_cli_*.py
+        pytest -v --cov=geoextent --cov-report=xml --cov-report=term-missing tests/test_cli.py tests/test_cli_*.py
 
     - name: Test Integration & Special Features
       if: matrix.test-category == 'integration'
       run: |
         echo "Running integration and special feature tests..."
-        pytest -v tests/test_download_size_*.py tests/test_recursive_option.py tests/test_api_parameter_combinations.py
+        pytest -v --cov=geoextent --cov-report=xml --cov-report=term-missing tests/test_download_size_*.py tests/test_recursive_option.py tests/test_api_parameter_combinations.py
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: comprehensive-tests-${{ matrix.test-category }}
+        name: codecov-comprehensive-${{ matrix.test-category }}
+        fail_ci_if_error: false
 
   verify-all-tests-discovered:
     runs-on: ubuntu-24.04
@@ -88,14 +105,23 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install GDAL using custom script
-      run: |
-        chmod +x etc/gdal-ubuntu-latest.sh
-        ./etc/gdal-ubuntu-latest.sh
+    - name: Cache system dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          /usr/include/gdal
+          /usr/lib/x86_64-linux-gnu/libgdal*
+          /usr/bin/gdal*
+        key: ${{ runner.os }}-gdal-${{ hashFiles('.github/workflows/comprehensive-tests.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-gdal-
 
-    - name: Install additional dependencies
+    - name: Install system dependencies
       run: |
-        sudo apt-get install -y netcdf-bin libspatialite-dev
+        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo apt-get update
+        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
+        gdal-config --version
 
 
     - name: Install dependencies

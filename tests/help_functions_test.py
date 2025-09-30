@@ -1,5 +1,7 @@
 import zipfile
 import os
+import pytest
+import geoextent.lib.extent as geoextent
 
 tolerance = 1e-3
 
@@ -129,3 +131,67 @@ def test_geojsonio_url_format_independence():
 
     # Should contain data parameter with GeoJSON
     assert "data=" in fragment, "URL should contain data parameter"
+
+
+# Enhanced assertion helpers to reduce repetition
+def assert_bbox_result(result, expected_bbox, expected_crs="4326"):
+    """Assert that a result contains valid bbox data"""
+    assert result is not None, "Result should not be None"
+    assert "bbox" in result, "Result should contain bbox"
+    assert "crs" in result, "Result should contain crs"
+    assert result["bbox"] == pytest.approx(
+        expected_bbox, abs=tolerance
+    ), f"Expected bbox {expected_bbox}, got {result['bbox']}"
+    assert (
+        result["crs"] == expected_crs
+    ), f"Expected CRS {expected_crs}, got {result['crs']}"
+
+
+def assert_tbox_result(result, expected_tbox):
+    """Assert that a result contains valid tbox data"""
+    assert result is not None, "Result should not be None"
+    assert "tbox" in result, "Result should contain tbox"
+    assert (
+        result["tbox"] == expected_tbox
+    ), f"Expected tbox {expected_tbox}, got {result['tbox']}"
+
+
+def assert_no_bbox(result):
+    """Assert that a result does not contain bbox data"""
+    if result is not None:
+        assert "bbox" not in result, "Result should not contain bbox"
+        assert "crs" not in result, "Result should not contain crs"
+
+
+def assert_no_tbox(result):
+    """Assert that a result does not contain tbox data"""
+    if result is not None:
+        assert "tbox" not in result, "Result should not contain tbox"
+
+
+def assert_bbox_and_tbox_result(
+    result, expected_bbox, expected_tbox, expected_crs="4326"
+):
+    """Assert that a result contains both valid bbox and tbox data"""
+    assert_bbox_result(result, expected_bbox, expected_crs)
+    assert_tbox_result(result, expected_tbox)
+
+
+def assert_empty_result(result):
+    """Assert that a result is None (empty/invalid file)"""
+    assert result is None, "Result should be None for empty/invalid files"
+
+
+def extract_bbox_only(filepath):
+    """Extract only bbox from a file"""
+    return geoextent.fromFile(filepath, bbox=True, tbox=False)
+
+
+def extract_tbox_only(filepath):
+    """Extract only tbox from a file"""
+    return geoextent.fromFile(filepath, bbox=False, tbox=True)
+
+
+def extract_bbox_and_tbox(filepath):
+    """Extract both bbox and tbox from a file"""
+    return geoextent.fromFile(filepath, bbox=True, tbox=True)

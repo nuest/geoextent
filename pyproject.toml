@@ -119,3 +119,26 @@ extend-exclude = '''
   | dist
 )/
 '''
+
+[tool.coverage.run]
+source = ["geoextent"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/_version.py"
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:"
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
