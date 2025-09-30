@@ -375,6 +375,9 @@ class Pangaea(DoiProvider):
         max_size_bytes=None,
         max_download_method="ordered",
         max_download_method_seed=None,
+        download_skip_nogeo=False,
+        download_skip_nogeo_exts=None,
+        max_download_workers=4,
     ):
         """
         Extract geospatial metadata from Pangaea dataset.
@@ -387,9 +390,21 @@ class Pangaea(DoiProvider):
         """
         self.throttle = throttle
 
+        # Warning for download skip nogeo not being supported
+        if download_skip_nogeo:
+            self.log.warning(
+                "PANGAEA provider does not support selective file filtering. "
+                "The --download-skip-nogeo option will be ignored. Files will be downloaded based on dataset metadata."
+            )
+
         try:
             if download_data:
-                self._download_data_files(target_folder, max_size_bytes, max_download_method, max_download_method_seed)
+                self._download_data_files(
+                    target_folder,
+                    max_size_bytes,
+                    max_download_method,
+                    max_download_method_seed,
+                )
             else:
                 self._download_metadata_only(target_folder)
 
@@ -468,7 +483,13 @@ class Pangaea(DoiProvider):
                 )
             pbar.update(1)
 
-    def _download_data_files(self, target_folder, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
+    def _download_data_files(
+        self,
+        target_folder,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+    ):
         """Download actual data files from Pangaea for local GDAL-based extraction"""
         if max_download_method_seed is None:
             max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
@@ -534,7 +555,11 @@ class Pangaea(DoiProvider):
                         # Fallback to actual file download using distribution URLs
                         pbar.set_postfix_str("Trying direct file download fallback")
                         fallback_success = self._download_files_fallback(
-                            target_folder, pbar, max_size_bytes, max_download_method, max_download_method_seed
+                            target_folder,
+                            pbar,
+                            max_size_bytes,
+                            max_download_method,
+                            max_download_method_seed,
                         )
                         if not fallback_success:
                             pbar.set_postfix_str("Falling back to metadata extraction")
@@ -548,7 +573,13 @@ class Pangaea(DoiProvider):
             # Try fallback to actual file download before giving up
             try:
                 self.log.info("Attempting direct file download as fallback")
-                if self._download_files_fallback(target_folder, None, max_size_bytes, max_download_method, max_download_method_seed):
+                if self._download_files_fallback(
+                    target_folder,
+                    None,
+                    max_size_bytes,
+                    max_download_method,
+                    max_download_method_seed,
+                ):
                     return
             except Exception as fallback_error:
                 self.log.warning(
@@ -605,41 +636,50 @@ class Pangaea(DoiProvider):
                     file_size = None
 
                     # Try to get Content-Length header
-                    content_length = head_response.headers.get('Content-Length')
+                    content_length = head_response.headers.get("Content-Length")
                     if content_length and content_length.isdigit():
                         file_size = int(content_length)
 
-                    files_info.append({
-                        'url': url,
-                        'name': filename,
-                        'size': file_size,
-                        'index': i
-                    })
+                    files_info.append(
+                        {"url": url, "name": filename, "size": file_size, "index": i}
+                    )
 
-                    self.log.debug(f"File {filename}: {file_size} bytes" if file_size else f"File {filename}: size unknown")
+                    self.log.debug(
+                        f"File {filename}: {file_size} bytes"
+                        if file_size
+                        else f"File {filename}: size unknown"
+                    )
 
                 except Exception as e:
                     self.log.warning(f"Could not get file info from {url}: {e}")
                     # Add file without size info
-                    files_info.append({
-                        'url': url,
-                        'name': f'unknown_file_{i}',
-                        'size': None,
-                        'index': i
-                    })
+                    files_info.append(
+                        {
+                            "url": url,
+                            "name": f"unknown_file_{i}",
+                            "size": None,
+                            "index": i,
+                        }
+                    )
 
             # Apply size filtering if specified
             if max_size_bytes is not None:
                 from .. import helpfunctions as hf
+
                 selected_files, total_size, skipped_files = hf.filter_files_by_size(
-                    files_info, max_size_bytes, max_download_method, max_download_method_seed
+                    files_info,
+                    max_size_bytes,
+                    max_download_method,
+                    max_download_method_seed,
                 )
 
                 if not selected_files:
                     self.log.warning("No files can be downloaded within the size limit")
                     return False
 
-                self.log.info(f"Size limit applied: downloading {len(selected_files)} of {len(files_info)} files")
+                self.log.info(
+                    f"Size limit applied: downloading {len(selected_files)} of {len(files_info)} files"
+                )
                 files_to_download = selected_files
             else:
                 files_to_download = files_info
@@ -647,9 +687,9 @@ class Pangaea(DoiProvider):
             success = False
             for file_info in files_to_download:
                 try:
-                    url = file_info['url']
-                    filename = file_info['name']
-                    file_index = file_info['index']
+                    url = file_info["url"]
+                    filename = file_info["name"]
+                    file_index = file_info["index"]
 
                     if pbar:
                         try:
@@ -674,7 +714,10 @@ class Pangaea(DoiProvider):
                         for chunk in response.iter_content(chunk_size=8192):
                             if chunk:
                                 # If we have a size limit and this file size is unknown, monitor download size
-                                if max_size_bytes is not None and file_info.get('size') is None:
+                                if (
+                                    max_size_bytes is not None
+                                    and file_info.get("size") is None
+                                ):
                                     downloaded_size += len(chunk)
                                     if downloaded_size > max_size_bytes:
                                         self.log.warning(

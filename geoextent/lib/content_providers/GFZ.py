@@ -58,7 +58,19 @@ class GFZ(DoiProvider):
 
         return False
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
+    def download(
+        self,
+        folder,
+        throttle=False,
+        download_data=True,
+        show_progress=True,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+        download_skip_nogeo=False,
+        download_skip_nogeo_exts=None,
+        max_download_workers=4,
+    ):
         """Download data from GFZ Data Services
 
         Args:
@@ -74,6 +86,13 @@ class GFZ(DoiProvider):
             max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
 
         logger.info(f"Downloading from GFZ Data Services: {self.reference}")
+
+        # Warning for download skip nogeo not being supported
+        if download_skip_nogeo:
+            logger.warning(
+                "GFZ provider does not support selective file filtering. "
+                "The --download-skip-nogeo option will be ignored. Files will be downloaded based on availability."
+            )
 
         if not download_data:
             logger.warning(
@@ -121,8 +140,15 @@ class GFZ(DoiProvider):
             download_dir = os.path.join(folder, folder_name)
             os.makedirs(download_dir, exist_ok=True)
 
-            # Download the data
-            self._download_files(download_url, download_dir, show_progress)
+            # Download the data with size filtering
+            self._download_files(
+                download_url,
+                download_dir,
+                show_progress,
+                max_size_bytes=max_size_bytes,
+                max_download_method=max_download_method,
+                max_download_method_seed=max_download_method_seed,
+            )
 
             return download_dir
 
@@ -189,7 +215,16 @@ class GFZ(DoiProvider):
         except:
             return False
 
-    def _download_files(self, download_url, target_dir, show_progress=True, **kwargs):
+    def _download_files(
+        self,
+        download_url,
+        target_dir,
+        show_progress=True,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+        **kwargs
+    ):
         """Download files from the GFZ download URL
 
         Args:
@@ -206,21 +241,48 @@ class GFZ(DoiProvider):
             if "text/html" in content_type:
                 # It's a directory listing, parse and download individual files
                 self._download_from_directory_listing(
-                    download_url, target_dir, show_progress, **kwargs
+                    download_url,
+                    target_dir,
+                    show_progress,
+                    max_size_bytes=max_size_bytes,
+                    max_download_method=max_download_method,
+                    max_download_method_seed=max_download_method_seed,
+                    **kwargs
                 )
             else:
                 # It's a direct file download
                 filename = self._get_filename_from_response(response, download_url)
-                file_path = os.path.join(target_dir, filename)
+                file_size = int(response.headers.get("content-length", 0))
 
-                self._download_single_file(response, file_path, show_progress, **kwargs)
+                # Check size limit for single file download
+                if max_size_bytes is not None and file_size > 0 and file_size > max_size_bytes:
+                    logger.warning(
+                        f"File {filename} ({file_size:,} bytes) exceeds size limit ({max_size_bytes:,} bytes). Skipping download."
+                    )
+                    return
+
+                file_path = os.path.join(target_dir, filename)
+                self._download_single_file(
+                    response,
+                    file_path,
+                    show_progress,
+                    max_size_bytes=max_size_bytes,
+                    **kwargs
+                )
 
         except Exception as e:
             logger.error(f"Error downloading files from {download_url}: {e}")
             raise
 
     def _download_from_directory_listing(
-        self, listing_url, target_dir, show_progress=True, **kwargs
+        self,
+        listing_url,
+        target_dir,
+        show_progress=True,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+        **kwargs
     ):
         """Download files from a directory listing page
 
@@ -237,35 +299,79 @@ class GFZ(DoiProvider):
         if not listing_url.endswith("/"):
             listing_url = listing_url + "/"
 
-        # Find downloadable files (skip directories)
-        file_links = []
+        # Find downloadable files (skip directories) and gather size information
+        file_info = []
         for link in soup.find_all("a", href=True):
             href = link["href"]
             if not href.startswith("?") and not href.endswith("/") and href != "../":
                 file_url = urljoin(listing_url, href)
-                file_links.append((href, file_url))
 
-        if not file_links:
+                # Try to get file size by making a HEAD request
+                try:
+                    head_response = self.session.head(file_url)
+                    head_response.raise_for_status()
+                    file_size = int(head_response.headers.get("content-length", 0))
+                except:
+                    file_size = 0  # Unknown size
+
+                file_info.append({
+                    "name": href,
+                    "url": file_url,
+                    "size": file_size
+                })
+
+        if not file_info:
             logger.warning("No downloadable files found in directory listing")
             return
 
-        logger.info(f"Found {len(file_links)} files to download")
+        logger.info(f"Found {len(file_info)} files in directory listing")
 
-        for filename, file_url in file_links:
+        # Apply size filtering if specified
+        if max_size_bytes is not None:
+            if max_download_method_seed is None:
+                max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
+
+            selected_files, total_size, skipped_files = hf.filter_files_by_size(
+                file_info,
+                max_size_bytes,
+                max_download_method,
+                max_download_method_seed,
+            )
+
+            if not selected_files:
+                logger.warning("No files can be downloaded within the size limit")
+                return
+
+            logger.info(
+                f"Size limit applied: downloading {len(selected_files)} of {len(file_info)} files ({total_size:,} bytes total)"
+            )
+            file_info = selected_files
+        else:
+            total_size = sum(f.get("size", 0) for f in file_info)
+            logger.info(f"Downloading all {len(file_info)} files ({total_size:,} bytes total)")
+
+        # Download selected files
+        for file_data in file_info:
+            filename = file_data["name"]
+            file_url = file_data["url"]
             try:
                 logger.debug(f"Downloading file: {filename}")
                 file_response = self._request(file_url, throttle=True, stream=True)
                 file_path = os.path.join(target_dir, filename)
 
                 self._download_single_file(
-                    file_response, file_path, show_progress, **kwargs
+                    file_response,
+                    file_path,
+                    show_progress,
+                    max_size_bytes=max_size_bytes,
+                    **kwargs
                 )
 
             except Exception as e:
                 logger.warning(f"Failed to download {filename}: {e}")
                 continue
 
-    def _download_single_file(self, response, file_path, show_progress=True, **kwargs):
+    def _download_single_file(self, response, file_path, show_progress=True, max_size_bytes=None, **kwargs):
         """Download a single file from response stream
 
         Args:
@@ -292,16 +398,35 @@ class GFZ(DoiProvider):
         else:
             progress_bar = None
 
+        downloaded_size = 0
+        size_exceeded = False
+
         try:
             with open(file_path, "wb") as f:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
+                        # If we have a size limit and the original file size was unknown, monitor download size
+                        if max_size_bytes is not None and total_size == 0:
+                            downloaded_size += len(chunk)
+                            if downloaded_size > max_size_bytes:
+                                logger.warning(
+                                    f"File {os.path.basename(file_path)} exceeds size limit during download ({downloaded_size:,} > {max_size_bytes:,} bytes). Stopping download."
+                                )
+                                size_exceeded = True
+                                break
+
                         f.write(chunk)
                         if progress_bar:
                             progress_bar.update(len(chunk))
 
             if progress_bar:
                 progress_bar.close()
+
+            # If size was exceeded, remove the partial file
+            if size_exceeded:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+                return
 
             logger.debug(f"Downloaded: {file_path}")
 

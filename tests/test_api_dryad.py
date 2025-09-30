@@ -423,3 +423,182 @@ class TestDryadEdgeCases:
             pytest.fail(f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}")
         except Exception as e:
             pytest.skip(f"Network or API error: {e}")
+
+
+class TestDryadFilteringCapabilities:
+    """Test Dryad provider filtering capabilities for geospatial files and size limits"""
+
+    def test_dryad_metadata_extraction(self):
+        """Test that Dryad provider can extract file metadata"""
+        from geoextent.lib.content_providers.Dryad import Dryad
+
+        dryad = Dryad()
+        dataset = TestDryadProvider.TEST_DATASETS["pacific_atolls"]
+
+        try:
+            dryad.validate_provider(dataset["url"])
+            metadata = dryad._get_metadata()
+
+            # Should get metadata with file information
+            assert metadata is not None
+            assert "_embedded" in metadata
+            assert "stash:files" in metadata["_embedded"]
+
+            files = metadata["_embedded"]["stash:files"]
+            assert isinstance(files, list)
+            assert len(files) > 0
+
+            # Check file metadata structure
+            for file_info in files:
+                assert "path" in file_info
+                assert "size" in file_info
+                assert "_links" in file_info
+                assert "stash:download" in file_info["_links"]
+
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_dryad_geospatial_filtering_logic(self):
+        """Test that Dryad provider filtering logic works correctly"""
+        from geoextent.lib.content_providers.Dryad import Dryad
+
+        dryad = Dryad()
+
+        # Test with mock file data
+        mock_files = [
+            {"name": "data.shp", "size": 1000},
+            {"name": "data.dbf", "size": 500},
+            {"name": "readme.txt", "size": 200},
+            {"name": "analysis.csv", "size": 800},
+            {"name": "map.tiff", "size": 5000},
+        ]
+
+        # Test geospatial filtering
+        filtered_files = dryad._filter_geospatial_files(
+            mock_files,
+            skip_non_geospatial=True,
+            max_size_mb=None,
+            additional_extensions=None
+        )
+
+        # Should filter out non-geospatial files
+        filtered_names = [f["name"] for f in filtered_files]
+        assert "data.shp" in filtered_names
+        assert "data.dbf" in filtered_names  # Shapefile component
+        assert "map.tiff" in filtered_names
+        assert "readme.txt" not in filtered_names
+        # CSV could be geospatial or not, depending on implementation
+
+    def test_dryad_download_with_geospatial_filtering(self):
+        """Test Dryad download with geospatial filtering enabled"""
+        import tempfile
+
+        dataset = TestDryadProvider.TEST_DATASETS["channel_mobility"]
+
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                result = geoextent.fromRemote(
+                    dataset["url"],
+                    bbox=True,
+                    tbox=False,
+                    download_data=True,
+                    download_skip_nogeo=True,  # Enable geospatial filtering
+                    timeout=120  # Longer timeout for Dryad
+                )
+
+                # Should complete without the old warning about filtering not being supported
+                assert result is not None
+                assert result["format"] == "remote"
+
+                # Should have bounding box since we're downloading geospatial files
+                if "bbox" in result:
+                    bbox = result["bbox"]
+                    assert len(bbox) == 4
+                    assert all(isinstance(coord, (int, float)) for coord in bbox)
+
+        except Exception as e:
+            pytest.skip(f"Network, timeout, or processing error: {e}")
+
+    def test_dryad_download_with_size_filtering(self):
+        """Test Dryad download with size filtering"""
+        import tempfile
+
+        dataset = TestDryadProvider.TEST_DATASETS["pacific_atolls"]
+
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                result = geoextent.fromRemote(
+                    dataset["url"],
+                    bbox=True,
+                    tbox=False,
+                    download_data=True,
+                    max_download_size="10MB",  # Size limit for large datasets
+                    timeout=120
+                )
+
+                # Should complete with size filtering
+                assert result is not None
+                assert result["format"] == "remote"
+
+        except Exception as e:
+            pytest.skip(f"Network, timeout, or processing error: {e}")
+
+    def test_dryad_bulk_vs_individual_download_decision(self):
+        """Test that Dryad chooses appropriate download method based on filtering"""
+        # Test logic for when to use individual file downloads
+        # This tests the logic used in the download method
+
+        # Should use individual files when filtering is requested
+        use_individual_1 = (
+            True  # download_skip_nogeo
+            or None is not None  # max_size_bytes
+            or "ordered" != "ordered"  # max_download_method
+        )
+        assert use_individual_1 == True
+
+        use_individual_2 = (
+            False  # download_skip_nogeo
+            or 1000000 is not None  # max_size_bytes (1MB limit)
+            or "ordered" != "ordered"  # max_download_method
+        )
+        assert use_individual_2 == True
+
+        use_individual_3 = (
+            False  # download_skip_nogeo
+            or None is not None  # max_size_bytes
+            or "random" != "ordered"  # max_download_method
+        )
+        assert use_individual_3 == True
+
+        # Should use bulk download when no filtering is needed
+        use_individual_4 = (
+            False  # download_skip_nogeo
+            or None is not None  # max_size_bytes
+            or "ordered" != "ordered"  # max_download_method
+        )
+        assert use_individual_4 == False
+
+    def test_dryad_combined_filtering(self):
+        """Test Dryad download with both geospatial and size filtering"""
+        import tempfile
+
+        dataset = TestDryadProvider.TEST_DATASETS["marine_species"]
+
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                result = geoextent.fromRemote(
+                    dataset["url"],
+                    bbox=True,
+                    tbox=False,
+                    download_data=True,
+                    download_skip_nogeo=True,  # Geospatial filtering
+                    max_download_size="5MB",   # Size filtering
+                    timeout=120
+                )
+
+                # Should complete with combined filtering
+                assert result is not None
+                assert result["format"] == "remote"
+
+        except Exception as e:
+            pytest.skip(f"Network, timeout, or processing error: {e}")

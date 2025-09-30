@@ -3,11 +3,11 @@ import os
 import re
 import tempfile
 from requests import HTTPError
-from .providers import ContentProvider
+from .providers import DoiProvider
 from .. import helpfunctions as hf
 
 
-class OSF(ContentProvider):
+class OSF(DoiProvider):
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")
@@ -185,8 +185,8 @@ class OSF(ContentProvider):
             self.log.error(f"Error using osfclient: {e}")
             raise Exception(f"Failed to download OSF files via osfclient: {e}")
 
-    def _get_files_via_api(self, target_folder, show_progress=True):
-        """Fallback method to get file list via OSF API"""
+    def _get_file_metadata_via_api(self):
+        """Get file metadata from OSF API without downloading"""
         if not self.project_id:
             raise Exception("No project ID available")
 
@@ -201,90 +201,105 @@ class OSF(ContentProvider):
             response.raise_for_status()
             data = response.json()
 
-            # First pass: collect all downloadable files with progress tracking
-            downloadable_files = []
+            # Recursively collect all files with metadata
+            def collect_files_recursive(url, path_prefix=""):
+                files = []
+                response = requests.get(url, timeout=30)
+                response.raise_for_status()
+                data = response.json()
+
+                for item in data.get("data", []):
+                    attributes = item.get("attributes", {})
+                    kind = attributes.get("kind")
+                    name = attributes.get("name", "")
+
+                    if kind == "file":
+                        file_size = attributes.get("size", 0)
+                        download_url = item.get("links", {}).get("download")
+                        full_path = (
+                            os.path.join(path_prefix, name) if path_prefix else name
+                        )
+
+                        if download_url:
+                            files.append(
+                                {
+                                    "name": full_path,
+                                    "url": download_url,
+                                    "size": file_size,
+                                }
+                            )
+                    elif (
+                        kind == "folder"
+                        and "relationships" in item
+                        and "files" in item["relationships"]
+                    ):
+                        # Recursively explore folders
+                        folder_url = item["relationships"]["files"]["links"]["related"][
+                            "href"
+                        ]
+                        folder_path = (
+                            os.path.join(path_prefix, name) if path_prefix else name
+                        )
+                        files.extend(collect_files_recursive(folder_url, folder_path))
+
+                return files
+
+            # Start collection from osfstorage
+            all_files = []
             storage_providers = data.get("data", [])
 
-            if show_progress:
-                metadata_pbar = tqdm(
-                    total=len(storage_providers),
-                    desc=f"Processing OSF metadata for {self.project_id}",
-                    unit="provider",
-                    leave=False,
-                )
+            for storage_provider in storage_providers:
+                if storage_provider.get("attributes", {}).get("name") == "osfstorage":
+                    storage_url = (
+                        storage_provider.get("relationships", {})
+                        .get("files", {})
+                        .get("links", {})
+                        .get("related", {})
+                        .get("href")
+                    )
+                    if storage_url:
+                        all_files.extend(collect_files_recursive(storage_url))
 
-            try:
-                for storage_provider in storage_providers:
-                    if (
-                        storage_provider.get("attributes", {}).get("name")
-                        == "osfstorage"
-                    ):
-                        # Get files from osfstorage
-                        storage_url = (
-                            storage_provider.get("relationships", {})
-                            .get("files", {})
-                            .get("links", {})
-                            .get("related", {})
-                            .get("href")
-                        )
-                        if storage_url:
-                            if show_progress:
-                                metadata_pbar.set_postfix_str("Fetching file list")
-                            files_response = requests.get(storage_url, timeout=30)
-                            files_response.raise_for_status()
-                            files_data = files_response.json()
-
-                            file_count = 0
-                            for file_info in files_data.get("data", []):
-                                if (
-                                    file_info.get("attributes", {}).get("kind")
-                                    == "file"
-                                ):
-                                    file_name = file_info.get("attributes", {}).get(
-                                        "name"
-                                    )
-                                    download_url = file_info.get("links", {}).get(
-                                        "download"
-                                    )
-                                    file_size = file_info.get("attributes", {}).get(
-                                        "size", 0
-                                    )
-
-                                    if file_name and download_url:
-                                        downloadable_files.append(
-                                            {
-                                                "name": file_name,
-                                                "url": download_url,
-                                                "size": file_size,
-                                            }
-                                        )
-                                        file_count += 1
-
-                            if show_progress:
-                                metadata_pbar.set_postfix_str(
-                                    f"Found {file_count} files"
-                                )
-                    if show_progress:
-                        metadata_pbar.update(1)
-
-            finally:
-                if show_progress:
-                    metadata_pbar.close()
-
-            if not downloadable_files:
-                self.log.warning(
-                    f"No downloadable files found in OSF project {self.project_id}"
-                )
-                return []
-
-            # Second pass: download files with progress tracking
-            downloaded_files = []
-            total_size = sum(f["size"] for f in downloadable_files)
-
-            # Log download summary before starting
-            self.log.info(
-                f"Starting download of {len(downloadable_files)} files from OSF project {self.project_id} ({total_size:,} bytes total)"
+            self.log.debug(
+                f"Found {len(all_files)} files in OSF project {self.project_id}"
             )
+            return all_files
+
+        except requests.RequestException as e:
+            raise Exception(f"Failed to get file metadata via OSF API: {e}")
+
+    def _get_files_via_api(self, target_folder, show_progress=True, file_list=None):
+        """Download files via OSF API with optional pre-filtered file list"""
+        if file_list is None:
+            # Get all files if no pre-filtered list provided
+            file_list = self._get_file_metadata_via_api()
+
+        if not file_list:
+            self.log.warning(
+                f"No downloadable files found in OSF project {self.project_id}"
+            )
+            return []
+
+        # Download files with progress tracking
+        downloaded_files = []
+        total_size = sum(f["size"] for f in file_list)
+
+        # Log download summary before starting
+        self.log.info(
+            f"Starting download of {len(file_list)} files from OSF project {self.project_id} ({total_size:,} bytes total)"
+        )
+
+        # Use the batch download method from parent class
+        if hasattr(self, "_download_files_batch"):
+            results = self._download_files_batch(
+                file_list, target_folder, show_progress=show_progress, max_workers=4
+            )
+            downloaded_files = [
+                os.path.join(target_folder, f["name"]) for f in file_list
+            ]
+        else:
+            # Fallback to sequential download
+            from tqdm import tqdm
 
             if show_progress:
                 pbar = tqdm(
@@ -295,15 +310,22 @@ class OSF(ContentProvider):
                 )
 
             try:
-                for file_info in downloadable_files:
+                for file_info in file_list:
                     file_name = file_info["name"]
                     download_url = file_info["url"]
                     local_path = os.path.join(target_folder, file_name)
 
+                    # Create directories if needed
+                    os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
                     if show_progress:
-                        pbar.set_postfix_str(f"Downloading {file_name}")
+                        pbar.set_postfix_str(
+                            f"Downloading {os.path.basename(file_name)}"
+                        )
 
                     # Download file
+                    import requests
+
                     file_response = requests.get(download_url, timeout=30, stream=True)
                     file_response.raise_for_status()
 
@@ -321,16 +343,23 @@ class OSF(ContentProvider):
                 if show_progress:
                     pbar.close()
 
-            self.log.info(
-                f"Downloaded {len(downloaded_files)} files from OSF project {self.project_id}"
-            )
-            return downloaded_files
-
-        except requests.RequestException as e:
-            raise Exception(f"Failed to download files via OSF API: {e}")
+        self.log.info(
+            f"Downloaded {len(downloaded_files)} files from OSF project {self.project_id}"
+        )
+        return downloaded_files
 
     def download(
-        self, target_folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None
+        self,
+        target_folder,
+        throttle=False,
+        download_data=True,
+        show_progress=True,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+        download_skip_nogeo=False,
+        download_skip_nogeo_exts=None,
+        max_download_workers=4,
     ):
         """
         Extract geospatial metadata from OSF project.
@@ -345,6 +374,8 @@ class OSF(ContentProvider):
             max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
 
         self.throttle = throttle
+
+        # OSF now supports selective file filtering!
 
         if not download_data:
             self.log.warning(
@@ -362,21 +393,98 @@ class OSF(ContentProvider):
                 raise
 
         try:
-            # First try osfclient for file download
+            # Get file metadata first via API (more reliable than osfclient for metadata)
+            self.log.debug(
+                f"Retrieving file metadata for OSF project {self.project_id}"
+            )
+
             try:
+                all_files = self._get_file_metadata_via_api()
+            except Exception as metadata_error:
+                self.log.warning(f"Failed to get metadata via API: {metadata_error}")
+                # Fallback to osfclient without filtering
+                try:
+                    if download_skip_nogeo:
+                        self.log.warning(
+                            "Cannot apply geospatial filtering without file metadata. "
+                            "Downloading all files via osfclient."
+                        )
+                    downloaded_files = self._get_files_via_osfclient(
+                        target_folder, show_progress
+                    )
+                    self.log.info(
+                        f"OSF data downloaded via osfclient for project {self.project_id}"
+                    )
+                    return
+                except Exception as osfclient_error:
+                    raise Exception(
+                        f"Both API metadata and osfclient failed: {metadata_error}, {osfclient_error}"
+                    )
+
+            if not all_files:
+                self.log.warning(f"No files found in OSF project {self.project_id}")
+                return
+
+            # Apply filtering if requested
+            file_info = all_files
+            total_size = sum(f.get("size", 0) for f in file_info)
+
+            # Apply geospatial filtering if requested
+            if download_skip_nogeo:
+                filtered_files = self._filter_geospatial_files(
+                    file_info,
+                    skip_non_geospatial=download_skip_nogeo,
+                    max_size_mb=None,  # Don't apply size limit here
+                    additional_extensions=download_skip_nogeo_exts,
+                )
+            else:
+                filtered_files = file_info
+
+            # Apply size filtering if specified
+            if max_size_bytes is not None:
+                selected_files, filtered_total_size, skipped_files = (
+                    hf.filter_files_by_size(
+                        filtered_files,
+                        max_size_bytes,
+                        max_download_method,
+                        max_download_method_seed,
+                    )
+                )
+                if not selected_files:
+                    self.log.warning("No files can be downloaded within the size limit")
+                    return
+                file_info = selected_files
+                total_size = filtered_total_size
+            else:
+                file_info = filtered_files
+                total_size = sum(f.get("size", 0) for f in file_info)
+
+            if not file_info:
+                self.log.warning(f"No files selected for download after filtering")
+                return
+
+            # Download the filtered files
+            try:
+                # Try API download first (more control over individual files)
+                downloaded_files = self._get_files_via_api(
+                    target_folder, show_progress, file_info
+                )
+                self.log.info(
+                    f"OSF data downloaded via API for project {self.project_id}"
+                )
+            except Exception as api_error:
+                self.log.warning(f"API download failed: {api_error}, trying osfclient")
+                # Fallback to osfclient (but we lose filtering)
+                if file_info != all_files:
+                    self.log.warning(
+                        "File filtering will be lost when using osfclient fallback. "
+                        "All files in the project will be downloaded."
+                    )
                 downloaded_files = self._get_files_via_osfclient(
                     target_folder, show_progress
                 )
                 self.log.info(
                     f"OSF data downloaded via osfclient for project {self.project_id}"
-                )
-            except Exception as osfclient_error:
-                self.log.warning(
-                    f"osfclient failed: {osfclient_error}, trying API fallback"
-                )
-                downloaded_files = self._get_files_via_api(target_folder, show_progress)
-                self.log.info(
-                    f"OSF data downloaded via API for project {self.project_id}"
                 )
 
             if not downloaded_files:

@@ -333,7 +333,19 @@ class Dataverse(DoiProvider):
 
         raise ValueError(f"Could not determine download URL for file: {file_info}")
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
+    def download(
+        self,
+        folder,
+        throttle=False,
+        download_data=True,
+        show_progress=True,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+        download_skip_nogeo=False,
+        download_skip_nogeo_exts=None,
+        max_download_workers=4,
+    ):
         """
         Download files from the Dataverse dataset.
 
@@ -348,6 +360,13 @@ class Dataverse(DoiProvider):
             max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
 
         self.throttle = throttle
+
+        # Warning for download skip nogeo not being supported
+        if download_skip_nogeo:
+            self.log.warning(
+                "Dataverse provider does not support selective file filtering. "
+                "The --download-skip-nogeo option will be ignored. All files will be downloaded."
+            )
 
         if not download_data:
             self.log.warning(

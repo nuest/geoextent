@@ -96,7 +96,19 @@ class Figshare(DoiProvider):
             # TODO: files can be empty
         return file_list
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
+    def download(
+        self,
+        folder,
+        throttle=False,
+        download_data=True,
+        show_progress=True,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+        download_skip_nogeo=False,
+        download_skip_nogeo_exts=None,
+        max_download_workers=4,
+    ):
         from tqdm import tqdm
 
         if max_download_method_seed is None:
@@ -160,57 +172,37 @@ class Figshare(DoiProvider):
                 )
                 return
 
-            # Log download summary before starting
-            self.log.info(
-                f"Starting download of {len(file_info)} files from Figshare item {self.record_id} ({total_size:,} bytes total)"
+            # Apply file filtering for geospatial relevance and size constraints
+            max_size_mb = max_size_bytes / (1024 * 1024) if max_size_bytes else None
+            filtered_files = self._filter_geospatial_files(
+                file_info,
+                skip_non_geospatial=download_skip_nogeo,
+                max_size_mb=max_size_mb,
+                additional_extensions=download_skip_nogeo_exts,
             )
 
-            # Download files with progress bar
-            if show_progress:
-                pbar = tqdm(
-                    total=total_size,
-                    desc=f"Downloading Figshare item {self.record_id}",
-                    unit="B",
-                    unit_scale=True,
-                )
+            if not filtered_files:
+                self.log.warning(f"No files selected for download after filtering")
+                return
 
-            try:
-                for i, file_data in enumerate(file_info, 1):
-                    filename = file_data["name"]
-                    file_link = file_data["url"]
-                    file_size = file_data["size"]
+            # Recalculate total size for filtered files
+            filtered_total_size = sum(f.get("size", 0) for f in filtered_files)
 
-                    if show_progress:
-                        pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
+            # Log download summary before starting
+            self.log.info(
+                f"Starting download of {len(filtered_files)} files from Figshare item {self.record_id} ({filtered_total_size:,} bytes total)"
+            )
 
-                    resp = self._request(
-                        file_link,
-                        throttle=self.throttle,
-                        stream=True,
-                    )
-                    filepath = os.path.join(folder, filename)
-
-                    # Download with chunk-based progress tracking
-                    downloaded_bytes = 0
-                    with open(filepath, "wb") as dst:
-                        for chunk in resp.iter_content(chunk_size=8192):
-                            if chunk:
-                                dst.write(chunk)
-                                chunk_size = len(chunk)
-                                downloaded_bytes += chunk_size
-                                if show_progress:
-                                    pbar.update(chunk_size)
-
-                    self.log.debug(
-                        f"Downloaded Figshare file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)"
-                    )
-
-            finally:
-                if show_progress:
-                    pbar.close()
+            # Use new parallel download batch method
+            self._download_files_batch(
+                filtered_files,
+                folder,
+                show_progress=show_progress,
+                max_workers=max_download_workers,
+            )
 
             self.log.info(
-                f"Downloaded {len(file_info)} files from Figshare item {self.record_id} ({total_size} bytes total)"
+                f"Downloaded {len(filtered_files)} files from Figshare item {self.record_id} ({filtered_total_size} bytes total)"
             )
 
         except ValueError as e:

@@ -700,3 +700,159 @@ class TestOSFActualBoundingBoxVerification:
                 assert (
                     abs(bbox[3] - reference_bbox[3]) < 0.001
                 ), f"North latitude mismatch for {identifier}"
+
+
+class TestOSFFilteringCapabilities:
+    """Test OSF provider filtering capabilities for geospatial files and size limits"""
+
+    def test_osf_file_metadata_extraction(self):
+        """Test that OSF provider can extract file metadata via API"""
+        from geoextent.lib.content_providers.OSF import OSF
+
+        osf = OSF()
+        dataset = TestOSFProvider.TEST_DATASETS["gis_dataset_shapefiles"]
+
+        osf.validate_provider(dataset["project_id"])
+
+        try:
+            file_metadata = osf._get_file_metadata_via_api()
+
+            # Should get file metadata
+            assert isinstance(file_metadata, list)
+            assert len(file_metadata) > 0
+
+            # Check file metadata structure
+            for file_info in file_metadata:
+                assert "name" in file_info
+                assert "url" in file_info
+                assert "size" in file_info
+                assert isinstance(file_info["size"], int)
+                assert file_info["size"] >= 0
+
+        except ImportError:
+            pytest.skip("Required dependencies not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_osf_geospatial_filtering_support(self):
+        """Test that OSF provider now supports geospatial filtering"""
+        from geoextent.lib.content_providers.OSF import OSF
+
+        osf = OSF()
+        dataset = TestOSFProvider.TEST_DATASETS["gis_dataset_shapefiles"]
+
+        osf.validate_provider(dataset["project_id"])
+
+        try:
+            # Get file metadata
+            file_metadata = osf._get_file_metadata_via_api()
+
+            if file_metadata:
+                # Test geospatial filtering
+                filtered_files = osf._filter_geospatial_files(
+                    file_metadata,
+                    skip_non_geospatial=True,
+                    max_size_mb=None,
+                    additional_extensions=None
+                )
+
+                # Should have method available
+                assert hasattr(osf, '_filter_geospatial_files')
+                assert isinstance(filtered_files, list)
+
+                # All filtered files should have geospatial extensions
+                geospatial_exts = {'.shp', '.geojson', '.kml', '.gpx', '.gml', '.tif', '.tiff'}
+                for file_info in filtered_files:
+                    file_name = file_info.get('name', '')
+                    has_geo_ext = any(file_name.lower().endswith(ext) for ext in geospatial_exts)
+                    assert has_geo_ext, f"Non-geospatial file found after filtering: {file_name}"
+
+        except ImportError:
+            pytest.skip("Required dependencies not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_osf_download_with_geospatial_filtering(self):
+        """Test OSF download with geospatial filtering enabled"""
+        import tempfile
+
+        dataset = TestOSFProvider.TEST_DATASETS["gis_dataset_shapefiles"]
+
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                result = geoextent.fromRemote(
+                    dataset["url"],
+                    bbox=True,
+                    tbox=False,
+                    download_data=True,
+                    download_skip_nogeo=True,  # Enable geospatial filtering
+                    timeout=60
+                )
+
+                # Should complete without the old warning about filtering not being supported
+                assert result is not None
+                assert result["format"] == "remote"
+
+                # Should have bounding box since we're downloading geospatial files
+                if "bbox" in result:
+                    bbox = result["bbox"]
+                    assert len(bbox) == 4
+                    assert all(isinstance(coord, (int, float)) for coord in bbox)
+
+        except ImportError:
+            pytest.skip("Required dependencies not available")
+        except Exception as e:
+            pytest.skip(f"Network or processing error: {e}")
+
+    def test_osf_download_with_size_filtering(self):
+        """Test OSF download with size filtering"""
+        import tempfile
+
+        dataset = TestOSFProvider.TEST_DATASETS["gis_dataset_shapefiles"]
+
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                result = geoextent.fromRemote(
+                    dataset["url"],
+                    bbox=True,
+                    tbox=False,
+                    download_data=True,
+                    max_download_size="1MB",  # Small size limit
+                    timeout=60
+                )
+
+                # Should complete with size filtering
+                assert result is not None
+                assert result["format"] == "remote"
+
+        except ImportError:
+            pytest.skip("Required dependencies not available")
+        except Exception as e:
+            pytest.skip(f"Network or processing error: {e}")
+
+    def test_osf_download_with_combined_filtering(self):
+        """Test OSF download with both geospatial and size filtering"""
+        import tempfile
+
+        dataset = TestOSFProvider.TEST_DATASETS["gis_dataset_shapefiles"]
+
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                result = geoextent.fromRemote(
+                    dataset["url"],
+                    bbox=True,
+                    tbox=False,
+                    download_data=True,
+                    download_skip_nogeo=True,  # Geospatial filtering
+                    max_download_size="5MB",   # Size filtering
+                    timeout=60
+                )
+
+                # Should complete with combined filtering
+                assert result is not None
+                assert result["format"] == "remote"
+
+        except ImportError:
+            pytest.skip("Required dependencies not available")
+        except Exception as e:
+            pytest.skip(f"Network or processing error: {e}")

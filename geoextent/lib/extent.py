@@ -1,3 +1,4 @@
+import filesizelib
 import logging
 import os
 import patoolib
@@ -329,13 +330,20 @@ def fromDirectory(
 
                         # Convert convex hull coordinates back to [W,S,E,N] format if needed
                         bbox = file_metadata["bbox"]
-                        if isinstance(bbox, list) and len(bbox) >= 3 and isinstance(bbox[0], list):
+                        if (
+                            isinstance(bbox, list)
+                            and len(bbox) >= 3
+                            and isinstance(bbox[0], list)
+                        ):
                             # This is coordinate array format, convert to envelope
                             x_coords = [coord[0] for coord in bbox if len(coord) >= 2]
                             y_coords = [coord[1] for coord in bbox if len(coord) >= 2]
                             if x_coords and y_coords:
                                 fallback_file_metadata["bbox"] = [
-                                    min(x_coords), min(y_coords), max(x_coords), max(y_coords)
+                                    min(x_coords),
+                                    min(y_coords),
+                                    max(x_coords),
+                                    max(y_coords),
                                 ]
 
                         # Remove convex hull flag for fallback
@@ -581,6 +589,9 @@ def fromRemote(
     max_download_size: str | None = None,
     max_download_method: str = "ordered",
     max_download_method_seed: int = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+    download_skip_nogeo: bool = False,
+    download_skip_nogeo_exts: set = None,
+    max_download_workers: int = 4,
 ):
     try:
         geoextent = geoextent_from_repository()
@@ -599,6 +610,9 @@ def fromRemote(
             max_download_size,
             max_download_method,
             max_download_method_seed,
+            download_skip_nogeo,
+            download_skip_nogeo_exts,
+            max_download_workers,
         )
         metadata["format"] = "remote"
     except ValueError as e:
@@ -608,7 +622,6 @@ def fromRemote(
         raise Exception(e)
 
     return metadata
-
 
 
 class geoextent_from_repository(Application):
@@ -646,6 +659,9 @@ class geoextent_from_repository(Application):
         max_download_size=None,
         max_download_method="ordered",
         max_download_method_seed=hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+        download_skip_nogeo=False,
+        download_skip_nogeo_exts=None,
+        max_download_workers=4,
     ):
 
         if bbox + tbox == 0:
@@ -661,9 +677,7 @@ class geoextent_from_repository(Application):
             repository = h()
             if repository.validate_provider(reference=remote_identifier):
                 logger.debug(
-                    "Using {} to extract {}".format(
-                        repository.name, remote_identifier
-                    )
+                    "Using {} to extract {}".format(repository.name, remote_identifier)
                 )
                 supported_by_geoextent = True
                 try:
@@ -671,9 +685,32 @@ class geoextent_from_repository(Application):
                         # Parse download size if provided
                         max_size_bytes = None
                         if max_download_size:
+                            # Validate size string format before parsing
+                            max_download_size = max_download_size.strip()
+                            if not max_download_size:
+                                error_msg = "Download size cannot be empty. Please use format like '100MB', '2GB', etc."
+                                logger.error(error_msg)
+                                raise ValueError(error_msg)
+
                             max_size_bytes = hf.parse_download_size(max_download_size)
                             if max_size_bytes is None:
-                                logger.warning(f"Invalid download size format: {max_download_size}")
+                                # Invalid format error
+                                error_msg = (
+                                    f"Invalid download size format: '{max_download_size}'. "
+                                    f"Please use format like '100MB', '2GB', '500KB', '1.5TB', etc. "
+                                    f"Supported units: B, KB, MB, GB, TB, PB."
+                                )
+                                logger.error(error_msg)
+                                raise ValueError(error_msg)
+
+                            elif max_size_bytes <= 0:
+                                error_msg = f"Download size must be positive, got: {max_download_size}"
+                                logger.error(error_msg)
+                                raise ValueError(error_msg)
+                            else:
+                                logger.debug(
+                                    f"Parsed download size limit: {max_download_size} = {max_size_bytes:,} bytes"
+                                )
 
                         repository.download(
                             tmp,
@@ -683,6 +720,9 @@ class geoextent_from_repository(Application):
                             max_size_bytes=max_size_bytes,
                             max_download_method=max_download_method,
                             max_download_method_seed=max_download_method_seed,
+                            download_skip_nogeo=download_skip_nogeo,
+                            download_skip_nogeo_exts=download_skip_nogeo_exts,
+                            max_download_workers=max_download_workers,
                         )
                         metadata = fromDirectory(
                             tmp,
