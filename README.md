@@ -65,6 +65,59 @@ pip install -e .
 pip install -e ".[dev,test,docs]"
 ```
 
+### Docker Installation
+
+A Docker image is available for easy deployment without managing dependencies:
+
+```bash
+# Build the Docker image
+docker build -t geoextent .
+
+# Run geoextent using Docker (equivalent to CLI usage)
+docker run --rm -v /path/to/your/data:/data geoextent [options] [files]
+```
+
+#### Docker Usage Examples
+
+The Docker container is designed to be functionally equivalent to the CLI. Mount your data directory and use the same command arguments:
+
+```bash
+# Show help
+docker run geoextent --help
+
+# Extract both spatial and temporal extents with a ready-to-use link
+docker run --rm -v ${PWD}/tests/testdata/shapefile/:/data geoextent -b -t --geojsonio /data/ifgi_denkpause.shp
+
+# Extract convex hull from a local directory
+docker run --rm -v ${PWD}/tests/testdata/geojson:/data geoextent -b --format wkt /data
+
+# Extract from remote repositories (no local data mount needed)
+docker run --rm geoextent -b https://doi.org/10.5281/zenodo.4593540
+
+# Use placename lookup with remote
+docker run --rm --env-file .env geoextent -b --placename https://doi.org/10.5281/zenodo.3446746
+
+# Combine with size limiting for download and subpressing log output for further processing
+docker run --rm geoextent -b --max-download-size 10MB --quiet https://doi.org/10.5281/zenodo.10731546
+```
+
+#### Key Docker Usage Notes
+
+- **Data mounting**: Use `-v /host/path:/data` to mount your local data directory
+- **Environment variables**: Use `--env-file .env` or `-e VARIABLE=value` for API keys
+- **Working directory**: The container's working directory is `/data`, so reference files relative to this
+- **Output**: Results are printed to stdout, same as the CLI
+- **Permissions**: The container runs as non-root user `geoextent` (UID 1000)
+
+#### Docker vs CLI Equivalence
+
+| CLI Command | Docker Equivalent |
+|-------------|-------------------|
+| `python -m geoextent --help` | `docker run --rm geoextent` |
+| `python -m geoextent -b file.geojson` | `docker run --rm -v $(pwd):/data geoextent -b /data/file.geojson` |
+| `python -m geoextent -b -t directory/` | `docker run --rm -v $(pwd):/data geoextent -b -t /data/directory/` |
+| `python -m geoextent -b --placename file.shp` | `docker run --rm --env-file .env -v $(pwd):/data geoextent -b --placename /data/file.shp` |
+
 ## Use
 
 Run

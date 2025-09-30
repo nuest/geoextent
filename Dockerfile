@@ -1,59 +1,74 @@
-FROM ubuntu:20.04
+FROM ubuntu:24.04
 
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies and Python packages
 RUN apt-get update && apt-get install -y \
-	software-properties-common
+    python3 \
+    python3-pip \
+    python3-gdal \
+    python3-numpy \
+    python3-pandas \
+    python3-requests \
+    python3-dateutil \
+    gdal-bin \
+    && rm -rf /var/lib/apt/lists/*
 
-# To get necessary dependencies for gdal-bin
-RUN add-apt-repository ppa:ubuntugis/ppa
+# Verify GDAL installation
+RUN gdalinfo --version
 
-RUN apt-get update
+# Copy application
+COPY . /app
+WORKDIR /app
 
-# Install required libraryes including GDAL development libraries
-RUN apt-get update && apt-get install -y \
-	sudo\
-	python3.6\
-	python3-pip\
-  	python3-gdal \
-	gdal-bin\
-	libgdal-dev
+# Install only runtime dependencies (not dev/test dependencies)
+RUN pip3 install --break-system-packages \
+    geojson>=2.4.1 \
+    geojsonio \
+    pygeoj \
+    pyshp \
+    pyproj \
+    patool \
+    traitlets \
+    wheel \
+    pangaeapy \
+    osfclient \
+    filesizelib \
+    setuptools-scm>=8 \
+    tqdm \
+    beautifulsoup4 \
+    geopy \
+    python-dotenv
 
-RUN ogrinfo --version
+# Set version for setuptools-scm
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.9.0
 
-COPY requirements.txt /requirements.txt
+# Install geoextent
+RUN pip3 install --break-system-packages -e . --no-deps
 
-RUN pip3 install --upgrade setuptools pip
+# Verify geoextent installation
+RUN python3 -m geoextent --version
 
-# Install required libraryes including geoextent and GDAL
-RUN pip3 install \
-	-r requirements.txt \
-	--no-cache-dir notebook==6.0.3 \
-	bash_kernel
+# Create a non-root user for security
+ARG USER=geoextent
+ARG UID=1001
+ENV USER=${USER}
+ENV UID=${UID}
+ENV HOME=/home/${USER}
 
-# Install Jupyter kernel for bash
-RUN python3 -m bash_kernel.install
-
-COPY showcase/requirements.txt /requirements-showcase.txt
-
-RUN pip3 install -r requirements-showcase.txt
-
-RUN pip3 install geoextent
-
-# Create a user
-ARG NB_USER=jovyan
-ARG NB_UID=1000
-ENV USER ${NB_USER}
-ENV NB_UID ${NB_UID}
-ENV HOME /home/${NB_USER}
-
-# Make contents available to users
 RUN adduser --disabled-password \
-    --gecos "Default user" \
-    --uid ${NB_UID} \
-    ${NB_USER}
+    --gecos "Geoextent user" \
+    --uid ${UID} \
+    ${USER}
 
-# Make sure the contents of our repo are in ${HOME}
-COPY . ${HOME}
-USER root
-RUN chown -R ${NB_UID} ${HOME}
-USER ${NB_USER}
-WORKDIR ${HOME}
+# Create data directory for mounting external data
+RUN mkdir -p /data && \
+    chown ${USER}:${USER} /data
+
+# Switch to non-root user
+USER ${USER}
+WORKDIR /data
+
+# Set the entrypoint to geoextent CLI
+ENTRYPOINT ["python3", "-m", "geoextent"]
+CMD ["--help"]
