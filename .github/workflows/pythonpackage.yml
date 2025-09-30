@@ -32,20 +32,24 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          /usr/include/gdal
-          /usr/lib/x86_64-linux-gnu/libgdal*
-          /usr/bin/gdal*
-        key: ${{ runner.os }}-gdal-${{ hashFiles('.github/workflows/pythonpackage.yml') }}
+          /usr/local/include/gdal*
+          /usr/local/lib/libgdal*
+          /usr/local/bin/gdal*
+          /usr/local/bin/ogr*
+        key: ${{ runner.os }}-gdal-custom-${{ hashFiles('etc/gdal-ubuntu-latest.sh') }}
         restore-keys: |
-          ${{ runner.os }}-gdal-
+          ${{ runner.os }}-gdal-custom-
 
-    - name: Install system dependencies (Ubuntu)
+    - name: Install GDAL using custom script (Ubuntu)
       if: runner.os == 'Linux'
       run: |
-        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
-        sudo apt-get update
-        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
-        gdal-config --version
+        chmod +x etc/gdal-ubuntu-latest.sh
+        ./etc/gdal-ubuntu-latest.sh
+
+    - name: Install additional dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get install -y netcdf-bin libspatialite-dev
     #- name: Install system dependencies (macOS)
     #  if: runner.os == 'macOS'
     #  run: |
