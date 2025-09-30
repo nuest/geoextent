@@ -21,9 +21,7 @@ class TestDOIURLSupport:
             try:
                 result = geoextent.fromRemote(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
-                assert (
-                    result["format"] == "remote"
-                ), f"Wrong format for {doi_format}"
+                assert result["format"] == "remote", f"Wrong format for {doi_format}"
 
             except ImportError:
                 pytest.skip("pangaeapy not available")
@@ -46,9 +44,7 @@ class TestDOIURLSupport:
             try:
                 result = geoextent.fromRemote(doi_format, bbox=True, tbox=True)
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
-                assert (
-                    result["format"] == "remote"
-                ), f"Wrong format for {doi_format}"
+                assert result["format"] == "remote", f"Wrong format for {doi_format}"
 
             except Exception as e:
                 pytest.skip(f"Network or API error for {doi_format}: {e}")
@@ -168,9 +164,7 @@ class TestDOIURLSupport:
 
         for test_case in test_cases:
             try:
-                result = geoextent.fromRemote(
-                    test_case["doi"], bbox=True, tbox=True
-                )
+                result = geoextent.fromRemote(test_case["doi"], bbox=True, tbox=True)
                 assert result is not None, f"Failed to process {test_case['doi']}"
                 assert result["format"] == "remote"
 

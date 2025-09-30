@@ -30,33 +30,29 @@ class TestMultipleRepositories:
                         "pangaea_918707.geojson": {
                             "format": "geojson",
                             "bbox": [-21.5, 76.5, -21.5, 76.5],
-                            "crs": "4326"
+                            "crs": "4326",
                         }
-                    }
+                    },
                 }
             elif "858767" in repo_id:
                 return {
                     "format": "remote",
-                    "details": {
-                        "pangaea_858767_metadata.json": None
-                    }
+                    "details": {"pangaea_858767_metadata.json": None},
                 }
             return None
 
-        with patch('geoextent.lib.extent.from_repository', side_effect=mock_from_repository):
+        with patch(
+            "geoextent.lib.extent.from_repository", side_effect=mock_from_repository
+        ):
             # Simulate processing multiple repositories
             repositories = [
                 "https://doi.org/10.1594/PANGAEA.918707",
-                "https://doi.pangaea.de/10.1594/PANGAEA.858767"
+                "https://doi.pangaea.de/10.1594/PANGAEA.858767",
             ]
 
             for repo in repositories:
                 repo_output = extent.from_repository(
-                    repo,
-                    bbox=True,
-                    tbox=False,
-                    convex_hull=False,
-                    download_data=False
+                    repo, bbox=True, tbox=False, convex_hull=False, download_data=False
                 )
                 if repo_output is not None:
                     result["details"][repo] = repo_output
@@ -67,7 +63,9 @@ class TestMultipleRepositories:
             assert "https://doi.pangaea.de/10.1594/PANGAEA.858767" in result["details"]
 
             # Check that first repository has valid bbox
-            first_repo_result = result["details"]["https://doi.org/10.1594/PANGAEA.918707"]
+            first_repo_result = result["details"][
+                "https://doi.org/10.1594/PANGAEA.918707"
+            ]
             assert first_repo_result["bbox"] == [-21.5, 76.5, -21.5, 76.5]
             assert first_repo_result["crs"] == "4326"
 
@@ -75,11 +73,10 @@ class TestMultipleRepositories:
         """Test processing mix of files and repository identifiers"""
 
         # Create temporary GeoJSON file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.geojson', delete=False) as f:
-            geojson_data = {
-                "type": "Point",
-                "coordinates": [1.0, 1.0]
-            }
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".geojson", delete=False
+        ) as f:
+            geojson_data = {"type": "Point", "coordinates": [1.0, 1.0]}
             json.dump(geojson_data, f)
             temp_geojson = f.name
 
@@ -90,10 +87,12 @@ class TestMultipleRepositories:
                     "format": "remote",
                     "crs": "4326",
                     "bbox": [-21.5, 76.5, -21.5, 76.5],
-                    "details": {}
+                    "details": {},
                 }
 
-            with patch('geoextent.lib.extent.from_repository', side_effect=mock_from_repository):
+            with patch(
+                "geoextent.lib.extent.from_repository", side_effect=mock_from_repository
+            ):
                 # Test CLI argument validation
                 from geoextent.__main__ import readable_file_or_dir
                 import argparse
@@ -113,7 +112,7 @@ class TestMultipleRepositories:
                 validator(None, namespace, inputs, None)
 
                 # Should not raise exception and should validate both inputs
-                assert hasattr(namespace, 'files')
+                assert hasattr(namespace, "files")
                 assert len(namespace.files) == 2
                 assert temp_geojson in namespace.files
                 assert "https://doi.org/10.1594/PANGAEA.918707" in namespace.files
@@ -128,7 +127,10 @@ class TestMultipleRepositories:
         from geoextent.__main__ import help_epilog
 
         # Check that help includes examples of multiple DOIs
-        assert "https://doi.org/10.1594/PANGAEA.918707 https://doi.pangaea.de/10.1594/PANGAEA.858767" in help_epilog
+        assert (
+            "https://doi.org/10.1594/PANGAEA.918707 https://doi.pangaea.de/10.1594/PANGAEA.858767"
+            in help_epilog
+        )
         assert "https://zenodo.org/record/4567890 10.1594/PANGAEA.123456" in help_epilog
 
     def test_cli_argument_parser_multiple_inputs(self):
@@ -138,12 +140,14 @@ class TestMultipleRepositories:
         parser = get_arg_parser()
 
         # Test parsing with multiple repository identifiers
-        with patch('geoextent.__main__.readable_file_or_dir'):
-            args = parser.parse_args([
-                '-b',
-                'https://doi.org/10.1594/PANGAEA.918707',
-                'https://doi.pangaea.de/10.1594/PANGAEA.858767'
-            ])
+        with patch("geoextent.__main__.readable_file_or_dir"):
+            args = parser.parse_args(
+                [
+                    "-b",
+                    "https://doi.org/10.1594/PANGAEA.918707",
+                    "https://doi.pangaea.de/10.1594/PANGAEA.858767",
+                ]
+            )
 
             assert args.bounding_box is True
             assert len(args.files) == 2
@@ -179,13 +183,13 @@ class TestMultipleRepositories:
             "https://doi.org/10.1594/PANGAEA.918707": {
                 "format": "remote",
                 "bbox": [-21.5, 76.5, -21.5, 76.5],
-                "crs": "4326"
+                "crs": "4326",
             },
             "test.geojson": {
                 "format": "geojson",
                 "bbox": [1.0, 1.0, 1.0, 1.0],
-                "crs": "4326"
-            }
+                "crs": "4326",
+            },
         }
 
         # Test bounding box merge
@@ -197,19 +201,21 @@ class TestMultipleRepositories:
         # The merged bounding box should encompass both points
         bbox = merged_bbox["bbox"]
         assert bbox[0] <= -21.5  # min longitude
-        assert bbox[1] <= 1.0    # min latitude
-        assert bbox[2] >= 1.0    # max longitude
-        assert bbox[3] >= 76.5   # max latitude
+        assert bbox[1] <= 1.0  # min latitude
+        assert bbox[2] >= 1.0  # max longitude
+        assert bbox[3] >= 76.5  # max latitude
 
     def test_cli_multiple_inputs_format_output(self):
         """Test CLI output format for multiple inputs"""
 
         # Create temporary test file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.geojson', delete=False) as f:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".geojson", delete=False
+        ) as f:
             geojson_data = {
                 "type": "Feature",
                 "geometry": {"type": "Point", "coordinates": [1.0, 1.0]},
-                "properties": {}
+                "properties": {},
             }
             json.dump(geojson_data, f)
             temp_file = f.name
@@ -217,12 +223,12 @@ class TestMultipleRepositories:
         try:
             # Mock sys.argv for CLI test
             test_args = [
-                'geoextent',
-                '-b',
-                '--no-download-data',
-                '--details',
+                "geoextent",
+                "-b",
+                "--no-download-data",
+                "--details",
                 temp_file,
-                'https://doi.org/10.1594/PANGAEA.918707'
+                "https://doi.org/10.1594/PANGAEA.918707",
             ]
 
             # Mock the from_repository to avoid network calls
@@ -231,12 +237,15 @@ class TestMultipleRepositories:
                     "format": "remote",
                     "crs": "4326",
                     "bbox": [-21.5, 76.5, -21.5, 76.5],
-                    "details": {}
+                    "details": {},
                 }
 
-            with patch.object(sys, 'argv', test_args):
-                with patch('geoextent.lib.extent.from_repository', side_effect=mock_from_repository):
-                    with patch('builtins.print') as mock_print:
+            with patch.object(sys, "argv", test_args):
+                with patch(
+                    "geoextent.lib.extent.from_repository",
+                    side_effect=mock_from_repository,
+                ):
+                    with patch("builtins.print") as mock_print:
                         try:
                             main()
                         except SystemExit:
@@ -282,7 +291,7 @@ class TestMultipleRepositoriesIntegration:
 
         repositories = [
             "https://doi.org/10.1594/PANGAEA.918707",
-            "https://doi.pangaea.de/10.1594/PANGAEA.858767"
+            "https://doi.pangaea.de/10.1594/PANGAEA.858767",
         ]
 
         results = {}
@@ -295,7 +304,7 @@ class TestMultipleRepositoriesIntegration:
                     tbox=False,
                     convex_hull=False,
                     download_data=False,  # Metadata only
-                    show_progress=False
+                    show_progress=False,
                 )
                 if result:
                     results[repo] = result

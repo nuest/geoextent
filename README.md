@@ -161,6 +161,7 @@ python -m geoextent -b --placename geonames tests/testdata/geopackage/nc.gpkg
 python -m geoextent -b --convex-hull --placename nominatim tests/testdata/geojson/muenster_ring.geojson
 
 # Add placenames to repository extracts
+python -m geoextent -b --placename --max-download-size 1G 10.5880/GFZ.2.1.2020.001
 python -m geoextent -b --placename nominatim https://zenodo.org/record/4593540
 python -m geoextent -b --placename photon 10.1594/PANGAEA.734969
 

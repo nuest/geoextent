@@ -44,5 +44,3 @@ CUMULATIVE TIME STATS (Top functions by cumulative time)
         6    0.000    0.000    0.578    0.096 /usr/lib/python3.10/ssl.py:1364(do_handshake)
         6    0.577    0.096    0.577    0.096 {method 'do_handshake' of '_ssl._SSLSocket' objects}
         1    0.000    0.000    0.460    0.460 /home/daniel/git/geoextent/geoextent/lib/content_providers/Zenodo.py:26(validate_provider)
-
-

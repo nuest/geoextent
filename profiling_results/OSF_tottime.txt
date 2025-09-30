@@ -33,5 +33,3 @@ TOTAL TIME STATS (Top functions by total/own time)
       768    0.006    0.000    0.011    0.000 /usr/lib/python3.10/urllib/parse.py:473(urlsplit)
       438    0.005    0.000    0.005    0.000 {built-in method posix.stat}
        58    0.005    0.000    0.005    0.000 {method 'write' of '_ssl._SSLSocket' objects}
-
-

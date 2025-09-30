@@ -412,7 +412,12 @@ def fromDirectory(
             bbox_coords = metadata.get("bbox")
             is_convex_hull = metadata.get("convex_hull", False)
 
-            if is_convex_hull and isinstance(bbox_coords, list) and len(bbox_coords) > 0 and isinstance(bbox_coords[0], list):
+            if (
+                is_convex_hull
+                and isinstance(bbox_coords, list)
+                and len(bbox_coords) > 0
+                and isinstance(bbox_coords[0], list)
+            ):
                 convex_hull_coords = bbox_coords
                 bbox_coords = None
 
@@ -420,7 +425,7 @@ def fromDirectory(
                 bbox=bbox_coords if not is_convex_hull else None,
                 convex_hull_coords=convex_hull_coords,
                 service_name=placename,
-                escape_unicode=placename_escape
+                escape_unicode=placename_escape,
             )
 
             if placename_result:
@@ -617,7 +622,12 @@ def fromFile(
             bbox_coords = metadata.get("bbox")
             is_convex_hull = metadata.get("convex_hull", False)
 
-            if is_convex_hull and isinstance(bbox_coords, list) and len(bbox_coords) > 0 and isinstance(bbox_coords[0], list):
+            if (
+                is_convex_hull
+                and isinstance(bbox_coords, list)
+                and len(bbox_coords) > 0
+                and isinstance(bbox_coords[0], list)
+            ):
                 convex_hull_coords = bbox_coords
                 bbox_coords = None
 
@@ -625,7 +635,7 @@ def fromFile(
                 bbox=bbox_coords if not is_convex_hull else None,
                 convex_hull_coords=convex_hull_coords,
                 service_name=placename,
-                escape_unicode=placename_escape
+                escape_unicode=placename_escape,
             )
 
             if placename_result:

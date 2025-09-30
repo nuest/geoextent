@@ -13,8 +13,8 @@ The main function is:
 
    geoextent.fromFile(input, bbox, time)
 
-**Parameters:**   
-   - ``input``: a string value of input file or path    
+**Parameters:**
+   - ``input``: a string value of input file or path
    - ``bbox``: a boolean value to extract spatial extent (bounding box)
    - ``time``: a boolean value to extract temporal extent ( at "day" precision '%Y-%m-%d')
 
@@ -88,14 +88,14 @@ Output:
 Folders or ZIP file(s)
 ----------------------
 
-**Geoextent** also supports queries for multiple files inside **folders** or **ZIP files**. 
+**Geoextent** also supports queries for multiple files inside **folders** or **ZIP files**.
 
 ::
 
    geoextent.fromDirectory(input, bbox, time, details)
 
-**Parameters:**   
-   - ``input``: a string value of directory of zipfile path    
+**Parameters:**
+   - ``input``: a string value of directory of zipfile path
    - ``bbox``: a boolean value to extract spatial extent (bounding box)
    - ``time``: a boolean value to extract temporal extent ( at "day" precision '%Y-%m-%d')
    - ``details``: a boolean value to return details (geoextent) of individual files (default **False**)

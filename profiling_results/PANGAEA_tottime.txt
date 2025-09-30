@@ -33,5 +33,3 @@ TOTAL TIME STATS (Top functions by total/own time)
 384634/384473    0.026    0.000    0.029    0.000 {built-in method builtins.isinstance}
         1    0.025    0.025    0.026    0.026 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/io/parsers/c_parser_wrapper.py:222(read)
         3    0.022    0.007    0.023    0.008 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/pandas/core/arrays/datetimes.py:746(_format_native_types)
-
-

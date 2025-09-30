@@ -33,5 +33,3 @@ TOTAL TIME STATS (Top functions by total/own time)
     88740    0.236    0.000  115.342    0.001 /usr/lib/python3.10/socket.py:691(readinto)
         1    0.233    0.233  122.261  122.261 /home/daniel/git/geoextent/geoextent/lib/content_providers/Dryad.py:97(download)
     88740    0.219    0.000  114.955    0.001 /usr/lib/python3.10/ssl.py:1292(recv_into)
-
-

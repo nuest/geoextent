@@ -52,10 +52,18 @@
             "@id": "https://orcid.org/0000-0002-8335-9312",
             "givenName": "Sebastian",
             "familyName": "Garzón",
-            "email": "jgarzon@uni-muenster.de",
             "affiliation": {
                 "@type": "Organization",
                 "name": "Opening Reproducible Research, University of Münster, Münster, Germany"
+            }
+        },
+        {
+            "@type": "Person",
+            "givenName": "Drechlser",
+            "familyName": "Lars",
+            "affiliation": {
+                "@type": "Organization",
+                "name": "TU Dresden, Dresden, Germany"
             }
         },
         {

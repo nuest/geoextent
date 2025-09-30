@@ -6,7 +6,7 @@ Basics
 ------
 
 ``geoextent`` can be called on the command line with this command :
-   
+
 .. autoprogram:: geoextent.__main__:arg_parser
    :prog: \
 
@@ -15,7 +15,7 @@ Examples
 
 .. note::
    Depending on the local configuration, **geoextent** might need to be called with the python interpreter prepended:
-   
+
    `python -m geoextent ...`
 
 Show help message
@@ -90,7 +90,7 @@ Extract both bounding box and time interval from a single file
 Folders or ZIP files(s)
 -----------------------
 
-Geoextent also supports queries for multiple files inside **folders** or **ZIP file(s)**. 
+Geoextent also supports queries for multiple files inside **folders** or **ZIP file(s)**.
 
 Extract both bounding box and time interval from a folder or zipfile
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -166,6 +166,3 @@ folder or repository.
 ::
 
     geoextent -b -t --output path/to/output/geopackage_file.gpkg folder_path
-
-
-

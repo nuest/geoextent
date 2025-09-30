@@ -33,5 +33,3 @@ TOTAL TIME STATS (Top functions by total/own time)
      2581    0.007    0.000    5.959    0.002 /usr/lib/python3.10/ssl.py:1150(read)
         1    0.007    0.007    4.237    4.237 /home/daniel/git/geoextent/geoextent/lib/content_providers/Zenodo.py:97(download)
        14    0.007    0.000    0.007    0.000 {built-in method marshal.loads}
-
-

@@ -34,19 +34,28 @@ class TestDownloadSizeIntegration:
             self._create_mock_geojson_files(temp_dir)
 
             # Test with small size limit (should process only first file)
-            result_small = subprocess.run([
-                "python", "-m", "geoextent", "-b",
-                "--format", "wkt",
-                "--max-download-size", "1KB",  # Very small to limit files
-                temp_dir
-            ], capture_output=True, text=True)
+            result_small = subprocess.run(
+                [
+                    "python",
+                    "-m",
+                    "geoextent",
+                    "-b",
+                    "--format",
+                    "wkt",
+                    "--max-download-size",
+                    "1KB",  # Very small to limit files
+                    temp_dir,
+                ],
+                capture_output=True,
+                text=True,
+            )
 
             # Test with large size limit (should process all files)
-            result_large = subprocess.run([
-                "python", "-m", "geoextent", "-b",
-                "--format", "wkt",
-                temp_dir
-            ], capture_output=True, text=True)
+            result_large = subprocess.run(
+                ["python", "-m", "geoextent", "-b", "--format", "wkt", temp_dir],
+                capture_output=True,
+                text=True,
+            )
 
             # Both should succeed but produce different extents
             assert result_small.returncode == 0
@@ -68,10 +77,26 @@ class TestDownloadSizeIntegration:
         """Test that ordered vs random sampling produces different spatial extents."""
 
         files_info = [
-            {"name": "west_europe.geojson", "size": 1500000, "bbox": [0, 45, 5, 50]},    # Western
-            {"name": "north_europe.geojson", "size": 2000000, "bbox": [10, 55, 15, 60]}, # Northern
-            {"name": "east_europe.geojson", "size": 1800000, "bbox": [20, 48, 25, 53]},  # Eastern
-            {"name": "south_europe.geojson", "size": 2200000, "bbox": [12, 40, 18, 45]}, # Southern
+            {
+                "name": "west_europe.geojson",
+                "size": 1500000,
+                "bbox": [0, 45, 5, 50],
+            },  # Western
+            {
+                "name": "north_europe.geojson",
+                "size": 2000000,
+                "bbox": [10, 55, 15, 60],
+            },  # Northern
+            {
+                "name": "east_europe.geojson",
+                "size": 1800000,
+                "bbox": [20, 48, 25, 53],
+            },  # Eastern
+            {
+                "name": "south_europe.geojson",
+                "size": 2200000,
+                "bbox": [12, 40, 18, 45],
+            },  # Southern
         ]
 
         from geoextent.lib.helpfunctions import filter_files_by_size
@@ -115,21 +140,33 @@ class TestDownloadSizeIntegration:
         """Test real repository processing with different size limits produces different extents."""
 
         # Create a mock repository provider that simulates size-based file selection
-        with patch('geoextent.lib.content_providers.Zenodo.Zenodo') as MockZenodo:
+        with patch("geoextent.lib.content_providers.Zenodo.Zenodo") as MockZenodo:
             mock_instance = MagicMock()
             MockZenodo.return_value = mock_instance
 
             # Mock file metadata with realistic sizes and spatial data
             mock_files = [
-                {"key": "region_a.zip", "size": 1000000, "links": {"self": "http://example.com/a.zip"}},
-                {"key": "region_b.zip", "size": 3000000, "links": {"self": "http://example.com/b.zip"}},
-                {"key": "region_c.zip", "size": 8000000, "links": {"self": "http://example.com/c.zip"}},
+                {
+                    "key": "region_a.zip",
+                    "size": 1000000,
+                    "links": {"self": "http://example.com/a.zip"},
+                },
+                {
+                    "key": "region_b.zip",
+                    "size": 3000000,
+                    "links": {"self": "http://example.com/b.zip"},
+                },
+                {
+                    "key": "region_c.zip",
+                    "size": 8000000,
+                    "links": {"self": "http://example.com/c.zip"},
+                },
             ]
 
             # Mock different spatial extents for each region
             spatial_data = {
-                "region_a.zip": {"bbox": [0, 50, 5, 55]},    # Small western area
-                "region_b.zip": {"bbox": [5, 50, 15, 55]},   # Central area
+                "region_a.zip": {"bbox": [0, 50, 5, 55]},  # Small western area
+                "region_b.zip": {"bbox": [5, 50, 15, 55]},  # Central area
                 "region_c.zip": {"bbox": [15, 50, 25, 55]},  # Eastern area
             }
 
@@ -141,10 +178,17 @@ class TestDownloadSizeIntegration:
                 else:
                     # Apply size filtering
                     from geoextent.lib.helpfunctions import filter_files_by_size
-                    files_for_filter = [{"name": f["key"], "size": f["size"]} for f in mock_files]
-                    selected, _, _ = filter_files_by_size(files_for_filter, max_size_bytes, "ordered")
+
+                    files_for_filter = [
+                        {"name": f["key"], "size": f["size"]} for f in mock_files
+                    ]
+                    selected, _, _ = filter_files_by_size(
+                        files_for_filter, max_size_bytes, "ordered"
+                    )
                     selected_names = [f["name"] for f in selected]
-                    selected_files = [f for f in mock_files if f["key"] in selected_names]
+                    selected_files = [
+                        f for f in mock_files if f["key"] in selected_names
+                    ]
 
                 # Create mock GeoJSON files based on selection
                 for file_info in selected_files:
@@ -155,21 +199,27 @@ class TestDownloadSizeIntegration:
                     # Create GeoJSON with appropriate spatial extent
                     geojson_data = {
                         "type": "FeatureCollection",
-                        "features": [{
-                            "type": "Feature",
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [[
-                                    [bbox[0], bbox[1]], [bbox[2], bbox[1]],
-                                    [bbox[2], bbox[3]], [bbox[0], bbox[3]],
-                                    [bbox[0], bbox[1]]
-                                ]]
-                            },
-                            "properties": {"name": file_info["key"]}
-                        }]
+                        "features": [
+                            {
+                                "type": "Feature",
+                                "geometry": {
+                                    "type": "Polygon",
+                                    "coordinates": [
+                                        [
+                                            [bbox[0], bbox[1]],
+                                            [bbox[2], bbox[1]],
+                                            [bbox[2], bbox[3]],
+                                            [bbox[0], bbox[3]],
+                                            [bbox[0], bbox[1]],
+                                        ]
+                                    ],
+                                },
+                                "properties": {"name": file_info["key"]},
+                            }
+                        ],
                     }
 
-                    with open(filepath, 'w') as f:
+                    with open(filepath, "w") as f:
                         json.dump(geojson_data, f)
 
                 return folder
@@ -183,29 +233,35 @@ class TestDownloadSizeIntegration:
                 from geoextent.lib import extent
 
                 # Small limit - should process only region_a (1MB)
-                with patch('geoextent.lib.extent.geoextent_from_repository') as mock_geoext:
+                with patch(
+                    "geoextent.lib.extent.geoextent_from_repository"
+                ) as mock_geoext:
                     mock_geoext.return_value.from_repository.return_value = {
                         "bbox": "POLYGON((0 50, 5 50, 5 55, 0 55, 0 50))",  # Only region_a
-                        "format": "remote"
+                        "format": "remote",
                     }
 
                     result_small = extent.from_repository(
                         "https://zenodo.org/record/123456",
-                        bbox=True, format="wkt",
-                        max_download_size="2MB"
+                        bbox=True,
+                        format="wkt",
+                        max_download_size="2MB",
                     )
 
                 # Large limit - should process all regions
-                with patch('geoextent.lib.extent.geoextent_from_repository') as mock_geoext:
+                with patch(
+                    "geoextent.lib.extent.geoextent_from_repository"
+                ) as mock_geoext:
                     mock_geoext.return_value.from_repository.return_value = {
                         "bbox": "POLYGON((0 50, 25 50, 25 55, 0 55, 0 50))",  # All regions
-                        "format": "remote"
+                        "format": "remote",
                     }
 
                     result_large = extent.from_repository(
                         "https://zenodo.org/record/123456",
-                        bbox=True, format="wkt",
-                        max_download_size="20MB"
+                        bbox=True,
+                        format="wkt",
+                        max_download_size="20MB",
                     )
 
                 # Different size limits should produce different extents
@@ -244,7 +300,7 @@ class TestDownloadSizeIntegration:
                 {"name": "region2.shp", "size": 200000},
                 {"name": "region2.shx", "size": 8000},
                 {"name": "region2.dbf", "size": 80000},
-                {"name": "region2.prj", "size": 2000},   # Total: 290KB
+                {"name": "region2.prj", "size": 2000},  # Total: 290KB
                 {"name": "standalone.csv", "size": 10000},  # 10KB
             ]
 
@@ -255,12 +311,22 @@ class TestDownloadSizeIntegration:
             selected_names = [f["name"] for f in selected]
 
             # Should include all region1 components (as a group) plus standalone
-            region1_components = ["region1.shp", "region1.shx", "region1.dbf", "region1.prj"]
+            region1_components = [
+                "region1.shp",
+                "region1.shx",
+                "region1.dbf",
+                "region1.prj",
+            ]
             assert all(comp in selected_names for comp in region1_components)
             assert "standalone.csv" in selected_names
 
             # Should exclude all region2 components (as a group)
-            region2_components = ["region2.shp", "region2.shx", "region2.dbf", "region2.prj"]
+            region2_components = [
+                "region2.shp",
+                "region2.shx",
+                "region2.dbf",
+                "region2.prj",
+            ]
             assert not any(comp in selected_names for comp in region2_components)
 
             # Total should be region1 (156KB) + standalone (10KB) = 166KB
@@ -270,44 +336,65 @@ class TestDownloadSizeIntegration:
         """Create mock GeoJSON files with different spatial extents."""
 
         files_data = [
-            ("small_region.geojson", {
-                "type": "FeatureCollection",
-                "features": [{
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [[[0, 50], [1, 50], [1, 51], [0, 51], [0, 50]]]
-                    },
-                    "properties": {"name": "small"}
-                }]
-            }),
-            ("medium_region.geojson", {
-                "type": "FeatureCollection",
-                "features": [{
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [[[5, 52], [8, 52], [8, 55], [5, 55], [5, 52]]]
-                    },
-                    "properties": {"name": "medium"}
-                }]
-            }),
-            ("large_region.geojson", {
-                "type": "FeatureCollection",
-                "features": [{
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [[[10, 60], [20, 60], [20, 70], [10, 70], [10, 60]]]
-                    },
-                    "properties": {"name": "large"}
-                }]
-            })
+            (
+                "small_region.geojson",
+                {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [[0, 50], [1, 50], [1, 51], [0, 51], [0, 50]]
+                                ],
+                            },
+                            "properties": {"name": "small"},
+                        }
+                    ],
+                },
+            ),
+            (
+                "medium_region.geojson",
+                {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [[5, 52], [8, 52], [8, 55], [5, 55], [5, 52]]
+                                ],
+                            },
+                            "properties": {"name": "medium"},
+                        }
+                    ],
+                },
+            ),
+            (
+                "large_region.geojson",
+                {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [[10, 60], [20, 60], [20, 70], [10, 70], [10, 60]]
+                                ],
+                            },
+                            "properties": {"name": "large"},
+                        }
+                    ],
+                },
+            ),
         ]
 
         for filename, data in files_data:
             filepath = os.path.join(temp_dir, filename)
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 json.dump(data, f)
 
     def _create_mock_shapefile_components(self, temp_dir):
@@ -315,21 +402,27 @@ class TestDownloadSizeIntegration:
 
         # Create empty files representing shapefile components
         components = [
-            "region1.shp", "region1.shx", "region1.dbf", "region1.prj",
-            "region2.shp", "region2.shx", "region2.dbf", "region2.prj",
-            "standalone.csv"
+            "region1.shp",
+            "region1.shx",
+            "region1.dbf",
+            "region1.prj",
+            "region2.shp",
+            "region2.shx",
+            "region2.dbf",
+            "region2.prj",
+            "standalone.csv",
         ]
 
         for component in components:
             filepath = os.path.join(temp_dir, component)
-            with open(filepath, 'w') as f:
+            with open(filepath, "w") as f:
                 f.write("mock data")
 
     def _extract_wkt_from_output(self, output):
         """Extract WKT polygon from geoextent output."""
         try:
             # Parse JSON output and extract WKT
-            if output.strip().startswith('{'):
+            if output.strip().startswith("{"):
                 data = json.loads(output)
                 return data.get("bbox", "")
             else:
@@ -365,7 +458,7 @@ class TestDownloadSizeIntegration:
         import re
 
         # Match coordinates in POLYGON((x y, x y, ...)) format
-        pattern = r'POLYGON\(\(([^)]+)\)\)'
+        pattern = r"POLYGON\(\(([^)]+)\)\)"
         match = re.search(pattern, wkt_polygon)
 
         if not match:
@@ -375,7 +468,7 @@ class TestDownloadSizeIntegration:
         coords = []
 
         # Parse coordinate pairs
-        for coord_pair in coords_str.split(', '):
+        for coord_pair in coords_str.split(", "):
             if coord_pair.strip():
                 x, y = map(float, coord_pair.strip().split())
                 coords.append([x, y])

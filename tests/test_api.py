@@ -237,7 +237,9 @@ def test_png_file_extract_bbox():
                 assert result["crs"] == "4326"
             else:
                 # If bbox extraction failed, skip this test
-                pytest.skip("PNG bbox extraction failed - possibly due to network issues or file corruption")
+                pytest.skip(
+                    "PNG bbox extraction failed - possibly due to network issues or file corruption"
+                )
 
         except (urllib.error.URLError, urllib.error.HTTPError) as e:
             pytest.skip(f"Network error downloading PNG test files: {e}")

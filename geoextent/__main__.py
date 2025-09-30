@@ -128,8 +128,6 @@ class readable_file_or_dir(argparse.Action):
         return False
 
 
-
-
 def get_arg_parser():
     """Get arguments to extract geoextent"""
     parser = argparse.ArgumentParser(

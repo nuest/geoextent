@@ -13,23 +13,23 @@ All commands in this file assume you work in a virtual environment created with 
 ::
 
     # pip install virtualenvwrapper
-    
+
     # Add to .bashrc:
     # export WORKON_HOME=$HOME/.virtualenvs
     # source ~/.local/bin/virtualenvwrapper.sh
-    
+
     # Where are my virtual envs stored?
     # echo $WORKON_HOME
-    
+
     # Create environment using Python 3
     #mkvirtualenv -p $(which python3) geoextent
-    
+
     # Activate env
     workon geoextent
-    
+
     # Deactivate env
     deactivate
-    
+
     #cdvirtualenv
     #rmvirtualenv
 
@@ -41,7 +41,7 @@ In the environment created above, run
 ::
 
     pip install -r requirements.txt
-    
+
 Install a matching version of gdal-python into the virtual environment:
 
 ::
@@ -191,16 +191,16 @@ Install geoextent from TestPyPI and ensure the package is functional:
 Alternatively, use Debian Testing container to try out a more recent version of GDAL which matches the current release of the GDAL package on PyPI:
 
 ::
-    
+
     docker run --rm -it -v $(pwd)/tests/testdata/:/testdata debian:testing
-    
+
     # Python + PIP
     apt-get update
     apt-get install python3 python3-pip wget
 
     # System dependencies
     apt-get install gdal-bin libgdal-dev libproj-dev libgeos-dev
-    
+
     # Package dependencies (from regular PyPI)
     pip install -r requirements.txt
     pip install pygdal==`gdal-config --version`.*
@@ -210,7 +210,7 @@ Alternatively, use Debian Testing container to try out a more recent version of 
     geoextent --version
 
     wget https://github.com/nuest/geoextent/blob/main/tests/testdata/tif/wf_100m_klas.tif
-    
+
     geoextent -b wf_100m_klas.tif
 
 

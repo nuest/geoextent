@@ -43,5 +43,3 @@ CUMULATIVE TIME STATS (Top functions by cumulative time)
        20    0.001    0.000    7.193    0.360 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:592(urlopen)
        20    0.001    0.000    7.186    0.359 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:377(_make_request)
         6    0.000    0.000    6.590    1.098 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:91(get_url)
-
-

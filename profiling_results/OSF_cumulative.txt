@@ -43,5 +43,3 @@ CUMULATIVE TIME STATS (Top functions by cumulative time)
         8    2.956    0.369    2.956    0.369 {built-in method time.sleep}
        25    0.001    0.000    1.523    0.061 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osfclient/models/file.py:7(copyfileobj)
       101    0.001    0.000    1.500    0.015 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
-
-

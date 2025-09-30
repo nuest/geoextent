@@ -6,7 +6,11 @@ from unittest.mock import patch
 import logging
 
 from geoextent.lib.extent import fromRemote
-from geoextent.lib.helpfunctions import is_geometry_a_point, create_geojson_feature_collection, format_extent_output
+from geoextent.lib.helpfunctions import (
+    is_geometry_a_point,
+    create_geojson_feature_collection,
+    format_extent_output,
+)
 from geojson_validator import validate_structure
 
 
@@ -29,7 +33,9 @@ class TestPointDetection:
 
         # Nearly point case: within tolerance
         bbox_near_point = [-21.5, 76.5, -21.5000001, 76.5000001]
-        is_point, coords = is_geometry_a_point(bbox_near_point, is_convex_hull=False, tolerance=1e-5)
+        is_point, coords = is_geometry_a_point(
+            bbox_near_point, is_convex_hull=False, tolerance=1e-5
+        )
         assert is_point is True
         assert coords == [-21.5, 76.5]
 
@@ -42,7 +48,13 @@ class TestPointDetection:
         assert coords == [-21.5, 76.5]
 
         # Non-point case: different coordinates
-        convex_hull_polygon = [[-21.5, 76.5], [-21.0, 76.5], [-21.0, 77.0], [-21.5, 77.0], [-21.5, 76.5]]
+        convex_hull_polygon = [
+            [-21.5, 76.5],
+            [-21.0, 76.5],
+            [-21.0, 77.0],
+            [-21.5, 77.0],
+            [-21.5, 76.5],
+        ]
         is_point, coords = is_geometry_a_point(convex_hull_polygon, is_convex_hull=True)
         assert is_point is False
         assert coords is None
@@ -52,7 +64,15 @@ class TestPointDetection:
         # Point case: all coordinates are the same
         geojson_point = {
             "type": "Polygon",
-            "coordinates": [[[-21.5, 76.5], [-21.5, 76.5], [-21.5, 76.5], [-21.5, 76.5], [-21.5, 76.5]]]
+            "coordinates": [
+                [
+                    [-21.5, 76.5],
+                    [-21.5, 76.5],
+                    [-21.5, 76.5],
+                    [-21.5, 76.5],
+                    [-21.5, 76.5],
+                ]
+            ],
         }
         is_point, coords = is_geometry_a_point(geojson_point, is_convex_hull=False)
         assert is_point is True
@@ -61,7 +81,15 @@ class TestPointDetection:
         # Non-point case: actual polygon
         geojson_polygon = {
             "type": "Polygon",
-            "coordinates": [[[-21.5, 76.5], [-21.0, 76.5], [-21.0, 77.0], [-21.5, 77.0], [-21.5, 76.5]]]
+            "coordinates": [
+                [
+                    [-21.5, 76.5],
+                    [-21.0, 76.5],
+                    [-21.0, 77.0],
+                    [-21.5, 77.0],
+                    [-21.5, 76.5],
+                ]
+            ],
         }
         is_point, coords = is_geometry_a_point(geojson_polygon, is_convex_hull=False)
         assert is_point is False
@@ -73,10 +101,10 @@ class TestPointDetection:
         extent_output_bbox = {
             "bbox": [-21.5, 76.5, -21.5, 76.5],
             "crs": "4326",
-            "format": "remote"
+            "format": "remote",
         }
 
-        with patch('geoextent.lib.helpfunctions.logger') as mock_logger:
+        with patch("geoextent.lib.helpfunctions.logger") as mock_logger:
             result = create_geojson_feature_collection(extent_output_bbox)
 
             # Check that warning was logged
@@ -94,7 +122,10 @@ class TestPointDetection:
             assert feature["geometry"]["type"] == "Point"
             assert feature["geometry"]["coordinates"] == [-21.5, 76.5]
             assert feature["properties"]["extent_type"] == "point"
-            assert feature["properties"]["description"] == "Point geometry extracted by geoextent"
+            assert (
+                feature["properties"]["description"]
+                == "Point geometry extracted by geoextent"
+            )
 
     def test_create_geojson_feature_collection_convex_hull_point_detection(self):
         """Test that create_geojson_feature_collection creates Point geometries for convex hull point data"""
@@ -102,10 +133,10 @@ class TestPointDetection:
             "bbox": [[-21.5, 76.5], [-21.5, 76.5], [-21.5, 76.5]],
             "crs": "4326",
             "format": "remote",
-            "convex_hull": True
+            "convex_hull": True,
         }
 
-        with patch('geoextent.lib.helpfunctions.logger') as mock_logger:
+        with patch("geoextent.lib.helpfunctions.logger") as mock_logger:
             result = create_geojson_feature_collection(extent_output_convex)
 
             # Check that warning was logged
@@ -133,7 +164,7 @@ class TestPangaeaDataset918707:
             bbox=True,
             tbox=False,
             convex_hull=False,
-            download_data=False
+            download_data=False,
         )
 
         assert result is not None
@@ -149,7 +180,7 @@ class TestPangaeaDataset918707:
         minx, miny, maxx, maxy = bbox
         assert abs(minx - (-21.5)) < 0.1  # Longitude around -21.5°
         assert abs(maxx - (-21.5)) < 0.1
-        assert abs(miny - 76.5) < 0.1     # Latitude around 76.5°
+        assert abs(miny - 76.5) < 0.1  # Latitude around 76.5°
         assert abs(maxy - 76.5) < 0.1
 
         # Verify it's actually a point (all coordinates should be nearly the same)
@@ -163,7 +194,7 @@ class TestPangaeaDataset918707:
             bbox=True,
             tbox=False,
             convex_hull=True,
-            download_data=False
+            download_data=False,
         )
 
         assert result is not None
@@ -189,7 +220,7 @@ class TestPangaeaDataset918707:
             bbox=True,
             tbox=False,
             convex_hull=False,
-            download_data=False
+            download_data=False,
         )
 
         # Convert to GeoJSON format
@@ -213,7 +244,7 @@ class TestPangaeaDataset918707:
         coords = geometry["coordinates"]
         assert len(coords) == 2
         assert abs(coords[0] - (-21.5)) < 0.1  # Longitude
-        assert abs(coords[1] - 76.5) < 0.1     # Latitude
+        assert abs(coords[1] - 76.5) < 0.1  # Latitude
 
         # Verify properties indicate it's a point
         properties = feature["properties"]
@@ -227,7 +258,7 @@ class TestPangaeaDataset918707:
             bbox=True,
             tbox=False,
             convex_hull=True,
-            download_data=False
+            download_data=False,
         )
 
         # Convert to GeoJSON format
@@ -251,7 +282,7 @@ class TestPangaeaDataset918707:
         coords = geometry["coordinates"]
         assert len(coords) == 2
         assert abs(coords[0] - (-21.5)) < 0.1  # Longitude
-        assert abs(coords[1] - 76.5) < 0.1     # Latitude
+        assert abs(coords[1] - 76.5) < 0.1  # Latitude
 
         # Properties should indicate it's a point despite convex hull request
         properties = feature["properties"]

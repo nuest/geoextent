@@ -25,61 +25,96 @@ class TestWKTExtentComparison:
         # File 1: Western Europe region (1MB simulated size)
         west_europe = {
             "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[
-                        [-5.0, 45.0], [5.0, 45.0], [5.0, 55.0], [-5.0, 55.0], [-5.0, 45.0]
-                    ]]
-                },
-                "properties": {"name": "Western Europe", "simulated_size": 1000000}
-            }]
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [-5.0, 45.0],
+                                [5.0, 45.0],
+                                [5.0, 55.0],
+                                [-5.0, 55.0],
+                                [-5.0, 45.0],
+                            ]
+                        ],
+                    },
+                    "properties": {"name": "Western Europe", "simulated_size": 1000000},
+                }
+            ],
         }
 
         # File 2: Central Europe region (2MB simulated size)
         central_europe = {
             "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[
-                        [5.0, 45.0], [15.0, 45.0], [15.0, 55.0], [5.0, 55.0], [5.0, 45.0]
-                    ]]
-                },
-                "properties": {"name": "Central Europe", "simulated_size": 2000000}
-            }]
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [5.0, 45.0],
+                                [15.0, 45.0],
+                                [15.0, 55.0],
+                                [5.0, 55.0],
+                                [5.0, 45.0],
+                            ]
+                        ],
+                    },
+                    "properties": {"name": "Central Europe", "simulated_size": 2000000},
+                }
+            ],
         }
 
         # File 3: Eastern Europe region (3MB simulated size)
         eastern_europe = {
             "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[
-                        [15.0, 45.0], [30.0, 45.0], [30.0, 55.0], [15.0, 55.0], [15.0, 45.0]
-                    ]]
-                },
-                "properties": {"name": "Eastern Europe", "simulated_size": 3000000}
-            }]
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [15.0, 45.0],
+                                [30.0, 45.0],
+                                [30.0, 55.0],
+                                [15.0, 55.0],
+                                [15.0, 45.0],
+                            ]
+                        ],
+                    },
+                    "properties": {"name": "Eastern Europe", "simulated_size": 3000000},
+                }
+            ],
         }
 
         # File 4: Northern Europe region (4MB simulated size)
         northern_europe = {
             "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[
-                        [5.0, 55.0], [25.0, 55.0], [25.0, 70.0], [5.0, 70.0], [5.0, 55.0]
-                    ]]
-                },
-                "properties": {"name": "Northern Europe", "simulated_size": 4000000}
-            }]
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [5.0, 55.0],
+                                [25.0, 55.0],
+                                [25.0, 70.0],
+                                [5.0, 70.0],
+                                [5.0, 55.0],
+                            ]
+                        ],
+                    },
+                    "properties": {
+                        "name": "Northern Europe",
+                        "simulated_size": 4000000,
+                    },
+                }
+            ],
         }
 
         # Write files to temp directory
@@ -93,7 +128,7 @@ class TestWKTExtentComparison:
         created_files = []
         for filename, data in files_data:
             file_path = os.path.join(temp_dir, filename)
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 json.dump(data, f, indent=2)
             created_files.append(file_path)
 
@@ -114,6 +149,7 @@ class TestWKTExtentComparison:
 
             # Convert to WKT format
             from geoextent.lib.helpfunctions import format_extent_output
+
             extent_small = format_extent_output(extent_small, "wkt")
             extent_medium = format_extent_output(extent_medium, "wkt")
 
@@ -156,25 +192,35 @@ class TestWKTExtentComparison:
             files = self.create_test_geospatial_files(temp_dir)
 
             # Test GeoJSON format
-            result_geojson = subprocess.run([
-                "python", "-m", "geoextent", "-b",
-                "--format", "geojson",
-                files[0]  # Single file for consistency
-            ], capture_output=True, text=True)
+            result_geojson = subprocess.run(
+                [
+                    "python",
+                    "-m",
+                    "geoextent",
+                    "-b",
+                    "--format",
+                    "geojson",
+                    files[0],  # Single file for consistency
+                ],
+                capture_output=True,
+                text=True,
+            )
 
             # Test WKT format
-            result_wkt = subprocess.run([
-                "python", "-m", "geoextent", "-b",
-                "--format", "wkt",
-                files[0]
-            ], capture_output=True, text=True)
+            result_wkt = subprocess.run(
+                ["python", "-m", "geoextent", "-b", "--format", "wkt", files[0]],
+                capture_output=True,
+                text=True,
+            )
 
             assert result_geojson.returncode == 0
             assert result_wkt.returncode == 0
 
             # Parse outputs
             geojson_output = json.loads(result_geojson.stdout)
-            wkt_output = result_wkt.stdout.strip()  # WKT format outputs raw WKT, not JSON
+            wkt_output = (
+                result_wkt.stdout.strip()
+            )  # WKT format outputs raw WKT, not JSON
 
             # Both should represent the same spatial extent
             # GeoJSON should be a FeatureCollection with polygon features
@@ -236,34 +282,54 @@ class TestWKTExtentComparison:
             # Create two files with very specific, different extents
             file1_data = {
                 "type": "FeatureCollection",
-                "features": [{
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [[[0.0, 50.0], [1.0, 50.0], [1.0, 51.0], [0.0, 51.0], [0.0, 50.0]]]
-                    },
-                    "properties": {"name": "Small precise area"}
-                }]
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [0.0, 50.0],
+                                    [1.0, 50.0],
+                                    [1.0, 51.0],
+                                    [0.0, 51.0],
+                                    [0.0, 50.0],
+                                ]
+                            ],
+                        },
+                        "properties": {"name": "Small precise area"},
+                    }
+                ],
             }
 
             file2_data = {
                 "type": "FeatureCollection",
-                "features": [{
-                    "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [[[2.0, 52.0], [4.0, 52.0], [4.0, 54.0], [2.0, 54.0], [2.0, 52.0]]]
-                    },
-                    "properties": {"name": "Different precise area"}
-                }]
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": {
+                            "type": "Polygon",
+                            "coordinates": [
+                                [
+                                    [2.0, 52.0],
+                                    [4.0, 52.0],
+                                    [4.0, 54.0],
+                                    [2.0, 54.0],
+                                    [2.0, 52.0],
+                                ]
+                            ],
+                        },
+                        "properties": {"name": "Different precise area"},
+                    }
+                ],
             }
 
             file1_path = os.path.join(temp_dir, "area1.geojson")
             file2_path = os.path.join(temp_dir, "area2.geojson")
 
-            with open(file1_path, 'w') as f:
+            with open(file1_path, "w") as f:
                 json.dump(file1_data, f)
-            with open(file2_path, 'w') as f:
+            with open(file2_path, "w") as f:
                 json.dump(file2_data, f)
 
             # Extract extent from single file
@@ -275,6 +341,7 @@ class TestWKTExtentComparison:
 
             # Convert to WKT format
             from geoextent.lib.helpfunctions import format_extent_output
+
             extent1 = format_extent_output(extent1, "wkt")
             extent2 = format_extent_output(extent2, "wkt")
             extent_combined = format_extent_output(extent_combined, "wkt")
@@ -325,6 +392,7 @@ class TestWKTExtentComparison:
                 for i, file_path in enumerate(file_paths):
                     # Copy selected files to temp directory
                     import shutil
+
                     filename = f"selected_{i}_{os.path.basename(file_path)}"
                     new_path = os.path.join(temp_combined, filename)
                     shutil.copy2(file_path, new_path)
@@ -333,6 +401,7 @@ class TestWKTExtentComparison:
 
         # Convert to WKT format
         from geoextent.lib.helpfunctions import format_extent_output
+
         return format_extent_output(result, "wkt")
 
     def _extract_bounds_from_wkt(self, wkt_polygon):
@@ -340,7 +409,7 @@ class TestWKTExtentComparison:
         import re
 
         # Match coordinates in POLYGON((x y, x y, ...)) format
-        pattern = r'POLYGON\s*\(\s*\(\s*([^)]+)\s*\)\s*\)'
+        pattern = r"POLYGON\s*\(\s*\(\s*([^)]+)\s*\)\s*\)"
         match = re.search(pattern, wkt_polygon)
 
         if not match:
@@ -350,7 +419,7 @@ class TestWKTExtentComparison:
         coords = []
 
         # Parse coordinate pairs
-        for coord_pair in coords_str.split(','):
+        for coord_pair in coords_str.split(","):
             if coord_pair.strip():
                 parts = coord_pair.strip().split()
                 if len(parts) >= 2:

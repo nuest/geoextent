@@ -66,9 +66,6 @@ All spatial data in geoextent follows these conventions:
 ### Installation and Setup
 
 ```bash
-# Install pygdal first (required dependency)
-pip install pygdal=="`gdal-config --version`.*"
-
 # Install in development mode
 pip install -e .
 ```

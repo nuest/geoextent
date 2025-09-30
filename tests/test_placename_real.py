@@ -26,29 +26,26 @@ class TestPlacenameLocalFiles:
             "file_format": "geojson",
             "expected_placenames": {
                 "nominatim": "Münster, Nordrhein-Westfalen, Deutschland",
-                "photon": "Nordrhein-Westfalen, Münster, Deutschland"
+                "photon": "Nordrhein-Westfalen, Münster, Deutschland",
             },
             "expected_placenames_escaped": {
                 "nominatim": "M\\xfcnster, Nordrhein-Westfalen, Deutschland",
-                "photon": "Nordrhein-Westfalen, M\\xfcnster, Deutschland"
+                "photon": "Nordrhein-Westfalen, M\\xfcnster, Deutschland",
             },
             "timeout": 30,
-            "region": "Germany"
+            "region": "Germany",
         },
         "netherlands_csv": {
             "file_path": "tests/testdata/csv/cities_NL_case5.csv",
             "description": "CSV file with Dutch cities",
             "file_format": "csv",
-            "expected_placenames": {
-                "nominatim": "Nederland",
-                "photon": "Nederland"
-            },
+            "expected_placenames": {"nominatim": "Nederland", "photon": "Nederland"},
             "expected_placenames_escaped": {
                 "nominatim": "Nederland",
-                "photon": "Nederland"
+                "photon": "Nederland",
             },
             "timeout": 30,
-            "region": "Netherlands"
+            "region": "Netherlands",
         },
         "tif_large_area": {
             "file_path": "tests/testdata/tif/wf_100m_klas.tif",
@@ -56,28 +53,24 @@ class TestPlacenameLocalFiles:
             "file_format": "tif",
             "expected_placenames": {
                 "nominatim": "Deutschland",
-                "photon": "Deutschland"
+                "photon": "Deutschland",
             },
             "expected_placenames_escaped": {
                 "nominatim": "Deutschland",
-                "photon": "Deutschland"
+                "photon": "Deutschland",
             },
             "timeout": 30,
-            "region": "Germany"
+            "region": "Germany",
         },
         "shapefile_antarctica": {
             "file_path": "tests/testdata/shapefile/gis_osm_buildings_a_free_1.shp",
             "description": "Shapefile with Antarctic data",
             "file_format": "shp",
-            "expected_placenames": {
-                "photon": "South Pole"
-            },
-            "expected_placenames_escaped": {
-                "photon": "South Pole"
-            },
+            "expected_placenames": {"photon": "South Pole"},
+            "expected_placenames_escaped": {"photon": "South Pole"},
             "timeout": 30,
-            "region": "Antarctica"
-        }
+            "region": "Antarctica",
+        },
     }
 
     @pytest.mark.network
@@ -93,23 +86,27 @@ class TestPlacenameLocalFiles:
 
         try:
             result = extent.fromFile(
-                dataset["file_path"],
-                bbox=True,
-                tbox=False,
-                placename=gazetteer
+                dataset["file_path"], bbox=True, tbox=False, placename=gazetteer
             )
 
             # Should have extracted a placename
-            assert "placename" in result, f"No placename found for {dataset_key} with {gazetteer}"
+            assert (
+                "placename" in result
+            ), f"No placename found for {dataset_key} with {gazetteer}"
 
             placename = result["placename"]
-            assert placename is not None, f"Placename is None for {dataset_key} with {gazetteer}"
-            assert len(placename) > 0, f"Empty placename for {dataset_key} with {gazetteer}"
+            assert (
+                placename is not None
+            ), f"Placename is None for {dataset_key} with {gazetteer}"
+            assert (
+                len(placename) > 0
+            ), f"Empty placename for {dataset_key} with {gazetteer}"
 
             # Compare with expected reference value
             expected_placename = dataset["expected_placenames"][gazetteer]
-            assert placename == expected_placename, \
-                f"Expected '{expected_placename}', got '{placename}' for {dataset_key} with {gazetteer}"
+            assert (
+                placename == expected_placename
+            ), f"Expected '{expected_placename}', got '{placename}' for {dataset_key} with {gazetteer}"
 
             print(f"✓ {dataset_key} + {gazetteer}: {placename}")
 
@@ -126,7 +123,9 @@ class TestPlacenameLocalFiles:
 
         # Skip if this gazetteer is not defined for this dataset
         if gazetteer not in dataset["expected_placenames"]:
-            pytest.skip(f"Gazetteer {gazetteer} not defined for dataset muenster_geojson")
+            pytest.skip(
+                f"Gazetteer {gazetteer} not defined for dataset muenster_geojson"
+            )
 
         try:
             # Test without escaping
@@ -135,7 +134,7 @@ class TestPlacenameLocalFiles:
                 bbox=True,
                 tbox=False,
                 placename=gazetteer,
-                placename_escape=False
+                placename_escape=False,
             )
 
             # Test with escaping
@@ -144,7 +143,7 @@ class TestPlacenameLocalFiles:
                 bbox=True,
                 tbox=False,
                 placename=gazetteer,
-                placename_escape=True
+                placename_escape=True,
             )
 
             assert "placename" in result_normal
@@ -157,19 +156,23 @@ class TestPlacenameLocalFiles:
             expected_normal = dataset["expected_placenames"][gazetteer]
             expected_escaped = dataset["expected_placenames_escaped"][gazetteer]
 
-            assert normal_placename == expected_normal, \
-                f"Expected normal '{expected_normal}', got '{normal_placename}'"
-            assert escaped_placename == expected_escaped, \
-                f"Expected escaped '{expected_escaped}', got '{escaped_placename}'"
+            assert (
+                normal_placename == expected_normal
+            ), f"Expected normal '{expected_normal}', got '{normal_placename}'"
+            assert (
+                escaped_placename == expected_escaped
+            ), f"Expected escaped '{expected_escaped}', got '{escaped_placename}'"
 
             # Should be different if there are Unicode characters
             if any(ord(c) > 127 for c in normal_placename):
-                assert normal_placename != escaped_placename, \
-                    f"Escaped placename should differ from normal for Unicode text"
+                assert (
+                    normal_placename != escaped_placename
+                ), f"Escaped placename should differ from normal for Unicode text"
 
                 # Escaped version should contain escape sequences
-                assert "\\" in escaped_placename, \
-                    f"Escaped placename should contain escape sequences"
+                assert (
+                    "\\" in escaped_placename
+                ), f"Escaped placename should contain escape sequences"
 
             print(f"✓ Normal: {normal_placename}")
             print(f"✓ Escaped: {escaped_placename}")
@@ -181,18 +184,19 @@ class TestPlacenameLocalFiles:
     @pytest.mark.parametrize("gazetteer", ["nominatim", "photon"])
     def test_geojson_output_includes_placename(self, gazetteer):
         """Test that GeoJSON output includes placename in properties."""
-        dataset = self.LOCAL_TEST_FILES["netherlands_csv"]  # Use Netherlands CSV dataset
+        dataset = self.LOCAL_TEST_FILES[
+            "netherlands_csv"
+        ]  # Use Netherlands CSV dataset
 
         # Skip if this gazetteer is not defined for this dataset
         if gazetteer not in dataset["expected_placenames"]:
-            pytest.skip(f"Gazetteer {gazetteer} not defined for dataset netherlands_csv")
+            pytest.skip(
+                f"Gazetteer {gazetteer} not defined for dataset netherlands_csv"
+            )
 
         try:
             result = extent.fromFile(
-                dataset["file_path"],
-                bbox=True,
-                tbox=False,
-                placename=gazetteer
+                dataset["file_path"], bbox=True, tbox=False, placename=gazetteer
             )
 
             # Convert to GeoJSON format
@@ -208,11 +212,14 @@ class TestPlacenameLocalFiles:
 
             # Check placename in properties
             properties = feature["properties"]
-            assert "placename" in properties, "Placename should be in GeoJSON properties"
+            assert (
+                "placename" in properties
+            ), "Placename should be in GeoJSON properties"
 
             placename = properties["placename"]
-            assert placename is not None and len(placename) > 0, \
-                "Placename in GeoJSON should not be empty"
+            assert (
+                placename is not None and len(placename) > 0
+            ), "Placename in GeoJSON should not be empty"
 
             print(f"✓ GeoJSON placename: {placename}")
 
@@ -232,12 +239,22 @@ class TestPlacenameLocalFiles:
 
         try:
             # Test normal placename
-            result = subprocess.run([
-                "python", "-m", "geoextent",
-                "-b", "--quiet",
-                "--placename", "--placename-service", gazetteer,
-                dataset["file_path"]
-            ], capture_output=True, text=True, timeout=dataset["timeout"])
+            result = subprocess.run(
+                [
+                    "python",
+                    "-m",
+                    "geoextent",
+                    "-b",
+                    "--quiet",
+                    "--placename",
+                    "--placename-service",
+                    gazetteer,
+                    dataset["file_path"],
+                ],
+                capture_output=True,
+                text=True,
+                timeout=dataset["timeout"],
+            )
 
             assert result.returncode == 0, f"CLI failed: {result.stderr}"
 
@@ -253,15 +270,27 @@ class TestPlacenameLocalFiles:
             assert normal_placename and len(normal_placename) > 0
 
             # Test escaped placename
-            result_escaped = subprocess.run([
-                "python", "-m", "geoextent",
-                "-b", "--quiet",
-                "--placename", "--placename-service", gazetteer,
-                "--placename-escape",
-                dataset["file_path"]
-            ], capture_output=True, text=True, timeout=dataset["timeout"])
+            result_escaped = subprocess.run(
+                [
+                    "python",
+                    "-m",
+                    "geoextent",
+                    "-b",
+                    "--quiet",
+                    "--placename",
+                    "--placename-service",
+                    gazetteer,
+                    "--placename-escape",
+                    dataset["file_path"],
+                ],
+                capture_output=True,
+                text=True,
+                timeout=dataset["timeout"],
+            )
 
-            assert result_escaped.returncode == 0, f"CLI with escape failed: {result_escaped.stderr}"
+            assert (
+                result_escaped.returncode == 0
+            ), f"CLI with escape failed: {result_escaped.stderr}"
 
             # Parse escaped output
             output_escaped = json.loads(result_escaped.stdout)
@@ -275,8 +304,9 @@ class TestPlacenameLocalFiles:
 
             # If original has Unicode, escaped should be different
             if any(ord(c) > 127 for c in normal_placename):
-                assert normal_placename != escaped_placename, \
-                    "Escaped CLI output should differ for Unicode placenames"
+                assert (
+                    normal_placename != escaped_placename
+                ), "Escaped CLI output should differ for Unicode placenames"
 
         except subprocess.TimeoutExpired:
             pytest.skip(f"CLI test timed out for {dataset_key} with {gazetteer}")
@@ -286,23 +316,41 @@ class TestPlacenameLocalFiles:
     def test_cli_validation_errors(self):
         """Test CLI validation for placename options."""
         # Test invalid gazetteer
-        result = subprocess.run([
-            "python", "-m", "geoextent",
-            "-b", "--placename", "--placename-service", "invalid_gazetteer",
-            "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson"
-        ], capture_output=True, text=True)
+        result = subprocess.run(
+            [
+                "python",
+                "-m",
+                "geoextent",
+                "-b",
+                "--placename",
+                "--placename-service",
+                "invalid_gazetteer",
+                "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson",
+            ],
+            capture_output=True,
+            text=True,
+        )
 
         assert result.returncode != 0, "Should fail with invalid gazetteer"
         assert "invalid choice" in result.stderr.lower()
 
         # Test placename-escape without placename
-        result = subprocess.run([
-            "python", "-m", "geoextent",
-            "-b", "--placename-escape",
-            "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson"
-        ], capture_output=True, text=True)
+        result = subprocess.run(
+            [
+                "python",
+                "-m",
+                "geoextent",
+                "-b",
+                "--placename-escape",
+                "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson",
+            ],
+            capture_output=True,
+            text=True,
+        )
 
-        assert result.returncode != 0, "Should fail when placename-escape used without placename"
+        assert (
+            result.returncode != 0
+        ), "Should fail when placename-escape used without placename"
         assert "requires --placename" in str(result.stderr)
 
     @pytest.mark.network
@@ -315,20 +363,32 @@ class TestPlacenameLocalFiles:
             pytest.skip("GeoNames username not available for testing default gazetteer")
 
         try:
-            result = subprocess.run([
-                "python", "-m", "geoextent",
-                "-b", "--quiet",
-                "--placename",  # No parameter = should default to geonames
-                dataset["file_path"]
-            ], capture_output=True, text=True, timeout=dataset["timeout"])
+            result = subprocess.run(
+                [
+                    "python",
+                    "-m",
+                    "geoextent",
+                    "-b",
+                    "--quiet",
+                    "--placename",  # No parameter = should default to geonames
+                    dataset["file_path"],
+                ],
+                capture_output=True,
+                text=True,
+                timeout=dataset["timeout"],
+            )
 
-            assert result.returncode == 0, f"CLI failed with default gazetteer: {result.stderr}"
+            assert (
+                result.returncode == 0
+            ), f"CLI failed with default gazetteer: {result.stderr}"
 
             output = json.loads(result.stdout)
             feature = output["features"][0]
             properties = feature["properties"]
 
-            assert "placename" in properties, "Should have placename with default gazetteer"
+            assert (
+                "placename" in properties
+            ), "Should have placename with default gazetteer"
             placename = properties["placename"]
             assert placename and len(placename) > 0
 
@@ -350,7 +410,7 @@ class TestPlacenameLocalFiles:
                 bbox=True,
                 tbox=False,
                 convex_hull=True,
-                placename="nominatim"
+                placename="nominatim",
             )
 
             assert "placename" in result, "Should have placename with convex hull"
@@ -361,8 +421,10 @@ class TestPlacenameLocalFiles:
 
             # Should be German region
             placename_lower = placename.lower()
-            assert any(term in placename_lower for term in ["germany", "deutschland", "münster"]), \
-                f"Convex hull placename '{placename}' should be in German region"
+            assert any(
+                term in placename_lower
+                for term in ["germany", "deutschland", "münster"]
+            ), f"Convex hull placename '{placename}' should be in German region"
 
             print(f"✓ Convex hull placename: {placename}")
 

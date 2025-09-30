@@ -34,5 +34,3 @@ TOTAL TIME STATS (Top functions by total/own time)
        77    0.001    0.000    0.001    0.000 /usr/lib/python3.10/urllib/parse.py:473(urlsplit)
         6    0.000    0.000    0.001    0.000 /usr/lib/python3.10/ssl.py:1360(_real_close)
        35    0.000    0.000    0.000    0.000 {built-in method posix.stat}
-
-

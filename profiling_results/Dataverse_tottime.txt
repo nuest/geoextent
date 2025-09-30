@@ -33,5 +33,3 @@ TOTAL TIME STATS (Top functions by total/own time)
     70385    0.172    0.000  186.838    0.003 /usr/lib/python3.10/ssl.py:1150(read)
 409070/409061    0.170    0.000    0.202    0.000 {built-in method builtins.len}
     47473    0.165    0.000    0.433    0.000 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:475(_init_decoder)
-
-

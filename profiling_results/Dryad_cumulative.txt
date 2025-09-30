@@ -43,5 +43,3 @@ CUMULATIVE TIME STATS (Top functions by cumulative time)
        14    0.000    0.000    8.938    0.638 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:500(request)
     25/14    0.001    0.000    8.904    0.636 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:673(send)
        25    0.001    0.000    8.660    0.346 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/adapters.py:590(send)
-
-

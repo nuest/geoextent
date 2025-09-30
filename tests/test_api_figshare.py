@@ -273,16 +273,26 @@ class TestFigshareParameterCombinations:
 
                 # Validate the GeoJSON structure
                 validation_errors = validate_structure(geojson_output)
-                assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
+                assert (
+                    not validation_errors
+                ), f"Invalid GeoJSON structure: {validation_errors}"
 
                 # Additional GeoJSON structure checks
-                assert geojson_output["type"] == "FeatureCollection", "Should be a FeatureCollection"
-                assert len(geojson_output["features"]) > 0, "Should have at least one feature"
+                assert (
+                    geojson_output["type"] == "FeatureCollection"
+                ), "Should be a FeatureCollection"
+                assert (
+                    len(geojson_output["features"]) > 0
+                ), "Should have at least one feature"
 
                 feature = geojson_output["features"][0]
                 assert feature["type"] == "Feature", "Feature should have correct type"
-                assert feature["geometry"]["type"] == "Polygon", "Geometry should be a Polygon"
-                assert len(feature["geometry"]["coordinates"][0]) == 5, "Polygon should be closed"
+                assert (
+                    feature["geometry"]["type"] == "Polygon"
+                ), "Geometry should be a Polygon"
+                assert (
+                    len(feature["geometry"]["coordinates"][0]) == 5
+                ), "Polygon should be closed"
 
         except ImportError:
             pytest.skip("Required libraries not available")
@@ -423,30 +433,42 @@ class TestFigshareEdgeCases:
                 ["python", "-m", "geoextent", "-b", "--quiet", test_url],
                 capture_output=True,
                 text=True,
-                timeout=120  # 2 minute timeout for network operations
+                timeout=120,  # 2 minute timeout for network operations
             )
 
             # Check that the command succeeded
-            assert result.returncode == 0, f"CLI command failed with error: {result.stderr}"
+            assert (
+                result.returncode == 0
+            ), f"CLI command failed with error: {result.stderr}"
 
             # Parse the GeoJSON output
             geojson_output = json.loads(result.stdout)
 
             # Validate the GeoJSON structure using geojson-validator
             validation_errors = validate_structure(geojson_output)
-            assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
+            assert (
+                not validation_errors
+            ), f"Invalid GeoJSON structure: {validation_errors}"
 
             # Additional GeoJSON structure checks
-            assert geojson_output["type"] == "FeatureCollection", "Should be a FeatureCollection"
+            assert (
+                geojson_output["type"] == "FeatureCollection"
+            ), "Should be a FeatureCollection"
             assert "features" in geojson_output, "Should contain features"
-            assert len(geojson_output["features"]) > 0, "Should have at least one feature"
+            assert (
+                len(geojson_output["features"]) > 0
+            ), "Should have at least one feature"
 
             feature = geojson_output["features"][0]
             assert feature["type"] == "Feature", "Feature should have correct type"
             assert "geometry" in feature, "Feature should have geometry"
             assert "properties" in feature, "Feature should have properties"
-            assert feature["geometry"]["type"] == "Polygon", "Geometry should be a Polygon"
-            assert "coordinates" in feature["geometry"], "Geometry should have coordinates"
+            assert (
+                feature["geometry"]["type"] == "Polygon"
+            ), "Geometry should be a Polygon"
+            assert (
+                "coordinates" in feature["geometry"]
+            ), "Geometry should have coordinates"
 
             # Verify properties contain expected metadata
             properties = feature["properties"]
@@ -456,6 +478,8 @@ class TestFigshareEdgeCases:
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")
         except json.JSONDecodeError as e:
-            pytest.fail(f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}")
+            pytest.fail(
+                f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
+            )
         except Exception as e:
             pytest.skip(f"Network or API error: {e}")

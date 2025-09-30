@@ -43,5 +43,3 @@ CUMULATIVE TIME STATS (Top functions by cumulative time)
    162789    5.671    0.000    5.671    0.000 {method 'write' of '_io.BufferedWriter' objects}
         8    0.000    0.000    3.557    0.445 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:18(_request)
         8    0.000    0.000    3.557    0.445 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:593(get)
-
-

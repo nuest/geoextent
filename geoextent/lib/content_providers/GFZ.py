@@ -223,7 +223,7 @@ class GFZ(DoiProvider):
         max_size_bytes=None,
         max_download_method="ordered",
         max_download_method_seed=None,
-        **kwargs
+        **kwargs,
     ):
         """Download files from the GFZ download URL
 
@@ -247,7 +247,7 @@ class GFZ(DoiProvider):
                     max_size_bytes=max_size_bytes,
                     max_download_method=max_download_method,
                     max_download_method_seed=max_download_method_seed,
-                    **kwargs
+                    **kwargs,
                 )
             else:
                 # It's a direct file download
@@ -255,7 +255,11 @@ class GFZ(DoiProvider):
                 file_size = int(response.headers.get("content-length", 0))
 
                 # Check size limit for single file download
-                if max_size_bytes is not None and file_size > 0 and file_size > max_size_bytes:
+                if (
+                    max_size_bytes is not None
+                    and file_size > 0
+                    and file_size > max_size_bytes
+                ):
                     logger.warning(
                         f"File {filename} ({file_size:,} bytes) exceeds size limit ({max_size_bytes:,} bytes). Skipping download."
                     )
@@ -267,7 +271,7 @@ class GFZ(DoiProvider):
                     file_path,
                     show_progress,
                     max_size_bytes=max_size_bytes,
-                    **kwargs
+                    **kwargs,
                 )
 
         except Exception as e:
@@ -282,7 +286,7 @@ class GFZ(DoiProvider):
         max_size_bytes=None,
         max_download_method="ordered",
         max_download_method_seed=None,
-        **kwargs
+        **kwargs,
     ):
         """Download files from a directory listing page
 
@@ -314,11 +318,7 @@ class GFZ(DoiProvider):
                 except:
                     file_size = 0  # Unknown size
 
-                file_info.append({
-                    "name": href,
-                    "url": file_url,
-                    "size": file_size
-                })
+                file_info.append({"name": href, "url": file_url, "size": file_size})
 
         if not file_info:
             logger.warning("No downloadable files found in directory listing")
@@ -348,7 +348,9 @@ class GFZ(DoiProvider):
             file_info = selected_files
         else:
             total_size = sum(f.get("size", 0) for f in file_info)
-            logger.info(f"Downloading all {len(file_info)} files ({total_size:,} bytes total)")
+            logger.info(
+                f"Downloading all {len(file_info)} files ({total_size:,} bytes total)"
+            )
 
         # Download selected files
         for file_data in file_info:
@@ -364,14 +366,16 @@ class GFZ(DoiProvider):
                     file_path,
                     show_progress,
                     max_size_bytes=max_size_bytes,
-                    **kwargs
+                    **kwargs,
                 )
 
             except Exception as e:
                 logger.warning(f"Failed to download {filename}: {e}")
                 continue
 
-    def _download_single_file(self, response, file_path, show_progress=True, max_size_bytes=None, **kwargs):
+    def _download_single_file(
+        self, response, file_path, show_progress=True, max_size_bytes=None, **kwargs
+    ):
         """Download a single file from response stream
 
         Args:

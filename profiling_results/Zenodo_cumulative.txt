@@ -43,5 +43,3 @@ CUMULATIVE TIME STATS (Top functions by cumulative time)
      1732    0.018    0.000    3.292    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:889(_raw_read)
      1811    0.027    0.000    3.241    0.002 {method 'read' of '_io.BufferedReader' objects}
      1732    0.004    0.000    3.240    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:832(_fp_read)
-
-

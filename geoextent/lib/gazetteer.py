@@ -68,7 +68,7 @@ class GazetteerService:
 
         for name in names:
             # Split by common separators in addresses: comma, semicolon, slash, etc.
-            components = re.split(r'[,;/\|]', name)
+            components = re.split(r"[,;/\|]", name)
             # Further split by multiple spaces and clean up
             components = [comp.strip() for comp in components if comp.strip()]
             # Remove duplicates within the same name to avoid inflating frequency
@@ -79,8 +79,11 @@ class GazetteerService:
         component_freq = Counter(all_components)
 
         # Find components that appear in multiple names (shared components)
-        shared_components = [comp for comp, freq in component_freq.items()
-                           if freq > 1 and len(comp.strip()) > 0]
+        shared_components = [
+            comp
+            for comp, freq in component_freq.items()
+            if freq > 1 and len(comp.strip()) > 0
+        ]
 
         if not shared_components:
             # No shared components, fall back to shortest name (most concise)
@@ -218,7 +221,9 @@ class PlacenameExtractor:
 
         return self._extract_from_points(sample_points)
 
-    def extract_placename_from_convex_hull(self, coordinates: List[List[float]]) -> Optional[str]:
+    def extract_placename_from_convex_hull(
+        self, coordinates: List[List[float]]
+    ) -> Optional[str]:
         """
         Extract placename from convex hull coordinates.
 
@@ -265,7 +270,7 @@ class PlacenameExtractor:
             total=max_points,
             desc=f"Querying {self.service.service_name}",
             unit="point",
-            leave=False
+            leave=False,
         ) as pbar:
 
             for i, (lat, lon) in enumerate(points[:max_points]):
@@ -294,7 +299,7 @@ def get_placename_for_geometry(
     bbox: Optional[List[float]] = None,
     convex_hull_coords: Optional[List[List[float]]] = None,
     service_name: str = "geonames",
-    escape_unicode: bool = False
+    escape_unicode: bool = False,
 ) -> Optional[str]:
     """
     Convenience function to extract placename from geometry.
@@ -323,7 +328,7 @@ def get_placename_for_geometry(
 
         # Apply Unicode escaping if requested
         if placename and escape_unicode:
-            placename = placename.encode('unicode_escape').decode('ascii')
+            placename = placename.encode("unicode_escape").decode("ascii")
 
         return placename
 

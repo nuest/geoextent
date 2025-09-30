@@ -14,7 +14,11 @@ import tempfile
 import json
 from unittest.mock import patch, MagicMock
 from geoextent.lib import extent
-from geoextent.lib.helpfunctions import parse_download_size, filter_files_by_size, DEFAULT_DOWNLOAD_SAMPLE_SEED
+from geoextent.lib.helpfunctions import (
+    parse_download_size,
+    filter_files_by_size,
+    DEFAULT_DOWNLOAD_SAMPLE_SEED,
+)
 
 
 class TestDownloadSizeLimiting:
@@ -36,9 +40,9 @@ class TestDownloadSizeLimiting:
     def test_filter_files_by_size_ordered(self):
         """Test ordered file selection with cumulative size limits."""
         files = [
-            {"name": "small1.zip", "size": 1000000},   # 1MB
-            {"name": "small2.zip", "size": 2000000},   # 2MB
-            {"name": "large1.zip", "size": 5000000},   # 5MB
+            {"name": "small1.zip", "size": 1000000},  # 1MB
+            {"name": "small2.zip", "size": 2000000},  # 2MB
+            {"name": "large1.zip", "size": 5000000},  # 5MB
             {"name": "large2.zip", "size": 10000000},  # 10MB
         ]
 
@@ -93,8 +97,8 @@ class TestDownloadSizeLimiting:
     def test_filter_files_by_size_no_files_when_first_exceeds_limit(self):
         """Test that no files are selected when first file exceeds limit."""
         files = [
-            {"name": "huge.zip", "size": 100000000},   # 100MB
-            {"name": "small.zip", "size": 1000000},    # 1MB
+            {"name": "huge.zip", "size": 100000000},  # 100MB
+            {"name": "small.zip", "size": 1000000},  # 1MB
         ]
 
         # 50MB limit - first file exceeds it, so nothing should be selected
@@ -113,17 +117,24 @@ class TestDownloadSizeLimiting:
             {"name": "roads.dbf", "size": 50000},
             {"name": "roads.prj", "size": 500},
             {"name": "standalone.csv", "size": 20000},
-            {"name": "cities.shp", "size": 200000},  # Single component, should be standalone
+            {
+                "name": "cities.shp",
+                "size": 200000,
+            },  # Single component, should be standalone
         ]
 
         groups, standalone = _group_shapefile_components(files)
 
         assert len(groups) == 1  # One complete shapefile group
         assert len(groups[0]) == 4  # roads.shp with its components
-        assert len(standalone) == 2  # standalone.csv + cities.shp (incomplete shapefile)
+        assert (
+            len(standalone) == 2
+        )  # standalone.csv + cities.shp (incomplete shapefile)
 
         # Test filtering keeps shapefile together
-        selected, total_size, skipped = filter_files_by_size(files, 160000, "ordered")  # 160KB limit
+        selected, total_size, skipped = filter_files_by_size(
+            files, 160000, "ordered"
+        )  # 160KB limit
 
         # Should select complete roads shapefile (155.5KB total) only
         # standalone.csv (20KB) would make total 175.5KB which exceeds 160KB limit
@@ -143,7 +154,9 @@ class TestDownloadSizeLimiting:
 
         # Test with None seed (should use default)
         selected1, _, _ = filter_files_by_size(files, 2000000, "random", None)
-        selected2, _, _ = filter_files_by_size(files, 2000000, "random", DEFAULT_DOWNLOAD_SAMPLE_SEED)
+        selected2, _, _ = filter_files_by_size(
+            files, 2000000, "random", DEFAULT_DOWNLOAD_SAMPLE_SEED
+        )
 
         # Both should use the same seed and produce identical results
         assert selected1 == selected2
@@ -159,46 +172,70 @@ class TestRepositoryExtentComparison:
         # File 1: Small area in Germany (2MB)
         germany_geojson = {
             "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[
-                        [7.0, 50.0], [8.0, 50.0], [8.0, 51.0], [7.0, 51.0], [7.0, 50.0]
-                    ]]
-                },
-                "properties": {"name": "Germany region"}
-            }]
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [7.0, 50.0],
+                                [8.0, 50.0],
+                                [8.0, 51.0],
+                                [7.0, 51.0],
+                                [7.0, 50.0],
+                            ]
+                        ],
+                    },
+                    "properties": {"name": "Germany region"},
+                }
+            ],
         }
 
         # File 2: Small area in France (1MB)
         france_geojson = {
             "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[
-                        [2.0, 48.0], [3.0, 48.0], [3.0, 49.0], [2.0, 49.0], [2.0, 48.0]
-                    ]]
-                },
-                "properties": {"name": "France region"}
-            }]
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [2.0, 48.0],
+                                [3.0, 48.0],
+                                [3.0, 49.0],
+                                [2.0, 49.0],
+                                [2.0, 48.0],
+                            ]
+                        ],
+                    },
+                    "properties": {"name": "France region"},
+                }
+            ],
         }
 
         # File 3: Large area in Norway (5MB)
         norway_geojson = {
             "type": "FeatureCollection",
-            "features": [{
-                "type": "Feature",
-                "geometry": {
-                    "type": "Polygon",
-                    "coordinates": [[
-                        [10.0, 68.0], [12.0, 68.0], [12.0, 70.0], [10.0, 70.0], [10.0, 68.0]
-                    ]]
-                },
-                "properties": {"name": "Norway region"}
-            }]
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [10.0, 68.0],
+                                [12.0, 68.0],
+                                [12.0, 70.0],
+                                [10.0, 70.0],
+                                [10.0, 68.0],
+                            ]
+                        ],
+                    },
+                    "properties": {"name": "Norway region"},
+                }
+            ],
         }
 
         files = [
@@ -210,7 +247,7 @@ class TestRepositoryExtentComparison:
         file_paths = []
         for filename, data, size in files:
             file_path = os.path.join(temp_dir, filename)
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 json.dump(data, f)
             file_paths.append((file_path, size))
 
@@ -226,6 +263,7 @@ class TestRepositoryExtentComparison:
 
             # Convert to WKT format using helpfunctions
             from geoextent.lib.helpfunctions import format_extent_output
+
             extent_all_wkt = format_extent_output(extent_all, "wkt")
 
             # Both should produce valid WKT polygons
@@ -269,36 +307,38 @@ class TestRepositoryExtentComparison:
         # Different methods should potentially select different files
         # (verifying the sampling logic works)
 
-    @patch('geoextent.lib.extent.from_repository')
+    @patch("geoextent.lib.extent.from_repository")
     def test_repository_extent_extraction_with_size_limits(self, mock_from_repo):
         """Test repository extent extraction with different size limits."""
         # Mock repository responses with different file selections
         mock_small_extent = {
             "bbox": "POLYGON((2 48, 8 48, 8 51, 2 51, 2 48))",  # Germany + France
-            "format": "remote"
+            "format": "remote",
         }
 
         mock_large_extent = {
             "bbox": "POLYGON((2 48, 12 48, 12 70, 2 70, 2 48))",  # Including Norway
-            "format": "remote"
+            "format": "remote",
         }
 
         # Test with small size limit
         mock_from_repo.return_value = mock_small_extent
         result_small = extent.from_repository(
             "https://example.com/repo",
-            bbox=True, tbox=False,
+            bbox=True,
+            tbox=False,
             max_download_size="3MB",
-            max_download_method="ordered"
+            max_download_method="ordered",
         )
 
         # Test with large size limit
         mock_from_repo.return_value = mock_large_extent
         result_large = extent.from_repository(
             "https://example.com/repo",
-            bbox=True, tbox=False,
+            bbox=True,
+            tbox=False,
             max_download_size="10MB",
-            max_download_method="ordered"
+            max_download_method="ordered",
         )
 
         assert result_small["bbox"] != result_large["bbox"]
@@ -309,7 +349,7 @@ class TestRepositoryExtentComparison:
         """Test that WKT format provides precise extent comparison."""
         files = [
             {"name": "precise1.geojson", "size": 1000000},
-            {"name": "precise2.geojson", "size": 2000000}
+            {"name": "precise2.geojson", "size": 2000000},
         ]
 
         # Test that format parameter is properly handled

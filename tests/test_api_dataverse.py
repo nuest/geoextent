@@ -102,15 +102,16 @@ class TestDataverseProvider:
     def test_provider_instantiation(self, dataverse_provider):
         """Test that the provider can be instantiated correctly."""
         assert dataverse_provider.name == "Dataverse"
-        assert hasattr(dataverse_provider, 'validate_provider')
-        assert hasattr(dataverse_provider, 'download')
-        assert hasattr(dataverse_provider, '_get_dataset_metadata')
+        assert hasattr(dataverse_provider, "validate_provider")
+        assert hasattr(dataverse_provider, "download")
+        assert hasattr(dataverse_provider, "_get_dataset_metadata")
 
     def test_known_host_detection(self, dataverse_provider):
         """Test detection of known Dataverse hosts."""
         for host in self.KNOWN_HOSTS:
-            assert dataverse_provider._is_known_dataverse_host(host), \
-                f"Should recognize {host} as a known Dataverse host"
+            assert dataverse_provider._is_known_dataverse_host(
+                host
+            ), f"Should recognize {host} as a known Dataverse host"
 
         # Test case insensitivity
         assert dataverse_provider._is_known_dataverse_host("DATAVERSE.HARVARD.EDU")
@@ -119,8 +120,9 @@ class TestDataverseProvider:
         # Test unknown hosts
         unknown_hosts = ["zenodo.org", "figshare.com", "example.com"]
         for host in unknown_hosts:
-            assert not dataverse_provider._is_known_dataverse_host(host), \
-                f"Should not recognize {host} as a Dataverse host"
+            assert not dataverse_provider._is_known_dataverse_host(
+                host
+            ), f"Should not recognize {host} as a Dataverse host"
 
     def test_doi_pattern_recognition(self, dataverse_provider):
         """Test recognition of Dataverse DOI patterns."""
@@ -132,8 +134,9 @@ class TestDataverseProvider:
         ]
 
         for doi in harvard_dois:
-            assert dataverse_provider._is_dataverse_doi(doi), \
-                f"Should recognize Harvard Dataverse DOI: {doi}"
+            assert dataverse_provider._is_dataverse_doi(
+                doi
+            ), f"Should recognize Harvard Dataverse DOI: {doi}"
 
         # DataverseNL DOIs (hypothetical pattern)
         dataversenl_dois = [
@@ -142,8 +145,9 @@ class TestDataverseProvider:
         ]
 
         for doi in dataversenl_dois:
-            assert dataverse_provider._is_dataverse_doi(doi), \
-                f"Should recognize DataverseNL DOI: {doi}"
+            assert dataverse_provider._is_dataverse_doi(
+                doi
+            ), f"Should recognize DataverseNL DOI: {doi}"
 
         # Non-Dataverse DOIs
         non_dataverse_dois = [
@@ -153,8 +157,9 @@ class TestDataverseProvider:
         ]
 
         for doi in non_dataverse_dois:
-            assert not dataverse_provider._is_dataverse_doi(doi), \
-                f"Should not recognize non-Dataverse DOI: {doi}"
+            assert not dataverse_provider._is_dataverse_doi(
+                doi
+            ), f"Should not recognize non-Dataverse DOI: {doi}"
 
     def test_persistent_id_cleaning(self, dataverse_provider):
         """Test persistent ID cleaning and normalization."""
@@ -167,10 +172,13 @@ class TestDataverseProvider:
 
         for input_id, expected_output in test_cases:
             result = dataverse_provider._clean_persistent_id(input_id)
-            assert result == expected_output, \
-                f"Expected {expected_output}, got {result} for input {input_id}"
+            assert (
+                result == expected_output
+            ), f"Expected {expected_output}, got {result} for input {input_id}"
 
-    @pytest.mark.parametrize("dataset", TEST_DATASETS[:2])  # Skip mock dataset for validation test
+    @pytest.mark.parametrize(
+        "dataset", TEST_DATASETS[:2]
+    )  # Skip mock dataset for validation test
     def test_identifier_validation(self, dataverse_provider, dataset):
         """Test validation of different identifier formats."""
         for identifier in dataset["identifiers"]:
@@ -181,16 +189,21 @@ class TestDataverseProvider:
             assert is_valid, f"Should validate identifier: {identifier}"
 
             # For URLs with explicit hosts, check the host
-            if any(host in identifier.lower() for host in ["dataverse.harvard.edu", "dataverse.nl"]):
-                assert provider.host == dataset["expected_host"], \
-                    f"Host mismatch for {identifier}: expected {dataset['expected_host']}, got {provider.host}"
+            if any(
+                host in identifier.lower()
+                for host in ["dataverse.harvard.edu", "dataverse.nl"]
+            ):
+                assert (
+                    provider.host == dataset["expected_host"]
+                ), f"Host mismatch for {identifier}: expected {dataset['expected_host']}, got {provider.host}"
             else:
                 # For plain DOIs, host might be None (discovered later during API calls)
                 # This is expected behavior
                 pass
 
-            assert provider.persistent_id == dataset["expected_persistent_id"], \
-                f"Persistent ID mismatch for {identifier}: expected {dataset['expected_persistent_id']}, got {provider.persistent_id}"
+            assert (
+                provider.persistent_id == dataset["expected_persistent_id"]
+            ), f"Persistent ID mismatch for {identifier}: expected {dataset['expected_persistent_id']}, got {provider.persistent_id}"
 
     def test_invalid_identifiers(self, dataverse_provider):
         """Test rejection of invalid identifiers."""
@@ -235,13 +248,17 @@ class TestDataverseProvider:
             pattern = dataverse_provider.url_patterns[case["pattern"]]
             match = pattern.match(case["url"])
 
-            assert match is not None, f"Pattern {case['pattern']} should match URL: {case['url']}"
+            assert (
+                match is not None
+            ), f"Pattern {case['pattern']} should match URL: {case['url']}"
 
             groups = match.groups()
-            assert groups[0] == case["expected_host"], \
-                f"Host mismatch: expected {case['expected_host']}, got {groups[0]}"
-            assert groups[1] == case["expected_id"], \
-                f"ID mismatch: expected {case['expected_id']}, got {groups[1]}"
+            assert (
+                groups[0] == case["expected_host"]
+            ), f"Host mismatch: expected {case['expected_host']}, got {groups[0]}"
+            assert (
+                groups[1] == case["expected_id"]
+            ), f"ID mismatch: expected {case['expected_id']}, got {groups[1]}"
 
     def test_api_url_construction(self, dataverse_provider):
         """Test API URL construction for different hosts."""
@@ -254,8 +271,9 @@ class TestDataverseProvider:
         for host, expected_url in test_cases:
             dataverse_provider.host = host
             api_url = dataverse_provider._get_api_base_url()
-            assert api_url == expected_url, \
-                f"Expected {expected_url}, got {api_url} for host {host}"
+            assert (
+                api_url == expected_url
+            ), f"Expected {expected_url}, got {api_url} for host {host}"
 
     @pytest.mark.integration
     def test_real_dataset_metadata_extraction(self, dataverse_provider):
@@ -310,7 +328,11 @@ class TestDataverseProvider:
                 for file_info in files:
                     assert isinstance(file_info, dict)
                     # Should have either 'dataFile' or direct file properties
-                    assert "dataFile" in file_info or "filename" in file_info or "label" in file_info
+                    assert (
+                        "dataFile" in file_info
+                        or "filename" in file_info
+                        or "label" in file_info
+                    )
 
         except Exception as e:
             pytest.skip(f"Real file listing test skipped due to API access issue: {e}")
@@ -321,16 +343,19 @@ class TestDataverseProvider:
         file_info_cases = [
             {
                 "dataFile": {"id": 12345, "filename": "test.csv"},
-                "expected_pattern": "/api/access/datafile/12345"
+                "expected_pattern": "/api/access/datafile/12345",
             },
             {
-                "dataFile": {"persistentId": "doi:10.7910/DVN/OMV93V/FILE1", "filename": "test.txt"},
-                "expected_pattern": "/api/access/datafile/:persistentId?persistentId="
+                "dataFile": {
+                    "persistentId": "doi:10.7910/DVN/OMV93V/FILE1",
+                    "filename": "test.txt",
+                },
+                "expected_pattern": "/api/access/datafile/:persistentId?persistentId=",
             },
             {
                 "id": 67890,
                 "filename": "data.json",
-                "expected_pattern": "/api/access/datafile/67890"
+                "expected_pattern": "/api/access/datafile/67890",
             },
         ]
 
@@ -339,8 +364,9 @@ class TestDataverseProvider:
         for file_info in file_info_cases:
             try:
                 download_url = dataverse_provider._get_file_download_url(file_info)
-                assert file_info["expected_pattern"] in download_url, \
-                    f"Download URL should contain pattern: {file_info['expected_pattern']}"
+                assert (
+                    file_info["expected_pattern"] in download_url
+                ), f"Download URL should contain pattern: {file_info['expected_pattern']}"
             except ValueError:
                 # Some cases might fail due to missing required fields
                 pass
@@ -354,10 +380,12 @@ class TestDataverseProvider:
             is_valid = provider.validate_provider(identifier)
 
             assert is_valid, f"Should validate mock identifier: {identifier}"
-            assert provider.host == mock_dataset["expected_host"] or provider.host is None, \
-                f"Host should be {mock_dataset['expected_host']} or None for DOI resolution"
-            assert provider.persistent_id == mock_dataset["expected_persistent_id"], \
-                f"Persistent ID should be {mock_dataset['expected_persistent_id']}"
+            assert (
+                provider.host == mock_dataset["expected_host"] or provider.host is None
+            ), f"Host should be {mock_dataset['expected_host']} or None for DOI resolution"
+            assert (
+                provider.persistent_id == mock_dataset["expected_persistent_id"]
+            ), f"Persistent ID should be {mock_dataset['expected_persistent_id']}"
 
     def test_provider_string_representation(self, dataverse_provider):
         """Test string representation of provider."""
@@ -376,7 +404,7 @@ class TestDataverseProvider:
         assert provider.validate_provider("doi:10.7910/DVN/OMV93V")
 
         # Mock failed API request
-        with patch.object(provider, '_request', side_effect=Exception("API Error")):
+        with patch.object(provider, "_request", side_effect=Exception("API Error")):
             with pytest.raises(Exception):
                 provider._get_dataset_metadata()
 
@@ -398,7 +426,9 @@ class TestDataverseProvider:
         success_rate = successful_validations / total_identifiers * 100
 
         # All identifiers should validate successfully
-        assert success_rate == 100, f"Some identifier formats failed validation. Success rate: {success_rate:.1f}%"
+        assert (
+            success_rate == 100
+        ), f"Some identifier formats failed validation. Success rate: {success_rate:.1f}%"
 
     @pytest.mark.slow
     def test_download_functionality_mock(self, dataverse_provider, temp_dir):
@@ -409,18 +439,14 @@ class TestDataverseProvider:
         # Mock the file list
         mock_files = [
             {
-                "dataFile": {
-                    "id": 123,
-                    "filename": "test.csv",
-                    "filesize": 1024
-                },
-                "label": "test.csv"
+                "dataFile": {"id": 123, "filename": "test.csv", "filesize": 1024},
+                "label": "test.csv",
             }
         ]
 
         # Mock the responses
-        with patch.object(provider, '_get_file_list', return_value=mock_files):
-            with patch.object(provider, '_request') as mock_request:
+        with patch.object(provider, "_get_file_list", return_value=mock_files):
+            with patch.object(provider, "_request") as mock_request:
                 # Mock successful download response
                 mock_response = MagicMock()
                 mock_response.iter_content.return_value = [b"test,data\n1,2\n"]
@@ -446,8 +472,14 @@ class TestDataverseProvider:
                         "metadataBlocks": {
                             "citation": {
                                 "fields": [
-                                    {"typeName": "title", "value": "GPS Coordinates Dataset"},
-                                    {"typeName": "subject", "value": ["Earth and Environmental Sciences"]}
+                                    {
+                                        "typeName": "title",
+                                        "value": "GPS Coordinates Dataset",
+                                    },
+                                    {
+                                        "typeName": "subject",
+                                        "value": ["Earth and Environmental Sciences"],
+                                    },
                                 ]
                             }
                         },
@@ -457,12 +489,12 @@ class TestDataverseProvider:
                                     "id": 1,
                                     "filename": "coordinates.csv",
                                     "contentType": "text/csv",
-                                    "tabularData": True
+                                    "tabularData": True,
                                 }
                             }
-                        ]
+                        ],
                     }
-                }
+                },
             },
             {
                 "description": "Geospatial files (shapefiles, GeoTIFF)",
@@ -471,7 +503,10 @@ class TestDataverseProvider:
                         "metadataBlocks": {
                             "citation": {
                                 "fields": [
-                                    {"typeName": "title", "value": "Geospatial Analysis Data"}
+                                    {
+                                        "typeName": "title",
+                                        "value": "Geospatial Analysis Data",
+                                    }
                                 ]
                             }
                         },
@@ -480,13 +515,13 @@ class TestDataverseProvider:
                                 "dataFile": {
                                     "id": 2,
                                     "filename": "data.shp",
-                                    "contentType": "application/octet-stream"
+                                    "contentType": "application/octet-stream",
                                 }
                             }
-                        ]
+                        ],
                     }
-                }
-            }
+                },
+            },
         ]
 
         for case in test_cases:
@@ -507,7 +542,12 @@ class TestDataverseProvider:
         test_doi = "https://doi.org/10.7910/DVN/4YGU5J"
 
         # Reference bounding box for comparison: [minX, minY, maxX, maxY]
-        reference_bbox = [-71.96002219440005, 41.963676321571086, -70.1479956701181, 42.724780975329644]
+        reference_bbox = [
+            -71.96002219440005,
+            41.963676321571086,
+            -70.1479956701181,
+            42.724780975329644,
+        ]
         tolerance = 0.001  # Allow small differences due to floating point precision
 
         try:
@@ -516,20 +556,26 @@ class TestDataverseProvider:
                 ["python", "-m", "geoextent", "-b", test_doi],
                 capture_output=True,
                 text=True,
-                timeout=120  # 2 minute timeout for network operations
+                timeout=120,  # 2 minute timeout for network operations
             )
 
             # Check that the command succeeded
-            assert result.returncode == 0, f"CLI command failed with error: {result.stderr}"
+            assert (
+                result.returncode == 0
+            ), f"CLI command failed with error: {result.stderr}"
 
             # Parse the JSON output
             output = json.loads(result.stdout)
 
             # Verify the basic structure (GeoJSON FeatureCollection)
             assert isinstance(output, dict), "Output should be a dictionary"
-            assert output["type"] == "FeatureCollection", "Output should be a GeoJSON FeatureCollection"
+            assert (
+                output["type"] == "FeatureCollection"
+            ), "Output should be a GeoJSON FeatureCollection"
             assert "features" in output, "Output should contain features"
-            assert len(output["features"]) > 0, "Output should contain at least one feature"
+            assert (
+                len(output["features"]) > 0
+            ), "Output should contain at least one feature"
 
             feature = output["features"][0]
             assert feature["type"] == "Feature", "Feature should have type 'Feature'"
@@ -548,10 +594,14 @@ class TestDataverseProvider:
 
             # Extract bbox from polygon coordinates [[[x1,y1], [x2,y2], [x3,y3], [x4,y4], [x1,y1]]]
             polygon_coords = geometry["coordinates"][0]  # First (and only) ring
-            assert len(polygon_coords) == 5, "Polygon should have 5 coordinate pairs (closed)"
+            assert (
+                len(polygon_coords) == 5
+            ), "Polygon should have 5 coordinate pairs (closed)"
 
             # Calculate bounding box from polygon coordinates
-            lons = [coord[0] for coord in polygon_coords[:-1]]  # Exclude last (duplicate) point
+            lons = [
+                coord[0] for coord in polygon_coords[:-1]
+            ]  # Exclude last (duplicate) point
             lats = [coord[1] for coord in polygon_coords[:-1]]
             minX, maxX = min(lons), max(lons)
             minY, maxY = min(lats), max(lats)
@@ -567,14 +617,18 @@ class TestDataverseProvider:
             # Compare with reference bounding box
             ref_minX, ref_minY, ref_maxX, ref_maxY = reference_bbox
 
-            assert abs(minX - ref_minX) <= tolerance, \
-                f"MinX differs from reference: extracted={minX}, reference={ref_minX}, diff={abs(minX - ref_minX)}"
-            assert abs(minY - ref_minY) <= tolerance, \
-                f"MinY differs from reference: extracted={minY}, reference={ref_minY}, diff={abs(minY - ref_minY)}"
-            assert abs(maxX - ref_maxX) <= tolerance, \
-                f"MaxX differs from reference: extracted={maxX}, reference={ref_maxX}, diff={abs(maxX - ref_maxX)}"
-            assert abs(maxY - ref_maxY) <= tolerance, \
-                f"MaxY differs from reference: extracted={maxY}, reference={ref_maxY}, diff={abs(maxY - ref_maxY)}"
+            assert (
+                abs(minX - ref_minX) <= tolerance
+            ), f"MinX differs from reference: extracted={minX}, reference={ref_minX}, diff={abs(minX - ref_minX)}"
+            assert (
+                abs(minY - ref_minY) <= tolerance
+            ), f"MinY differs from reference: extracted={minY}, reference={ref_minY}, diff={abs(minY - ref_minY)}"
+            assert (
+                abs(maxX - ref_maxX) <= tolerance
+            ), f"MaxX differs from reference: extracted={maxX}, reference={ref_maxX}, diff={abs(maxX - ref_maxX)}"
+            assert (
+                abs(maxY - ref_maxY) <= tolerance
+            ), f"MaxY differs from reference: extracted={maxY}, reference={ref_maxY}, diff={abs(maxY - ref_maxY)}"
 
             # Verify CRS information
             if "crs" in properties:
@@ -583,7 +637,9 @@ class TestDataverseProvider:
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")
         except json.JSONDecodeError as e:
-            pytest.fail(f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}")
+            pytest.fail(
+                f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
+            )
         except AssertionError as e:
             # Re-raise assertion errors to show the actual test failure
             raise e
@@ -604,7 +660,7 @@ class TestDataverseProvider:
                 tbox=False,  # Focus on spatial extent for this test
                 details=True,
                 download_data=True,
-                timeout=120  # 2 minute timeout
+                timeout=120,  # 2 minute timeout
             )
 
             # Verify the basic structure
@@ -640,7 +696,9 @@ class TestDataverseProvider:
 
         except ValueError as e:
             if "not supported" in str(e).lower():
-                pytest.skip(f"Python API test skipped - provider validation failed: {e}")
+                pytest.skip(
+                    f"Python API test skipped - provider validation failed: {e}"
+                )
             else:
                 pytest.fail(f"Python API test failed with ValueError: {e}")
         except Exception as e:
@@ -657,7 +715,7 @@ class TestDataverseProvider:
                 ["python", "-m", "geoextent", "-b", test_doi],
                 capture_output=True,
                 text=True,
-                timeout=120
+                timeout=120,
             )
 
             # Test Python API
@@ -667,14 +725,16 @@ class TestDataverseProvider:
                 tbox=False,
                 details=True,
                 download_data=True,
-                timeout=120
+                timeout=120,
             )
 
             if cli_result.returncode == 0:
                 cli_output = json.loads(cli_result.stdout)
 
                 # Compare basic structure
-                assert cli_output["format"] == api_result["format"], "Format should match between CLI and API"
+                assert (
+                    cli_output["format"] == api_result["format"]
+                ), "Format should match between CLI and API"
 
                 # Compare bounding boxes if both exist
                 if "bbox" in cli_output and "bbox" in api_result:
@@ -683,12 +743,15 @@ class TestDataverseProvider:
 
                     # Allow for small floating point differences
                     for i in range(4):
-                        assert abs(cli_bbox[i] - api_bbox[i]) < 0.001, \
-                            f"Bounding box coordinate {i} differs: CLI={cli_bbox[i]}, API={api_bbox[i]}"
+                        assert (
+                            abs(cli_bbox[i] - api_bbox[i]) < 0.001
+                        ), f"Bounding box coordinate {i} differs: CLI={cli_bbox[i]}, API={api_bbox[i]}"
 
                 # Compare CRS if both exist
                 if "crs" in cli_output and "crs" in api_result:
-                    assert cli_output["crs"] == api_result["crs"], "CRS should match between CLI and API"
+                    assert (
+                        cli_output["crs"] == api_result["crs"]
+                    ), "CRS should match between CLI and API"
 
         except Exception as e:
             pytest.skip(f"Integration comparison test skipped due to error: {e}")
@@ -697,7 +760,6 @@ class TestDataverseProvider:
 if __name__ == "__main__":
     # Run basic tests if executed directly
     import sys
-
 
     # Test provider instantiation
     provider = Dataverse()
@@ -717,4 +779,3 @@ if __name__ == "__main__":
             successful += 1
         else:
             pass  # Validation failed, continue to next
-

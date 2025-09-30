@@ -279,9 +279,7 @@ class TestRepositoryErrorHandling:
         )[0]["doi"]
 
         try:
-            result = geoextent.fromRemote(
-                test_doi, bbox=True, tbox=True, timeout=0.001
-            )
+            result = geoextent.fromRemote(test_doi, bbox=True, tbox=True, timeout=0.001)
             # Should either complete or indicate timeout
             if result is not None:
                 # If timeout was reached, it might be indicated
@@ -392,9 +390,7 @@ class TestRepositorySpecialCases:
 
         for doi_with_whitespace in whitespace_cases:
             try:
-                result = geoextent.fromRemote(
-                    doi_with_whitespace.strip(), bbox=True
-                )
+                result = geoextent.fromRemote(doi_with_whitespace.strip(), bbox=True)
                 # Should handle whitespace gracefully after stripping
                 if result is not None:
                     assert result["format"] == "remote"

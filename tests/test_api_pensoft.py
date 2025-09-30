@@ -18,13 +18,13 @@ class TestPensoftProvider:
             "article_id": "1068",
             "title": "Recent noteworthy findings of fungus gnats from Finland and northwestern Russia",
             "expected_bbox": [
-                19.7,    # W
+                19.7,  # W
                 59.963,  # S
                 36.622,  # E
                 69.909,  # N
             ],
             "coordinate_count": 251,
-            "description": "Fungus gnat records from Finland and northwestern Russia with extensive coordinate data"
+            "description": "Fungus gnat records from Finland and northwestern Russia with extensive coordinate data",
         },
         "amphibians_vietnam": {
             "doi": "10.3897/BDJ.13.e159973",
@@ -34,12 +34,12 @@ class TestPensoftProvider:
             "title": "New records of amphibians for Ha Nam Province, Vietnam",
             "expected_bbox": [
                 105.83960166667,  # W
-                20.536216666667, # S
+                20.536216666667,  # S
                 106.54058333333,  # E
-                20.8705,          # N
+                20.8705,  # N
             ],
             "coordinate_count": 6,
-            "description": "Amphibian records from Ha Nam Province, Vietnam"
+            "description": "Amphibian records from Ha Nam Province, Vietnam",
         },
         "scarab_beetles_volga": {
             "doi": "10.3897/BDJ.1.e979",
@@ -54,7 +54,7 @@ class TestPensoftProvider:
                 47.000,  # N
             ],
             "coordinate_count": 9,
-            "description": "Historic DOI from volume 1, scarab beetle diversity study"
+            "description": "Historic DOI from volume 1, scarab beetle diversity study",
         },
         "chaitophorus_aphids": {
             "doi": None,  # This one doesn't have a clear DOI pattern
@@ -64,7 +64,7 @@ class TestPensoftProvider:
             "title": "Unveiling hidden diversity: new records of Chaitophorus (Hemiptera, Aphididae)",
             "expected_bbox": None,  # Will be determined during testing
             "coordinate_count": 7,
-            "description": "Recent article on aphid diversity"
+            "description": "Recent article on aphid diversity",
         },
     }
 
@@ -211,8 +211,9 @@ class TestPensoftProvider:
 
                 # Check bbox values are within tolerance
                 for i in range(4):
-                    assert abs(actual_bbox[i] - expected_bbox[i]) <= tolerance, \
-                        f"Bbox coordinate {i} differs: {actual_bbox[i]} vs {expected_bbox[i]}"
+                    assert (
+                        abs(actual_bbox[i] - expected_bbox[i]) <= tolerance
+                    ), f"Bbox coordinate {i} differs: {actual_bbox[i]} vs {expected_bbox[i]}"
 
                 print(f"  ✓ Bbox matches expected values within tolerance")
 
@@ -261,7 +262,9 @@ class TestPensoftProvider:
         historic_dataset = self.TEST_DATASETS["scarab_beetles_volga"]
 
         try:
-            result = geoextent.fromRemote(historic_dataset["doi"], bbox=True, tbox=False)
+            result = geoextent.fromRemote(
+                historic_dataset["doi"], bbox=True, tbox=False
+            )
 
             assert result is not None
             assert "bbox" in result
@@ -303,10 +306,10 @@ class TestPensoftProvider:
             assert abs(bbox[i] - expected_bbox[i]) <= tolerance
 
         # Verify geographic extent makes sense (Finland/Russia region)
-        assert 15 <= bbox[0] <= 40   # Western longitude
-        assert 55 <= bbox[1] <= 75   # Southern latitude
-        assert 30 <= bbox[2] <= 45   # Eastern longitude
-        assert 65 <= bbox[3] <= 75   # Northern latitude
+        assert 15 <= bbox[0] <= 40  # Western longitude
+        assert 55 <= bbox[1] <= 75  # Southern latitude
+        assert 30 <= bbox[2] <= 45  # Eastern longitude
+        assert 65 <= bbox[3] <= 75  # Northern latitude
 
     def test_pensoft_error_handling(self):
         """Test error handling for invalid inputs and network issues"""
@@ -316,9 +319,9 @@ class TestPensoftProvider:
 
         # Test invalid DOI patterns
         invalid_inputs = [
-            "10.1234/invalid.doi",           # Invalid DOI pattern
+            "10.1234/invalid.doi",  # Invalid DOI pattern
             "https://example.com/article/123",  # Wrong domain
-            "not-a-doi-at-all",             # Not a DOI at all
+            "not-a-doi-at-all",  # Not a DOI at all
             "https://different-journal.com/article/123/",  # Different journal
         ]
 
@@ -345,7 +348,9 @@ class TestPensoftProvider:
 
     def test_pensoft_cli_geojson_validation(self):
         """Test Pensoft CLI output with GeoJSON validation"""
-        test_doi = "10.3897/BDJ.2.e1068"  # Fungus gnats from Finland with rich coordinate data
+        test_doi = (
+            "10.3897/BDJ.2.e1068"  # Fungus gnats from Finland with rich coordinate data
+        )
 
         try:
             # Run geoextent CLI with --quiet flag to get clean JSON output
@@ -353,29 +358,39 @@ class TestPensoftProvider:
                 ["python", "-m", "geoextent", "-b", "--quiet", test_doi],
                 capture_output=True,
                 text=True,
-                timeout=120  # 2 minute timeout for network operations
+                timeout=120,  # 2 minute timeout for network operations
             )
 
             # Check that the command succeeded
-            assert result.returncode == 0, f"CLI command failed with error: {result.stderr}"
+            assert (
+                result.returncode == 0
+            ), f"CLI command failed with error: {result.stderr}"
 
             # Parse the GeoJSON output
             geojson_output = json.loads(result.stdout)
 
             # Validate the GeoJSON structure using geojson-validator
             validation_errors = validate_structure(geojson_output)
-            assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
+            assert (
+                not validation_errors
+            ), f"Invalid GeoJSON structure: {validation_errors}"
 
             # Additional GeoJSON structure checks
-            assert geojson_output["type"] == "FeatureCollection", "Should be a FeatureCollection"
+            assert (
+                geojson_output["type"] == "FeatureCollection"
+            ), "Should be a FeatureCollection"
             assert "features" in geojson_output, "Should contain features"
-            assert len(geojson_output["features"]) > 0, "Should have at least one feature"
+            assert (
+                len(geojson_output["features"]) > 0
+            ), "Should have at least one feature"
 
             feature = geojson_output["features"][0]
             assert feature["type"] == "Feature", "Feature should have correct type"
             assert "geometry" in feature, "Feature should have geometry"
             assert "properties" in feature, "Feature should have properties"
-            assert feature["geometry"]["type"] == "Polygon", "Geometry should be a Polygon"
+            assert (
+                feature["geometry"]["type"] == "Polygon"
+            ), "Geometry should be a Polygon"
 
             # Verify properties contain expected metadata
             properties = feature["properties"]
@@ -385,6 +400,8 @@ class TestPensoftProvider:
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")
         except json.JSONDecodeError as e:
-            pytest.fail(f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}")
+            pytest.fail(
+                f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
+            )
         except Exception as e:
             pytest.skip(f"Network or API error: {e}")

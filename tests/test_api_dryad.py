@@ -39,7 +39,7 @@ class TestDryadProvider:
             "description": "Grid-based marine species data with approximately 44km cell size",
             # Expected bounding box to be determined by testing
             "expected_bbox": None,
-        }
+        },
     }
 
     def test_dryad_url_validation(self):
@@ -69,7 +69,6 @@ class TestDryadProvider:
         """Test Dryad provider with actual bounding box verification - Pacific Atolls"""
         dataset = self.TEST_DATASETS["pacific_atolls"]
 
-
         try:
             # Test with download_data=True to get actual geospatial data
             # Note: This dataset may be large and could timeout
@@ -77,14 +76,12 @@ class TestDryadProvider:
                 dataset["url"], bbox=True, tbox=True, download_data=True, timeout=120
             )
 
-
             assert result is not None
             assert result["format"] == "remote"
 
             # Check geographic coverage
             if "bbox" in result:
                 bbox = result["bbox"]
-
 
                 assert len(bbox) == 4
                 assert isinstance(bbox[0], (int, float))
@@ -103,8 +100,12 @@ class TestDryadProvider:
                 # Pacific atolls should be in Pacific Ocean region
                 # Rough Pacific bounds: 120°E to 80°W, 60°N to 60°S
                 # Allow flexibility for coordinate system transformations
-                assert -180 <= bbox[0] <= 180, f"West longitude {bbox[0]} should be in valid range"
-                assert -60 <= bbox[1] <= 60, f"South latitude {bbox[1]} should be in expected Pacific range"
+                assert (
+                    -180 <= bbox[0] <= 180
+                ), f"West longitude {bbox[0]} should be in valid range"
+                assert (
+                    -60 <= bbox[1] <= 60
+                ), f"South latitude {bbox[1]} should be in expected Pacific range"
 
             # Check CRS
             if "crs" in result:
@@ -130,7 +131,6 @@ class TestDryadProvider:
             assert result is not None
             assert result["format"] == "remote"
 
-
         except ImportError:
             pytest.skip("Required libraries not available")
         except Exception as e:
@@ -145,6 +145,7 @@ class TestDryadProvider:
         ]
 
         from geoextent.lib.content_providers.Dryad import Dryad
+
         dryad = Dryad()
 
         for url in url_variants:
@@ -177,7 +178,11 @@ class TestDryadProvider:
                 assert isinstance(metadata, dict)
         except Exception as e:
             # Exception is expected for nonexistent datasets
-            assert "does not exist" in str(e) or "404" in str(e) or "error" in str(e).lower()
+            assert (
+                "does not exist" in str(e)
+                or "404" in str(e)
+                or "error" in str(e).lower()
+            )
 
     def test_dryad_provider_robustness(self):
         """Test Dryad provider handles various edge cases"""
@@ -193,7 +198,6 @@ class TestDryadProvider:
 
             assert result is not None
             assert result["format"] == "remote"
-
 
             # This dataset likely won't have extractable geospatial extents
             # but the extraction should complete without errors
@@ -227,16 +231,26 @@ class TestDryadParameterCombinations:
 
                 # Validate the GeoJSON structure
                 validation_errors = validate_structure(geojson_output)
-                assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
+                assert (
+                    not validation_errors
+                ), f"Invalid GeoJSON structure: {validation_errors}"
 
                 # Additional GeoJSON structure checks
-                assert geojson_output["type"] == "FeatureCollection", "Should be a FeatureCollection"
-                assert len(geojson_output["features"]) > 0, "Should have at least one feature"
+                assert (
+                    geojson_output["type"] == "FeatureCollection"
+                ), "Should be a FeatureCollection"
+                assert (
+                    len(geojson_output["features"]) > 0
+                ), "Should have at least one feature"
 
                 feature = geojson_output["features"][0]
                 assert feature["type"] == "Feature", "Feature should have correct type"
-                assert feature["geometry"]["type"] == "Polygon", "Geometry should be a Polygon"
-                assert len(feature["geometry"]["coordinates"][0]) == 5, "Polygon should be closed"
+                assert (
+                    feature["geometry"]["type"] == "Polygon"
+                ), "Geometry should be a Polygon"
+                assert (
+                    len(feature["geometry"]["coordinates"][0]) == 5
+                ), "Polygon should be closed"
 
         except ImportError:
             pytest.skip("Required libraries not available")
@@ -266,7 +280,12 @@ class TestDryadParameterCombinations:
 
         try:
             result = geoextent.fromRemote(
-                test_url, bbox=True, tbox=True, details=True, download_data=True, timeout=60
+                test_url,
+                bbox=True,
+                tbox=True,
+                details=True,
+                download_data=True,
+                timeout=60,
             )
             assert result is not None
             assert result["format"] == "remote"
@@ -324,7 +343,9 @@ class TestDryadEdgeCases:
 
     def test_dryad_nonexistent_dataset(self):
         """Test Dryad with nonexistent dataset"""
-        nonexistent_url = "https://datadryad.org/dataset/doi:10.5061/dryad.nonexistent999"
+        nonexistent_url = (
+            "https://datadryad.org/dataset/doi:10.5061/dryad.nonexistent999"
+        )
 
         try:
             result = geoextent.fromRemote(
@@ -359,8 +380,9 @@ class TestDryadEdgeCases:
             # Timeout, disk space, or other errors are expected for large datasets
             error_msg = str(e).lower()
             expected_errors = ["timeout", "error", "time", "no space", "disk", "errno"]
-            assert any(keyword in error_msg for keyword in expected_errors), \
-                f"Expected timeout/error/disk space related error, got: {e}"
+            assert any(
+                keyword in error_msg for keyword in expected_errors
+            ), f"Expected timeout/error/disk space related error, got: {e}"
 
     def test_dryad_url_encoding_handling(self):
         """Test Dryad URL encoding handling"""
@@ -388,29 +410,39 @@ class TestDryadEdgeCases:
                 ["python", "-m", "geoextent", "-b", "--quiet", test_url],
                 capture_output=True,
                 text=True,
-                timeout=180  # 3 minute timeout for Dryad (can be slow)
+                timeout=180,  # 3 minute timeout for Dryad (can be slow)
             )
 
             # Check that the command succeeded
-            assert result.returncode == 0, f"CLI command failed with error: {result.stderr}"
+            assert (
+                result.returncode == 0
+            ), f"CLI command failed with error: {result.stderr}"
 
             # Parse the GeoJSON output
             geojson_output = json.loads(result.stdout)
 
             # Validate the GeoJSON structure using geojson-validator
             validation_errors = validate_structure(geojson_output)
-            assert not validation_errors, f"Invalid GeoJSON structure: {validation_errors}"
+            assert (
+                not validation_errors
+            ), f"Invalid GeoJSON structure: {validation_errors}"
 
             # Additional GeoJSON structure checks
-            assert geojson_output["type"] == "FeatureCollection", "Should be a FeatureCollection"
+            assert (
+                geojson_output["type"] == "FeatureCollection"
+            ), "Should be a FeatureCollection"
             assert "features" in geojson_output, "Should contain features"
-            assert len(geojson_output["features"]) > 0, "Should have at least one feature"
+            assert (
+                len(geojson_output["features"]) > 0
+            ), "Should have at least one feature"
 
             feature = geojson_output["features"][0]
             assert feature["type"] == "Feature", "Feature should have correct type"
             assert "geometry" in feature, "Feature should have geometry"
             assert "properties" in feature, "Feature should have properties"
-            assert feature["geometry"]["type"] == "Polygon", "Geometry should be a Polygon"
+            assert (
+                feature["geometry"]["type"] == "Polygon"
+            ), "Geometry should be a Polygon"
 
             # Verify properties contain expected metadata
             properties = feature["properties"]
@@ -420,7 +452,9 @@ class TestDryadEdgeCases:
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")
         except json.JSONDecodeError as e:
-            pytest.fail(f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}")
+            pytest.fail(
+                f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
+            )
         except Exception as e:
             pytest.skip(f"Network or API error: {e}")
 
@@ -478,7 +512,7 @@ class TestDryadFilteringCapabilities:
             mock_files,
             skip_non_geospatial=True,
             max_size_mb=None,
-            additional_extensions=None
+            additional_extensions=None,
         )
 
         # Should filter out non-geospatial files
@@ -503,7 +537,7 @@ class TestDryadFilteringCapabilities:
                     tbox=False,
                     download_data=True,
                     download_skip_nogeo=True,  # Enable geospatial filtering
-                    timeout=120  # Longer timeout for Dryad
+                    timeout=120,  # Longer timeout for Dryad
                 )
 
                 # Should complete without the old warning about filtering not being supported
@@ -533,7 +567,7 @@ class TestDryadFilteringCapabilities:
                     tbox=False,
                     download_data=True,
                     max_download_size="10MB",  # Size limit for large datasets
-                    timeout=120
+                    timeout=120,
                 )
 
                 # Should complete with size filtering
@@ -592,8 +626,8 @@ class TestDryadFilteringCapabilities:
                     tbox=False,
                     download_data=True,
                     download_skip_nogeo=True,  # Geospatial filtering
-                    max_download_size="5MB",   # Size filtering
-                    timeout=120
+                    max_download_size="5MB",  # Size filtering
+                    timeout=120,
                 )
 
                 # Should complete with combined filtering

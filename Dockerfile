@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y \
 	software-properties-common
 
 # To get necessary dependencies for gdal-bin
-RUN add-apt-repository ppa:ubuntugis/ppa 
+RUN add-apt-repository ppa:ubuntugis/ppa
 
 RUN apt-get update
 
@@ -24,7 +24,7 @@ COPY requirements.txt /requirements.txt
 RUN pip3 install --upgrade setuptools pip
 
 # Install required libraryes including geoextent and GDAL
-RUN pip3 install pygdal==$(gdal-config --version).* \
+RUN pip3 install \
 	-r requirements.txt \
 	--no-cache-dir notebook==6.0.3 \
 	bash_kernel

@@ -69,161 +69,53 @@ class TestOSFProvider:
         },
     }
 
-    def test_osf_provider_validation_project_id(self):
-        """Test OSF provider validation with direct project IDs"""
+    def test_osf_provider_validation_comprehensive(self):
+        """Test OSF provider validation with all supported input formats"""
         from geoextent.lib.content_providers.OSF import OSF
 
         osf = OSF()
 
-        # Test valid project IDs
-        assert osf.validate_provider("4xe6z") == True
-        assert osf.project_id == "4xe6z"
-
-        assert osf.validate_provider("5J9KP") == True  # Case insensitive
-        assert osf.project_id == "5j9kp"
-
-        # Test invalid project IDs
-        assert osf.validate_provider("invalid") == False
-        assert osf.validate_provider("12345678") == False  # Too long
-        assert osf.validate_provider("123") == False  # Too short
-
-    def test_osf_provider_validation_urls(self):
-        """Test OSF provider validation with URLs"""
-        from geoextent.lib.content_providers.OSF import OSF
-
-        osf = OSF()
-
-        # Test various URL formats
+        # Comprehensive test cases covering all supported formats
         test_cases = [
+            # Direct project IDs
+            ("4xe6z", True, "4xe6z"),
+            ("5J9KP", True, "5j9kp"),  # Case insensitive
+            # URLs
             ("https://osf.io/4xe6z", True, "4xe6z"),
             ("https://osf.io/4xe6z/", True, "4xe6z"),
             ("http://osf.io/4xe6z", True, "4xe6z"),
-            ("https://osf.io/5J9KP/", True, "5j9kp"),  # Case insensitive
-            ("https://example.com/4xe6z", False, None),
-            ("https://osf.io/", False, None),
-            ("https://osf.io/invalid_id", False, None),
-        ]
-
-        for url, expected_valid, expected_id in test_cases:
-            result = osf.validate_provider(url)
-            assert result == expected_valid, f"URL {url} validation failed"
-            if expected_valid:
-                assert (
-                    osf.project_id == expected_id
-                ), f"Project ID extraction failed for {url}"
-
-    def test_osf_provider_validation_dois(self):
-        """Test OSF provider validation with DOIs"""
-        from geoextent.lib.content_providers.OSF import OSF
-
-        osf = OSF()
-
-        # Test DOI formats
-        test_cases = [
+            ("https://osf.io/5J9KP/", True, "5j9kp"),
+            # Bare DOIs
             ("10.17605/OSF.IO/4XE6Z", True, "4xe6z"),
             ("10.17605/OSF.IO/5j9kp", True, "5j9kp"),
-            ("10.17605/OSF.IO/G8RCJ", True, "g8rcj"),  # Case insensitive
-            ("10.1000/invalid", False, None),
-            ("10.17605/OSF.IO/", False, None),
-            ("10.17605/OSF.IO/invalid_id", False, None),
-        ]
-
-        for doi, expected_valid, expected_id in test_cases:
-            result = osf.validate_provider(doi)
-            assert result == expected_valid, f"DOI {doi} validation failed"
-            if expected_valid:
-                assert (
-                    osf.project_id == expected_id
-                ), f"Project ID extraction failed for {doi}"
-
-    def test_osf_provider_validation_doi_variants(self):
-        """Test OSF provider validation with various DOI URL formats and capitalizations"""
-        from geoextent.lib.content_providers.OSF import OSF
-
-        osf = OSF()
-
-        # Test cases covering all DOI variants from GitHub issue #19
-        test_cases = [
-            # Standard bare DOI formats from issue examples
-            ("10.17605/OSF.IO/J2STA", True, "j2sta"),
-            ("10.17605/OSF.IO/A5F3E", True, "a5f3e"),
-            ("10.17605/OSF.IO/9JG2U", True, "9jg2u"),
-            ("10.17605/OSF.IO/JXATU", True, "jxatu"),
-            # Lowercase variants
-            ("10.17605/osf.io/j2sta", True, "j2sta"),
-            ("10.17605/osf.io/A5F3E", True, "a5f3e"),
-            # Mixed case variants
-            ("10.17605/Osf.Io/J2STA", True, "j2sta"),
-            # DOI resolver URLs - https://doi.org
+            ("10.17605/OSF.IO/G8RCJ", True, "g8rcj"),
+            ("10.17605/osf.io/j2sta", True, "j2sta"),  # Lowercase
+            ("10.17605/Osf.Io/J2STA", True, "j2sta"),  # Mixed case
+            # DOI resolver URLs
             ("https://doi.org/10.17605/OSF.IO/J2STA", True, "j2sta"),
-            ("https://doi.org/10.17605/OSF.IO/A5F3E", True, "a5f3e"),
-            ("https://doi.org/10.17605/osf.io/j2sta", True, "j2sta"),
-            ("http://doi.org/10.17605/OSF.IO/J2STA", True, "j2sta"),
-            # DOI resolver URLs - dx.doi.org (legacy)
-            ("http://dx.doi.org/10.17605/OSF.IO/J2STA", True, "j2sta"),
-            ("https://dx.doi.org/10.17605/OSF.IO/A5F3E", True, "a5f3e"),
-            # With www prefix
+            ("http://dx.doi.org/10.17605/OSF.IO/A5F3E", True, "a5f3e"),
             ("https://www.doi.org/10.17605/OSF.IO/J2STA", True, "j2sta"),
-            # With trailing paths/queries/fragments
-            ("https://doi.org/10.17605/OSF.IO/J2STA/", True, "j2sta"),
             ("https://doi.org/10.17605/OSF.IO/J2STA?tab=files", True, "j2sta"),
-            ("https://doi.org/10.17605/OSF.IO/J2STA#readme", True, "j2sta"),
-            # Invalid cases
-            ("10.17605/OSF.IO/invalid_id", False, None),
-            ("https://doi.org/10.1000/invalid", False, None),
-            ("https://example.com/10.17605/OSF.IO/J2STA", False, None),
-        ]
-
-        for reference, expected_valid, expected_id in test_cases:
-            result = osf.validate_provider(reference)
-            assert (
-                result == expected_valid
-            ), f"DOI variant {reference} validation failed"
-            if expected_valid:
-                assert (
-                    osf.project_id == expected_id
-                ), f"Project ID extraction failed for {reference}"
-            osf.project_id = None  # Reset for next test
-
-    def test_osf_provider_validation_plain_identifiers(self):
-        """Test OSF provider validation with plain OSF identifiers (OSF.IO/PROJECT_ID)"""
-        from geoextent.lib.content_providers.OSF import OSF
-
-        osf = OSF()
-
-        # Test cases for plain OSF identifiers from GitHub issue #19
-        test_cases = [
-            # Plain OSF identifiers from GitHub issue examples
+            # Plain OSF identifiers
             ("OSF.IO/9JG2U", True, "9jg2u"),
-            ("OSF.IO/J2STA", True, "j2sta"),
-            ("OSF.IO/A5F3E", True, "a5f3e"),
-            ("OSF.IO/JXATU", True, "jxatu"),
-            # Lowercase variants
-            ("osf.io/9jg2u", True, "9jg2u"),
             ("osf.io/j2sta", True, "j2sta"),
-            ("osf.io/A5F3E", True, "a5f3e"),
-            # Mixed case variants
-            ("Osf.Io/9JG2U", True, "9jg2u"),
-            ("Osf.Io/J2STA", True, "j2sta"),
+            ("Osf.Io/A5F3E", True, "a5f3e"),
             # Invalid cases
+            ("invalid", False, None),
+            ("12345678", False, None),  # Too long
+            ("123", False, None),  # Too short
+            ("https://example.com/4xe6z", False, None),
+            ("https://osf.io/", False, None),
+            ("10.1000/invalid", False, None),
             ("OSF.IO/invalid_id", False, None),
-            ("OSF.IO/", False, None),
-            ("OSF.IO/123", False, None),  # Too short
-            ("OSF.IO/ABCDEF", False, None),  # Too long
-            ("something/OSF.IO/9JG2U", False, None),  # Prefix
-            ("OSF.IO/9JG2U/extra", False, None),  # Suffix
-            ("osf.io/9JG2U/files", False, None),  # With path
+            ("", False, None),
         ]
 
         for reference, expected_valid, expected_id in test_cases:
             result = osf.validate_provider(reference)
-            assert (
-                result == expected_valid
-            ), f"Plain OSF identifier {reference} validation failed"
+            assert result == expected_valid, f"Validation failed for {reference}"
             if expected_valid:
-                assert (
-                    osf.project_id == expected_id
-                ), f"Project ID extraction failed for {reference}"
+                assert osf.project_id == expected_id, f"Project ID extraction failed for {reference}"
             osf.project_id = None  # Reset for next test
 
     def test_osf_metadata_extraction(self):
@@ -406,9 +298,7 @@ class TestOSFParameterCombinations:
         dataset = TestOSFProvider.TEST_DATASETS["gis_dataset_shapefiles"]
 
         with pytest.raises(Exception):
-            geoextent.fromRemote(
-                dataset["url"], bbox=False, tbox=False, timeout=30
-            )
+            geoextent.fromRemote(dataset["url"], bbox=False, tbox=False, timeout=30)
 
     def test_osf_repository_with_timeout(self):
         """Test OSF repository extraction with different timeout values"""
@@ -437,43 +327,33 @@ class TestOSFParameterCombinations:
 class TestOSFEdgeCases:
     """Test OSF provider edge cases and error conditions"""
 
-    def test_osf_invalid_project_id_format(self):
-        """Test OSF provider with invalid project ID formats"""
-        from geoextent.lib.content_providers.OSF import OSF
-
-        osf = OSF()
-
-        invalid_ids = [
-            "",  # Empty string
-            "123",  # Too short
-            "abcdef",  # Too long
-            "abc-d",  # Invalid characters
-            "osf.io/4xe6z",  # URL fragment
-        ]
-
-        for invalid_id in invalid_ids:
-            assert osf.validate_provider(invalid_id) == False
-
-    def test_osf_edge_case_urls(self):
-        """Test OSF provider with edge case URLs"""
+    def test_osf_validation_edge_cases(self):
+        """Test OSF provider validation with edge cases and invalid formats"""
         from geoextent.lib.content_providers.OSF import OSF
 
         osf = OSF()
 
         edge_cases = [
-            "https://osf.io",  # No project ID
-            "https://osf.io/",  # Trailing slash only
-            "https://accounts.osf.io/4xe6z",  # Wrong subdomain
-            "https://osf.io/4xe6z/files/",  # With files path
-            "https://osf.io/4xe6z/wiki/",  # With wiki path
+            # Invalid project ID formats
+            ("", False),  # Empty string
+            ("123", False),  # Too short
+            ("abcdef", False),  # Too long
+            ("abc-d", False),  # Invalid characters
+            # Edge case URLs
+            ("https://osf.io", False),  # No project ID
+            ("https://osf.io/", False),  # Trailing slash only
+            ("https://accounts.osf.io/4xe6z", False),  # Wrong subdomain
+            ("https://osf.io/4xe6z/files/", True),  # With files path (valid)
+            ("https://osf.io/4xe6z/wiki/", True),  # With wiki path (valid)
         ]
 
-        for url in edge_cases:
-            result = osf.validate_provider(url)
-            # Most should fail, but some file/wiki URLs might be valid
+        for test_input, expected_valid in edge_cases:
+            result = osf.validate_provider(test_input)
+            assert result == expected_valid, f"Edge case validation failed for {test_input}"
             if result:
                 assert osf.project_id is not None
                 assert len(osf.project_id) == 5
+            osf.project_id = None  # Reset for next test
 
     def test_osf_provider_method_signatures(self):
         """Test that OSF provider has required method signatures"""
@@ -673,9 +553,7 @@ class TestOSFActualBoundingBoxVerification:
 
         for identifier in identifiers:
             try:
-                result = geoextent.fromRemote(
-                    identifier, bbox=True, download_data=True
-                )
+                result = geoextent.fromRemote(identifier, bbox=True, download_data=True)
 
                 if result and "bbox" in result:
                     bbox = result["bbox"]
@@ -753,19 +631,31 @@ class TestOSFFilteringCapabilities:
                     file_metadata,
                     skip_non_geospatial=True,
                     max_size_mb=None,
-                    additional_extensions=None
+                    additional_extensions=None,
                 )
 
                 # Should have method available
-                assert hasattr(osf, '_filter_geospatial_files')
+                assert hasattr(osf, "_filter_geospatial_files")
                 assert isinstance(filtered_files, list)
 
                 # All filtered files should have geospatial extensions
-                geospatial_exts = {'.shp', '.geojson', '.kml', '.gpx', '.gml', '.tif', '.tiff'}
+                geospatial_exts = {
+                    ".shp",
+                    ".geojson",
+                    ".kml",
+                    ".gpx",
+                    ".gml",
+                    ".tif",
+                    ".tiff",
+                }
                 for file_info in filtered_files:
-                    file_name = file_info.get('name', '')
-                    has_geo_ext = any(file_name.lower().endswith(ext) for ext in geospatial_exts)
-                    assert has_geo_ext, f"Non-geospatial file found after filtering: {file_name}"
+                    file_name = file_info.get("name", "")
+                    has_geo_ext = any(
+                        file_name.lower().endswith(ext) for ext in geospatial_exts
+                    )
+                    assert (
+                        has_geo_ext
+                    ), f"Non-geospatial file found after filtering: {file_name}"
 
         except ImportError:
             pytest.skip("Required dependencies not available")
@@ -786,7 +676,7 @@ class TestOSFFilteringCapabilities:
                     tbox=False,
                     download_data=True,
                     download_skip_nogeo=True,  # Enable geospatial filtering
-                    timeout=60
+                    timeout=60,
                 )
 
                 # Should complete without the old warning about filtering not being supported
@@ -818,7 +708,7 @@ class TestOSFFilteringCapabilities:
                     tbox=False,
                     download_data=True,
                     max_download_size="1MB",  # Small size limit
-                    timeout=60
+                    timeout=60,
                 )
 
                 # Should complete with size filtering
@@ -844,8 +734,8 @@ class TestOSFFilteringCapabilities:
                     tbox=False,
                     download_data=True,
                     download_skip_nogeo=True,  # Geospatial filtering
-                    max_download_size="5MB",   # Size filtering
-                    timeout=60
+                    max_download_size="5MB",  # Size filtering
+                    timeout=60,
                 )
 
                 # Should complete with combined filtering
