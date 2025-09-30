@@ -18,10 +18,4 @@ from .lib.extent import fromFile, fromDirectory, fromRemote
 # Import main modules for advanced usage
 from . import lib
 
-__all__ = [
-    'fromFile',
-    'fromDirectory',
-    'fromRemote',
-    'lib',
-    '__version__'
-]
+__all__ = ["fromFile", "fromDirectory", "fromRemote", "lib", "__version__"]

@@ -94,7 +94,19 @@ class Zenodo(DoiProvider):
             file_list.append(j["links"]["self"])
         return file_list
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
+    def download(
+        self,
+        folder,
+        throttle=False,
+        download_data=True,
+        show_progress=True,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+        download_skip_nogeo=False,
+        download_skip_nogeo_exts=None,
+        max_download_workers=4,
+    ):
         from tqdm import tqdm
 
         if max_download_method_seed is None:
@@ -137,7 +149,7 @@ class Zenodo(DoiProvider):
                     file_size = file_data.get("size", 0)
 
                     file_info.append(
-                        {"url": file_url, "filename": filename, "size": file_size}
+                        {"url": file_url, "name": filename, "size": file_size}
                     )
                     total_size += file_size
 
@@ -151,78 +163,49 @@ class Zenodo(DoiProvider):
                 if show_progress:
                     metadata_pbar.close()
 
-            # Apply size filtering if specified
-            if max_size_bytes is not None:
-                from ..helpfunctions import filter_files_by_size
-                # Convert to format expected by filter_files_by_size
-                files_for_filtering = [
-                    {"name": f["filename"], "size": f["size"]} for f in file_info
-                ]
-                selected_files, filtered_total_size, skipped_files = filter_files_by_size(
-                    files_for_filtering, max_size_bytes, max_download_method, max_download_method_seed
+            # Apply geospatial filtering first
+            if download_skip_nogeo:
+                filtered_files = self._filter_geospatial_files(
+                    file_info,
+                    skip_non_geospatial=download_skip_nogeo,
+                    max_size_mb=None,  # Don't apply size limit here
+                    additional_extensions=download_skip_nogeo_exts,
                 )
+            else:
+                filtered_files = file_info
 
+            # Apply size filtering if specified using the proper cumulative logic
+            if max_size_bytes is not None:
+                selected_files, total_size, skipped_files = hf.filter_files_by_size(
+                    filtered_files,
+                    max_size_bytes,
+                    max_download_method,
+                    max_download_method_seed,
+                )
                 if not selected_files:
-                    self.log.warning(f"No files selected for download within size limit of {max_size_bytes:,} bytes")
+                    self.log.warning("No files can be downloaded within the size limit")
                     return
+                file_info = selected_files
+            else:
+                file_info = filtered_files
+                total_size = sum(f.get("size", 0) for f in file_info)
 
-                # Create mapping from filename to original file_info
-                filename_to_info = {f["filename"]: f for f in file_info}
-
-                # Filter file_info to only include selected files
-                file_info = [filename_to_info[f["name"]] for f in selected_files if f["name"] in filename_to_info]
-                total_size = filtered_total_size
-
-                self.log.info(f"Size limit applied: Selected {len(file_info)} of {len(files)} files")
+            if not file_info:
+                self.log.warning(f"No files selected for download after filtering")
+                return
 
             # Log download summary before starting
             self.log.info(
                 f"Starting download of {len(file_info)} files from Zenodo record {self.record_id} ({total_size:,} bytes total)"
             )
 
-            # Download files with progress bar
-            if show_progress:
-                pbar = tqdm(
-                    total=total_size,
-                    desc=f"Downloading Zenodo record {self.record_id}",
-                    unit="B",
-                    unit_scale=True,
-                )
-
-            try:
-                for i, file_data in enumerate(file_info, 1):
-                    file_link = file_data["url"]
-                    filename = file_data["filename"]
-                    file_size = file_data["size"]
-
-                    if show_progress:
-                        pbar.set_postfix_str(f"File {i}/{len(file_info)}: {filename}")
-
-                    resp = self._request(
-                        file_link,
-                        throttle=self.throttle,
-                        stream=True,
-                    )
-                    filepath = os.path.join(folder, filename)
-
-                    # Download with chunk-based progress tracking
-                    downloaded_bytes = 0
-                    with open(filepath, "wb") as dst:
-                        for chunk in resp.iter_content(chunk_size=8192):
-                            if chunk:
-                                dst.write(chunk)
-                                chunk_size = len(chunk)
-                                downloaded_bytes += chunk_size
-                                if show_progress:
-                                    pbar.update(chunk_size)
-
-                    self.log.debug(
-                        f"Downloaded Zenodo file {i}/{len(file_info)}: {filename} ({downloaded_bytes} bytes)"
-                    )
-
-            finally:
-                if show_progress:
-                    pbar.close()
+            # Use new parallel download batch method
+            self._download_files_batch(
+                file_info,
+                folder,
+                show_progress=show_progress,
+                max_workers=max_download_workers,
+            )
 
             self.log.info(
                 f"Downloaded {len(file_info)} files from Zenodo record {self.record_id} ({total_size} bytes total)"

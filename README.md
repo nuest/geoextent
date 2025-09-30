@@ -121,10 +121,10 @@ python -m geoextent -b -t https://doi.org/10.17605/OSF.IO/J2STA
 python -m geoextent -b -t http://dx.doi.org/10.17605/OSF.IO/A5F3E
 python -m geoextent -b -t OSF.IO/9JG2U
 python -m geoextent -b -t https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id=escidoc:5148893
-python -m geoextent -b -t 10.5880/GFZ.2.1.2020.001
+python -m geoextent -b -t 1G 10.5880/GFZ.2.1.2020.001
 python -m geoextent -b -t 10.5880/GFZ.4.8.2023.004
-python -m geoextent -b -t 10.3897/BDJ.2.e1068  # Pensoft journals (Biodiversity Data Journal)
-python -m geoextent -b -t https://doi.org/10.3897/BDJ.13.e159973  # Vietnam amphibian records
+python -m geoextent -b -t 10.3897/BDJ.2.e1068
+python -m geoextent -b -t https://doi.org/10.3897/BDJ.13.e159973
 
 # Use metadata-only extraction for repositories (only partially supported)
 python -m geoextent -b -t --no-download-data 10.1594/PANGAEA.734969
@@ -260,17 +260,15 @@ When extracting data from large research repositories, you can limit the total d
 #### Basic Size Limiting
 
 ```bash
-# Limit total download to 100MB across all files, will download as many files as fit within this limit
+# Limit total download across all files, will download as many files as fit within this limit
 python -m geoextent -b --max-download-size 100MB https://doi.org/10.5281/zenodo.7080016
+python -m geoextent -b --max-download-size 1G 10.5880/GFZ.2.1.2020.001
 
 # Limit total download to 1000KB - download is not started
 python -m geoextent -b --max-download-size 1000KB https://doi.org/10.5281/zenodo.7080016
 
 # Limit to 50MB - useful for quick exploration
 python -m geoextent -b --max-download-size 50MB https://osf.io/4xe6z/
-
-# Limit to 2GB for larger datasets
-python -m geoextent -b --max-download-size 2GB https://doi.org/10.1594/PANGAEA.858767
 ```
 
 #### File Selection Methods
@@ -345,6 +343,50 @@ python -m geoextent -b --max-download-size 50MB https://doi.org/10.5281/zenodo.7
 ```
 
 **Note**: When no size limit is specified, all available files are downloaded and processed.
+
+### Performance and Filtering Options
+
+#### Parallel Downloads
+
+Control download performance using parallel workers for faster processing of multi-file datasets:
+
+```bash
+# Use 8 parallel download workers for faster downloads
+python -m geoextent -b --max-download-workers 8 https://doi.org/10.5281/zenodo.7080016
+
+# Disable parallel downloads (use sequential, slower but more conservative)
+python -m geoextent -b --max-download-workers 1 https://osf.io/4xe6z/
+
+# Default is 4 workers - good balance of speed and server politeness
+python -m geoextent -b https://doi.org/10.5281/zenodo.7080016
+```
+
+#### File Type Filtering
+
+Skip non-geospatial files during download to save time and bandwidth:
+
+```bash
+# Skip non-geospatial files (PDFs, images, text files, etc.)
+python -m geoextent -b --download-skip-nogeo https://doi.org/10.5281/zenodo.7080016
+
+# Include additional file types as geospatial (point clouds, mesh files)
+python -m geoextent -b --download-skip-nogeo --download-skip-nogeo-exts ".xyz,.las,.ply" https://osf.io/4xe6z/
+
+# Combine filtering with size limits and parallel downloads
+python -m geoextent -b --download-skip-nogeo --max-download-size 100MB --max-download-workers 6 https://doi.org/10.5281/zenodo.7080016
+
+# OSF filtering examples - now fully supported!
+python -m geoextent -b --download-skip-nogeo https://osf.io/4xe6z/
+python -m geoextent -b --download-skip-nogeo --max-download-size 50MB https://doi.org/10.17605/OSF.IO/9JG2U
+
+# Dryad filtering examples - intelligently chooses individual file downloads when filtering is needed
+python -m geoextent -b --download-skip-nogeo https://datadryad.org/dataset/doi:10.5061/dryad.0k6djhb7x
+python -m geoextent -b --download-skip-nogeo --max-download-size 10MB https://datadryad.org/dataset/doi:10.5061/dryad.wm37pvmvf
+```
+
+**File Type Detection**: Geospatial files are automatically detected based on extensions including: `.geojson`, `.csv`, `.shp`, `.tif`, `.gpkg`, `.gpx`, `.gml`, `.kml`, `.fgb`, and others. Use `--download-skip-nogeo-exts` to add custom extensions.
+
+**Provider Support**: File filtering is fully supported by Figshare, Zenodo, OSF, and Dryad. Other providers (PANGAEA, GFZ, Dataverse, Pensoft) will show warnings when filtering is requested but will continue with their standard download behavior.
 
 ### Output Format Options
 

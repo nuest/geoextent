@@ -16,13 +16,13 @@ from . import GFZ
 from . import Pensoft
 
 __all__ = [
-    'providers',
-    'Zenodo',
-    'Figshare',
-    'Dryad',
-    'Pangaea',
-    'OSF',
-    'Dataverse',
-    'GFZ',
-    'Pensoft'
+    "providers",
+    "Zenodo",
+    "Figshare",
+    "Dryad",
+    "Pangaea",
+    "OSF",
+    "Dataverse",
+    "GFZ",
+    "Pensoft",
 ]

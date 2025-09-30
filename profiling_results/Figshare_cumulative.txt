@@ -1,0 +1,47 @@
+Content Provider: Figshare
+Identifier: 10.6084/m9.figshare.19248626.v2
+Description: Prince Edward Islands geospatial database
+Success: True
+Execution Time: 357.75 seconds
+
+================================================================================
+CUMULATIVE TIME STATS (Top functions by cumulative time)
+================================================================================
+         9595989 function calls (9595748 primitive calls) in 358.181 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1015 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000  358.181  358.181 /home/daniel/git/geoextent/geoextent/lib/extent.py:569(fromRemote)
+        1    0.001    0.001  358.177  358.177 /home/daniel/git/geoextent/geoextent/lib/extent.py:633(fromRemote)
+        1    0.594    0.594  329.659  329.659 /home/daniel/git/geoextent/geoextent/lib/content_providers/Figshare.py:99(download)
+   162815    0.196    0.000  321.275    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/models.py:816(generate)
+   162815    0.562    0.000  321.079    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:1069(stream)
+   162794    1.396    0.000  320.282    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
+   162799    1.572    0.000  314.754    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:889(_raw_read)
+   162799    0.386    0.000  310.302    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:832(_fp_read)
+   248746    0.728    0.000  310.135    0.001 /usr/lib/python3.10/socket.py:691(readinto)
+   162799    0.862    0.000  309.916    0.002 /usr/lib/python3.10/http/client.py:450(read)
+   162814    0.803    0.000  308.963    0.002 {method 'read' of '_io.BufferedReader' objects}
+   248746    0.677    0.000  308.938    0.001 /usr/lib/python3.10/ssl.py:1292(recv_into)
+   248746    0.629    0.000  308.116    0.001 /usr/lib/python3.10/ssl.py:1150(read)
+   248746  307.432    0.001  307.432    0.001 {method 'read' of '_ssl._SSLSocket' objects}
+     15/1    0.004    0.000   25.070   25.070 /home/daniel/git/geoextent/geoextent/lib/extent.py:157(fromDirectory)
+      184    0.004    0.000   21.787    0.118 /usr/lib/python3.10/subprocess.py:461(run)
+      184    0.002    0.000   21.604    0.117 /usr/lib/python3.10/subprocess.py:1110(communicate)
+        4    0.000    0.000   20.619    5.155 /home/daniel/git/geoextent/geoextent/lib/helpfunctions.py:366(extract_archive)
+        4    0.000    0.000   20.618    5.154 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/patoolib/__init__.py:1098(extract_archive)
+        4    0.000    0.000   20.618    5.154 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/patoolib/__init__.py:806(_extract_archive)
+      368    0.001    0.000   20.610    0.056 /usr/lib/python3.10/subprocess.py:1204(wait)
+      368    0.002    0.000   20.608    0.056 /usr/lib/python3.10/subprocess.py:1927(_wait)
+      184    0.001    0.000   20.605    0.112 /usr/lib/python3.10/subprocess.py:1914(_try_wait)
+      184   20.605    0.112   20.605    0.112 {built-in method posix.waitpid}
+        4    0.000    0.000   20.592    5.148 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/patoolib/__init__.py:775(run_archive_cmdlist)
+        4    0.000    0.000   20.592    5.148 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/patoolib/util.py:83(run_checked)
+        4    0.000    0.000   20.592    5.148 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/patoolib/util.py:50(run)
+   162789    5.671    0.000    5.671    0.000 {method 'write' of '_io.BufferedWriter' objects}
+        8    0.000    0.000    3.557    0.445 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:18(_request)
+        8    0.000    0.000    3.557    0.445 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:593(get)
+
+

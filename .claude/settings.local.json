@@ -57,7 +57,12 @@
       "Bash(wget:*)",
       "Bash(unzip:*)",
       "WebFetch(domain:bdj.pensoft.net)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(grep:*)",
+      "Bash(rg \"max-download-workers\" --max-count=5 echo \"\" echo \"2. --download-skip-nogeo-exts option:\" python -m geoextent --help)",
+      "Bash(rg:*)",
+      "WebFetch(domain:datadryad.org)"
     ],
     "deny": [],
     "ask": []

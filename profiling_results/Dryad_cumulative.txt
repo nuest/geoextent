@@ -1,0 +1,47 @@
+Content Provider: Dryad
+Identifier: 10.5061/dryad.0k6djhb7x
+Description: Dryad geospatial dataset
+Success: True
+Execution Time: 179.83 seconds
+
+================================================================================
+CUMULATIVE TIME STATS (Top functions by cumulative time)
+================================================================================
+         4246146 function calls (4245111 primitive calls) in 179.825 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1197 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000  179.826  179.826 /home/daniel/git/geoextent/geoextent/lib/extent.py:569(fromRemote)
+        1    0.001    0.001  179.822  179.822 /home/daniel/git/geoextent/geoextent/lib/extent.py:633(fromRemote)
+        1    0.233    0.233  122.261  122.261 /home/daniel/git/geoextent/geoextent/lib/content_providers/Dryad.py:97(download)
+    88740    0.236    0.000  115.342    0.001 /usr/lib/python3.10/socket.py:691(readinto)
+    88740    0.219    0.000  114.955    0.001 /usr/lib/python3.10/ssl.py:1292(recv_into)
+    88740    0.193    0.000  114.687    0.001 /usr/lib/python3.10/ssl.py:1150(read)
+    88740  114.474    0.001  114.474    0.001 {method 'read' of '_ssl._SSLSocket' objects}
+    58698    0.062    0.000  112.683    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/models.py:816(generate)
+    58698    0.177    0.000  112.621    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:1069(stream)
+    58682    0.448    0.000  112.368    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
+    58696    0.506    0.000  110.596    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:889(_raw_read)
+    58696    0.122    0.000  109.177    0.002 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:832(_fp_read)
+    58696    0.263    0.000  109.055    0.002 /usr/lib/python3.10/http/client.py:450(read)
+    58690    0.298    0.000  108.764    0.002 {method 'read' of '_io.BufferedReader' objects}
+      8/1    0.033    0.004   55.444   55.444 /home/daniel/git/geoextent/geoextent/lib/extent.py:157(fromDirectory)
+      708    0.440    0.001   44.706    0.063 /home/daniel/git/geoextent/geoextent/lib/extent.py:397(fromFile)
+     1654    0.009    0.000   23.229    0.014 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/osgeo/gdal.py:10668(OpenEx)
+     1654   23.185    0.014   23.185    0.014 {built-in method osgeo._gdal.OpenEx}
+     7094   20.660    0.003   20.660    0.003 {method 'acquire' of '_thread.lock' objects}
+     1396    0.008    0.000   20.424    0.015 /usr/lib/python3.10/threading.py:1064(join)
+     1396    0.010    0.000   20.412    0.015 /usr/lib/python3.10/threading.py:1102(_wait_for_tstate_lock)
+      708    0.010    0.000   12.259    0.017 /home/daniel/git/geoextent/geoextent/lib/handleCSV.py:27(checkFileSupported)
+     1434    0.025    0.000   10.487    0.007 /usr/lib/python3.10/subprocess.py:461(run)
+      700    0.013    0.000   10.213    0.015 /home/daniel/git/geoextent/geoextent/lib/handleRaster.py:14(checkFileSupported)
+     1434    0.016    0.000    9.245    0.006 /usr/lib/python3.10/subprocess.py:1110(communicate)
+       14    0.000    0.000    8.938    0.638 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:18(_request)
+       14    0.000    0.000    8.938    0.638 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:593(get)
+       14    0.000    0.000    8.938    0.638 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:500(request)
+    25/14    0.001    0.000    8.904    0.636 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:673(send)
+       25    0.001    0.000    8.660    0.346 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/adapters.py:590(send)
+
+

@@ -95,7 +95,15 @@ class readable_file_or_dir(argparse.Action):
     def _is_supported_repository(self, candidate):
         """Check if the candidate is supported by any content provider"""
         # Import content providers
-        from .lib.content_providers import Dryad, Figshare, Zenodo, Pangaea, OSF, GFZ, Pensoft
+        from .lib.content_providers import (
+            Dryad,
+            Figshare,
+            Zenodo,
+            Pangaea,
+            OSF,
+            GFZ,
+            Pensoft,
+        )
 
         # Test against all content providers
         content_providers = [
@@ -128,7 +136,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -269,6 +277,27 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--download-skip-nogeo",
+        action="store_true",
+        default=False,
+        help="skip downloading files that don't appear to contain geospatial data (e.g., PDFs, images, plain text)",
+    )
+
+    parser.add_argument(
+        "--download-skip-nogeo-exts",
+        type=str,
+        default="",
+        help="comma-separated list of additional file extensions to consider as geospatial (e.g., '.xyz,.las,.ply')",
+    )
+
+    parser.add_argument(
+        "--max-download-workers",
+        type=int,
+        default=4,
+        help="maximum number of parallel downloads (default: 4, set to 1 to disable parallel downloads)",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs="+",
@@ -296,6 +325,23 @@ def print_version():
 arg_parser = get_arg_parser()
 
 
+def _parse_additional_extensions(ext_string):
+    """Parse comma-separated extension string into a set of normalized extensions."""
+    if not ext_string.strip():
+        return set()
+
+    extensions = set()
+    for ext in ext_string.split(","):
+        ext = ext.strip()
+        if ext:
+            # Normalize extension (ensure it starts with a dot and is lowercase)
+            if not ext.startswith("."):
+                ext = "." + ext
+            extensions.add(ext.lower())
+
+    return extensions
+
+
 def main():
     # Check if there is no arguments, then print help
     if len(sys.argv[1:]) == 0:
@@ -316,6 +362,11 @@ def main():
 
     args = vars(arg_parser.parse_args())
     files = args["files"]
+
+    # Parse additional file extensions for geospatial detection
+    additional_extensions = _parse_additional_extensions(
+        args["download_skip_nogeo_exts"]
+    )
 
     if files is None or len(files) == 0:
         raise Exception("Invalid command, input file missing")
@@ -418,9 +469,13 @@ def main():
                     recursive=not args["no_subdirs"],
                     max_download_size=args["max_download_size"],
                     max_download_method=args["max_download_method"],
-                    max_download_method_seed=args["max_download_method_seed"] or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+                    max_download_method_seed=args["max_download_method_seed"]
+                    or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
                     placename=placename_service,
                     placename_escape=args["placename_escape"],
+                    download_skip_nogeo=args["download_skip_nogeo"],
+                    download_skip_nogeo_exts=additional_extensions,
+                    max_download_workers=args["max_download_workers"],
                 )
         else:
             # Multiple files handling
@@ -451,13 +506,19 @@ def main():
                             recursive=not args["no_subdirs"],
                             max_download_size=args["max_download_size"],
                             max_download_method=args["max_download_method"],
-                            max_download_method_seed=args["max_download_method_seed"] or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+                            max_download_method_seed=args["max_download_method_seed"]
+                            or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
                             placename=placename_service,
                             placename_escape=args["placename_escape"],
+                            download_skip_nogeo=args["download_skip_nogeo"],
+                            download_skip_nogeo_exts=additional_extensions,
+                            max_download_workers=args["max_download_workers"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output
-                    elif os.path.isfile(file_path) and not zipfile.is_zipfile(file_path):
+                    elif os.path.isfile(file_path) and not zipfile.is_zipfile(
+                        file_path
+                    ):
                         # Process individual file
                         file_output = extent.fromFile(
                             file_path,

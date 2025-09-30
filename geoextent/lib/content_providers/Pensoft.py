@@ -65,8 +65,7 @@ class Pensoft(DoiProvider):
 
         # Check for Pensoft DOI pattern
         pensoft_doi_pattern = re.compile(
-            r"(?:(?:https?://)?(?:dx\.)?doi\.org/)?(?:doi:)?(10\.3897/.+)$",
-            flags=re.I
+            r"(?:(?:https?://)?(?:dx\.)?doi\.org/)?(?:doi:)?(10\.3897/.+)$", flags=re.I
         )
         match = pensoft_doi_pattern.match(reference)
         if match:
@@ -104,52 +103,62 @@ class Pensoft(DoiProvider):
             html_content = response.text
 
             # Parse HTML with BeautifulSoup
-            soup = BeautifulSoup(html_content, 'html.parser')
+            soup = BeautifulSoup(html_content, "html.parser")
 
             # Extract JSON-LD structured data
-            json_ld_scripts = soup.find_all('script', type='application/ld+json')
+            json_ld_scripts = soup.find_all("script", type="application/ld+json")
 
             record_data = {
-                'id': self.article_id,
-                'url': article_url,
-                'coordinates': [],
-                'title': None,
-                'doi': None,
-                'json_ld_data': []
+                "id": self.article_id,
+                "url": article_url,
+                "coordinates": [],
+                "title": None,
+                "doi": None,
+                "json_ld_data": [],
             }
 
             # Extract title from HTML
-            title_element = soup.find('title')
+            title_element = soup.find("title")
             if title_element:
-                record_data['title'] = title_element.get_text().strip()
+                record_data["title"] = title_element.get_text().strip()
 
             # Process each JSON-LD script
             for script in json_ld_scripts:
                 try:
                     json_data = json.loads(script.string)
-                    record_data['json_ld_data'].append(json_data)
+                    record_data["json_ld_data"].append(json_data)
 
                     # Extract DOI if available
-                    if isinstance(json_data, dict) and 'identifier' in json_data:
-                        identifier = json_data['identifier']
+                    if isinstance(json_data, dict) and "identifier" in json_data:
+                        identifier = json_data["identifier"]
                         if isinstance(identifier, list):
                             for ident in identifier:
-                                if isinstance(ident, dict) and ident.get('name') == 'DOI':
-                                    record_data['doi'] = ident.get('value')
-                        elif isinstance(identifier, dict) and identifier.get('name') == 'DOI':
-                            record_data['doi'] = identifier.get('value')
+                                if (
+                                    isinstance(ident, dict)
+                                    and ident.get("name") == "DOI"
+                                ):
+                                    record_data["doi"] = ident.get("value")
+                        elif (
+                            isinstance(identifier, dict)
+                            and identifier.get("name") == "DOI"
+                        ):
+                            record_data["doi"] = identifier.get("value")
 
                     # Extract geographic coordinates from contentLocation
-                    if isinstance(json_data, dict) and 'contentLocation' in json_data:
-                        content_location = json_data['contentLocation']
+                    if isinstance(json_data, dict) and "contentLocation" in json_data:
+                        content_location = json_data["contentLocation"]
                         coordinates = self._extract_coordinates(content_location)
-                        record_data['coordinates'].extend(coordinates)
+                        record_data["coordinates"].extend(coordinates)
 
                 except json.JSONDecodeError as e:
-                    self.log.warning(f"Failed to parse JSON-LD in article {self.article_id}: {e}")
+                    self.log.warning(
+                        f"Failed to parse JSON-LD in article {self.article_id}: {e}"
+                    )
                     continue
 
-            self.log.info(f"Successfully downloaded Pensoft article {self.article_id} with {len(record_data['coordinates'])} coordinates")
+            self.log.info(
+                f"Successfully downloaded Pensoft article {self.article_id} with {len(record_data['coordinates'])} coordinates"
+            )
             return record_data
 
         except HTTPError as e:
@@ -198,39 +207,60 @@ class Pensoft(DoiProvider):
             return coordinates
 
         # Look for direct latitude/longitude properties
-        if 'latitude' in location and 'longitude' in location:
+        if "latitude" in location and "longitude" in location:
             try:
-                lat = float(location['latitude'])
-                lon = float(location['longitude'])
+                lat = float(location["latitude"])
+                lon = float(location["longitude"])
                 coordinates.append((lon, lat))  # GeoJSON format: [longitude, latitude]
             except (ValueError, TypeError):
-                self.log.warning(f"Invalid coordinate values: lat={location['latitude']}, lon={location['longitude']}")
+                self.log.warning(
+                    f"Invalid coordinate values: lat={location['latitude']}, lon={location['longitude']}"
+                )
 
         # Look for geo property with GeoCoordinates
-        if 'geo' in location:
-            geo = location['geo']
-            if isinstance(geo, dict) and geo.get('@type') == 'GeoCoordinates':
-                if 'latitude' in geo and 'longitude' in geo:
+        if "geo" in location:
+            geo = location["geo"]
+            if isinstance(geo, dict) and geo.get("@type") == "GeoCoordinates":
+                if "latitude" in geo and "longitude" in geo:
                     try:
-                        lat = float(geo['latitude'])
-                        lon = float(geo['longitude'])
+                        lat = float(geo["latitude"])
+                        lon = float(geo["longitude"])
                         coordinates.append((lon, lat))
                     except (ValueError, TypeError):
-                        self.log.warning(f"Invalid geo coordinate values: lat={geo['latitude']}, lon={geo['longitude']}")
+                        self.log.warning(
+                            f"Invalid geo coordinate values: lat={geo['latitude']}, lon={geo['longitude']}"
+                        )
             elif isinstance(geo, list):
                 for geo_item in geo:
-                    if isinstance(geo_item, dict) and geo_item.get('@type') == 'GeoCoordinates':
-                        if 'latitude' in geo_item and 'longitude' in geo_item:
+                    if (
+                        isinstance(geo_item, dict)
+                        and geo_item.get("@type") == "GeoCoordinates"
+                    ):
+                        if "latitude" in geo_item and "longitude" in geo_item:
                             try:
-                                lat = float(geo_item['latitude'])
-                                lon = float(geo_item['longitude'])
+                                lat = float(geo_item["latitude"])
+                                lon = float(geo_item["longitude"])
                                 coordinates.append((lon, lat))
                             except (ValueError, TypeError):
-                                self.log.warning(f"Invalid geo coordinate values: lat={geo_item['latitude']}, lon={geo_item['longitude']}")
+                                self.log.warning(
+                                    f"Invalid geo coordinate values: lat={geo_item['latitude']}, lon={geo_item['longitude']}"
+                                )
 
         return coordinates
 
-    def download(self, folder, throttle=False, download_data=True, show_progress=True, max_size_bytes=None, max_download_method="ordered", max_download_method_seed=None):
+    def download(
+        self,
+        folder,
+        throttle=False,
+        download_data=True,
+        show_progress=True,
+        max_size_bytes=None,
+        max_download_method="ordered",
+        max_download_method_seed=None,
+        download_skip_nogeo=False,
+        download_skip_nogeo_exts=None,
+        max_download_workers=4,
+    ):
         """
         Download geographic data from Pensoft article as GeoJSON file.
 
@@ -247,6 +277,13 @@ class Pensoft(DoiProvider):
 
         self.throttle = throttle
 
+        # Warning for download skip nogeo not being supported
+        if download_skip_nogeo:
+            self.log.warning(
+                "Pensoft provider extracts geographic coordinates from article content and does not download individual files. "
+                "The --download-skip-nogeo option is not applicable and will be ignored."
+            )
+
         if not download_data:
             self.log.warning(
                 "Pensoft provider extracts geographic coordinates from article HTML. "
@@ -257,14 +294,18 @@ class Pensoft(DoiProvider):
         if not self.article_id:
             raise ValueError("No article ID available for download")
 
-        self.log.debug(f"Extracting geographic data from Pensoft article {self.article_id}")
+        self.log.debug(
+            f"Extracting geographic data from Pensoft article {self.article_id}"
+        )
 
         try:
             # Get the GeoJSON content
             geojson_content = self.get_file_content(self.article_id)
 
             if not geojson_content:
-                self.log.warning(f"No geographic coordinates found in Pensoft article {self.article_id}")
+                self.log.warning(
+                    f"No geographic coordinates found in Pensoft article {self.article_id}"
+                )
                 return
 
             # Create the output file
@@ -273,10 +314,12 @@ class Pensoft(DoiProvider):
             output_path = os.path.join(folder, output_filename)
 
             # Write the GeoJSON file
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 f.write(geojson_content)
 
-            self.log.info(f"Successfully saved Pensoft geographic data to {output_path}")
+            self.log.info(
+                f"Successfully saved Pensoft geographic data to {output_path}"
+            )
 
         except Exception as e:
             self.log.error(f"Failed to download Pensoft article {self.article_id}: {e}")
@@ -290,43 +333,37 @@ class Pensoft(DoiProvider):
         """
         record_data = self.download_record()
 
-        if not record_data['coordinates']:
-            self.log.warning(f"No geographic coordinates found in Pensoft article {record_id}")
+        if not record_data["coordinates"]:
+            self.log.warning(
+                f"No geographic coordinates found in Pensoft article {record_id}"
+            )
             return None
 
         # Convert coordinates to GeoJSON format
         features = []
-        for i, (lon, lat) in enumerate(record_data['coordinates']):
+        for i, (lon, lat) in enumerate(record_data["coordinates"]):
             feature = {
                 "type": "Feature",
-                "geometry": {
-                    "type": "Point",
-                    "coordinates": [lon, lat]
-                },
+                "geometry": {"type": "Point", "coordinates": [lon, lat]},
                 "properties": {
                     "id": i,
                     "source": "Pensoft",
                     "article_id": record_id,
-                    "doi": record_data.get('doi'),
-                    "title": record_data.get('title')
-                }
+                    "doi": record_data.get("doi"),
+                    "title": record_data.get("title"),
+                },
             }
             features.append(feature)
 
         geojson = {
             "type": "FeatureCollection",
-            "crs": {
-                "type": "name",
-                "properties": {
-                    "name": "EPSG:4326"
-                }
-            },
+            "crs": {"type": "name", "properties": {"name": "EPSG:4326"}},
             "features": features,
             "properties": {
                 "source": "Pensoft",
                 "article_id": record_id,
-                "total_coordinates": len(record_data['coordinates'])
-            }
+                "total_coordinates": len(record_data["coordinates"]),
+            },
         }
 
         return json.dumps(geojson, indent=2)

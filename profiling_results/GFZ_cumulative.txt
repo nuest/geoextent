@@ -1,0 +1,47 @@
+Content Provider: GFZ
+Identifier: 10.5880/GFZ.3.1.2023.001
+Description: GFZ geophysical dataset
+Success: True
+Execution Time: 43.25 seconds
+
+================================================================================
+CUMULATIVE TIME STATS (Top functions by cumulative time)
+================================================================================
+         407413 function calls (406505 primitive calls) in 43.251 seconds
+
+   Ordered by: cumulative time
+   List reduced from 1029 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000   43.251   43.251 /home/daniel/git/geoextent/geoextent/lib/extent.py:569(fromRemote)
+        1    0.001    0.001   43.248   43.248 /home/daniel/git/geoextent/geoextent/lib/extent.py:633(fromRemote)
+      6/1    0.001    0.000   19.027   19.027 /home/daniel/git/geoextent/geoextent/lib/extent.py:157(fromDirectory)
+       20    0.002    0.000   18.473    0.924 /home/daniel/git/geoextent/geoextent/lib/extent.py:397(fromFile)
+        1    0.001    0.001   18.391   18.391 /home/daniel/git/geoextent/geoextent/lib/content_providers/GFZ.py:61(download)
+      400   18.286    0.046   18.286    0.046 {method 'acquire' of '_thread.lock' objects}
+       22    0.000    0.000   18.282    0.831 /usr/lib/python3.10/threading.py:1064(join)
+       22    0.000    0.000   18.282    0.831 /usr/lib/python3.10/threading.py:1102(_wait_for_tstate_lock)
+        1    0.000    0.000   17.263   17.263 /home/daniel/git/geoextent/geoextent/lib/content_providers/GFZ.py:192(_download_files)
+        1    0.000    0.000   15.789   15.789 /home/daniel/git/geoextent/geoextent/lib/content_providers/GFZ.py:222(_download_from_directory_listing)
+     5560    0.017    0.000   13.945    0.003 /usr/lib/python3.10/socket.py:691(readinto)
+     5560    0.015    0.000   13.918    0.003 /usr/lib/python3.10/ssl.py:1292(recv_into)
+     5560    0.014    0.000   13.899    0.002 /usr/lib/python3.10/ssl.py:1150(read)
+     5560   13.884    0.002   13.884    0.002 {method 'read' of '_ssl._SSLSocket' objects}
+       12    0.000    0.000   13.039    1.087 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:18(_request)
+     2836    0.004    0.000   11.684    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/models.py:816(generate)
+     2836    0.011    0.000   11.680    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:1069(stream)
+     2830    0.016    0.000   11.450    0.004 {method 'read' of '_io.BufferedReader' objects}
+        3    0.007    0.002   11.000    3.667 /home/daniel/git/geoextent/geoextent/lib/content_providers/GFZ.py:268(_download_single_file)
+     2755    0.025    0.000   10.874    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
+     2761    0.028    0.000   10.774    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:889(_raw_read)
+     2761    0.007    0.000   10.693    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:832(_fp_read)
+     2761    0.015    0.000   10.685    0.004 /usr/lib/python3.10/http/client.py:450(read)
+       12    0.000    0.000    8.034    0.670 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:593(get)
+       12    0.000    0.000    8.034    0.670 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:500(request)
+    20/12    0.001    0.000    8.017    0.668 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:673(send)
+       20    0.001    0.000    7.208    0.360 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/adapters.py:590(send)
+       20    0.001    0.000    7.193    0.360 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:592(urlopen)
+       20    0.001    0.000    7.186    0.359 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:377(_make_request)
+        6    0.000    0.000    6.590    1.098 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:91(get_url)
+
+

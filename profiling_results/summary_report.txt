@@ -1,0 +1,20 @@
+GEOEXTENT CONTENT PROVIDER PROFILING SUMMARY
+============================================================
+
+Total providers tested: 8
+Successful: 7
+Failed: 1
+
+EXECUTION TIMES (sorted by speed):
+----------------------------------------
+PANGAEA     :   8.20s
+Zenodo      :  12.25s
+GFZ         :  43.25s
+OSF         :  64.67s
+Dryad       : 179.83s
+Dataverse   : 222.83s
+Figshare    : 357.75s
+
+FAILED PROVIDERS:
+--------------------
+Pensoft: 'NoneType' object does not support item assignment

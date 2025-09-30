@@ -1,0 +1,47 @@
+Content Provider: Dataverse
+Identifier: 10.7910/DVN/OMV93V
+Description: Harvard Dataverse dataset
+Success: True
+Execution Time: 222.83 seconds
+
+================================================================================
+CUMULATIVE TIME STATS (Top functions by cumulative time)
+================================================================================
+         2786329 function calls (2786089 primitive calls) in 222.833 seconds
+
+   Ordered by: cumulative time
+   List reduced from 990 to 30 due to restriction <30>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+        1    0.000    0.000  222.833  222.833 /home/daniel/git/geoextent/geoextent/lib/extent.py:569(fromRemote)
+        1    0.000    0.000  222.827  222.827 /home/daniel/git/geoextent/geoextent/lib/extent.py:633(fromRemote)
+        1    0.104    0.104  193.105  193.105 /home/daniel/git/geoextent/geoextent/lib/content_providers/Dataverse.py:336(download)
+    47482    0.055    0.000  187.718    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/models.py:816(generate)
+    47482    0.162    0.000  187.663    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:1069(stream)
+    47468    0.396    0.000  187.431    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
+    70385    0.205    0.000  187.406    0.003 /usr/lib/python3.10/socket.py:691(readinto)
+    70385    0.192    0.000  187.070    0.003 /usr/lib/python3.10/ssl.py:1292(recv_into)
+    70385    0.172    0.000  186.838    0.003 /usr/lib/python3.10/ssl.py:1150(read)
+    70385  186.650    0.003  186.650    0.003 {method 'read' of '_ssl._SSLSocket' objects}
+    47472    0.448    0.000  185.868    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:889(_raw_read)
+    47472    0.112    0.000  184.615    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:832(_fp_read)
+    47472    0.232    0.000  184.502    0.004 /usr/lib/python3.10/http/client.py:450(read)
+    47478    0.235    0.000  184.247    0.004 {method 'read' of '_io.BufferedReader' objects}
+      3/1    0.000    0.000   20.364   20.364 /home/daniel/git/geoextent/geoextent/lib/extent.py:157(fromDirectory)
+        3    0.000    0.000   14.008    4.669 /home/daniel/git/geoextent/geoextent/lib/extent.py:397(fromFile)
+      274   13.997    0.051   13.997    0.051 {method 'acquire' of '_thread.lock' objects}
+        4    0.000    0.000   13.997    3.499 /usr/lib/python3.10/threading.py:1064(join)
+        4    0.000    0.000   13.997    3.499 /usr/lib/python3.10/threading.py:1102(_wait_for_tstate_lock)
+        9    0.000    0.000   12.733    1.415 /home/daniel/git/geoextent/geoextent/lib/content_providers/providers.py:18(_request)
+        9    0.000    0.000   12.733    1.415 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:593(get)
+        9    0.000    0.000   12.733    1.415 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:500(request)
+     17/9    0.001    0.000   12.715    1.413 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:673(send)
+       17    0.001    0.000   12.690    0.746 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/adapters.py:590(send)
+       17    0.001    0.000   12.673    0.745 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:592(urlopen)
+       17    0.000    0.000   12.662    0.745 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:377(_make_request)
+        9    0.000    0.000    9.799    1.089 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:724(<listcomp>)
+    25/17    0.000    0.000    9.799    0.576 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/requests/sessions.py:159(resolve_redirects)
+       17    0.000    0.000    9.244    0.544 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connectionpool.py:1085(_validate_conn)
+       11    0.000    0.000    9.244    0.840 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/connection.py:718(connect)
+
+

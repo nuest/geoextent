@@ -733,7 +733,9 @@ def convex_hull_merge(metadata, origin):
 
         except Exception as e:
             logger.warning(
-                "Error calculating merged convex hull for {}: {}. Falling back to bounding box.".format(origin, e)
+                "Error calculating merged convex hull for {}: {}. Falling back to bounding box.".format(
+                    origin, e
+                )
             )
             # Fall back to regular bounding box merge
             return bbox_merge(metadata, origin)
@@ -1012,14 +1014,22 @@ def is_geometry_a_point(bbox, is_convex_hull=False, tolerance=1e-6):
             # Check if all coordinates are the same within tolerance
             first_coord = coords[0]
             for coord in coords[1:]:
-                if abs(coord[0] - first_coord[0]) > tolerance or abs(coord[1] - first_coord[1]) > tolerance:
+                if (
+                    abs(coord[0] - first_coord[0]) > tolerance
+                    or abs(coord[1] - first_coord[1]) > tolerance
+                ):
                     return False, None
 
             return True, first_coord[:2]  # Return just [x, y]
         except (KeyError, IndexError, TypeError):
             return False, None
 
-    elif is_convex_hull and isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+    elif (
+        is_convex_hull
+        and isinstance(bbox, list)
+        and len(bbox) > 0
+        and isinstance(bbox[0], list)
+    ):
         # Convex hull coordinates format - check if all points are the same
         try:
             if len(bbox) < 2:
@@ -1027,7 +1037,10 @@ def is_geometry_a_point(bbox, is_convex_hull=False, tolerance=1e-6):
 
             first_coord = bbox[0]
             for coord in bbox[1:]:
-                if abs(coord[0] - first_coord[0]) > tolerance or abs(coord[1] - first_coord[1]) > tolerance:
+                if (
+                    abs(coord[0] - first_coord[0]) > tolerance
+                    or abs(coord[1] - first_coord[1]) > tolerance
+                ):
                     return False, None
 
             return True, first_coord[:2]  # Return just [x, y]
@@ -1320,12 +1333,7 @@ def create_spatial_extent(geometry, crs="4326", extent_type="bounding_box"):
     """
     bbox = geojson_to_bbox(geometry)
 
-    return {
-        "geometry": geometry,
-        "bbox": bbox,
-        "crs": crs,
-        "extent_type": extent_type
-    }
+    return {"geometry": geometry, "bbox": bbox, "crs": crs, "extent_type": extent_type}
 
 
 def coords_to_geojson_polygon(coords):
@@ -1345,10 +1353,7 @@ def coords_to_geojson_polygon(coords):
     if coords[0] != coords[-1]:
         coords = coords + [coords[0]]
 
-    return {
-        "type": "Polygon",
-        "coordinates": [coords]
-    }
+    return {"type": "Polygon", "coordinates": [coords]}
 
 
 def convex_hull_coords_to_wkt(coords):
@@ -1445,12 +1450,20 @@ def parse_download_size(size_string):
     if size_string is None:
         return None
 
+    import filesizelib
+
     try:
-        import filesizelib
         storage = filesizelib.Storage.parse(size_string)
-        return int(storage.convert_to_bytes())
+        bytes_value = int(storage.convert_to_bytes())
+        logger.debug(f"Successfully parsed '{size_string}' as {bytes_value:,} bytes")
+        return bytes_value
+    except (ValueError, AttributeError) as e:
+        logger.warning(
+            f"Invalid size format '{size_string}': {e}. Expected format like '100MB', '2.5GB', etc."
+        )
+        return None
     except Exception as e:
-        logger.warning(f"Failed to parse download size '{size_string}': {e}")
+        logger.warning(f"Unexpected error parsing download size '{size_string}': {e}")
         return None
 
 
@@ -1469,19 +1482,28 @@ def _group_shapefile_components(files_info):
     import os
 
     # Common shapefile extensions
-    shapefile_extensions = {'.shp', '.shx', '.dbf', '.prj', '.sbn', '.sbx', '.cpg', '.shp.xml'}
+    shapefile_extensions = {
+        ".shp",
+        ".shx",
+        ".dbf",
+        ".prj",
+        ".sbn",
+        ".sbx",
+        ".cpg",
+        ".shp.xml",
+    }
 
     # Group files by base name (without extension)
     groups = {}
     standalone_files = []
 
     for file_info in files_info:
-        filename = file_info.get('name', '')
+        filename = file_info.get("name", "")
 
         # Handle .shp.xml extension specially
-        if filename.endswith('.shp.xml'):
+        if filename.endswith(".shp.xml"):
             base_name = filename[:-8]  # Remove .shp.xml
-            extension = '.shp.xml'
+            extension = ".shp.xml"
         else:
             base_name, extension = os.path.splitext(filename)
 
@@ -1499,7 +1521,7 @@ def _group_shapefile_components(files_info):
     for base_name, components in groups.items():
         if len(components) > 1:
             # Sort components by extension to have consistent ordering
-            components.sort(key=lambda f: f.get('name', ''))
+            components.sort(key=lambda f: f.get("name", ""))
             shapefile_groups.append(components)
         else:
             # Single component, treat as standalone
@@ -1512,7 +1534,7 @@ def filter_files_by_size(
     files_info: list,
     max_download_size: int,
     method: str = "ordered",
-    seed: int = DEFAULT_DOWNLOAD_SAMPLE_SEED
+    seed: int = DEFAULT_DOWNLOAD_SAMPLE_SEED,
 ):
     """
     Filter files based on cumulative download size limit and selection method.
@@ -1530,11 +1552,15 @@ def filter_files_by_size(
         tuple: (selected_files, total_size, skipped_files)
     """
     if not files_info or max_download_size is None:
-        return files_info, sum(f.get('size', 0) for f in files_info), []
+        return files_info, sum(f.get("size", 0) for f in files_info), []
 
     # Filter out files without size information
-    files_with_size = [f for f in files_info if f.get('size') is not None and f.get('size') > 0]
-    files_without_size = [f for f in files_info if f.get('size') is None or f.get('size') <= 0]
+    files_with_size = [
+        f for f in files_info if f.get("size") is not None and f.get("size") > 0
+    ]
+    files_without_size = [
+        f for f in files_info if f.get("size") is None or f.get("size") <= 0
+    ]
 
     # Group shapefile components together to ensure they stay together
     shapefile_groups, standalone_files = _group_shapefile_components(files_with_size)
@@ -1557,38 +1583,46 @@ def filter_files_by_size(
     for item in all_items:
         if isinstance(item, list):
             # Shapefile group - all components stay together
-            group_size = sum(f.get('size', 0) for f in item)
+            group_size = sum(f.get("size", 0) for f in item)
             if total_size + group_size <= max_download_size:
                 selected_files.extend(item)
                 total_size += group_size
-                group_names = [f.get('name', 'unknown') for f in item]
-                logger.debug(f"Selected shapefile group ({', '.join(group_names)}): {group_size:,} bytes")
+                group_names = [f.get("name", "unknown") for f in item]
+                logger.debug(
+                    f"Selected shapefile group ({', '.join(group_names)}): {group_size:,} bytes"
+                )
             else:
                 # This group would exceed the cumulative limit, skip it and all remaining items
                 skipped_items.extend(item)
-                for remaining_item in all_items[all_items.index(item) + 1:]:
+                for remaining_item in all_items[all_items.index(item) + 1 :]:
                     if isinstance(remaining_item, list):
                         skipped_items.extend(remaining_item)
                     else:
                         skipped_items.append(remaining_item)
-                logger.debug(f"Cumulative limit reached. Skipping shapefile group and remaining files.")
+                logger.debug(
+                    f"Cumulative limit reached. Skipping shapefile group and remaining files."
+                )
                 break
         else:
             # Individual file
-            file_size = item.get('size', 0)
+            file_size = item.get("size", 0)
             if total_size + file_size <= max_download_size:
                 selected_files.append(item)
                 total_size += file_size
-                logger.debug(f"Selected file {item.get('name', 'unknown')}: {file_size:,} bytes")
+                logger.debug(
+                    f"Selected file {item.get('name', 'unknown')}: {file_size:,} bytes"
+                )
             else:
                 # This file would exceed the cumulative limit, skip it and all remaining items
                 skipped_items.append(item)
-                for remaining_item in all_items[all_items.index(item) + 1:]:
+                for remaining_item in all_items[all_items.index(item) + 1 :]:
                     if isinstance(remaining_item, list):
                         skipped_items.extend(remaining_item)
                     else:
                         skipped_items.append(remaining_item)
-                logger.debug(f"Cumulative limit reached. Skipping file and remaining files.")
+                logger.debug(
+                    f"Cumulative limit reached. Skipping file and remaining files."
+                )
                 break
 
     # Add files without size info (these will be handled by individual providers)
@@ -1596,8 +1630,12 @@ def filter_files_by_size(
     selected_files.extend(files_without_size)
 
     if skipped_items:
-        logger.info(f"Cumulative download size limit reached ({max_download_size:,} bytes).")
-        logger.info(f"Selected {len(selected_files)} files totaling {total_size:,} bytes ({total_size / (1024*1024):.1f} MB)")
+        logger.info(
+            f"Cumulative download size limit reached ({max_download_size:,} bytes)."
+        )
+        logger.info(
+            f"Selected {len(selected_files)} files totaling {total_size:,} bytes ({total_size / (1024*1024):.1f} MB)"
+        )
         logger.info(f"Skipped {len(skipped_items)} files due to cumulative size limit.")
 
     return selected_files, total_size, skipped_items

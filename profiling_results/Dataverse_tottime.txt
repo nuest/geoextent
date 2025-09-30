@@ -1,0 +1,37 @@
+Content Provider: Dataverse
+Identifier: 10.7910/DVN/OMV93V
+Description: Harvard Dataverse dataset
+Success: True
+Execution Time: 222.83 seconds
+
+================================================================================
+TOTAL TIME STATS (Top functions by total/own time)
+================================================================================
+         2786329 function calls (2786089 primitive calls) in 222.833 seconds
+
+   Ordered by: internal time
+   List reduced from 990 to 20 due to restriction <20>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    70385  186.650    0.003  186.650    0.003 {method 'read' of '_ssl._SSLSocket' objects}
+      274   13.997    0.051   13.997    0.051 {method 'acquire' of '_thread.lock' objects}
+       12    6.247    0.521    6.247    0.521 {built-in method posix.waitpid}
+       11    5.081    0.462    5.081    0.462 {built-in method _socket.getaddrinfo}
+       11    2.202    0.200    2.202    0.200 {method 'do_handshake' of '_ssl._SSLSocket' objects}
+    47459    1.579    0.000    1.579    0.000 {method 'write' of '_io.BufferedWriter' objects}
+       11    1.220    0.111    1.220    0.111 {method 'connect' of '_socket.socket' objects}
+       11    0.726    0.066    0.726    0.066 {method 'load_verify_locations' of '_ssl._SSLContext' objects}
+    47472    0.448    0.000  185.868    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:889(_raw_read)
+    47468    0.396    0.000  187.431    0.004 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:941(read)
+        5    0.309    0.062    0.309    0.062 {built-in method posix.unlink}
+    47460    0.283    0.000    0.446    0.000 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:281(get)
+    47478    0.235    0.000  184.247    0.004 {method 'read' of '_io.BufferedReader' objects}
+    47472    0.232    0.000  184.502    0.004 /usr/lib/python3.10/http/client.py:450(read)
+    70385    0.205    0.000  187.406    0.003 /usr/lib/python3.10/socket.py:691(readinto)
+    70385    0.192    0.000  187.070    0.003 /usr/lib/python3.10/ssl.py:1292(recv_into)
+    47503    0.172    0.000    0.194    0.000 /usr/lib/python3.10/contextlib.py:102(__init__)
+    70385    0.172    0.000  186.838    0.003 /usr/lib/python3.10/ssl.py:1150(read)
+409070/409061    0.170    0.000    0.202    0.000 {built-in method builtins.len}
+    47473    0.165    0.000    0.433    0.000 /home/daniel/git/geoextent/.env/lib/python3.10/site-packages/urllib3/response.py:475(_init_decoder)
+
+
