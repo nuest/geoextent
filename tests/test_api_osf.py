@@ -115,7 +115,9 @@ class TestOSFProvider:
             result = osf.validate_provider(reference)
             assert result == expected_valid, f"Validation failed for {reference}"
             if expected_valid:
-                assert osf.project_id == expected_id, f"Project ID extraction failed for {reference}"
+                assert (
+                    osf.project_id == expected_id
+                ), f"Project ID extraction failed for {reference}"
             osf.project_id = None  # Reset for next test
 
     def test_osf_metadata_extraction(self):
@@ -349,7 +351,9 @@ class TestOSFEdgeCases:
 
         for test_input, expected_valid in edge_cases:
             result = osf.validate_provider(test_input)
-            assert result == expected_valid, f"Edge case validation failed for {test_input}"
+            assert (
+                result == expected_valid
+            ), f"Edge case validation failed for {test_input}"
             if result:
                 assert osf.project_id is not None
                 assert len(osf.project_id) == 5
