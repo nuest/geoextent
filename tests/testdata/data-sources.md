@@ -26,7 +26,7 @@
 | [FlatGeobuf](https://github.com/flatgeobuf/flatgeobuf/blob/master/test/data/countries.fgb) | countries | fgb | BSD-2-Clause |
 
 [sf]: https://github.com/r-spatial/sf
-[geoextent]: https://github.com/o2r-project/geoextent
+[geoextent]: https://github.com/nuest/geoextent
 [Geosoftware2]: https://github.com/carobro/Geosoftware2
 [INSPIRE]:      https://themes.jrc.ec.europa.eu/file/view/107486/example-of-gml-file-conformant-to-inspire-land-cover-vector-application-schema
 [unidata]: https://www.unidata.ucar.edu/software/netcdf/examples/files.html

@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath("../.."))
 # -- Project information -----------------------------------------------------
 
 project = "geoextent"
-copyright = "2020, o2r-project"
-author = "o2r-project"
+copyright = "2025, o2rproject and all contributors"
+author = "Daniel Nüst"
 
 import geoextent
 
@@ -57,9 +57,9 @@ html_theme = "alabaster"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_favicon = "_static/favicon.ico"
+# html_favicon = "_static/favicon.ico"
 
-html_logo = "_static/o2r-logo-only.svg"
+# html_logo = "_static/o2r-logo-only.svg"
 
 
 # -- Options for extensions --------------------------------------------------

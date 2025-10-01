@@ -79,7 +79,7 @@ Documentation
 -------------
 
 The documentation is based on Sphinx_.
-The source files can be found in the directory ``docs/`` and the rendered online documentation is at https://o2r.info/geoextent/.
+The source files can be found in the directory ``docs/`` and the rendered online documentation is at https://nuest.github.io/geoextent/.
 
 Build documentation locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
