@@ -1721,11 +1721,13 @@ def test_extraction_metadata_single_file(script_runner):
     stats = metadata["statistics"]
     assert stats["files_processed"] == 1, "should have processed 1 file"
     assert stats["files_with_extent"] == 1, "should have 1 file with extent"
-    assert "total_size_mb" in stats, "should have total_size_mb"
-    assert isinstance(
-        stats["total_size_mb"], (int, float)
-    ), "total_size_mb should be numeric"
-    assert stats["total_size_mb"] >= 0, "total_size_mb should be non-negative"
+    assert "total_size" in stats, "should have total_size"
+    assert isinstance(stats["total_size"], str), "total_size should be a string"
+    assert len(stats["total_size"]) > 0, "total_size should not be empty"
+    # Should contain a size unit like bytes, KiB, MiB, etc.
+    assert any(
+        unit in stats["total_size"] for unit in ["bytes", "KiB", "MiB", "GiB", "TiB"]
+    ), "total_size should contain a size unit"
 
     # Check extraction properties moved from feature.properties
     assert "format" in metadata, "should have format in metadata"

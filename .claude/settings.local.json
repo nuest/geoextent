@@ -11,7 +11,16 @@
       "Bash(awk:*)",
       "Bash(PYTHONPATH=. pytest tests/test_cli.py::test_extraction_metadata_single_file tests/test_cli.py::test_extraction_metadata_multiple_files tests/test_cli.py::test_extraction_metadata_directory tests/test_cli.py::test_no_stats_option -v)",
       "Bash(PYTHONPATH=. pytest tests/test_cli.py::test_no_metadata_option -v)",
-      "Bash(PYTHONPATH=. pytest tests/test_cli.py::test_extraction_metadata_single_file tests/test_cli.py::test_extraction_metadata_multiple_files tests/test_cli.py::test_extraction_metadata_directory tests/test_cli.py::test_no_metadata_option -v)"
+      "Bash(PYTHONPATH=. pytest tests/test_cli.py::test_extraction_metadata_single_file tests/test_cli.py::test_extraction_metadata_multiple_files tests/test_cli.py::test_extraction_metadata_directory tests/test_cli.py::test_no_metadata_option -v)",
+      "WebFetch(domain:opara.zih.tu-dresden.de)",
+      "Bash(PYTHONPATH=. python -m geoextent -b -t 10.25532/OPARA-581)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_opara.py -v)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_opara.py::TestOparaProvider::test_opara_url_validation tests/test_api_opara.py::TestOparaProvider::test_opara_metadata_retrieval tests/test_api_opara.py::TestOparaProvider::test_opara_file_information tests/test_api_opara.py::TestOparaProvider::test_opara_provider_in_provider_list tests/test_api_opara.py::TestOparaProvider::test_opara_provider_error_handling tests/test_api_opara.py::TestOparaProvider::test_opara_geospatial_file_filtering -v)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_size_filtering.py -v)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_size_filtering.py::TestSizeFilteringMethods::test_largest_method_with_higher_limit -v)",
+      "Bash(PYTHONPATH=. python -m geoextent --help)",
+      "Bash(export PYTHONPATH=.)",
+      "Bash(PYTHONPATH=. python -c \"\nfrom geoextent.lib import helpfunctions as hf\n# Test the size parsing function\nresult = hf.parse_download_size(''100MB'')\nprint(f''Parsed 100MB as: {result} bytes'')\nprint(f''That is: {result / (1024*1024)} MB'')\n\")"
     ],
     "deny": [],
     "ask": []

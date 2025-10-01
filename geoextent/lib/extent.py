@@ -16,6 +16,7 @@ from .content_providers import OSF
 from .content_providers import Dataverse
 from .content_providers import GFZ
 from .content_providers import Pensoft
+from .content_providers import Opara
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -392,7 +393,7 @@ def fromDirectory(
         if tbox_ext is not None:
             metadata["tbox"] = tbox_ext
         else:
-            logger.warning(
+            logger.debug(
                 "The {} {} has no identifiable time extent".format(file_format, path)
             )
 
@@ -737,6 +738,7 @@ class geoextent_from_repository(Application):
             Dataverse.Dataverse,
             GFZ.GFZ,
             Pensoft.Pensoft,
+            Opara.Opara,
         ],
         config=True,
         help="""

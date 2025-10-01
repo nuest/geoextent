@@ -19,7 +19,7 @@ The ``geoextent_extraction`` field is added to all GeoJSON FeatureCollection out
 
   - ``files_processed``: Total number of files analyzed
   - ``files_with_extent``: Number of files with successfully extracted spatial extent
-  - ``total_size_mb``: Total size of processed files in megabytes
+  - ``total_size``: Total size of processed files in human-readable format (e.g., "592.39 KiB", "1.5 MiB")
 
 - ``format``: Format of the processed data (e.g., "geojson", "csv", "shapefile", "multiple_files")
 - ``geoextent_handler``: Handler module used for processing (e.g., "handleVector", "handleCSV")
@@ -55,7 +55,7 @@ Single file extraction::
        "statistics": {
          "files_processed": 1,
          "files_with_extent": 1,
-         "total_size_mb": 0.02
+         "total_size": "1.7 KiB"
        },
        "format": "geojson",
        "geoextent_handler": "handleVector",
@@ -84,7 +84,7 @@ Multiple files extraction::
        "statistics": {
          "files_processed": 2,
          "files_with_extent": 2,
-         "total_size_mb": 0.05
+         "total_size": "2.2 KiB"
        },
        "format": "multiple_files",
        "crs": "4326",
@@ -109,7 +109,7 @@ Directory extraction::
        "statistics": {
          "files_processed": 15,
          "files_with_extent": 14,
-         "total_size_mb": 0.32
+         "total_size": "45.1 KiB"
        },
        "format": "folder",
        "crs": "4326",

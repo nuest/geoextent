@@ -14,6 +14,8 @@ from osgeo import osr
 from pathlib import Path
 
 import geojsonio
+import humanfriendly
+import filesizelib
 
 # Default seed for reproducible random sampling
 DEFAULT_DOWNLOAD_SAMPLE_SEED = 42
@@ -1128,9 +1130,8 @@ def create_extraction_metadata(inputs, version, output_data=None):
             if "file_size_bytes" in output_data:
                 total_size_bytes = output_data["file_size_bytes"]
 
-        # Convert bytes to MB with 2 decimal places
-        total_size_mb = round(total_size_bytes / (1024 * 1024), 2)
-        stats["total_size_mb"] = total_size_mb
+        # Convert bytes to human-readable format using humanfriendly
+        stats["total_size"] = humanfriendly.format_size(total_size_bytes, binary=True)
 
         metadata["statistics"] = stats
 
@@ -1551,12 +1552,11 @@ def parse_download_size(size_string):
     if size_string is None:
         return None
 
-    import filesizelib
-
     try:
         storage = filesizelib.Storage.parse(size_string)
         bytes_value = int(storage.convert_to_bytes())
-        logger.debug(f"Successfully parsed '{size_string}' as {bytes_value:,} bytes")
+        human_size = humanfriendly.format_size(bytes_value, binary=True)
+        logger.debug(f"Successfully parsed '{size_string}' as {human_size}")
         return bytes_value
     except (ValueError, AttributeError) as e:
         logger.warning(
@@ -1646,7 +1646,7 @@ def filter_files_by_size(
     Args:
         files_info: List of dicts with 'name' and 'size' keys (size in bytes)
         max_download_size: Maximum cumulative download size in bytes for all files combined
-        method: Selection method - 'ordered' or 'random'
+        method: Selection method - 'ordered' (as returned by provider), 'random', 'smallest' (smallest files first), or 'largest' (largest files first)
         seed: Random seed for reproducible random selection
 
     Returns:
@@ -1669,11 +1669,26 @@ def filter_files_by_size(
     # Apply selection method to groups and standalone files
     all_items = shapefile_groups + standalone_files
 
+    def get_item_size(item):
+        """Get total size of an item (file or shapefile group)"""
+        if isinstance(item, list):
+            # Shapefile group - sum all components
+            return sum(f.get("size", 0) for f in item)
+        else:
+            # Individual file
+            return item.get("size", 0)
+
     if method == "random":
         # Set seed for reproducible results
         random.seed(seed)
         random.shuffle(all_items)
-    # For "ordered" method, items are processed in original order
+    elif method == "smallest":
+        # Sort by size - smallest first
+        all_items.sort(key=get_item_size)
+    elif method == "largest":
+        # Sort by size - largest first
+        all_items.sort(key=get_item_size, reverse=True)
+    # For "ordered" method, items are processed in original order (as returned by provider)
 
     selected_files = []
     total_size = 0
@@ -1732,10 +1747,10 @@ def filter_files_by_size(
 
     if skipped_items:
         logger.info(
-            f"Cumulative download size limit reached ({max_download_size:,} bytes)."
+            f"Cumulative download size limit reached ({humanfriendly.format_size(max_download_size, binary=True)})."
         )
         logger.info(
-            f"Selected {len(selected_files)} files totaling {total_size:,} bytes ({total_size / (1024*1024):.1f} MB)"
+            f"Selected {len(selected_files)} files totaling {humanfriendly.format_size(total_size, binary=True)}"
         )
         logger.info(f"Skipped {len(skipped_items)} files due to cumulative size limit.")
 

@@ -135,7 +135,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -255,9 +255,9 @@ def get_arg_parser():
 
     parser.add_argument(
         "--max-download-method",
-        choices=["ordered", "random"],
+        choices=["ordered", "random", "smallest", "largest"],
         default="ordered",
-        help="method for selecting files when size limit is exceeded (default: ordered)",
+        help="method for selecting files when size limit is exceeded: 'ordered' (as returned by provider), 'random', 'smallest' (smallest files first), 'largest' (largest files first) (default: ordered)",
     )
 
     parser.add_argument(

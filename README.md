@@ -9,7 +9,7 @@ Python library for extracting geospatial extent of files and directories with mu
 
 - Extract spatial (bounding box/convex hull) and temporal extents
 - Support for 9+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, etc.)
-- Direct integration with 8 research repositories (Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ, Dataverse, Pensoft)
+- Direct integration with 9 research repositories (Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ, Dataverse, Pensoft, TU Dresden Opara)
 - Command-line interface and Python API
 - Docker support for easy deployment
 
@@ -114,7 +114,7 @@ For comprehensive examples and advanced features, see the [examples documentatio
 
 **Data Formats:** GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf
 
-**Repositories:** Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, Dataverse, Pensoft
+**Repositories:** Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, Dataverse, Pensoft, TU Dresden Opara
 
 See [full format documentation](https://nuest.github.io/geoextent/supportedformats/index_supportedformats.html) for details.
 

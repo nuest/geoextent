@@ -45,7 +45,8 @@ dependencies = [
     "tqdm",
     "bs4",
     "geopy",
-    "python-dotenv"
+    "python-dotenv",
+    "humanfriendly"
 ]
 
 [project.optional-dependencies]

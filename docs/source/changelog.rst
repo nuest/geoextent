@@ -10,7 +10,7 @@ Changelog
   - Add extraction metadata to GeoJSON output with ``geoextent_extraction`` field containing:
     - ``version``: geoextent version used for the extraction
     - ``inputs``: list of input files, directories, or remote resources processed
-    - ``statistics``: processing statistics including files processed, files with valid extent, and total size in MB
+    - ``statistics``: processing statistics including files processed, files with valid extent, and total size in human-readable format using flexible units (bytes, KiB, MiB, GiB, etc.)
     - ``format``: format of the processed data (moved from feature properties)
     - ``geoextent_handler``: handler used for processing (moved from feature properties)
     - ``crs``: coordinate reference system (moved from feature properties)
@@ -34,6 +34,11 @@ Changelog
   - Add file filtering and parallel downloads to improve performance (:issue:`75`)
   - Implement ``--download-skip-nogeo`` option to skip downloading non-geospatial files
   - Add ``--max-download-size`` and ``--max-download-workers`` options for download control
+  - Enhance ``--max-download-method`` with new ``smallest`` and ``largest`` file selection options
+    - ``smallest``: prioritizes smallest files first to maximize file coverage within size limits
+    - ``largest``: prioritizes largest files first for maximum data volume
+    - ``ordered``: processes files in the order returned by the content provider (existing default)
+    - ``random``: random file selection with reproducible seeding (existing option)
   - Optimize file download process using parallel downloads for multi-file datasets
   - Add comprehensive test refactoring to eliminate duplication and focus on single aspects
 
@@ -50,6 +55,11 @@ Changelog
 
 - **Repository Support Enhancements**
 
+  - Add TU Dresden Opara content provider supporting DSpace 7.x repositories
+    - Supports multiple URL variants: direct item URLs, DOI resolver URLs, handle URLs, and bare DOIs/UUIDs
+    - Full API integration with DSpace 7.x REST API for metadata and file access
+    - Handles ZIP files with nested directories and multiple shapefiles
+    - Compatible with all size filtering and geospatial file filtering options
   - Add GFZ Data Services as content provider (:issue:`17`)
   - Add download size limiting for repositories (:issue:`70`)
   - Enhance content provider support for Dryad and OSF with full filtering capabilities

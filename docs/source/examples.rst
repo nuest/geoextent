@@ -79,6 +79,25 @@ Extract extent from Dryad dataset:
 
    python -m geoextent -b -t https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x
 
+TU Dresden Opara Example
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Extract extent from TU Dresden Opara repository (DSpace 7.x):
+
+::
+
+   python -m geoextent -b -t https://opara.zih.tu-dresden.de/items/4cdf08d6-2738-4c9e-9d27-345a0647ff7c
+
+Multiple URL variants are supported:
+
+::
+
+   python -m geoextent -b -t 10.25532/OPARA-581
+   python -m geoextent -b -t https://doi.org/10.25532/OPARA-581
+   python -m geoextent -b -t https://opara.zih.tu-dresden.de/handle/123456789/821
+
+This example dataset contains glacier calving front locations with ZIP files containing nested directories and multiple shapefiles.
+
 Advanced Features
 -----------------
 
@@ -116,8 +135,14 @@ Control download size when processing large repositories:
 
 ::
 
-   # Limit to 10MB total download
+   # Limit to 10MB total download (ordered method - files as returned by provider)
    python -m geoextent -b --max-download-size 10MB https://doi.org/10.5281/zenodo.4593540
+
+   # Select smallest files first to maximize file coverage within size limit
+   python -m geoextent -b --max-download-size 100MB --max-download-method smallest https://doi.org/10.25532/OPARA-703
+
+   # Select largest files first (useful when you want the most substantial data)
+   python -m geoextent -b --max-download-size 500MB --max-download-method largest https://doi.org/10.5281/zenodo.4593540
 
    # Random sampling with seed for reproducibility
    python -m geoextent -b --max-download-size 50MB --max-download-method random --max-download-method-seed 42 https://doi.org/10.5281/zenodo.4593540
@@ -440,6 +465,11 @@ Pensoft:
 ::
 
    python -m geoextent -b https://doi.org/10.3897/BDJ.2.e1068
+
+TU Dresden Opara:
+::
+
+   python -m geoextent -b 10.25532/OPARA-581
 
 Interactive Showcase Notebooks
 -------------------------------

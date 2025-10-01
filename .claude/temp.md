@@ -1,25 +1,18 @@
 
+make the total size in the metadata a flexible unit depending on the size using the humanfriendly library
 
-add support for a single ZIP file in a remote repository, test with the Zenodo content provider and
-  https://doi.org/10.5281/zenodo.3446746
+also use humanfriendly for log outputs where file sizes are mentioned
 
-
-
-
-fix building of the documentation in CI and add documentation to the README on building the documentation locally with the latest version of Sphinx; update the documentation to include all relevant documentation
-  and information from the README and subsequently make a suggestion on which content to retain in the README to reduce the README's size; the documentation should focus on a handful of example remote URLs based on
-  the README that include data less than 100MB for fast execution but at the same time covers all features (content providers, data file formats)
+"no identifiable time extent" should not be a warning but a debug message
 
 
-fix the issue in the Dockerfile that pandas requires version 1.3.6 of bottleneck but 1.3.5 is install; fix that the --quiet flag should also suppress INFO level messages from the underlying libraries like patool, e.g.,
+---------------
 
-eoextent -b --max-download-size 10MB --quiet https://doi.org/10.5281/zenodo.10731546
-/usr/local/lib/python3.12/dist-packages/pandas/core/arrays/masked.py:61: UserWarning: Pandas requires version '1.3.6' or newer of 'bottleneck' (version '1.3.5' currently installed).
-  from pandas.core import (
-INFO patool: could not find a 'file' executable, falling back to guess mime type by file extension
-INFO:patool:could not find a 'file' executable, falling back to guess mime type by file extension
-INFO patool: could not find a 'file' executable, falling back to guess mime type by file extension
-INFO:patool:could not find a 'file' executable, falling back to guess mime type by file extension
-INFO patool: could not find a 'file' executable, falling back to guess mime type by file extension
-INFO:patool:could not find a 'file' executable, falling back to guess mime type by file extension
-{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[0.341496825115861, 0.3414558847200173], [52.075344297417736, 0.3414558847200173], [52.075344297417736, 52.0751897250789], [0.341496825115861, 52.0751897250789], [0.341496825115861, 0.3414558847200173]]]}, "properties": {"format": "remote", "crs": "4326", "extent_type": "bounding_box", "description": "Bounding box extracted by geoextent"}}]}
+this is not right, there are files smaller than that in the file list
+
+$ geoextent -b -t --max-download-size 100MB 10.25532/OPARA-703
+WARNING:geoextent:No files can be downloaded within the size limit
+Processing directory: tmprzd2rz5v: 0item [00:00, ?item/s]
+WARNING:geoextent:The folder /tmp/tmprzd2rz5v has no identifiable bbox - Coordinate reference system (CRS) may be missing
+WARNING:geoextent:The folder /tmp/tmprzd2rz5v has no identifiable time extent
+{"format": "remote"}

@@ -14,6 +14,7 @@ from . import OSF
 from . import Dataverse
 from . import GFZ
 from . import Pensoft
+from . import Opara
 
 __all__ = [
     "providers",
@@ -25,4 +26,5 @@ __all__ = [
     "Dataverse",
     "GFZ",
     "Pensoft",
+    "Opara",
 ]
