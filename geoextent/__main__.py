@@ -395,6 +395,9 @@ def main():
     elif args["quiet"]:
         # Quiet mode: suppress all warnings and enable no-progress
         logging.getLogger("geoextent").setLevel(logging.CRITICAL)
+        # Suppress INFO level messages from all loggers (including patool, etc.)
+        logging.getLogger().setLevel(logging.WARNING)
+        logging.getLogger("patool").setLevel(logging.WARNING)
         # Also suppress Python warnings (including pandas UserWarnings)
         warnings.filterwarnings("ignore")
         args["no_progress"] = True
