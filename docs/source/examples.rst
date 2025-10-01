@@ -23,6 +23,17 @@ Or using just the DOI:
 
    python -m geoextent -b -t 10.5281/zenodo.4593540
 
+ZIP File Support
+""""""""""""""""
+
+Geoextent automatically detects and extracts ZIP files from remote repositories, including nested archives. Extract from a Zenodo repository containing a single ZIP file (~1MB):
+
+::
+
+   python -m geoextent -b https://doi.org/10.5281/zenodo.3446746
+
+This will download the ZIP file, extract all geospatial data inside (GeoPackage, Shapefile, etc.), and calculate the spatial extent. Works with all supported repository providers.
+
 PANGAEA Example
 ^^^^^^^^^^^^^^^
 

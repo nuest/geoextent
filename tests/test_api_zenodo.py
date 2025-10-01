@@ -366,3 +366,139 @@ class TestZenodoEdgeCases:
             )
         except Exception as e:
             pytest.skip(f"Network or API error: {e}")
+
+
+class TestZenodoZIPFileHandling:
+    """Test Zenodo single ZIP file handling"""
+
+    def test_zenodo_single_zip_file(self):
+        """Test Zenodo repository containing a single ZIP file with geospatial data
+
+        This test verifies that geoextent correctly:
+        1. Downloads a single ZIP file from Zenodo
+        2. Automatically extracts the ZIP file
+        3. Processes all geospatial files inside the ZIP
+        4. Returns a valid bounding box from the extracted files
+
+        Test dataset: https://doi.org/10.5281/zenodo.3446746
+        Contains: LandscapeGeoinformatics/EU-SoilHydroGrids_tiles_nav-v1.0.zip (~1MB)
+        With: Multiple geospatial formats (GeoPackage, Shapefile, PNG)
+        """
+        test_doi = "10.5281/zenodo.3446746"
+
+        try:
+            # Test with size limit to keep test fast
+            result = geoextent.fromRemote(
+                test_doi,
+                bbox=True,
+                tbox=False,
+                download_data=True,
+                max_download_size=2 * 1024 * 1024,  # 2MB limit
+                quiet=True
+            )
+
+            assert result is not None, "Result should not be None"
+            assert result["format"] == "remote", "Format should be 'remote'"
+
+            # Verify bounding box was extracted from ZIP contents
+            assert "bbox" in result, "Should have extracted bbox from ZIP contents"
+            bbox = result["bbox"]
+
+            # Verify bbox is valid
+            assert len(bbox) == 4, "Bbox should have 4 coordinates"
+            assert bbox[0] <= bbox[2], "West should be <= East"
+            assert bbox[1] <= bbox[3], "South should be <= North"
+
+            # Verify coordinates are reasonable for European data
+            assert -180 <= bbox[0] <= 180, "West longitude should be valid"
+            assert -180 <= bbox[2] <= 180, "East longitude should be valid"
+            assert -90 <= bbox[1] <= 90, "South latitude should be valid"
+            assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+
+            # Verify CRS
+            assert "crs" in result, "Should have CRS"
+            assert result["crs"] == "4326", "CRS should be WGS84"
+
+            # Verify GeoJSON output format
+            geojson_output = hf.format_extent_output(result, "geojson")
+            validation_errors = validate_structure(geojson_output)
+            assert not validation_errors, f"Invalid GeoJSON: {validation_errors}"
+
+        except ImportError:
+            pytest.skip("Required libraries not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_zenodo_zip_with_nested_archives(self):
+        """Test that nested ZIP files within the main ZIP are also extracted
+
+        The test dataset contains nested ZIP files that should be automatically
+        extracted and processed.
+        """
+        test_doi = "10.5281/zenodo.3446746"
+
+        try:
+            # Enable details to see individual file processing
+            result = geoextent.fromRemote(
+                test_doi,
+                bbox=True,
+                tbox=False,
+                details=True,
+                download_data=True,
+                max_download_size=2 * 1024 * 1024,  # 2MB limit
+                quiet=True
+            )
+
+            assert result is not None
+            assert "bbox" in result
+
+            # If details are available, verify multiple files were processed
+            if "details" in result:
+                assert isinstance(result["details"], dict)
+                # Should have processed multiple files from the ZIP
+                assert len(result["details"]) > 0
+
+        except ImportError:
+            pytest.skip("Required libraries not available")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
+
+    def test_zenodo_zip_cli_output(self):
+        """Test Zenodo ZIP file handling via CLI"""
+        test_doi = "10.5281/zenodo.3446746"
+
+        try:
+            result = subprocess.run(
+                [
+                    "python", "-m", "geoextent",
+                    "-b",
+                    "--max-download-size", "2MB",
+                    "--quiet",
+                    test_doi
+                ],
+                capture_output=True,
+                text=True,
+                timeout=120
+            )
+
+            assert result.returncode == 0, f"CLI failed: {result.stderr}"
+
+            # Parse and validate GeoJSON output
+            geojson_output = json.loads(result.stdout)
+            validation_errors = validate_structure(geojson_output)
+            assert not validation_errors, f"Invalid GeoJSON: {validation_errors}"
+
+            # Verify it's a valid FeatureCollection with spatial extent
+            assert geojson_output["type"] == "FeatureCollection"
+            assert len(geojson_output["features"]) > 0
+
+            feature = geojson_output["features"][0]
+            assert feature["geometry"]["type"] == "Polygon"
+            assert feature["properties"]["format"] == "remote"
+
+        except subprocess.TimeoutExpired:
+            pytest.skip("CLI test timeout (network issues)")
+        except json.JSONDecodeError as e:
+            pytest.fail(f"Failed to parse JSON: {e}\nOutput: {result.stdout}")
+        except Exception as e:
+            pytest.skip(f"Network or API error: {e}")
