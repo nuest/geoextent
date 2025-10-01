@@ -1061,12 +1061,89 @@ def is_geometry_a_point(bbox, is_convex_hull=False, tolerance=1e-6):
     return False, None
 
 
-def create_geojson_feature_collection(extent_output):
+def create_extraction_metadata(inputs, version, output_data=None):
+    """
+    Create extraction metadata for geoextent output
+
+    Args:
+        inputs: List of input paths/URLs/identifiers
+        version: Geoextent version string
+        output_data: Optional dict containing extraction statistics
+
+    Returns:
+        Dict containing extraction metadata
+    """
+    metadata = {
+        "version": version,
+        "inputs": inputs if isinstance(inputs, list) else [inputs],
+    }
+
+    # Add statistics if output data is provided
+    if output_data:
+        stats = {}
+        total_size_bytes = 0
+
+        # Count files processed from details
+        if "details" in output_data and isinstance(output_data["details"], dict):
+            # Count all files in details (could be nested from directories)
+            details_dict = output_data["details"]
+            total_files = 0
+            files_with_extent = 0
+
+            for key, detail in details_dict.items():
+                if isinstance(detail, dict):
+                    # Check if this is a nested structure (from directory processing)
+                    if "details" in detail and isinstance(detail["details"], dict):
+                        # This is a directory result with nested files
+                        total_files += len(detail["details"])
+                        files_with_extent += sum(
+                            1
+                            for subdetail in detail["details"].values()
+                            if isinstance(subdetail, dict)
+                            and subdetail.get("bbox") is not None
+                        )
+                        # Use tracked file_size_bytes from nested files
+                        for subdetail in detail["details"].values():
+                            if (
+                                isinstance(subdetail, dict)
+                                and "file_size_bytes" in subdetail
+                            ):
+                                total_size_bytes += subdetail["file_size_bytes"]
+                    else:
+                        # This is a single file result
+                        total_files += 1
+                        if detail.get("bbox") is not None:
+                            files_with_extent += 1
+                        # Use tracked file_size_bytes
+                        if "file_size_bytes" in detail:
+                            total_size_bytes += detail["file_size_bytes"]
+
+            stats["files_processed"] = total_files
+            stats["files_with_extent"] = files_with_extent
+        else:
+            # Single file case
+            stats["files_processed"] = 1
+            stats["files_with_extent"] = 1 if output_data.get("bbox") is not None else 0
+            # Use tracked file_size_bytes from output_data
+            if "file_size_bytes" in output_data:
+                total_size_bytes = output_data["file_size_bytes"]
+
+        # Convert bytes to MB with 2 decimal places
+        total_size_mb = round(total_size_bytes / (1024 * 1024), 2)
+        stats["total_size_mb"] = total_size_mb
+
+        metadata["statistics"] = stats
+
+    return metadata
+
+
+def create_geojson_feature_collection(extent_output, extraction_metadata=None):
     """
     Convert geoextent output to a valid GeoJSON FeatureCollection
 
     Args:
         extent_output: Dict containing the geoextent output
+        extraction_metadata: Optional dict with extraction metadata (inputs, version, statistics)
 
     Returns:
         Dict containing a GeoJSON FeatureCollection with a single Feature
@@ -1113,29 +1190,28 @@ def create_geojson_feature_collection(extent_output):
             # Fallback: return original output if bbox format is not recognized
             return extent_output
 
-    # Create properties from metadata
+    # Properties that should go to geoextent_extraction instead of feature properties
+    extraction_props = [
+        "format",
+        "geoextent_handler",
+        "crs",
+        "convex_hull",
+        "file_size_bytes",
+    ]
+
+    # Create minimal feature properties (only keep placename and custom properties)
     properties = {}
-
-    # Add all original properties except bbox and details
-    for key, value in extent_output.items():
-        if key not in ["bbox", "details"]:
-            properties[key] = value
-
-    # Add descriptive properties
-    if is_point:
-        properties["extent_type"] = "point"
-        properties["description"] = "Point geometry extracted by geoextent"
-    else:
-        properties["extent_type"] = "convex_hull" if is_convex_hull else "bounding_box"
-        properties["description"] = (
-            f"{'Convex hull' if is_convex_hull else 'Bounding box'} extracted by geoextent"
-        )
 
     # Add placename if available
     if "placename" in extent_output:
         properties["placename"] = extent_output["placename"]
 
-    # Create the Feature
+    # Add any other properties that are not extraction metadata
+    for key, value in extent_output.items():
+        if key not in ["bbox", "details"] + extraction_props and key != "placename":
+            properties[key] = value
+
+    # Create the Feature with minimal properties
     feature = {"type": "Feature", "geometry": geom, "properties": properties}
 
     # Create the FeatureCollection
@@ -1145,16 +1221,41 @@ def create_geojson_feature_collection(extent_output):
     if "details" in extent_output:
         feature_collection["details"] = extent_output["details"]
 
+    # Add or enhance extraction metadata if provided
+    if extraction_metadata:
+        # Add extraction-specific properties to metadata
+        if "format" in extent_output:
+            extraction_metadata["format"] = extent_output["format"]
+        if "geoextent_handler" in extent_output:
+            extraction_metadata["geoextent_handler"] = extent_output[
+                "geoextent_handler"
+            ]
+        if "crs" in extent_output:
+            extraction_metadata["crs"] = extent_output["crs"]
+
+        # Add extent_type
+        if is_point:
+            extraction_metadata["extent_type"] = "point"
+        else:
+            extraction_metadata["extent_type"] = (
+                "convex_hull" if is_convex_hull else "bounding_box"
+            )
+
+        feature_collection["geoextent_extraction"] = extraction_metadata
+
     return feature_collection
 
 
-def format_extent_output(extent_output, output_format="geojson"):
+def format_extent_output(
+    extent_output, output_format="geojson", extraction_metadata=None
+):
     """
     Convert geoextent output to different formats
 
     Args:
         extent_output: Dict containing the geoextent output
         output_format: String specifying the output format ("geojson", "wkt", "wkb")
+        extraction_metadata: Optional dict with extraction metadata (inputs, version, statistics)
 
     Returns:
         Dict with formatted output - for GeoJSON format, returns a FeatureCollection
@@ -1164,7 +1265,7 @@ def format_extent_output(extent_output, output_format="geojson"):
 
     # For GeoJSON format, create a proper FeatureCollection
     if output_format.lower() == "geojson" and extent_output.get("bbox"):
-        return create_geojson_feature_collection(extent_output)
+        return create_geojson_feature_collection(extent_output, extraction_metadata)
 
     # For other formats or when no bbox present, use the original logic
     if not extent_output.get("bbox"):

@@ -5,6 +5,21 @@ Changelog
 0.9.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^
 
+- **Output Enhancements**
+
+  - Add extraction metadata to GeoJSON output with ``geoextent_extraction`` field containing:
+    - ``version``: geoextent version used for the extraction
+    - ``inputs``: list of input files, directories, or remote resources processed
+    - ``statistics``: processing statistics including files processed, files with valid extent, and total size in MB
+    - ``format``: format of the processed data (moved from feature properties)
+    - ``geoextent_handler``: handler used for processing (moved from feature properties)
+    - ``crs``: coordinate reference system (moved from feature properties)
+    - ``extent_type``: type of extent extracted - bounding_box, convex_hull, or point (moved from feature properties)
+  - Add ``--no-metadata`` option to exclude extraction metadata from GeoJSON output
+  - Reorganize GeoJSON structure: extraction properties moved from feature.properties to top-level geoextent_extraction
+  - Feature properties now minimal, containing only placename and custom user properties
+  - Metadata automatically included in all GeoJSON output (not added to WKT or WKB formats)
+
 - **Visualization Features**
 
   - Add ``--browse`` option to automatically open geojson.io visualizations in default web browser

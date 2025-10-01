@@ -437,6 +437,15 @@ def fromDirectory(
         except Exception as e:
             logger.warning(f"Failed to extract placename: {e}")
 
+    # Calculate total size for directory (sum of all processed files in details)
+    if details and "details" in metadata:
+        total_size = 0
+        for file_path, file_metadata in metadata["details"].items():
+            if isinstance(file_metadata, dict) and "file_size_bytes" in file_metadata:
+                total_size += file_metadata["file_size_bytes"]
+        if total_size > 0:
+            metadata["file_size_bytes"] = total_size
+
     # Add geojson.io URL if requested and spatial extent is available
     if include_geojsonio and metadata.get("bbox"):
         geojsonio_url = hf.generate_geojsonio_url(metadata)
@@ -611,6 +620,13 @@ def fromFile(
             thread_temp_except.join()
 
     logger.debug("Extraction finished: {}".format(str(metadata)))
+
+    # Add file size to metadata
+    try:
+        if os.path.isfile(filepath):
+            metadata["file_size_bytes"] = os.path.getsize(filepath)
+    except (OSError, FileNotFoundError):
+        pass
 
     # Add placename if requested and spatial extent is available
     if placename and metadata.get("bbox"):

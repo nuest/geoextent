@@ -1683,3 +1683,202 @@ def test_browse_option_with_different_formats(script_runner, monkeypatch):
     # Browser should have been opened
     assert len(browser_opened) == 1, "browser should have been opened"
     assert "geojson.io" in browser_opened[0]
+
+
+def test_extraction_metadata_single_file(script_runner):
+    """Test that extraction metadata is included in GeoJSON output for single file"""
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
+
+    assert ret.success, "process should succeed"
+    result = json.loads(ret.stdout)
+
+    # Check that geoextent_extraction metadata exists
+    assert "geoextent_extraction" in result, "should have geoextent_extraction metadata"
+
+    metadata = result["geoextent_extraction"]
+
+    # Check version field
+    assert "version" in metadata, "metadata should have version"
+    assert len(metadata["version"]) > 0, "version should not be empty"
+
+    # Check inputs field
+    assert "inputs" in metadata, "metadata should have inputs"
+    assert isinstance(metadata["inputs"], list), "inputs should be a list"
+    assert len(metadata["inputs"]) == 1, "should have 1 input"
+    assert (
+        "muenster_ring_zeit.geojson" in metadata["inputs"][0]
+    ), "input should be the test file"
+
+    # Check statistics
+    assert "statistics" in metadata, "metadata should have statistics"
+    stats = metadata["statistics"]
+    assert stats["files_processed"] == 1, "should have processed 1 file"
+    assert stats["files_with_extent"] == 1, "should have 1 file with extent"
+    assert "total_size_mb" in stats, "should have total_size_mb"
+    assert isinstance(
+        stats["total_size_mb"], (int, float)
+    ), "total_size_mb should be numeric"
+    assert stats["total_size_mb"] >= 0, "total_size_mb should be non-negative"
+
+    # Check extraction properties moved from feature.properties
+    assert "format" in metadata, "should have format in metadata"
+    assert "crs" in metadata, "should have crs in metadata"
+    assert "extent_type" in metadata, "should have extent_type in metadata"
+    assert "geoextent_handler" in metadata, "should have geoextent_handler in metadata"
+
+    # Check that feature.properties is now minimal (no format, crs, etc.)
+    feature = result["features"][0]
+    assert (
+        "format" not in feature["properties"]
+    ), "format should not be in feature properties"
+    assert "crs" not in feature["properties"], "crs should not be in feature properties"
+    assert (
+        "extent_type" not in feature["properties"]
+    ), "extent_type should not be in feature properties"
+
+
+def test_extraction_metadata_multiple_files(script_runner):
+    """Test that extraction metadata correctly counts multiple files"""
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+            "tests/testdata/csv/cities_NL.csv",
+        ]
+    )
+
+    assert ret.success, "process should succeed"
+    result = json.loads(ret.stdout)
+
+    # Check that geoextent_extraction metadata exists
+    assert "geoextent_extraction" in result, "should have geoextent_extraction metadata"
+
+    metadata = result["geoextent_extraction"]
+
+    # Check inputs field has both files
+    assert len(metadata["inputs"]) == 2, "should have 2 inputs"
+    assert any(
+        "muenster_ring_zeit.geojson" in inp for inp in metadata["inputs"]
+    ), "should include first file"
+    assert any(
+        "cities_NL.csv" in inp for inp in metadata["inputs"]
+    ), "should include second file"
+
+    # Check statistics
+    stats = metadata["statistics"]
+    assert stats["files_processed"] == 2, "should have processed 2 files"
+    assert stats["files_with_extent"] == 2, "should have 2 files with extent"
+
+
+def test_extraction_metadata_directory(script_runner):
+    """Test that extraction metadata correctly counts files in a directory"""
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--quiet",
+            "tests/testdata/geojson/",
+        ]
+    )
+
+    assert ret.success, "process should succeed"
+    result = json.loads(ret.stdout)
+
+    # Check that geoextent_extraction metadata exists
+    assert "geoextent_extraction" in result, "should have geoextent_extraction metadata"
+
+    metadata = result["geoextent_extraction"]
+
+    # Check inputs field has directory
+    assert len(metadata["inputs"]) == 1, "should have 1 input (directory)"
+    assert (
+        "testdata/geojson" in metadata["inputs"][0]
+    ), "should be the geojson directory"
+
+    # Check statistics - directory should process multiple files
+    stats = metadata["statistics"]
+    assert (
+        stats["files_processed"] > 1
+    ), "should have processed multiple files from directory"
+    assert stats["files_with_extent"] > 0, "should have files with extent"
+
+
+def test_extraction_metadata_not_in_wkt_format(script_runner):
+    """Test that extraction metadata is NOT included in WKT output"""
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--quiet",
+            "--format",
+            "wkt",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
+
+    assert ret.success, "process should succeed"
+    # WKT output should just be the polygon, not JSON
+    assert ret.stdout.startswith("POLYGON"), "should be WKT format"
+    assert (
+        "geoextent_extraction" not in ret.stdout
+    ), "WKT output should not have metadata"
+
+
+def test_extraction_metadata_not_in_wkb_format(script_runner):
+    """Test that extraction metadata is NOT included in WKB output"""
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--quiet",
+            "--format",
+            "wkb",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
+
+    assert ret.success, "process should succeed"
+    # WKB output should be hex string, not JSON
+    assert len(ret.stdout) > 0, "should have output"
+    assert (
+        "geoextent_extraction" not in ret.stdout
+    ), "WKB output should not have metadata"
+    # WKB starts with hex encoded geometry type
+    assert all(
+        c in "0123456789abcdefABCDEF\n" for c in ret.stdout
+    ), "should be hex format"
+
+
+def test_no_metadata_option(script_runner):
+    """Test that --no-metadata option excludes extraction metadata"""
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--quiet",
+            "--no-metadata",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
+
+    assert ret.success, "process should succeed"
+    result = json.loads(ret.stdout)
+
+    # Should not have geoextent_extraction metadata
+    assert (
+        "geoextent_extraction" not in result
+    ), "should NOT have geoextent_extraction with --no-metadata"
+
+    # Should still be valid GeoJSON
+    assert result["type"] == "FeatureCollection", "should be FeatureCollection"
+    assert "features" in result, "should have features"
+    assert len(result["features"]) > 0, "should have at least one feature"

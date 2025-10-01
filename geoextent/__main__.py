@@ -240,6 +240,13 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--no-metadata",
+        action="store_true",
+        default=False,
+        help="exclude extraction metadata and statistics from GeoJSON output",
+    )
+
+    parser.add_argument(
         "--max-download-size",
         action="store",
         default=None,
@@ -600,6 +607,14 @@ def main():
             logger.warning("Exporting result into: {}".format(args["output"]))
             df = hf.extract_output(output, files, get_version())
             hf.create_geopackage(df, filename)
+
+        # Create extraction metadata before removing details (unless --no-metadata is set)
+        extraction_metadata = None
+        if not args["no_metadata"]:
+            extraction_metadata = hf.create_extraction_metadata(
+                files, get_version(), output
+            )
+
         if not args["details"]:
             output.pop("details", None)
 
@@ -609,7 +624,7 @@ def main():
             geojsonio_url = hf.generate_geojsonio_url(output)
 
         # Apply output format conversion
-        output = hf.format_extent_output(output, args["format"])
+        output = hf.format_extent_output(output, args["format"], extraction_metadata)
 
     # For WKT and WKB formats, output only the bbox value
     if args["format"].lower() in ["wkt", "wkb"] and output and "bbox" in output:

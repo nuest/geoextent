@@ -199,6 +199,8 @@ Perfect for shell scripts:
 Local File Examples
 -------------------
 
+All GeoJSON outputs automatically include extraction metadata with version information, input sources, and processing statistics. See the Extraction Metadata section in the Advanced Features documentation for details.
+
 Single File Processing
 ^^^^^^^^^^^^^^^^^^^^^^
 

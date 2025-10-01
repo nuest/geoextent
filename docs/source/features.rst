@@ -3,6 +3,133 @@ Advanced Features
 
 This page documents advanced features and options available in geoextent for specialized use cases.
 
+Extraction Metadata
+-------------------
+
+Geoextent automatically includes metadata about each extraction in the GeoJSON output. This metadata helps track what was processed and provides statistics about the extraction operation.
+
+Metadata Structure
+^^^^^^^^^^^^^^^^^^
+
+The ``geoextent_extraction`` field is added to all GeoJSON FeatureCollection outputs (but not WKT or WKB formats). It contains:
+
+- ``version``: The geoextent version used for the extraction
+- ``inputs``: List of input files, directories, or remote resources processed
+- ``statistics``: Processing statistics including:
+
+  - ``files_processed``: Total number of files analyzed
+  - ``files_with_extent``: Number of files with successfully extracted spatial extent
+  - ``total_size_mb``: Total size of processed files in megabytes
+
+- ``format``: Format of the processed data (e.g., "geojson", "csv", "shapefile", "multiple_files")
+- ``geoextent_handler``: Handler module used for processing (e.g., "handleVector", "handleCSV")
+- ``crs``: Coordinate reference system (typically "4326" for WGS84)
+- ``extent_type``: Type of extent extracted - "bounding_box", "convex_hull", or "point"
+
+Suppressing Metadata
+^^^^^^^^^^^^^^^^^^^^
+
+Use the ``--no-metadata`` option to exclude extraction metadata from the output::
+
+   python -m geoextent -b --no-metadata tests/testdata/geojson/muenster_ring.geojson
+
+This produces minimal GeoJSON without the ``geoextent_extraction`` field.
+
+Example Output
+^^^^^^^^^^^^^^
+
+Single file extraction::
+
+   {
+     "type": "FeatureCollection",
+     "features": [
+       {
+         "type": "Feature",
+         "geometry": {"type": "Polygon", "coordinates": [...]},
+         "properties": {}
+       }
+     ],
+     "geoextent_extraction": {
+       "version": "0.9.0",
+       "inputs": ["tests/testdata/geojson/muenster_ring.geojson"],
+       "statistics": {
+         "files_processed": 1,
+         "files_with_extent": 1,
+         "total_size_mb": 0.02
+       },
+       "format": "geojson",
+       "geoextent_handler": "handleVector",
+       "crs": "4326",
+       "extent_type": "bounding_box"
+     }
+   }
+
+Multiple files extraction::
+
+   {
+     "type": "FeatureCollection",
+     "features": [
+       {
+         "type": "Feature",
+         "geometry": {"type": "Polygon", "coordinates": [...]},
+         "properties": {}
+       }
+     ],
+     "geoextent_extraction": {
+       "version": "0.9.0",
+       "inputs": [
+         "tests/testdata/geojson/muenster_ring.geojson",
+         "tests/testdata/csv/cities_NL.csv"
+       ],
+       "statistics": {
+         "files_processed": 2,
+         "files_with_extent": 2,
+         "total_size_mb": 0.05
+       },
+       "format": "multiple_files",
+       "crs": "4326",
+       "extent_type": "bounding_box"
+     }
+   }
+
+Directory extraction::
+
+   {
+     "type": "FeatureCollection",
+     "features": [
+       {
+         "type": "Feature",
+         "geometry": {"type": "Polygon", "coordinates": [...]},
+         "properties": {}
+       }
+     ],
+     "geoextent_extraction": {
+       "version": "0.9.0",
+       "inputs": ["tests/testdata/geojson/"],
+       "statistics": {
+         "files_processed": 15,
+         "files_with_extent": 14,
+         "total_size_mb": 0.32
+       },
+       "format": "folder",
+       "crs": "4326",
+       "extent_type": "bounding_box"
+     }
+   }
+
+Use Cases
+^^^^^^^^^
+
+The extraction metadata is useful for:
+
+- **Reproducibility**: Track which version of geoextent was used
+- **Provenance**: Document input sources for derived data
+- **Quality assessment**: Identify incomplete extractions when ``files_with_extent`` < ``files_processed``
+- **Batch processing**: Monitor processing statistics across multiple extractions
+- **Research workflows**: Maintain complete records of data processing steps
+
+The metadata is automatically included and requires no additional options or configuration.
+
 Placename Lookup
 ----------------
 
