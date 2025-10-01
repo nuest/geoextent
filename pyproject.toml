@@ -116,6 +116,7 @@ extend-exclude = '''
   | \.mypy_cache
   | \.tox
   | \.venv
+  | \.claude
   | build
   | dist
 )/
