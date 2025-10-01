@@ -1,23 +1,22 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Docs &#8212; geoextent 0.5.0 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API Docs &#8212; geoextent 0.1.dev1+gc485290c5.d20251001 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <script src="../_static/documentation_options.js?v=a1865c62"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js"></script>
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Supported file formats" href="../supportedformats/index_supportedformats.html" />
@@ -25,8 +24,9 @@
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -38,11 +38,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="api-docs">
-<h1>API Docs<a class="headerlink" href="#api-docs" title="Permalink to this headline">¶</a></h1>
+  <section id="api-docs">
+<h1>API Docs<a class="headerlink" href="#api-docs" title="Link to this heading">¶</a></h1>
 <p>Documentation for the package’s Python API for usage as a library.</p>
-<div class="section" id="individual-files">
-<h2>Individual files<a class="headerlink" href="#individual-files" title="Permalink to this headline">¶</a></h2>
+<section id="individual-files">
+<h2>Individual files<a class="headerlink" href="#individual-files" title="Link to this heading">¶</a></h2>
 <p>The main function is:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
 </pre></div>
@@ -56,11 +56,11 @@
 </dd>
 </dl>
 <p>The output of this function is the bbox and/or the tbox for individual files (see: <a class="reference internal" href="../supportedformats/index_supportedformats.html"><span class="doc">Supported file formats</span></a>). The resulting coordinate reference system  <code class="docutils literal notranslate"><span class="pre">CRS</span></code> of the bounding box is the one resulting from the extraction (i.e no transformation to other coordinate reference system).</p>
-</div>
-<div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="extract-bounding-box-from-a-single-file">
-<h3>Extract bounding box from a single file<a class="headerlink" href="#extract-bounding-box-from-a-single-file" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="extract-bounding-box-from-a-single-file">
+<h3>Extract bounding box from a single file<a class="headerlink" href="#extract-bounding-box-from-a-single-file" title="Link to this heading">¶</a></h3>
 <p>Code:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s1">&#39;muenster_ring_zeit.geojson&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </pre></div>
@@ -68,20 +68,33 @@
 <p>Output:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;application/shp&#39;,
- &#39;crs&#39;: &#39;4326&#39;,
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/1 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/1 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                        </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block"></pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
+ &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
  &#39;bbox&#39;: [7.6016807556152335,
   51.94881477206191,
   7.647256851196289,
-  51.974624029877454]}
+  51.974624029877454],
+ &#39;crs&#39;: &#39;4326&#39;}
 </pre></div>
 </div>
 </div>
 </div>
-<p>(<a class="reference external" href="https://github.com/o2r-project/geoextent/blob/master/tests/testdata/geojson/muenster_ring_zeit.geojson">source of file muenster_ring_zeit.geojson</a>)</p>
-</div>
-<div class="section" id="extracting-time-interval-from-a-single-file">
-<h3>Extracting time interval from a single file<a class="headerlink" href="#extracting-time-interval-from-a-single-file" title="Permalink to this headline">¶</a></h3>
+<p>(<a class="reference external" href="https://github.com/nuest/geoextent/blob/main/tests/testdata/geojson/muenster_ring_zeit.geojson">source of file muenster_ring_zeit.geojson</a>)</p>
+</section>
+<section id="extracting-time-interval-from-a-single-file">
+<h3>Extracting time interval from a single file<a class="headerlink" href="#extracting-time-interval-from-a-single-file" title="Link to this heading">¶</a></h3>
 <p>Code:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s1">&#39;muenster_ring_zeit.geojson&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
@@ -89,17 +102,29 @@
 <p>Output:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;application/shp&#39;,
- &#39;crs&#39;: &#39;4326&#39;,
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/1 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/1 [00:00&lt;?, ?task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                         </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block"></pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
+ &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
  &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;]}
 </pre></div>
 </div>
 </div>
 </div>
-<p>(<a class="reference external" href="https://github.com/o2r-project/geoextent/blob/master/tests/testdata/geojson/muenster_ring_zeit.geojson">source of file muenster_ring_zeit.geojson</a>)</p>
-</div>
-<div class="section" id="extracting-both-bounding-box-and-time-interval-from-a-single-file">
-<h3>Extracting both bounding box and time interval from a single file<a class="headerlink" href="#extracting-both-bounding-box-and-time-interval-from-a-single-file" title="Permalink to this headline">¶</a></h3>
+<p>(<a class="reference external" href="https://github.com/nuest/geoextent/blob/main/tests/testdata/geojson/muenster_ring_zeit.geojson">source of file muenster_ring_zeit.geojson</a>)</p>
+</section>
+<section id="extracting-both-bounding-box-and-time-interval-from-a-single-file">
+<h3>Extracting both bounding box and time interval from a single file<a class="headerlink" href="#extracting-both-bounding-box-and-time-interval-from-a-single-file" title="Link to this heading">¶</a></h3>
 <p>Code:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s1">&#39;muenster_ring_zeit.geojson&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
@@ -107,7 +132,23 @@
 <p>Output:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;application/shp&#39;,
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 150.52task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                  </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block"></pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
+ &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
  &#39;bbox&#39;: [7.6016807556152335,
   51.94881477206191,
   7.647256851196289,
@@ -118,13 +159,13 @@
 </div>
 </div>
 </div>
-<p>(<a class="reference external" href="https://github.com/o2r-project/geoextent/blob/master/tests/testdata/geojson/muenster_ring_zeit.geojson">source of file muenster_ring_zeit.geojson</a>)</p>
-</div>
-</div>
-<div class="section" id="folders-or-zip-file-s">
-<h2>Folders or ZIP file(s)<a class="headerlink" href="#folders-or-zip-file-s" title="Permalink to this headline">¶</a></h2>
+<p>(<a class="reference external" href="https://github.com/nuest/geoextent/blob/main/tests/testdata/geojson/muenster_ring_zeit.geojson">source of file muenster_ring_zeit.geojson</a>)</p>
+</section>
+</section>
+<section id="folders-or-zip-file-s">
+<h2>Folders or ZIP file(s)<a class="headerlink" href="#folders-or-zip-file-s" title="Link to this heading">¶</a></h2>
 <p><strong>Geoextent</strong> also supports queries for multiple files inside <strong>folders</strong> or <strong>ZIP files</strong>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromDirectory</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromDirectory</span><span class="p">(</span><span class="nb">input</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="simple">
@@ -132,45 +173,417 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">input</span></code>: a string value of directory of zipfile path</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">bbox</span></code>: a boolean value to extract spatial extent (bounding box)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>: a boolean value to extract temporal extent ( at “day” precision ‘%Y-%m-%d’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">details</span></code>: a boolean value to return details (geoextent) of individual files (default <strong>False</strong>)</p></li>
 </ul>
 </dd>
 </dl>
 <p>The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: <a class="reference internal" href="../supportedformats/index_supportedformats.html"><span class="doc">Supported file formats</span></a>) inside the folder or zipfile. The resulting coordinate reference system  <code class="docutils literal notranslate"><span class="pre">CRS</span></code> of the combined bbox is always in the <a class="reference external" href="https://epsg.io/4326">EPSG: 4326</a> system.</p>
-<div class="section" id="extracting-both-bounding-box-and-time-interval-from-a-folder">
-<h3>Extracting both bounding box and time interval from a folder<a class="headerlink" href="#extracting-both-bounding-box-and-time-interval-from-a-folder" title="Permalink to this headline">¶</a></h3>
+<section id="extracting-both-bounding-box-and-time-interval-from-a-folder-with-details">
+<h3>Extracting both bounding box and time interval from a folder (with details)<a class="headerlink" href="#extracting-both-bounding-box-and-time-interval-from-a-folder-with-details" title="Link to this heading">¶</a></h3>
 <p>Code:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromDirectory</span><span class="p">(</span><span class="s1">&#39;folder_two_files&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromDirectory</span><span class="p">(</span><span class="s1">&#39;folder_one_file&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Output:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_one_file:   0%|          | 0/1 [00:00&lt;?, ?item/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_one_file:   0%|          | 0/1 [00:00&lt;?, ?item/s, Processing muenster_ring_zeit.geojson]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 112.53task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                  </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 44.09item/s, Processing muenster_ring_zeit.geojson]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;folder&#39;,
  &#39;crs&#39;: &#39;4326&#39;,
- &#39;bbox&#39;: [2.052333387639205,
-  41.31703852240476,
-  7.647256851196289,
-  51.974624029877454],
- &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2019-09-11&#39;]}
+ &#39;bbox&#39;: {&#39;type&#39;: &#39;Polygon&#39;,
+  &#39;coordinates&#39;: [[[7.608118057250977, 51.94881477206191],
+    [7.602796554565429, 51.953258408047034],
+    [7.6016807556152335, 51.96537036973145],
+    [7.606401443481445, 51.97361943924433],
+    [7.62125015258789, 51.974624029877454],
+    [7.636871337890624, 51.97240332571046],
+    [7.645368576049805, 51.96817310852836],
+    [7.645540237426757, 51.96780294552556],
+    [7.6471710205078125, 51.96330786509095],
+    [7.647256851196289, 51.95807185013927],
+    [7.643308639526367, 51.953258408047034],
+    [7.608118057250977, 51.94881477206191]]]},
+ &#39;convex_hull&#39;: True,
+ &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;]}
 </pre></div>
 </div>
 </div>
 </div>
-<p><a class="reference external" href="https://github.com/o2r-project/geoextent/blob/master/tests/testdata/folders/folder_two_files">folder_two_files</a></p>
+<p><a class="reference external" href="https://github.com/nuest/geoextent/blob/main/tests/testdata/folders/folder_two_files">folder_two_files</a></p>
+</section>
+</section>
+<section id="zenodo-repositories">
+<h2>Zenodo repositories<a class="headerlink" href="#zenodo-repositories" title="Link to this heading">¶</a></h2>
+<p><strong>Geoextent</strong> also supports queries for <strong>Zenodo repositories</strong>.
+Geoextent creates a <em>temporal</em> copy of the repository and extracts the temporal or geographical extent.
+Geoextent only allows to query <strong>Open</strong> Zenodo repositories.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="n">repository_identifier</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt><strong>Parameters:</strong></dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">repository_identifier</span></code>: a string value with a Zenodo link (e.g., <a class="reference external" href="https://zenodo.org/record/3528062">https://zenodo.org/record/3528062</a>) or DOI (e.g., <a class="reference external" href="https://doi.org/10.5281/zenodo.3528062">https://doi.org/10.5281/zenodo.3528062</a>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">bbox</span></code>: a boolean value to extract spatial extent (bounding box)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">time</span></code>: a boolean value to extract temporal extent (at “day” precision ‘%Y-%m-%d’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">details</span></code>: a boolean value to return details (geoextent) of individual files (default <strong>False</strong>)</p></li>
+</ul>
+</dd>
+</dl>
+<p>The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: <a class="reference internal" href="../supportedformats/index_supportedformats.html"><span class="doc">Supported file formats</span></a>) inside the repository. The resulting coordinate reference system  <code class="docutils literal notranslate"><span class="pre">CRS</span></code> of the combined bbox is always in the <a class="reference external" href="https://epsg.io/4326">EPSG: 4326</a> system.</p>
+<p>Code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="s1">&#39;https://zenodo.org/record/820562&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing Zenodo metadata for 820562:   0%|          | 0/6 [00:00&lt;?, ?file/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing Zenodo metadata for 820562:   0%|          | 0/6 [00:00&lt;?, ?file/s, Processing 20160100_Hpakan_20160322_POST.png (2,390,221 bytes)]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing Zenodo metadata for 820562:  17%|█▋        | 1/6 [00:00&lt;00:00, 1390.68file/s, Processing 20160100_Hpakan_20151123_PRE.tif (4,517,956 bytes)]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing Zenodo metadata for 820562:  33%|███▎      | 2/6 [00:00&lt;00:00, 1741.82file/s, Processing 20160100_Hpakan_20151123_PRE.pngw (81 bytes)]      </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing Zenodo metadata for 820562:  50%|█████     | 3/6 [00:00&lt;00:00, 1829.18file/s, Processing 20160100_Hpakan_20160322_POST.tif (4,517,956 bytes)]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing Zenodo metadata for 820562:  67%|██████▋   | 4/6 [00:00&lt;00:00, 1718.98file/s, Processing 20160100_Hpakan_20160322_POST.pngw (81 bytes)]      </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing Zenodo metadata for 820562:  83%|████████▎ | 5/6 [00:00&lt;00:00, 1807.27file/s, Processing 20160100_Hpakan_20151123_PRE.png (2,631,570 bytes)]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                                                       </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block"></pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:   0%|          | 0.00/14.1M [00:00&lt;?, ?B/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:   0%|          | 81.0/14.1M [00:00&lt;30:46:46, 127B/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:   0%|          | 81.0/14.1M [00:00&lt;30:46:46, 127B/s, files=1/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:   0%|          | 162/14.1M [00:00&lt;20:25:59, 191B/s, files=1/6] </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:   0%|          | 162/14.1M [00:00&lt;20:25:59, 191B/s, files=2/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:  17%|█▋        | 2.39M/14.1M [00:00&lt;16:57:32, 191B/s, files=3/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:  49%|████▉     | 6.91M/14.1M [00:01&lt;00:00, 7.46MB/s, files=3/6] </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:  49%|████▉     | 6.91M/14.1M [00:01&lt;00:00, 7.46MB/s, files=4/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:  81%|████████▏ | 11.4M/14.1M [00:01&lt;00:00, 12.3MB/s, files=4/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files:  81%|████████▏ | 11.4M/14.1M [00:01&lt;00:00, 12.3MB/s, files=5/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:02&lt;00:00, 7.98MB/s, files=5/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:02&lt;00:00, 7.98MB/s, files=6/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:02&lt;00:00, 6.81MB/s, files=6/6]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:   0%|          | 0/6 [00:00&lt;?, ?item/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:   0%|          | 0/6 [00:00&lt;?, ?item/s, Processing 20160100_Hpakan_20160322_POST.pngw]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:  17%|█▋        | 1/6 [00:00&lt;00:00,  6.61item/s, Processing 20160100_Hpakan_20160322_POST.pngw]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:  17%|█▋        | 1/6 [00:00&lt;00:00,  6.61item/s, Processing 20160100_Hpakan_20160322_POST.png] </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.png:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Error for /tmp/tmpj1tj2b2d/20160100_Hpakan_20160322_POST.png extracting bbox:
+OGR Error: Corrupt data
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.png:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.png:  50%|█████     | 1/2 [00:00&lt;00:00, 297.81task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                         </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:  33%|███▎      | 2/6 [00:00&lt;00:00,  6.61item/s, Processing 20160100_Hpakan_20151123_PRE.pngw]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:  50%|█████     | 3/6 [00:00&lt;00:00,  6.61item/s, Processing 20160100_Hpakan_20151123_PRE.png] </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.png:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Error for /tmp/tmpj1tj2b2d/20160100_Hpakan_20151123_PRE.png extracting bbox:
+OGR Error: Corrupt data
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.png:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.png:  50%|█████     | 1/2 [00:00&lt;00:00, 234.66task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                        </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:  67%|██████▋   | 4/6 [00:00&lt;00:00,  6.61item/s, Processing 20160100_Hpakan_20151123_PRE.tif]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.tif:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.tif:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.tif:  50%|█████     | 1/2 [00:00&lt;00:00, 80.72task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                       </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:  83%|████████▎ | 5/6 [00:00&lt;00:00, 22.42item/s, Processing 20160100_Hpakan_20151123_PRE.tif]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d:  83%|████████▎ | 5/6 [00:00&lt;00:00, 22.42item/s, Processing 20160100_Hpakan_20160322_POST.tif]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.tif:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.tif:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.tif:  50%|█████     | 1/2 [00:00&lt;00:00, 87.87task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                        </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpj1tj2b2d: 100%|██████████| 6/6 [00:00&lt;00:00, 20.80item/s, Processing 20160100_Hpakan_20160322_POST.tif]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+The folder /tmp/tmpj1tj2b2d has no identifiable time extent
+</pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;remote&#39;,
+ &#39;crs&#39;: &#39;4326&#39;,
+ &#39;bbox&#39;: [96.21146318274846,
+  25.56156568254296,
+  96.35495081696702,
+  25.6297452149091]}
+</pre></div>
 </div>
 </div>
 </div>
+</section>
+</section>
 
 
           </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/o2r-logo-only.svg" alt="Logo"/>
-            </a></p>
 <h1 class="logo"><a href="../index.html">geoextent</a></h1>
 
 
@@ -180,9 +593,19 @@
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installing geoextent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index_howto.html">How-to Guides</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cli.html">Command-Line Interface (CLI)</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">API Docs</a></li>
@@ -204,16 +627,6 @@
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
 
 
 
@@ -227,11 +640,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020, o2r-project.
+      &#169;2025, o2rproject and all contributors.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/howto/api.rst.txt"

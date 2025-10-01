@@ -13,23 +13,23 @@ All commands in this file assume you work in a virtual environment created with 
 ::
 
     # pip install virtualenvwrapper
-    
+
     # Add to .bashrc:
     # export WORKON_HOME=$HOME/.virtualenvs
     # source ~/.local/bin/virtualenvwrapper.sh
-    
+
     # Where are my virtual envs stored?
     # echo $WORKON_HOME
-    
+
     # Create environment using Python 3
     #mkvirtualenv -p $(which python3) geoextent
-    
+
     # Activate env
     workon geoextent
-    
+
     # Deactivate env
     deactivate
-    
+
     #cdvirtualenv
     #rmvirtualenv
 
@@ -41,7 +41,7 @@ In the environment created above, run
 ::
 
     pip install -r requirements.txt
-    
+
 Install a matching version of gdal-python into the virtual environment:
 
 ::
@@ -79,7 +79,7 @@ Documentation
 -------------
 
 The documentation is based on Sphinx_.
-The source files can be found in the directory ``docs/`` and the rendered online documentation is at https://o2r.info/geoextent/.
+The source files can be found in the directory ``docs/`` and the rendered online documentation is at https://nuest.github.io/geoextent/.
 
 Build documentation locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -89,12 +89,6 @@ Build documentation locally
     cd docs/
     pip install -r requirements-docs.txt
     make html
-
-Build documentation website
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The deployed documentation website is built on Travis CI, see file ``.travis.yml`` for details.
-In short, an extra stage ``build docs`` is executed only on the ``master`` branch and not for pull requests.
 
 .. _Sphinx: https://www.sphinx-doc.org
 
@@ -123,17 +117,14 @@ Make sure that all tests work locally by running
 
     pytest
 
-and check the tests on `Travis CI o2r-project/geoextent`_ before continuing with the following tasks.
-
-.. _`Travis CI o2r-project/geoextent`: https://travis-ci.org/github/o2r-project/geoextent
-
 Bump version for release
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 Follow the `Semantic Versioning specification`_ to clearly mark changes as a new major version, minor changes, or patches.
-The version number is centrally managed in the file ``geoextent/__init__.py``.
+The version number is managed using `setuptools-scm`_ via git tags.
 
 .. _Semantic Versioning specification: https://semver.org/
+.. _setuptools-scm: https://setuptools-scm.readthedocs.io/en/stable/usage/
 
 Update changelog
 ^^^^^^^^^^^^^^^^
@@ -186,8 +177,9 @@ Install geoextent from TestPyPI and ensure the package is functional:
     apt-get update
     apt-get install gdal-bin libgdal-dev libproj-dev libgeos-dev libspatialite-dev netcdf-bin
 
-    # in the container, first install packages not on TestPyPI or where we need a specific version (you might have to manually identify the closest matching pygdal version
-    pip install geojson pyproj pygdal==`gdal-config --version`
+    # # Package dependencies (from regular PyPI), not all are on TestPyPI
+    pip install -r requirements.txt
+    pip install pygdal==`gdal-config --version`.*
 
     pip install -i https://test.pypi.org/simple/ geoextent
     geoextent --help
@@ -199,9 +191,9 @@ Install geoextent from TestPyPI and ensure the package is functional:
 Alternatively, use Debian Testing container to try out a more recent version of GDAL which matches the current release of the GDAL package on PyPI:
 
 ::
-    
+
     docker run --rm -it -v $(pwd)/tests/testdata/:/testdata debian:testing
-    
+
     # Python + PIP
     apt-get update
     apt-get install python3 python3-pip wget
@@ -209,14 +201,16 @@ Alternatively, use Debian Testing container to try out a more recent version of 
     # System dependencies
     apt-get install gdal-bin libgdal-dev libproj-dev libgeos-dev
 
-    pip install geojson pyproj pygdal==`gdal-config --version`
+    # Package dependencies (from regular PyPI)
+    pip install -r requirements.txt
+    pip install pygdal==`gdal-config --version`.*
 
     pip install -i https://test.pypi.org/simple/ geoextent
     geoextent --help
     geoextent --version
 
-    wget https://github.com/o2r-project/geoextent/blob/master/tests/testdata/tif/wf_100m_klas.tif
-    
+    wget https://github.com/nuest/geoextent/blob/main/tests/testdata/tif/wf_100m_klas.tif
+
     geoextent -b wf_100m_klas.tif
 
 

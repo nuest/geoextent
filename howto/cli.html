@@ -1,23 +1,22 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.5.0 documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gc485290c5.d20251001 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <script src="../_static/documentation_options.js?v=a1865c62"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script src="https://unpkg.com/@jupyter-widgets/html-manager@^0.18.0/dist/embed-amd.js"></script>
-    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="API Docs" href="api.html" />
@@ -25,8 +24,9 @@
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -38,99 +38,257 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="command-line-interface-cli">
-<h1>Command-Line Interface (CLI)<a class="headerlink" href="#command-line-interface-cli" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="basics">
-<h2>Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h2>
+  <section id="command-line-interface-cli">
+<h1>Command-Line Interface (CLI)<a class="headerlink" href="#command-line-interface-cli" title="Link to this heading">¶</a></h1>
+<section id="basics">
+<h2>Basics<a class="headerlink" href="#basics" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">geoextent</span></code> can be called on the command line with this command :</p>
-<div class="section" id="id1">
-<h3><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: geoextent [-h] [--formats] [--version] [--debug] [-b] [-t] [input file]&#39;]</span>
+<section id="id1">
+<h3><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]</span>
 </pre></div>
 </div>
 <dl class="std option">
-<dt id="cmdoption-arg-files">
-<code class="sig-name descname">files</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-arg-files" title="Permalink to this definition">¶</a></dt>
-<dd><p>input file or path</p>
+<dt class="sig sig-object std" id="cmdoption-arg-files">
+<span class="sig-name descname"><span class="pre">files</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-arg-files" title="Link to this definition">¶</a></dt>
+<dd><p>input file, directory, DOI, or repository URL (supports multiple inputs including mixed types)</p>
 </dd></dl>
 
 <dl class="std option">
-<dt id="cmdoption-h">
-<span id="cmdoption-help"></span><code class="sig-name descname">-h</code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname">, </code><code class="sig-name descname">--help</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-h" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-h">
+<span id="cmdoption-help"></span><span class="sig-name descname"><span class="pre">-h</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--help</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-h" title="Link to this definition">¶</a></dt>
 <dd><p>show help message and exit</p>
 </dd></dl>
 
 <dl class="std option">
-<dt id="cmdoption-formats">
-<code class="sig-name descname">--formats</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-formats" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-formats">
+<span class="sig-name descname"><span class="pre">--formats</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-formats" title="Link to this definition">¶</a></dt>
 <dd><p>show supported formats</p>
 </dd></dl>
 
 <dl class="std option">
-<dt id="cmdoption-version">
-<code class="sig-name descname">--version</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-version" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-version">
+<span class="sig-name descname"><span class="pre">--version</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-version" title="Link to this definition">¶</a></dt>
 <dd><p>show installed version</p>
 </dd></dl>
 
 <dl class="std option">
-<dt id="cmdoption-debug">
-<code class="sig-name descname">--debug</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-debug" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-debug">
+<span class="sig-name descname"><span class="pre">--debug</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-debug" title="Link to this definition">¶</a></dt>
 <dd><p>turn on debug logging, alternatively set environment variable GEOEXTENT_DEBUG=1</p>
 </dd></dl>
 
 <dl class="std option">
-<dt id="cmdoption-b">
-<span id="cmdoption-bounding-box"></span><code class="sig-name descname">-b</code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname">, </code><code class="sig-name descname">--bounding-box</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-b" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-details">
+<span class="sig-name descname"><span class="pre">--details</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-details" title="Link to this definition">¶</a></dt>
+<dd><p>Returns details of folder/zipFiles geoextent extraction</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-output">
+<span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;output&gt;</span></span><a class="headerlink" href="#cmdoption-output" title="Link to this definition">¶</a></dt>
+<dd><p>Creates geopackage with geoextent output</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-b">
+<span id="cmdoption-bounding-box"></span><span class="sig-name descname"><span class="pre">-b</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--bounding-box</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-b" title="Link to this definition">¶</a></dt>
 <dd><p>extract spatial extent (bounding box)</p>
 </dd></dl>
 
 <dl class="std option">
-<dt id="cmdoption-t">
-<span id="cmdoption-time-box"></span><code class="sig-name descname">-t</code><code class="sig-prename descclassname"></code><code class="sig-prename descclassname">, </code><code class="sig-name descname">--time-box</code><code class="sig-prename descclassname"></code><a class="headerlink" href="#cmdoption-t" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object std" id="cmdoption-t">
+<span id="cmdoption-time-box"></span><span class="sig-name descname"><span class="pre">-t</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--time-box</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-t" title="Link to this definition">¶</a></dt>
 <dd><p>extract temporal extent (%Y-%m-%d)</p>
 </dd></dl>
 
-</div>
-</div>
-<div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-convex-hull">
+<span class="sig-name descname"><span class="pre">--convex-hull</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-convex-hull" title="Link to this definition">¶</a></dt>
+<dd><p>extract convex hull instead of bounding box for vector geometries</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-download-data">
+<span class="sig-name descname"><span class="pre">--no-download-data</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-download-data" title="Link to this definition">¶</a></dt>
+<dd><p>for repositories: disable downloading data files and use metadata only (not recommended for most providers)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-progress">
+<span class="sig-name descname"><span class="pre">--no-progress</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-progress" title="Link to this definition">¶</a></dt>
+<dd><p>disable progress bars during download and extraction</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-quiet">
+<span class="sig-name descname"><span class="pre">--quiet</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-quiet" title="Link to this definition">¶</a></dt>
+<dd><p>suppress all console messages including warnings and progress bars</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-format">
+<span class="sig-name descname"><span class="pre">--format</span></span><span class="sig-prename descclassname"> <span class="pre">{geojson,wkt,wkb}</span></span><a class="headerlink" href="#cmdoption-format" title="Link to this definition">¶</a></dt>
+<dd><p>output format for spatial extents (default: geojson)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-subdirs">
+<span class="sig-name descname"><span class="pre">--no-subdirs</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-subdirs" title="Link to this definition">¶</a></dt>
+<dd><p>only process files in the top-level directory, ignore subdirectories</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-geojsonio">
+<span class="sig-name descname"><span class="pre">--geojsonio</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-geojsonio" title="Link to this definition">¶</a></dt>
+<dd><p>generate and print a clickable geojson.io URL for the extracted spatial extent</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-max-download-size">
+<span class="sig-name descname"><span class="pre">--max-download-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_download_size&gt;</span></span><a class="headerlink" href="#cmdoption-max-download-size" title="Link to this definition">¶</a></dt>
+<dd><p>maximum download size limit (e.g. ‘100MB’, ‘2GB’). Uses filesizelib for parsing.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-max-download-method">
+<span class="sig-name descname"><span class="pre">--max-download-method</span></span><span class="sig-prename descclassname"> <span class="pre">{ordered,random}</span></span><a class="headerlink" href="#cmdoption-max-download-method" title="Link to this definition">¶</a></dt>
+<dd><p>method for selecting files when size limit is exceeded (default: ordered)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-max-download-method-seed">
+<span class="sig-name descname"><span class="pre">--max-download-method-seed</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_download_method_seed&gt;</span></span><a class="headerlink" href="#cmdoption-max-download-method-seed" title="Link to this definition">¶</a></dt>
+<dd><p>seed for random file selection when using –max-download-method random (default: 42)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-placename">
+<span class="sig-name descname"><span class="pre">--placename</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-placename" title="Link to this definition">¶</a></dt>
+<dd><p>enable placename lookup using default gazetteer (geonames). Use –placename-service to specify a different gazetteer</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-placename-service">
+<span class="sig-name descname"><span class="pre">--placename-service</span></span><span class="sig-prename descclassname"> <span class="pre">{geonames,nominatim,photon}</span></span><a class="headerlink" href="#cmdoption-placename-service" title="Link to this definition">¶</a></dt>
+<dd><p>specify gazetteer service for placename lookup (requires –placename)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-placename-escape">
+<span class="sig-name descname"><span class="pre">--placename-escape</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-placename-escape" title="Link to this definition">¶</a></dt>
+<dd><p>escape Unicode characters in placename output (requires –placename)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-download-skip-nogeo">
+<span class="sig-name descname"><span class="pre">--download-skip-nogeo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-download-skip-nogeo" title="Link to this definition">¶</a></dt>
+<dd><p>skip downloading files that don’t appear to contain geospatial data (e.g., PDFs, images, plain text)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-download-skip-nogeo-exts">
+<span class="sig-name descname"><span class="pre">--download-skip-nogeo-exts</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;download_skip_nogeo_exts&gt;</span></span><a class="headerlink" href="#cmdoption-download-skip-nogeo-exts" title="Link to this definition">¶</a></dt>
+<dd><p>comma-separated list of additional file extensions to consider as geospatial (e.g., ‘.xyz,.las,.ply’)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-max-download-workers">
+<span class="sig-name descname"><span class="pre">--max-download-workers</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_download_workers&gt;</span></span><a class="headerlink" href="#cmdoption-max-download-workers" title="Link to this definition">¶</a></dt>
+<dd><p>maximum number of parallel downloads (default: 4, set to 1 to disable parallel downloads)</p>
+</dd></dl>
+
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>Depending on the local configuration, <strong>geoextent</strong> might need to be called with the python interpreter prepended:</p>
 <p><cite>python -m geoextent …</cite></p>
 </div>
-<div class="section" id="show-help-message">
-<h3>Show help message<a class="headerlink" href="#show-help-message" title="Permalink to this headline">¶</a></h3>
+<section id="show-help-message">
+<h3>Show help message<a class="headerlink" href="#show-help-message" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">h</span>
 </pre></div>
 </div>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
 <div class="output stream highlight-none notranslate"><div class="highlight"><pre><span></span>
-geoextent is a Python library for extracting geospatial and temporal extents of a file or a directory of multiple geospatial data formats.
+geoextent is a Python library for extracting geospatial and temporal extents of a file
+ or a directory of multiple geospatial data formats.
 
-usage: geoextent [-h] [--formats] [--version] [--debug] [-b] [-t] [input file]&#39;]
+usage: geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]
 
 positional arguments:
-  files               input file or path
+  files                 input file, directory, DOI, or repository URL
+                        (supports multiple inputs including mixed types)
 
-optional arguments:
-  -h, --help          show help message and exit
-  --formats           show supported formats
-  --version           show installed version
-  --debug             turn on debug logging, alternatively set environment
-                      variable GEOEXTENT_DEBUG=1
-  -b, --bounding-box  extract spatial extent (bounding box)
-  -t, --time-box      extract temporal extent (%Y-%m-%d)
+options:
+  -h, --help            show help message and exit
+  --formats             show supported formats
+  --version             show installed version
+  --debug               turn on debug logging, alternatively set environment
+                        variable GEOEXTENT_DEBUG=1
+  --details             Returns details of folder/zipFiles geoextent
+                        extraction
+  --output OUTPUT       Creates geopackage with geoextent output
+  -b, --bounding-box    extract spatial extent (bounding box)
+  -t, --time-box        extract temporal extent (%Y-%m-%d)
+  --convex-hull         extract convex hull instead of bounding box for vector
+                        geometries
+  --no-download-data    for repositories: disable downloading data files and
+                        use metadata only (not recommended for most providers)
+  --no-progress         disable progress bars during download and extraction
+  --quiet               suppress all console messages including warnings and
+                        progress bars
+  --format {geojson,wkt,wkb}
+                        output format for spatial extents (default: geojson)
+  --no-subdirs          only process files in the top-level directory, ignore
+                        subdirectories
+  --geojsonio           generate and print a clickable geojson.io URL for the
+                        extracted spatial extent
+  --max-download-size MAX_DOWNLOAD_SIZE
+                        maximum download size limit (e.g. &#39;100MB&#39;, &#39;2GB&#39;).
+                        Uses filesizelib for parsing.
+  --max-download-method {ordered,random}
+                        method for selecting files when size limit is exceeded
+                        (default: ordered)
+  --max-download-method-seed MAX_DOWNLOAD_METHOD_SEED
+                        seed for random file selection when using --max-
+                        download-method random (default: 42)
+  --placename           enable placename lookup using default gazetteer
+                        (geonames). Use --placename-service to specify a
+                        different gazetteer
+  --placename-service GAZETTEER
+                        specify gazetteer service for placename lookup
+                        (requires --placename)
+  --placename-escape    escape Unicode characters in placename output
+                        (requires --placename)
+  --download-skip-nogeo
+                        skip downloading files that don&#39;t appear to contain
+                        geospatial data (e.g., PDFs, images, plain text)
+  --download-skip-nogeo-exts DOWNLOAD_SKIP_NOGEO_EXTS
+                        comma-separated list of additional file extensions to
+                        consider as geospatial (e.g., &#39;.xyz,.las,.ply&#39;)
+  --max-download-workers MAX_DOWNLOAD_WORKERS
+                        maximum number of parallel downloads (default: 4, set
+                        to 1 to disable parallel downloads)
 
-By default, both bounding box and temporal extent are extracted.
 
 Examples:
 
-geoextent path/to/geofile.ext
 geoextent -b path/to/directory_with_geospatial_data
 geoextent -t path/to/file_with_temporal_extent
 geoextent -b -t path/to/geospatial_files
+geoextent -b -t --details path/to/zipfile_with_geospatial_data
+geoextent -b -t file1.shp file2.csv file3.geopkg
+geoextent -t *.geojson
+geoextent -b -t https://doi.org/10.1594/PANGAEA.918707 https://doi.pangaea.de/10.1594/PANGAEA.858767
+geoextent -b --convex-hull https://zenodo.org/record/4567890 10.1594/PANGAEA.123456
+geoextent -b --placename file.geojson
+geoextent -b --placename --placename-service nominatim https://zenodo.org/record/123456
+geoextent -b --placename --placename-service photon --placename-escape https://doi.org/10.3897/BDJ.13.e159973
 
 
 Supported formats:
@@ -142,18 +300,28 @@ Supported formats:
 - GPS Exchange Format (.gpx)
 - Geography Markup Language (.gml)
 - Keyhole Markup Language (.kml)
+- FlatGeobuf (.fgb)
+
+Supported data repositories:
+- Zenodo (zenodo.org)
+- Dryad (datadryad.org)
+- Figshare (figshare.com)
+- PANGAEA (pangaea.de)
+- OSF (osf.io)
+- GFZ Data Services (dataservices.gfz-potsdam.de)
+- Pensoft Journals (e.g., bdj.pensoft.net)
 
 
 </pre></div>
 </div>
 </div>
 </div>
-</div>
-<div class="section" id="extract-bounding-box-from-a-single-file">
-<h3>Extract bounding box from a single file<a class="headerlink" href="#extract-bounding-box-from-a-single-file" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="extract-bounding-box-from-a-single-file">
+<h3>Extract bounding box from a single file<a class="headerlink" href="#extract-bounding-box-from-a-single-file" title="Link to this heading">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You can find the file used in the examples of this section from <a class="reference external" href="https://raw.githubusercontent.com/o2r-project/geoextent/master/tests/testdata/geojson/muenster_ring_zeit.geojson">muenster_ring_zeit</a>. Furthermore, for displaying the rendering of the file contents, see <a class="reference external" href="https://github.com/o2r-project/geoextent/blob/master/tests/testdata/geojson/muenster_ring_zeit.geojson">rendered blob</a>.</p>
+<p>You can find the file used in the examples of this section from <a class="reference external" href="https://raw.githubusercontent.com/nuest/geoextent/main/tests/testdata/geojson/muenster_ring_zeit.geojson">muenster_ring_zeit</a>. Furthermore, for displaying the rendering of the file contents, see <a class="reference external" href="https://github.com/nuest/geoextent/blob/main/tests/testdata/geojson/muenster_ring_zeit.geojson">rendered blob</a>.</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
 </pre></div>
@@ -161,7 +329,20 @@ Supported formats:
 <p>Output:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;application/shp&#39;,
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/1 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/1 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                        </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block"></pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
+ &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
  &#39;bbox&#39;: [7.6016807556152335,
   51.94881477206191,
   7.647256851196289,
@@ -171,12 +352,12 @@ Supported formats:
 </div>
 </div>
 </div>
-</div>
-<div class="section" id="extract-time-interval-from-a-single-file">
-<h3>Extract time interval from a single file<a class="headerlink" href="#extract-time-interval-from-a-single-file" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="extract-time-interval-from-a-single-file">
+<h3>Extract time interval from a single file<a class="headerlink" href="#extract-time-interval-from-a-single-file" title="Link to this heading">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You can find the file used in the examples of this section from <a class="reference external" href="https://raw.githubusercontent.com/o2r-project/geoextent/master/tests/testdata/geojson/muenster_ring_zeit.geojson">muenster_ring_zeit</a>. Furthermore, for displaying the rendering of the file contents, see <a class="reference external" href="https://github.com/o2r-project/geoextent/blob/master/tests/testdata/geojson/muenster_ring_zeit.geojson">rendered blob</a>.</p>
+<p>You can find the file used in the examples of this section from <a class="reference external" href="https://raw.githubusercontent.com/nuest/geoextent/main/tests/testdata/geojson/muenster_ring_zeit.geojson">muenster_ring_zeit</a>. Furthermore, for displaying the rendering of the file contents, see <a class="reference external" href="https://github.com/nuest/geoextent/blob/main/tests/testdata/geojson/muenster_ring_zeit.geojson">rendered blob</a>.</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">t</span> <span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
 </pre></div>
@@ -184,26 +365,54 @@ Supported formats:
 <p>Output:</p>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;application/shp&#39;,
- &#39;crs&#39;: &#39;4326&#39;,
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/1 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/1 [00:00&lt;?, ?task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                         </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block"></pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
+ &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
  &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;]}
 </pre></div>
 </div>
 </div>
 </div>
-</div>
-<div class="section" id="extract-both-bounding-box-and-time-interval-from-a-single-file">
-<h3>Extract both bounding box and time interval from a single file<a class="headerlink" href="#extract-both-bounding-box-and-time-interval-from-a-single-file" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="extract-both-bounding-box-and-time-interval-from-a-single-file">
+<h3>Extract both bounding box and time interval from a single file<a class="headerlink" href="#extract-both-bounding-box-and-time-interval-from-a-single-file" title="Link to this heading">¶</a></h3>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>You can find the file used in the examples of this section from <a class="reference external" href="https://raw.githubusercontent.com/o2r-project/geoextent/master/tests/testdata/geojson/muenster_ring_zeit.geojson">muenster_ring_zeit</a>. Furthermore, for displaying the rendering of the file contents, see <a class="reference external" href="https://github.com/o2r-project/geoextent/blob/master/tests/testdata/geojson/muenster_ring_zeit.geojson">rendered blob</a>.</p>
+<p>You can find the file used in the examples of this section from <a class="reference external" href="https://raw.githubusercontent.com/nuest/geoextent/main/tests/testdata/geojson/muenster_ring_zeit.geojson">muenster_ring_zeit</a>. Furthermore, for displaying the rendering of the file contents, see <a class="reference external" href="https://github.com/nuest/geoextent/blob/main/tests/testdata/geojson/muenster_ring_zeit.geojson">rendered blob</a>.</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
 </pre></div>
 </div>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;application/shp&#39;,
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 134.34task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                  </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block"></pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
+ &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
  &#39;bbox&#39;: [7.6016807556152335,
   51.94881477206191,
   7.647256851196289,
@@ -214,18 +423,117 @@ Supported formats:
 </div>
 </div>
 </div>
-</div>
-</div>
-<div class="section" id="folders-or-zip-files-s">
-<h2>Folders or ZIP files(s)<a class="headerlink" href="#folders-or-zip-files-s" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="folders-or-zip-files-s">
+<h2>Folders or ZIP files(s)<a class="headerlink" href="#folders-or-zip-files-s" title="Link to this heading">¶</a></h2>
 <p>Geoextent also supports queries for multiple files inside <strong>folders</strong> or <strong>ZIP file(s)</strong>.</p>
-<div class="section" id="extract-both-bounding-box-and-time-interval-from-a-folder-or-zipfile">
-<h3>Extract both bounding box and time interval from a folder or zipfile<a class="headerlink" href="#extract-both-bounding-box-and-time-interval-from-a-folder-or-zipfile" title="Permalink to this headline">¶</a></h3>
+<section id="extract-both-bounding-box-and-time-interval-from-a-folder-or-zipfile">
+<h3>Extract both bounding box and time interval from a folder or zipfile<a class="headerlink" href="#extract-both-bounding-box-and-time-interval-from-a-folder-or-zipfile" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">folder_two_files</span>
 </pre></div>
 </div>
 <div class="jupyter_cell docutils container">
 <div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_two_files:   0%|          | 0/2 [00:00&lt;?, ?item/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_two_files:   0%|          | 0/2 [00:00&lt;?, ?item/s, Processing districtes.geojson]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing districtes.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing districtes.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 21.76task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                         </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 11.43item/s, Processing muenster_ring_zeit.geojson]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 109.89task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                  </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 18.90item/s, Processing muenster_ring_zeit.geojson]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 18.79item/s, Processing muenster_ring_zeit.geojson]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;folder&#39;,
  &#39;crs&#39;: &#39;4326&#39;,
  &#39;bbox&#39;: [2.052333387639205,
@@ -238,29 +546,150 @@ Supported formats:
 </div>
 </div>
 <p>The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: <a class="reference internal" href="../supportedformats/index_supportedformats.html"><span class="doc">Supported file formats</span></a>) inside the folder or zipfile. The resulting coordinate reference system  <code class="docutils literal notranslate"><span class="pre">CRS</span></code> of the combined bbox is always in the <a class="reference external" href="https://epsg.io/4326">EPSG: 4326</a> system.</p>
+</section>
+</section>
+<section id="remote-repositories">
+<h2>Remote Repositories<a class="headerlink" href="#remote-repositories" title="Link to this heading">¶</a></h2>
+<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, Dataverse, and Pensoft.</p>
+<section id="extract-from-zenodo">
+<h3>Extract from Zenodo<a class="headerlink" href="#extract-from-zenodo" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
 </div>
-<div class="section" id="debugging">
-<h3>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="extract-from-pangaea">
+<h3>Extract from PANGAEA<a class="headerlink" href="#extract-from-pangaea" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.1594</span><span class="o">/</span><span class="n">PANGAEA</span><span class="mf">.734969</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-osf">
+<h3>Extract from OSF<a class="headerlink" href="#extract-from-osf" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.17605</span><span class="o">/</span><span class="n">OSF</span><span class="o">.</span><span class="n">IO</span><span class="o">/</span><span class="mi">4</span><span class="n">XE6Z</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">OSF</span><span class="o">.</span><span class="n">IO</span><span class="o">/</span><span class="mi">4</span><span class="n">XE6Z</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-gfz-data-services">
+<h3>Extract from GFZ Data Services<a class="headerlink" href="#extract-from-gfz-data-services" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="mf">10.5880</span><span class="o">/</span><span class="n">GFZ</span><span class="mf">.4.8.2023.004</span>
+</pre></div>
+</div>
+<p>The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: <a class="reference internal" href="../supportedformats/index_supportedformats.html"><span class="doc">Supported file formats</span></a>) inside the repository. The resulting coordinate reference system  <code class="docutils literal notranslate"><span class="pre">CRS</span></code> of the combined bbox is always in the <a class="reference external" href="https://epsg.io/4326">EPSG: 4326</a> system.</p>
+<p>For comprehensive examples including all supported repositories and advanced features, see <a class="reference internal" href="../examples.html"><span class="doc">Examples</span></a>.</p>
+</section>
+<section id="debugging">
+<h3>Debugging<a class="headerlink" href="#debugging" title="Link to this heading">¶</a></h3>
 <p>You can enable detailed logs by passing the <code class="docutils literal notranslate"><span class="pre">--debug</span></code> option, or by setting the environment variable <code class="docutils literal notranslate"><span class="pre">GEOEXTENT_DEBUG=1</span></code>.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">--</span><span class="n">debug</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
 
 <span class="n">GEOEXTENT_DEBUG</span><span class="o">=</span><span class="mi">1</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
 </pre></div>
 </div>
+</section>
+<section id="details">
+<h3>Details<a class="headerlink" href="#details" title="Link to this heading">¶</a></h3>
+<p>You can enable details for folders and ZIP files by passing the <code class="docutils literal notranslate"><span class="pre">--details</span></code> option, this option allows you to access
+to the geoextent of the individual files inside the folders/ ZIP files used to compute the aggregated bounding box (bbox)
+or time box (tbox).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">--</span><span class="n">details</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">folder_one_file</span>
+</pre></div>
+</div>
+<div class="jupyter_cell docutils container">
+<div class="cell_output docutils container">
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_one_file:   0%|          | 0/1 [00:00&lt;?, ?item/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_one_file:   0%|          | 0/1 [00:00&lt;?, ?item/s, Processing muenster_ring_zeit.geojson]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 126.22task/s, Temporal extent extracted]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">                                                                                                                  </pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">[A</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 57.89item/s, Processing muenster_ring_zeit.geojson]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">
+</pre>
+</div>
+<div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;folder&#39;,
+ &#39;crs&#39;: &#39;4326&#39;,
+ &#39;bbox&#39;: {&#39;type&#39;: &#39;Polygon&#39;,
+  &#39;coordinates&#39;: [[[7.608118057250977, 51.94881477206191],
+    [7.602796554565429, 51.953258408047034],
+    [7.6016807556152335, 51.96537036973145],
+    [7.606401443481445, 51.97361943924433],
+    [7.62125015258789, 51.974624029877454],
+    [7.636871337890624, 51.97240332571046],
+    [7.645368576049805, 51.96817310852836],
+    [7.645540237426757, 51.96780294552556],
+    [7.6471710205078125, 51.96330786509095],
+    [7.647256851196289, 51.95807185013927],
+    [7.643308639526367, 51.953258408047034],
+    [7.608118057250977, 51.94881477206191]]]},
+ &#39;convex_hull&#39;: True,
+ &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;]}
+</pre></div>
 </div>
 </div>
 </div>
+</section>
+<section id="export-function">
+<h3>Export function<a class="headerlink" href="#export-function" title="Link to this heading">¶</a></h3>
+<p>You can export the result of Geoextent to a Geopackage file. This file contains the output of all files within the
+folder or repository.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">output</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">output</span><span class="o">/</span><span class="n">geopackage_file</span><span class="o">.</span><span class="n">gpkg</span> <span class="n">folder_path</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
 
 
           </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
-            <p class="logo"><a href="../index.html">
-              <img class="logo" src="../_static/o2r-logo-only.svg" alt="Logo"/>
-            </a></p>
 <h1 class="logo"><a href="../index.html">geoextent</a></h1>
 
 
@@ -270,9 +699,19 @@ Supported formats:
 
 
 
-<h3>Navigation</h3>
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installing geoextent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index_howto.html">How-to Guides</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Command-Line Interface (CLI)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html">API Docs</a></li>
@@ -294,16 +733,6 @@ Supported formats:
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
-  <h3 id="searchlabel">Quick search</h3>
-    <div class="searchformwrapper">
-    <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
-      <input type="submit" value="Go" />
-    </form>
-    </div>
-</div>
-<script>$('#searchbox').show(0);</script>
 
 
 
@@ -317,11 +746,11 @@ Supported formats:
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2020, o2r-project.
+      &#169;2025, o2rproject and all contributors.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.4.0</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/howto/cli.rst.txt"
