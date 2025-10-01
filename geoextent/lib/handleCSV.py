@@ -1,6 +1,7 @@
 import csv
 import logging
-from osgeo import gdal
+import re
+from osgeo import gdal, ogr
 from . import helpfunctions as hf
 
 logger = logging.getLogger("geoextent")
@@ -16,6 +17,22 @@ search = {
         "x$",
     ],
     "latitude": ["(.)*latitude(.)*", "^lat", "lat$", "^y", "y$"],
+    "geometry": [
+        "(.)*geometry(.)*",
+        "(.)*geom(.)*",
+        "^wkt",
+        "wkt$",
+        "(.)*wkt(.)*",
+        "^wkb",
+        "wkb$",
+        "(.)*wkb(.)*",
+        "(.)*coordinates(.)*",
+        "(.)*coords(.)*",
+        "^coords",
+        "coords$",
+        "^coordinates",
+        "coordinates$",
+    ],
     "time": ["(.)*timestamp(.)*", "(.)*datetime(.)*", "(.)*time(.)*", "date$", "^date"],
 }
 
@@ -70,6 +87,162 @@ def checkFileSupported(filepath):
         return False
 
 
+def _extract_bbox_from_geometry_column(filePath, chunk_size=50000):
+    """
+    Extract bounding box from geometry column containing WKT data.
+    input "filePath": type string, file path to csv file
+    returns spatialExtent: type dict, contains bbox and crs
+    """
+
+    with open(filePath) as csv_file:
+        delimiter = hf.getDelimiter(csv_file)
+        data = csv.reader(csv_file, delimiter=delimiter)
+
+        header = next(data)
+        chunk = [header]
+
+        # Find geometry column index
+        geometry_col_idx = None
+        for idx, col_name in enumerate(header):
+            for pattern in search["geometry"]:
+                p = re.compile(pattern, re.IGNORECASE)
+                if p.search(col_name) is not None:
+                    geometry_col_idx = idx
+                    break
+            if geometry_col_idx is not None:
+                break
+
+        if geometry_col_idx is None:
+            return None
+
+        min_x, min_y, max_x, max_y = (
+            float("inf"),
+            float("inf"),
+            float("-inf"),
+            float("-inf"),
+        )
+
+        for row in data:
+            chunk.append(row)
+            if len(chunk) >= chunk_size:
+                # Process chunk
+                for data_row in chunk[1:]:  # Skip header
+                    if len(data_row) > geometry_col_idx:
+                        geometry_wkt = data_row[geometry_col_idx]
+                        if geometry_wkt and geometry_wkt.strip():
+                            try:
+                                geom = None
+                                # Try parsing as WKT first
+                                if (
+                                    geometry_wkt.strip()
+                                    .upper()
+                                    .startswith(
+                                        (
+                                            "POINT",
+                                            "LINESTRING",
+                                            "POLYGON",
+                                            "MULTIPOINT",
+                                            "MULTILINESTRING",
+                                            "MULTIPOLYGON",
+                                            "GEOMETRYCOLLECTION",
+                                        )
+                                    )
+                                ):
+                                    geom = ogr.CreateGeometryFromWkt(geometry_wkt)
+                                else:
+                                    # Try parsing as WKB (hex-encoded)
+                                    try:
+                                        geom = ogr.CreateGeometryFromWkb(
+                                            bytes.fromhex(geometry_wkt)
+                                        )
+                                    except (ValueError, TypeError):
+                                        # If not hex, might be binary WKB
+                                        try:
+                                            geom = ogr.CreateGeometryFromWkb(
+                                                geometry_wkt.encode()
+                                            )
+                                        except:
+                                            # Last resort: try as WKT anyway
+                                            geom = ogr.CreateGeometryFromWkt(
+                                                geometry_wkt
+                                            )
+
+                                if geom:
+                                    envelope = geom.GetEnvelope()
+                                    # envelope returns (minX, maxX, minY, maxY)
+                                    min_x = min(min_x, envelope[0])
+                                    max_x = max(max_x, envelope[1])
+                                    min_y = min(min_y, envelope[2])
+                                    max_y = max(max_y, envelope[3])
+                            except Exception as e:
+                                logger.debug(
+                                    f"Failed to parse geometry: {geometry_wkt}, error: {e}"
+                                )
+                                continue
+
+                chunk = [header]
+
+        # Process remaining chunk
+        if len(chunk) > 1:
+            for data_row in chunk[1:]:  # Skip header
+                if len(data_row) > geometry_col_idx:
+                    geometry_wkt = data_row[geometry_col_idx]
+                    if geometry_wkt and geometry_wkt.strip():
+                        try:
+                            geom = None
+                            # Try parsing as WKT first
+                            if (
+                                geometry_wkt.strip()
+                                .upper()
+                                .startswith(
+                                    (
+                                        "POINT",
+                                        "LINESTRING",
+                                        "POLYGON",
+                                        "MULTIPOINT",
+                                        "MULTILINESTRING",
+                                        "MULTIPOLYGON",
+                                        "GEOMETRYCOLLECTION",
+                                    )
+                                )
+                            ):
+                                geom = ogr.CreateGeometryFromWkt(geometry_wkt)
+                            else:
+                                # Try parsing as WKB (hex-encoded)
+                                try:
+                                    geom = ogr.CreateGeometryFromWkb(
+                                        bytes.fromhex(geometry_wkt)
+                                    )
+                                except (ValueError, TypeError):
+                                    # If not hex, might be binary WKB
+                                    try:
+                                        geom = ogr.CreateGeometryFromWkb(
+                                            geometry_wkt.encode()
+                                        )
+                                    except:
+                                        # Last resort: try as WKT anyway
+                                        geom = ogr.CreateGeometryFromWkt(geometry_wkt)
+
+                            if geom:
+                                envelope = geom.GetEnvelope()
+                                min_x = min(min_x, envelope[0])
+                                max_x = max(max_x, envelope[1])
+                                min_y = min(min_y, envelope[2])
+                                max_y = max(max_y, envelope[3])
+                        except Exception as e:
+                            logger.debug(
+                                f"Failed to parse geometry: {geometry_wkt}, error: {e}"
+                            )
+                            continue
+
+        if min_x != float("inf") and min_y != float("inf"):
+            bbox = [min_x, min_y, max_x, max_y]
+            logger.debug("Extracted Bounding box from geometry column: {}".format(bbox))
+            return {"bbox": bbox, "crs": "4326"}  # Assume WGS84 for WKT data
+        else:
+            return None
+
+
 def getBoundingBox(filePath, chunk_size=50000):
     """
     Function purpose: extracts the spatial extent (bounding box) from a csv-file \n
@@ -77,6 +250,12 @@ def getBoundingBox(filePath, chunk_size=50000):
     returns spatialExtent: type list, length = 4 , type = float, schema = [min(longs), min(lats), max(longs), max(lats)]
     """
 
+    # First, try to extract from geometry column (WKT data)
+    geometry_extent = _extract_bbox_from_geometry_column(filePath, chunk_size)
+    if geometry_extent:
+        return geometry_extent
+
+    # Fall back to traditional coordinate column extraction
     with open(filePath) as csv_file:
         delimiter = hf.getDelimiter(csv_file)
         data = csv.reader(csv_file, delimiter=delimiter)

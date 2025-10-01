@@ -1,0 +1,4 @@
+id,name,coords
+1,Point A,"POINT (3.0 7.0)"
+2,Point B,"POINT (9.0 14.0)"
+3,Line C,"LINESTRING (0 0, 5 5, 10 0)"

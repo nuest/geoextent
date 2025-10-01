@@ -1,3 +1,4 @@
+import pytest
 from help_functions_test import (
     assert_bbox_result,
     assert_tbox_result,
@@ -8,6 +9,7 @@ from help_functions_test import (
     extract_bbox_only,
     extract_tbox_only,
     extract_bbox_and_tbox,
+    tolerance,
 )
 from test_data_config import (
     get_test_file,
@@ -212,6 +214,178 @@ class TestCSVSampling:
         expected_tbox = ["2017-04-08", "2020-02-06"]
         assert_tbox_result(result, expected_tbox)
         assert_no_bbox(result)
+
+
+class TestCSVGeometryColumns:
+    """Test CSV files with geometry columns (WKT/WKB format)"""
+
+    def test_extract_bbox_from_geometry_column_opara_sample(self):
+        """Test extraction from WKT geometry column using real Opara repository data"""
+        result = extract_bbox_only("tests/testdata/csv_with_geometry_sample.csv")
+
+        assert result is not None
+        assert "bbox" in result
+        bbox = result["bbox"]
+
+        # Expected bbox based on the 20 sample rows from mc_registry_v6.csv
+        # These coordinates cover parts of Africa based on the sample data
+        assert bbox[0] < bbox[2]  # min_x < max_x
+        assert bbox[1] < bbox[3]  # min_y < max_y
+
+        # Check that we get reasonable coordinates for African continent
+        assert -30 <= bbox[0] <= 50  # Longitude range for Africa
+        assert -40 <= bbox[1] <= 40  # Latitude range for Africa
+        assert -30 <= bbox[2] <= 50  # Longitude range for Africa
+        assert -40 <= bbox[3] <= 40  # Latitude range for Africa
+
+    def test_extract_bbox_wkt_geometry_column(self):
+        """Test extraction from WKT geometry column"""
+        result = extract_bbox_only("tests/testdata/csv_wkt_geometry.csv")
+        assert_bbox_result(result, [8.0, 18.0, 15.0, 25.0])
+
+    def test_extract_bbox_coordinates_column(self):
+        """Test extraction from coordinates column"""
+        result = extract_bbox_only("tests/testdata/csv_coordinates_column.csv")
+        assert_bbox_result(result, [0.0, 0.0, 12.0, 22.0])
+
+    def test_extract_bbox_coords_column(self):
+        """Test extraction from coords column"""
+        result = extract_bbox_only("tests/testdata/csv_coords_column.csv")
+        assert_bbox_result(result, [0.0, 0.0, 10.0, 14.0])
+
+    def test_extract_bbox_geom_column(self):
+        """Test extraction from geom column"""
+        result = extract_bbox_only("tests/testdata/csv_geom_column.csv")
+        assert_bbox_result(result, [1.0, 1.0, 13.0, 23.0])
+
+    def test_extract_bbox_wkb_column(self):
+        """Test extraction from WKB (hex-encoded) column"""
+        result = extract_bbox_only("tests/testdata/csv_wkb_column.csv")
+        assert_bbox_result(result, [2.0, 2.0, 11.0, 19.0])
+
+    def test_geometry_column_detection_patterns(self):
+        """Test that all geometry column name patterns are detected"""
+        import geoextent.lib.handleCSV as handleCSV
+        import re
+
+        # Test all search patterns
+        search_geometry = [
+            "(.)*geometry(.)*",
+            "(.)*geom(.)*",
+            "^wkt",
+            "wkt$",
+            "(.)*wkt(.)*",
+            "^wkb",
+            "wkb$",
+            "(.)*wkb(.)*",
+            "(.)*coordinates(.)*",
+            "(.)*coords(.)*",
+            "^coords",
+            "coords$",
+            "^coordinates",
+            "coordinates$",
+        ]
+
+        test_columns = [
+            "geometry",
+            "geom",
+            "wkt",
+            "wkb",
+            "coordinates",
+            "coords",
+            "my_geometry",
+            "data_geom",
+            "point_wkt",
+            "line_wkb",
+            "spatial_coordinates",
+            "location_coords",
+        ]
+
+        for col_name in test_columns:
+            found = False
+            for pattern in search_geometry:
+                p = re.compile(pattern, re.IGNORECASE)
+                if p.search(col_name) is not None:
+                    found = True
+                    break
+            assert found, f"Should detect geometry column: {col_name}"
+
+    def test_geometry_fallback_to_coordinate_columns(self):
+        """Test that extraction falls back to coordinate columns when no geometry column exists"""
+        # Test with traditional lat/lon CSV that doesn't have geometry column
+        result = extract_bbox_only("tests/testdata/csv/cities_NL_lat_lon_alt.csv")
+
+        assert result is not None
+        assert "bbox" in result
+        bbox = result["bbox"]
+
+        # Should still work with traditional coordinate extraction
+        assert pytest.approx(bbox[0], tolerance) == 4.3175
+        assert pytest.approx(bbox[1], tolerance) == 51.434444
+        assert pytest.approx(bbox[2], tolerance) == 6.574722
+        assert pytest.approx(bbox[3], tolerance) == 53.217222
+
+    def test_invalid_geometry_handling(self):
+        """Test that invalid WKT/WKB geometries are handled gracefully"""
+        import geoextent.lib.handleCSV as handleCSV
+        import csv
+        import tempfile
+        import os
+
+        # Create a temporary CSV with some invalid geometry data
+        test_data = [
+            ["id", "geometry"],
+            ["1", "POINT (10.0 20.0)"],  # Valid WKT
+            ["2", "INVALID WKT DATA"],  # Invalid
+            ["3", "POINT (15.0 25.0)"],  # Valid WKT
+            ["4", ""],  # Empty
+            ["5", "deadbeef"],  # Invalid hex
+        ]
+
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as f:
+            writer = csv.writer(f)
+            writer.writerows(test_data)
+            temp_path = f.name
+
+        try:
+            result = handleCSV._extract_bbox_from_geometry_column(temp_path)
+            assert result is not None
+            assert "bbox" in result
+            bbox = result["bbox"]
+            # Should extract bbox from valid geometries only
+            assert bbox == [10.0, 20.0, 15.0, 25.0]  # min_x, min_y, max_x, max_y
+        finally:
+            os.unlink(temp_path)
+
+    def test_mixed_geometry_types(self):
+        """Test CSV with mixed geometry types (POINT, POLYGON, LINESTRING)"""
+        import csv
+        import tempfile
+        import os
+
+        # Create a temporary CSV with mixed geometry types
+        test_data = [
+            ["id", "geom_type", "geometry"],
+            ["1", "point", "POINT (5.0 10.0)"],
+            ["2", "polygon", "POLYGON ((0 0, 5 0, 5 5, 0 5, 0 0))"],
+            ["3", "linestring", "LINESTRING (0 0, 10 10)"],
+            ["4", "point", "POINT (15.0 20.0)"],
+        ]
+
+        with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".csv") as f:
+            writer = csv.writer(f)
+            writer.writerows(test_data)
+            temp_path = f.name
+
+        try:
+            result = extract_bbox_only(temp_path)
+            assert result is not None
+            assert "bbox" in result
+            bbox = result["bbox"]
+            # Should encompass all geometries
+            assert bbox == [0.0, 0.0, 15.0, 20.0]  # min_x, min_y, max_x, max_y
+        finally:
+            os.unlink(temp_path)
 
 
 class TestCSVEdgeCases:
