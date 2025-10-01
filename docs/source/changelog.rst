@@ -7,7 +7,7 @@ Changelog
 
 - **Performance and Infrastructure Improvements**
 
-  - Refactor CI workflows to use custom GDAL installation script instead of pygdal (:issue:``)
+  - Refactor CI workflows to use custom GDAL installation script instead of pygdal
   - Remove deprecated pygdal dependency from GitHub Actions for improved build reliability
   - Add file filtering and parallel downloads to improve performance (:issue:`75`)
   - Implement ``--download-skip-nogeo`` option to skip downloading non-geospatial files

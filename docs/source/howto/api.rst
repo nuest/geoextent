@@ -131,7 +131,7 @@ Geoextent only allows to query **Open** Zenodo repositories.
 
 ::
 
-   geoextent.from_repository(repository_identifier, bbox, time, details)
+   geoextent.fromRemote(repository_identifier, bbox, time, details)
 
 **Parameters:**
    - ``repository_identifier``: a string value with a Zenodo link (e.g., https://zenodo.org/record/3528062) or DOI (e.g., https://doi.org/10.5281/zenodo.3528062)
@@ -145,7 +145,7 @@ Code:
 
 ::
 
-   geoextent.from_repository('https://zenodo.org/record/820562', True, True, False)
+   geoextent.fromRemote('https://zenodo.org/record/820562', True, True, False)
 
 Output:
 
@@ -154,4 +154,4 @@ Output:
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.from_repository('https://zenodo.org/record/820562', True, True)
+   geoextent.fromRemote('https://zenodo.org/record/820562', True, True)

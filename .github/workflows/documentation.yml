@@ -15,41 +15,28 @@ jobs:
     runs-on: ubuntu-24.04
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.10
+        python-version: '3.10'
 
-    - name: Install GDAL using custom script
+    - name: Install system dependencies
       run: |
-        chmod +x etc/gdal-ubuntu-latest.sh
-        ./etc/gdal-ubuntu-latest.sh
+        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo apt-get update
+        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
+        gdal-config --version
 
-    - name: Install additional dependencies
+    - name: Install geoextent and dependencies
       run: |
-        sudo apt-get install -y netcdf-bin libspatialite-dev
+        python -m pip install --upgrade pip setuptools>=64
+        pip install -e .[dev,test,docs]
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Install geoextent
-      run: |
-        pip install -e .
-
-    - name: Install dependencies
+    - name: Install additional documentation dependencies
       run:  |
         sudo apt update
         sudo apt install -y graphviz
-        pip install -U tox
-
-    - name: Install docs requirements
-      run:  |
-        pip install -r docs/requirements-docs.txt
-        pip install -r requirements.txt
-        pip install -e .
     - name: Build the documentation
       run:  |
         cd docs
@@ -71,6 +58,6 @@ jobs:
       with:
         branch: gh-pages # The branch the action should deploy to.
         folder: docs/build/html # The folder the action should deploy.
-        commit-message: Rebuild pages at ${{github.sha}} with branch ${{ env.GITHUB_REF_SLUG }}
-        git-config-name: Build bot <o2r.projekt@uni-muenster.de>
-        git-config-email: o2r.projekt@uni-muenster.de
+        commit-message: Rebuild pages at ${{github.sha}} with branch ${{ github.ref }}
+        git-config-name: Build bot <daniel.nuest@tu-dresden.de>
+        git-config-email: daniel.nuest@tu-dresden.de

@@ -109,3 +109,5 @@ venv.bak/
 geoextent-env/
 
 bin/
+
+.claude/temp.md

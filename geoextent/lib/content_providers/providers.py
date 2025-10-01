@@ -314,7 +314,9 @@ class DoiProvider(ContentProvider):
             size = file_info.get("size", 0)
 
             if url and name:
-                filepath = os.path.join(target_folder, name)
+                # Sanitize filename to avoid directory traversal issues
+                safe_name = name.replace("/", "_").replace("\\", "_")
+                filepath = os.path.join(target_folder, safe_name)
                 download_tasks.append((url, filepath, size))
 
         if not download_tasks:

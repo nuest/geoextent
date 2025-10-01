@@ -3,9 +3,33 @@ Welcome to the geoextent documentation!
 
 ``geoextent`` is a Python library for **extracting geospatial extent of files and directories with multiple data formats**.
 
-The library is developed as part of the `DFG-funded <https://o2r.info/about/#funding>`_ research project Opening Reproducible Research `o2r <https://o2r.info>`_.
+geoextent supports a wide range of geospatial file formats and can extract data from major research repositories like Zenodo, PANGAEA, OSF, Figshare, and many others. It provides both bounding box (spatial) and temporal extent extraction, with additional features like convex hull computation, placename lookup, and flexible output formats.
 
-Please report `Bugs <https://github.com/o2r-project/geoextent/issues>`_.
+**Key Features:**
+
+- **Multiple format support**: GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, KML, GML, FlatGeobuf, and more
+- **Repository integration**: Direct extraction from Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, and other research repositories
+- **Flexible extent types**: Bounding boxes, temporal extents, and convex hulls
+- **Advanced filtering**: Size limits, file type filtering, and parallel downloads
+- **Rich output options**: GeoJSON, WKT, WKB formats with optional geojson.io visualization
+- **Geographic context**: Placename lookup using multiple gazetteer services
+- **Docker support**: Containerized execution for easy deployment
+
+**API Stability**
+
+*Version 0.x (Current)*: Breaking changes may occur between minor versions. The API is under active development.
+
+*Version 1.0+*: Will follow semantic versioning with stable API guarantees.
+
+**Current API Functions:**
+
+- ``fromFile()`` - Extract extent from individual files
+- ``fromDirectory()`` - Extract extent from directories
+- ``fromRemote()`` - Extract extent from remote sources (repositories, journals, preprint servers)
+
+This project was originally developed as part of the `DFG-funded <https://o2r.info/about/#funding>`_ research project Opening Reproducible Research `o2r <https://o2r.info>`_.
+
+Please report `Bugs <https://github.com/nuest/geoextent/issues>`_.
 
 Documentation overview
 ----------------------
@@ -14,6 +38,7 @@ Documentation overview
     :maxdepth: 2
 
     install
+    examples
     howto/index_howto
     supportedformats/index_supportedformats
     changelog

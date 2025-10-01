@@ -69,7 +69,12 @@
       "Bash(PYTHONPATH=/home/daniel/git/geoextent pytest --cov=geoextent --cov-report=term-missing tests/test_api_csv.py::TestCSVBboxExtraction -v)",
       "Bash(PYTHONPATH=/home/daniel/git/geoextent pytest --cov=geoextent --cov-report=term-missing --cov-report=html tests/test_api_csv.py::TestCSVBboxExtraction::test_extract_bbox_lat_long_columns -v)",
       "Bash(PYTHONPATH=. pytest --cov=geoextent --cov-report=term-missing)",
-      "Bash(PYTHONPATH=. pytest --cov=geoextent --cov-report=term-missing tests/test_api_csv.py::TestCSVBboxExtraction -v)"
+      "Bash(PYTHONPATH=. pytest --cov=geoextent --cov-report=term-missing tests/test_api_csv.py::TestCSVBboxExtraction -v)",
+      "Bash(docker build:*)",
+      "Bash(cat:*)",
+      "Bash(make:*)",
+      "Bash(docker run:*)",
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent make html)"
     ],
     "deny": [],
     "ask": []

@@ -66,9 +66,10 @@ test = [
         "geojson-validator"
 ]
 docs = [
-        "sphinx",
-        "sphinx-rtd-theme",
-        "recommonmark"]
+        "sphinx>=8.0.0",
+        "jupyter_sphinx",
+        "sphinxcontrib.autoprogram",
+        "sphinx-issues"]
 
 [project.scripts]
 geoextent = "geoextent.__main__:main"

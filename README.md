@@ -739,6 +739,55 @@ pre-commit install
 pre-commit run --all-files
 ```
 
+### Building Documentation Locally
+
+The project documentation is built with [Sphinx](https://www.sphinx-doc.org/) 8.0+.
+
+#### Requirements
+
+- Python 3.10 or later
+- Sphinx 8.0 or later (automatically installed with docs dependencies)
+
+#### Build Instructions
+
+```bash
+# Install documentation dependencies
+pip install -e .[docs]
+
+# Build HTML documentation
+cd docs
+make html
+
+# View the documentation
+# Open docs/build/html/index.html in your browser
+```
+
+#### Troubleshooting
+
+If you encounter import errors when building the documentation:
+
+1. Ensure geoextent is in your Python path:
+   ```bash
+   # From the repository root
+   export PYTHONPATH="${PYTHONPATH}:$(pwd)"
+   cd docs && make html
+   ```
+
+2. If using a virtual environment, ensure it's activated before building
+
+3. Clean the build directory if you encounter caching issues:
+   ```bash
+   cd docs
+   make clean
+   make html
+   ```
+
+The documentation configuration includes:
+- Sphinx 8.0+ for core functionality
+- jupyter_sphinx for executing code examples
+- sphinxcontrib.autoprogram for CLI documentation
+- sphinx-issues for GitHub issue linking
+
 ## Contribute
 
 All help is welcome: asking questions, providing documentation, testing, or even development.

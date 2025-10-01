@@ -1,3 +1,4 @@
+sphinx>=8.0.0
 jupyter_sphinx
 sphinxcontrib.autoprogram
 sphinx-issues
