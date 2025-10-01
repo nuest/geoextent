@@ -74,7 +74,8 @@
       "Bash(cat:*)",
       "Bash(make:*)",
       "Bash(docker run:*)",
-      "Bash(PYTHONPATH=/home/daniel/git/geoextent make html)"
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent make html)",
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent python -c \"\nimport logging\nimport warnings\n# Test the same code path as the CLI\nlogging.getLogger(''geoextent'').setLevel(logging.CRITICAL)\nlogging.getLogger().setLevel(logging.WARNING)\nlogging.getLogger(''patool'').setLevel(logging.WARNING)\nwarnings.filterwarnings(''ignore'')\n\n# Test logging output\nimport geoextent.lib.extent as extent\nprint(''Testing quiet mode logging suppression...'')\n\")"
     ],
     "deny": [],
     "ask": []

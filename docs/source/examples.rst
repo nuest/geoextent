@@ -426,3 +426,41 @@ Pensoft:
 ::
 
    python -m geoextent -b https://doi.org/10.3897/BDJ.2.e1068
+
+Interactive Showcase Notebooks
+-------------------------------
+
+Explore geoextent's capabilities through interactive Jupyter notebooks that demonstrate real-world usage with research data repositories.
+
+Running Showcase Notebooks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/nuest/geoextent/main?filepath=showcase%2FSG_01_Exploring_Research_Data_Repositories_with_geoextent.ipynb
+   :alt: Launch Binder
+
+Click the Binder badge above to run the showcase notebooks in your browser without installation.
+
+Local Setup
+^^^^^^^^^^^
+
+To run the showcase notebooks locally, install JupyterLab or the classic Jupyter Notebook. We recommend using a virtual environment::
+
+   cd showcase
+   pip install -r requirements.txt
+   pip install -r showcase/requirements.txt
+   pip install -e .
+
+   # Trust the notebook for full functionality
+   jupyter trust showcase/SG_01_Exploring_Research_Data_Repositories_with_geoextent.ipynb
+
+   # Start Jupyter
+   jupyter lab
+
+Then open the local Jupyter Notebook server using the displayed link and open the notebook files (``*.ipynb``) in the ``showcase/`` directory.
+
+.. note::
+   The notebook must be `trusted <https://jupyter-notebook.readthedocs.io/en/stable/security.html#notebook-security>`_ and the `python-markdown extension <https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html>`_ should be installed so that variables within Markdown text can be shown.
+
+.. note::
+   Some notebooks use `paired notebooks based on Jupytext <https://github.com/mwouts/jupytext/blob/master/docs/paired-notebooks.md>`_. Consult the Jupytext documentation before editing these notebooks.

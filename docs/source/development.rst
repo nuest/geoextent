@@ -6,74 +6,164 @@ Notes for developers of ``geoextent``.
 Environment
 -----------
 
-All commands in this file assume you work in a virtual environment created with virtualenvwrapper_ as follows (please keep up to date!):
-
-.. _virtualenvwrapper: https://virtualenvwrapper.readthedocs.io/en/latest/install.html
+All commands in this file assume you work in a Python virtual environment. We recommend using Python's built-in ``venv`` module:
 
 ::
 
-    # pip install virtualenvwrapper
+    # Create a virtual environment
+    python -m venv .venv
 
-    # Add to .bashrc:
-    # export WORKON_HOME=$HOME/.virtualenvs
-    # source ~/.local/bin/virtualenvwrapper.sh
+    # Activate the environment (Linux/macOS)
+    source .venv/bin/activate
 
-    # Where are my virtual envs stored?
-    # echo $WORKON_HOME
+    # Activate the environment (Windows)
+    .venv\Scripts\activate
 
-    # Create environment using Python 3
-    #mkvirtualenv -p $(which python3) geoextent
-
-    # Activate env
-    workon geoextent
-
-    # Deactivate env
+    # Deactivate the environment
     deactivate
 
-    #cdvirtualenv
-    #rmvirtualenv
+    # Remove the environment (if needed)
+    rm -rf .venv
 
 Required packages
 -----------------
 
-In the environment created above, run
+System Dependencies
+^^^^^^^^^^^^^^^^^^^
+
+First, ensure you have the required system packages installed. On Debian/Ubuntu:
 
 ::
 
-    pip install -r requirements.txt
+    sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+    sudo apt-get update
+    sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
 
-Install a matching version of gdal-python into the virtual environment:
+Python Dependencies
+^^^^^^^^^^^^^^^^^^^
+
+In the virtual environment created above, install geoextent in development mode with all dependencies:
 
 ::
 
-    gdal-config --version
+    # Install GDAL Python bindings first (matching your system GDAL version)
+    GDAL_VERSION=$(gdal-config --version)
+    pip install "GDAL==$GDAL_VERSION"
 
-    CPLUS_INCLUDE_PATH=/usr/include/gdal C_INCLUDE_PATH=/usr/include/gdal pip install gdal==`gdal-config --version`
+    # Install geoextent in editable mode with all optional dependencies
+    pip install -e .[dev,test,docs]
 
-For the installation to suceed you need the following system packages (on Debian/Ubuntu):
-
-- ``libproj-dev``
-- ``libgdal-dev``
-- ``libgeos-dev``
-- ``gdal-bin``
+This will install all required and optional dependencies defined in ``pyproject.toml``.
 
 Run tests
 ---------
 
-To install development requirements, run
-
-::
-
-    pip install -r requirements-dev.txt
-
-Either install the lib and run ``pytest``, or run ``python -m pytest``.
-You can also run individual files:
+After installing geoextent with development dependencies (see above), run the test suite using pytest:
 
 ::
 
     pytest
 
+    # Run specific test file
     pytest tests/test_api.py
+
+    # Run specific test categories
+    pytest tests/test_api_*.py         # API tests
+    pytest tests/test_cli*.py          # CLI tests
+    pytest -m "not slow"               # Exclude slow tests
+
+    # Run with coverage
+    pytest --cov=geoextent --cov-report=term-missing
+
+    # Run specific test class or method
+    pytest tests/test_api.py::TestClassName::test_method_name
+
+Local GitHub Actions Testing
+-----------------------------
+
+Test workflows locally using `act <https://github.com/nektos/act>`_ to validate changes before pushing to GitHub.
+
+Installing act
+^^^^^^^^^^^^^^
+
+::
+
+    # macOS
+    brew install act
+
+    # Linux
+    curl https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+
+    # Windows
+    choco install act-cli
+
+Configuration
+^^^^^^^^^^^^^
+
+The project includes an ``.actrc`` configuration file with Ubuntu 24.04 image settings.
+
+Running Local Tests
+^^^^^^^^^^^^^^^^^^^
+
+Use the provided script for easy local testing::
+
+    # Run main Python package tests (default)
+    ./scripts/test-local-ci.sh
+
+    # Run specific workflow
+    ./scripts/test-local-ci.sh --workflow comprehensive-tests
+
+    # Run specific test category
+    ./scripts/test-local-ci.sh --workflow comprehensive-tests --test-category api-core
+
+    # Run with specific Python version
+    ./scripts/test-local-ci.sh --python-version 3.11
+
+    # List all available jobs
+    ./scripts/test-local-ci.sh --list-jobs
+
+    # Show what would be executed (dry run)
+    ./scripts/test-local-ci.sh --dry-run
+
+Available Test Categories
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- ``api-core`` - Core API functionality tests
+- ``api-repositories`` - Remote repository provider tests (Zenodo, Figshare, Dryad, PANGAEA, OSF, GFZ, Pensoft, Dataverse)
+- ``api-formats`` - Format handler tests (CSV, GeoJSON, GeoTIFF, Shapefile, FlatGeobuf)
+- ``cli`` - Command-line interface tests
+- ``integration`` - Integration and special feature tests
+
+Direct act Commands
+^^^^^^^^^^^^^^^^^^^
+
+::
+
+    # Run main test workflow
+    act -W .github/workflows/pythonpackage.yml
+
+    # Run comprehensive tests for api-core category
+    act -W .github/workflows/comprehensive-tests.yml --matrix test-category:api-core
+
+    # Run with specific Python version
+    act -W .github/workflows/pythonpackage.yml --matrix python-version:3.11
+
+    # List all jobs in a workflow
+    act -W .github/workflows/comprehensive-tests.yml --list
+
+Code Formatting
+---------------
+
+Format code with black and set up pre-commit hooks::
+
+    # Format code
+    black geoextent/ tests/
+
+    # Set up pre-commit hooks (run once)
+    pre-commit install
+
+    # Run pre-commit hooks manually
+    pre-commit run --all-files
 
 Documentation
 -------------
@@ -86,9 +176,18 @@ Build documentation locally
 
 ::
 
+    # Ensure documentation dependencies are installed
+    pip install -e .[docs]
+
+    # Build HTML documentation
     cd docs/
-    pip install -r requirements-docs.txt
     make html
+
+    # View the documentation (Linux)
+    xdg-open build/html/index.html
+
+    # Clean build artifacts
+    make clean
 
 .. _Sphinx: https://www.sphinx-doc.org
 

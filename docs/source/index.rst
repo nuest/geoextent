@@ -39,6 +39,7 @@ Documentation overview
 
     install
     examples
+    features
     howto/index_howto
     supportedformats/index_supportedformats
     changelog
