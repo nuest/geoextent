@@ -394,7 +394,7 @@ class TestZenodoZIPFileHandling:
                 tbox=False,
                 download_data=True,
                 max_download_size=2 * 1024 * 1024,  # 2MB limit
-                quiet=True
+                quiet=True,
             )
 
             assert result is not None, "Result should not be None"
@@ -446,7 +446,7 @@ class TestZenodoZIPFileHandling:
                 details=True,
                 download_data=True,
                 max_download_size=2 * 1024 * 1024,  # 2MB limit
-                quiet=True
+                quiet=True,
             )
 
             assert result is not None
@@ -470,15 +470,18 @@ class TestZenodoZIPFileHandling:
         try:
             result = subprocess.run(
                 [
-                    "python", "-m", "geoextent",
+                    "python",
+                    "-m",
+                    "geoextent",
                     "-b",
-                    "--max-download-size", "2MB",
+                    "--max-download-size",
+                    "2MB",
                     "--quiet",
-                    test_doi
+                    test_doi,
                 ],
                 capture_output=True,
                 text=True,
-                timeout=120
+                timeout=120,
             )
 
             assert result.returncode == 0, f"CLI failed: {result.stderr}"
