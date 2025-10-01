@@ -162,11 +162,23 @@ Generate geojson.io URLs for interactive visualization:
 
    python -m geoextent -b --geojsonio https://doi.org/10.5281/zenodo.4593540
 
-Combine with convex hull:
+Open the visualization directly in your browser (without printing URL):
 
 ::
 
-   python -m geoextent -b --convex-hull --geojsonio https://doi.org/10.1594/PANGAEA.734969
+   python -m geoextent -b --browse https://doi.org/10.5281/zenodo.4593540
+
+Print URL and open in browser (use both options):
+
+::
+
+   python -m geoextent -b --geojsonio --browse https://doi.org/10.5281/zenodo.4593540
+
+Combine with other options:
+
+::
+
+   python -m geoextent -b --convex-hull --geojsonio --browse https://doi.org/10.1594/PANGAEA.734969
 
 Quiet Mode
 ^^^^^^^^^^

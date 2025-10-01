@@ -5,6 +5,13 @@ Changelog
 0.9.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^
 
+- **Visualization Features**
+
+  - Add ``--browse`` option to automatically open geojson.io visualizations in default web browser
+  - Use ``--browse`` alone to open visualization without printing URL, or combine with ``--geojsonio`` to print URL and open browser
+  - Works with all spatial extent extractions (files, directories, remote repositories)
+  - Compatible with other options like ``--convex-hull``, ``--quiet``, and different output formats
+
 - **Performance and Infrastructure Improvements**
 
   - Refactor CI workflows to use custom GDAL installation script instead of pygdal

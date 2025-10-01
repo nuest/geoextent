@@ -4,6 +4,7 @@ import logging
 import os
 import sys
 import warnings
+import webbrowser
 import zipfile
 from .lib import extent
 from .lib import helpfunctions as hf
@@ -134,7 +135,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -229,6 +230,13 @@ def get_arg_parser():
         action="store_true",
         default=False,
         help="generate and print a clickable geojson.io URL for the extracted spatial extent",
+    )
+
+    parser.add_argument(
+        "--browse",
+        action="store_true",
+        default=False,
+        help="open the geojson.io URL in the default web browser (use with --geojsonio to also print URL)",
     )
 
     parser.add_argument(
@@ -595,9 +603,9 @@ def main():
         if not args["details"]:
             output.pop("details", None)
 
-        # Generate and print geojson.io URL if requested (before format conversion)
+        # Generate geojson.io URL if --geojsonio or --browse is requested (before format conversion)
         geojsonio_url = None
-        if args["geojsonio"] and output and "bbox" in output:
+        if (args["geojsonio"] or args["browse"]) and output and "bbox" in output:
             geojsonio_url = hf.generate_geojsonio_url(output)
 
         # Apply output format conversion
@@ -611,10 +619,25 @@ def main():
     else:
         print(output)
 
-    # Print geojson.io URL if it was generated
+    # Print geojson.io URL if --geojsonio was requested
     if args["geojsonio"]:
         if geojsonio_url:
             print(f"\n🌍 View spatial extent at: {geojsonio_url}")
+        elif not args["quiet"]:
+            print(
+                "\ngeojson.io URL could not be generated (no spatial extent found or geojsonio not available)"
+            )
+
+    # Open in browser if --browse flag is set
+    if args["browse"]:
+        if geojsonio_url:
+            try:
+                webbrowser.open(geojsonio_url)
+                if not args["quiet"]:
+                    print("Opening URL in default web browser...")
+            except Exception as e:
+                if not args["quiet"]:
+                    print(f"Could not open browser: {e}")
         elif not args["quiet"]:
             print(
                 "\ngeojson.io URL could not be generated (no spatial extent found or geojsonio not available)"

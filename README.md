@@ -88,6 +88,9 @@ python -m geoextent -b -t https://doi.org/10.5281/zenodo.4593540
 
 # Extract with convex hull (more precise for vector data)
 python -m geoextent -b --convex-hull tests/testdata/geojson/muenster_ring.geojson
+
+# Visualize extent interactively in browser
+python -m geoextent -b --browse tests/testdata/geojson/muenster_ring.geojson
 ```
 
 ### Python API

@@ -1517,3 +1517,169 @@ def test_geojsonio_option_quiet_mode(script_runner):
             break
 
     assert geojsonio_line is not None, "should contain geojsonio URL even in quiet mode"
+
+
+def test_browse_option_with_bbox(script_runner, monkeypatch):
+    """Test --browse option opens URL in browser when bbox is extracted (without printing URL)"""
+    # Mock webbrowser.open to prevent actually opening a browser
+    browser_opened = []
+
+    def mock_open(url):
+        browser_opened.append(url)
+        return True
+
+    import webbrowser
+
+    monkeypatch.setattr(webbrowser, "open", mock_open)
+
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--browse",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
+    assert ret.success, "process should return success"
+
+    lines = ret.stdout.strip().split("\n")
+    # Check that JSON output is present
+    json_output = json.loads(lines[0])
+    assert (
+        json_output.get("type") == "FeatureCollection"
+    ), "should be a FeatureCollection"
+
+    # --browse without --geojsonio should NOT print the URL
+    geojsonio_line = None
+    for line in lines:
+        if "geojson.io" in line:
+            geojsonio_line = line
+            break
+
+    assert (
+        geojsonio_line is None
+    ), "should NOT print geojsonio URL without --geojsonio flag"
+
+    # Verify that browser was opened
+    assert len(browser_opened) == 1, "browser should have been opened once"
+    assert "geojson.io" in browser_opened[0], "should open geojson.io URL"
+
+
+def test_browse_option_with_geojsonio(script_runner, monkeypatch):
+    """Test --browse with --geojsonio both set - URL printed then opened"""
+    browser_opened = []
+
+    def mock_open(url):
+        browser_opened.append(url)
+        return True
+
+    import webbrowser
+
+    monkeypatch.setattr(webbrowser, "open", mock_open)
+
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--geojsonio",
+            "--browse",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
+    assert ret.success, "process should return success"
+
+    lines = ret.stdout.strip().split("\n")
+
+    # Should have geojsonio URL in output
+    geojsonio_line = None
+    for line in lines:
+        if "geojson.io" in line:
+            geojsonio_line = line
+            break
+
+    assert geojsonio_line is not None, "should contain geojsonio URL"
+
+    # Verify that browser was opened
+    assert len(browser_opened) == 1, "browser should have been opened once"
+    assert "geojson.io" in browser_opened[0]
+
+
+def test_browse_option_no_bbox(script_runner, monkeypatch):
+    """Test --browse option with no bbox extraction"""
+    browser_opened = []
+
+    def mock_open(url):
+        browser_opened.append(url)
+        return True
+
+    import webbrowser
+
+    monkeypatch.setattr(webbrowser, "open", mock_open)
+
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-t",
+            "--browse",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
+    assert ret.success, "process should return success"
+
+    # Should not have geojsonio URL since no bbox was extracted
+    lines = ret.stdout.strip().split("\n")
+    geojsonio_found = any("geojson.io" in line for line in lines)
+    assert (
+        not geojsonio_found
+    ), "should not have geojsonio URL when no bbox is extracted"
+
+    # Browser should not have been opened
+    assert len(browser_opened) == 0, "browser should not have been opened without bbox"
+
+
+def test_browse_option_with_different_formats(script_runner, monkeypatch):
+    """Test --browse option works with different output formats (WKT, WKB) without printing URL"""
+    browser_opened = []
+
+    def mock_open(url):
+        browser_opened.append(url)
+        return True
+
+    import webbrowser
+
+    monkeypatch.setattr(webbrowser, "open", mock_open)
+
+    ret = script_runner.run(
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkt",
+            "--browse",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
+    )
+    assert ret.success, "process should return success"
+
+    lines = ret.stdout.strip().split("\n")
+    # First line should be WKT output
+    assert lines[0].startswith("POLYGON"), "first line should be WKT format"
+
+    # --browse without --geojsonio should NOT print the URL
+    geojsonio_line = None
+    for line in lines[1:]:
+        if "geojson.io" in line:
+            geojsonio_line = line
+            break
+
+    assert (
+        geojsonio_line is None
+    ), "should NOT print geojsonio URL without --geojsonio flag"
+
+    # Browser should have been opened
+    assert len(browser_opened) == 1, "browser should have been opened"
+    assert "geojson.io" in browser_opened[0]

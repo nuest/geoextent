@@ -267,6 +267,42 @@ Format Details
 
 An easy way to verify these outputs is the `online WKB viewer/converter <https://wkbrew.tszheichoi.com/>`_.
 
+Interactive Visualization
+-------------------------
+
+Open extracted spatial extents in geojson.io for interactive visualization and editing.
+
+Generate URL
+^^^^^^^^^^^^
+
+Use ``--geojsonio`` to generate a clickable geojson.io URL::
+
+   python -m geoextent -b --geojsonio tests/testdata/geojson/muenster_ring.geojson
+
+This prints the URL after the JSON output.
+
+Open in Browser
+^^^^^^^^^^^^^^^
+
+Use ``--browse`` to automatically open the visualization in your default web browser::
+
+   python -m geoextent -b --browse tests/testdata/geojson/muenster_ring.geojson
+
+This opens the browser without printing the URL. To both print the URL to the console and open it in the browser, use both ``--geojsonio`` and ``--browse``::
+
+   python -m geoextent -b --geojsonio --browse tests/testdata/geojson/muenster_ring.geojson
+
+Works with Remote Repositories
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   # Open Zenodo data visualization in browser
+   python -m geoextent -b --browse https://doi.org/10.5281/zenodo.4593540
+
+   # Combine with other options
+   python -m geoextent -b --convex-hull --browse --quiet https://doi.org/10.1594/PANGAEA.734969
+
 Quiet Mode
 ----------
 
