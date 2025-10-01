@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     python3-requests \
     python3-dateutil \
     gdal-bin \
+    file \
     && rm -rf /var/lib/apt/lists/*
 
 # Verify GDAL installation
@@ -38,7 +39,8 @@ RUN pip3 install --break-system-packages \
     tqdm \
     beautifulsoup4 \
     geopy \
-    python-dotenv
+    python-dotenv \
+    bottleneck>=1.3.6
 
 # Set version for setuptools-scm
 ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.9.0
