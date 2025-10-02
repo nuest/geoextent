@@ -221,6 +221,11 @@ Bump version for release
 
 Follow the `Semantic Versioning specification`_ to clearly mark changes as a new major version, minor changes, or patches.
 The version number is managed using `setuptools-scm`_ via git tags.
+So simply add a tag to the latest commit, e.g., for version 1.2.3:
+
+::
+
+    git tag v1.2.3
 
 .. _Semantic Versioning specification: https://semver.org/
 .. _setuptools-scm: https://setuptools-scm.readthedocs.io/en/stable/usage/
@@ -244,7 +249,7 @@ Make sure the following files have the current information (version, commit, con
 Build distribution archive
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-See the PyPI documentation on generating a distribution archive, https://packaging.python.org/tutorials/packaging-projects/, for details.
+See the PyPI documentation on generating a distribution archive, https://packaging.python.org/en/latest/tutorials/packaging-projects/, for details.
 
 ::
 
@@ -252,7 +257,11 @@ See the PyPI documentation on generating a distribution archive, https://packagi
     rm dist/*
     rm -rf build *.egg-info
 
-    python3 setup.py sdist bdist_wheel
+    # build source distribution
+    source .venv/bin/activate   # if not already in venv
+    python3 -m build
+    python -m build --sdist
+
 
 Upload to test repository
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -262,32 +271,12 @@ First upload to the test repository and check everything is in order.
 ::
 
     # upload with twine, make sure only one wheel is in dist/
-    twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+    python3 -m twine upload --repository testpypi dist/*
 
 Check if the information on https://test.pypi.org/project/geoextent/ is correct.
 Then switch to a new Python environment or use a Python 3 container to get an "empty" setup.
-Install geoextent from TestPyPI and ensure the package is functional:
+Install geoextent from TestPyPI and ensure the package is functional, using Debian Testing container to try out a more recent version of GDAL:
 
-::
-
-    docker run --rm -it -v $(pwd)/tests/testdata/:/testdata python:3-buster /bin/bash
-
-    # install system deps
-    apt-get update
-    apt-get install gdal-bin libgdal-dev libproj-dev libgeos-dev libspatialite-dev netcdf-bin
-
-    # # Package dependencies (from regular PyPI), not all are on TestPyPI
-    pip install -r requirements.txt
-    pip install pygdal==`gdal-config --version`.*
-
-    pip install -i https://test.pypi.org/simple/ geoextent
-    geoextent --help
-    geoextent --version
-
-    geoextent -b -t /testdata/geojson/muenster_ring_zeit.geojson
-    geoextent -b -t /testdata/shapefile/gis_osm_buildings_a_free_1.shp
-
-Alternatively, use Debian Testing container to try out a more recent version of GDAL which matches the current release of the GDAL package on PyPI:
 
 ::
 
@@ -302,15 +291,18 @@ Alternatively, use Debian Testing container to try out a more recent version of 
 
     # Package dependencies (from regular PyPI)
     pip install -r requirements.txt
-    pip install pygdal==`gdal-config --version`.*
 
-    pip install -i https://test.pypi.org/simple/ geoextent
+    python3 -m pip install --index-url https://test.pypi.org/simple/ --no-deps geoextent-nuest
+
+    #pip install -i https://test.pypi.org/simple/ geoextent
     geoextent --help
     geoextent --version
 
-    wget https://github.com/nuest/geoextent/blob/main/tests/testdata/tif/wf_100m_klas.tif
+    geoextent -b /testdata/geojson/muenster_ring_zeit.geojson
+    geoextent -b -t --geojsonio /testdata/shapefile/gis_osm_buildings_a_free_1.shp
 
-    geoextent -b wf_100m_klas.tif
+    wget https://github.com/nuest/geoextent/blob/main/tests/testdata/tif/wf_100m_klas.tif
+    geoextent -b --format WKT wf_100m_klas.tif
 
 
 Upload to PyPI
@@ -318,7 +310,7 @@ Upload to PyPI
 
 ::
 
-    twine upload dist/*
+    python3 -m twine upload dist/*
 
 
 Check if information on https://pypi.org/project/geoextent/ is all correct.

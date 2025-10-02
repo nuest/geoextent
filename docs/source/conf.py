@@ -22,12 +22,12 @@ project = "geoextent"
 copyright = "2025, o2rproject and all contributors"
 author = "Daniel Nüst"
 
-import geoextent
+# https://setuptools-scm.readthedocs.io/en/stable/usage/#usage-from-sphinx
+from importlib.metadata import version as get_version
 
-version = geoextent.__version__
-# The full version, including alpha/beta/rc tags
-release = version
-
+release: str = get_version("geoextent")
+# for example take major/minor
+# version: str = ".".join(release.split('.')[:2])
 
 # -- General configuration ---------------------------------------------------
 
