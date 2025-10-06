@@ -31,7 +31,11 @@
       "Bash(PYTHONPATH=. pytest tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_wkt_geometry_column -v)",
       "Bash(PYTHONPATH=. pytest tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_wkb_column -v)",
       "Bash(PYTHONPATH=. pytest tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_from_geometry_column_opara_sample -v)",
-      "Bash(PYTHONPATH=. pytest tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_coordinates_column tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_coords_column tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_geom_column -v)"
+      "Bash(PYTHONPATH=. pytest tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_coordinates_column tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_coords_column tests/test_api_csv.py::TestCSVGeometryColumns::test_extract_bbox_geom_column -v)",
+      "Bash(python:*)",
+      "WebSearch",
+      "Bash(PYTHONPATH=. pytest tests/test_remote_single.py tests/test_remote_multi.py -v)",
+      "Bash(make:*)"
     ],
     "deny": [],
     "ask": []

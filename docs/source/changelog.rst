@@ -84,6 +84,15 @@ Changelog
   - Add comprehensive test coverage for multiple providers
   - Add geopy, python-dotenv, and filesizelib dependencies for enhanced functionality
 
+- **Features API**
+
+  - Add ``--list-features`` CLI option to display machine-readable JSON with supported file formats and content providers
+  - Add ``get_supported_features()`` Python API function for programmatic access to geoextent capabilities
+  - Add ``validate_remote_identifier()`` and ``validate_file_format()`` validation functions
+  - All 9 content providers include description (2-sentence overview) and website URL
+  - Enables external tools to discover capabilities and validate inputs before processing
+  - JSON output includes version, file format handlers with capabilities, and content provider details
+
 0.8.0
 ^^^^^
 

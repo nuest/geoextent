@@ -135,7 +135,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -143,6 +143,12 @@ def get_arg_parser():
     )
 
     parser.add_argument("--formats", action="store_true", help="show supported formats")
+
+    parser.add_argument(
+        "--list-features",
+        action="store_true",
+        help="output machine-readable JSON with all supported file formats and content providers"
+    )
 
     parser.add_argument("--version", action="store_true", help="show installed version")
 
@@ -335,6 +341,12 @@ def print_version():
     print(get_version())
 
 
+def print_features_json():
+    """Print machine-readable JSON with supported features."""
+    from .lib.features import get_supported_features_json
+    print(get_supported_features_json())
+
+
 arg_parser = get_arg_parser()
 
 
@@ -371,6 +383,9 @@ def main():
         arg_parser.exit()
     if "--formats" in sys.argv:
         print_supported_formats()
+        arg_parser.exit()
+    if "--list-features" in sys.argv:
+        print_features_json()
         arg_parser.exit()
 
     args = vars(arg_parser.parse_args())

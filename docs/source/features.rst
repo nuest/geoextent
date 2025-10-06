@@ -3,6 +3,338 @@ Advanced Features
 
 This page documents advanced features and options available in geoextent for specialized use cases.
 
+Features API
+------------
+
+Overview
+^^^^^^^^
+
+The geoextent Features API provides machine-readable information about all supported file formats and content providers. This enables external tools, libraries, and user interfaces to discover geoextent's capabilities programmatically and validate inputs before processing.
+
+**Key Features:**
+
+- **Dynamic Information**: All data is extracted from existing class properties and methods, not hardcoded
+- **Validation Functions**: Validate file formats and remote identifiers before calling geoextent
+- **JSON Export**: Machine-readable JSON format for integration with other tools
+- **CLI Access**: Command-line option for quick access to capabilities
+
+CLI Usage
+^^^^^^^^^
+
+List all features::
+
+   python -m geoextent --list-features
+
+This outputs a JSON document containing:
+
+- Version information
+- File format handlers with capabilities and supported extensions
+- Content providers with URL patterns, DOI prefixes, and examples
+
+Example output structure:
+
+.. code-block:: json
+
+   {
+     "version": "0.9.1",
+     "file_formats": [
+       {
+         "handler": "handleVector",
+         "description": "Vector geospatial formats",
+         "capabilities": {
+           "bounding_box": true,
+           "temporal_extent": true,
+           "convex_hull": true
+         },
+         "file_extensions": [".geojson", ".shp", ".gpkg", "..."]
+       }
+     ],
+     "content_providers": [
+       {
+         "name": "Opara",
+         "description": "OPARA is the Open Access Repository...",
+         "website": "https://opara.zih.tu-dresden.de/",
+         "doi_prefix": "10.25532/OPARA",
+         "url_patterns": ["..."],
+         "supported_identifiers": ["..."],
+         "examples": ["..."]
+       }
+     ]
+   }
+
+Python API Usage
+^^^^^^^^^^^^^^^^
+
+Import functions::
+
+   from geoextent.lib.features import (
+       get_supported_features,
+       get_supported_features_json,
+       validate_remote_identifier,
+       validate_file_format
+   )
+
+**Get all features:**
+
+.. code-block:: python
+
+   # Get as Python dict
+   features = get_supported_features()
+
+   print(f"Version: {features['version']}")
+   print(f"Handlers: {len(features['file_formats'])}")
+   print(f"Providers: {len(features['content_providers'])}")
+
+   # Get as JSON string
+   json_output = get_supported_features_json(indent=2)
+
+**Validate remote identifiers:**
+
+Validate a DOI, URL, or identifier before calling ``fromRemote()``:
+
+.. code-block:: python
+
+   result = validate_remote_identifier("10.25532/OPARA-581")
+
+   if result['valid']:
+       print(f"Supported by: {result['provider']}")
+       # Proceed with geoextent extraction
+   else:
+       print(f"Error: {result['message']}")
+
+**Validate file formats:**
+
+Check if a file format is supported before calling ``fromFile()``:
+
+.. code-block:: python
+
+   result = validate_file_format("data.geojson")
+
+   if result['valid']:
+       print(f"Handler: {result['handler']}")
+       # Proceed with geoextent extraction
+   else:
+       print(f"Error: {result['message']}")
+
+Use Cases
+"""""""""
+
+**1. Web Application Input Validation**
+
+.. code-block:: python
+
+   # Validate user input before processing
+   user_input = request.form['identifier']
+   validation = validate_remote_identifier(user_input)
+
+   if validation['valid']:
+       # Process with geoextent
+       extent = geoextent.fromRemote(user_input, bbox=True)
+   else:
+       # Show error to user
+       return {"error": validation['message']}
+
+**2. Documentation Generation**
+
+.. code-block:: python
+
+   # Auto-generate documentation from features
+   features = get_supported_features()
+
+   for provider in features['content_providers']:
+       print(f"## {provider['name']}")
+       print(f"DOI Prefix: {provider['doi_prefix']}")
+       print(f"Examples:")
+       for example in provider['examples']:
+           print(f"  - {example}")
+
+**3. Testing Frameworks**
+
+.. code-block:: python
+
+   # Ensure all providers are tested
+   features = get_supported_features()
+   provider_names = [p['name'] for p in features['content_providers']]
+
+   for name in provider_names:
+       test_name = f"test_{name.lower()}_provider"
+       assert hasattr(TestSuite, test_name), f"Missing test for {name}"
+
+Supported Content Providers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+All supported content providers are included with their name, description, website, DOI prefix, URL patterns, and examples:
+
+1. **Zenodo** - ``10.5281/zenodo`` - `zenodo.org <https://zenodo.org/>`_
+
+   Free and open digital archive built by CERN and OpenAIRE for sharing research output in any format.
+
+2. **Figshare** - ``10.6084/m9.figshare`` - `figshare.com <https://figshare.com/>`_
+
+   Online open access repository for preserving and sharing research outputs with DOI assignment and altmetrics.
+
+3. **Dryad** - ``10.5061/dryad`` - `datadryad.org <https://datadryad.org/>`_
+
+   Nonprofit curated repository specializing in data underlying scientific publications with CC0 licensing.
+
+4. **PANGAEA** - ``10.1594/PANGAEA`` - `pangaea.de <https://www.pangaea.de/>`_
+
+   Digital data library and publisher for earth system science with over 375,000 georeferenced datasets.
+
+5. **OSF** - ``10.17605/OSF.IO`` - `osf.io <https://osf.io/>`_
+
+   Free open-source project management tool by Center for Open Science for collaborative research workflows.
+
+6. **Dataverse** - ``10.7910/DVN`` (varies by instance) - `dataverse.org <https://dataverse.org/>`_
+
+   Open-source web application from Harvard University for sharing and preserving research data across disciplines.
+
+7. **GFZ Data Services** - ``10.5880/GFZ`` - `dataservices.gfz-potsdam.de <https://dataservices.gfz-potsdam.de/>`_
+
+   Curated repository for geosciences domain hosted at GFZ German Research Centre in Potsdam.
+
+8. **Pensoft** - ``10.3897`` - `pensoft.net <https://pensoft.net/>`_
+
+   Scholarly publisher from Bulgaria specializing in biodiversity with 60+ open access journals.
+
+9. **OPARA (TU Dresden)** - ``10.25532/OPARA`` - `opara.zih.tu-dresden.de <https://opara.zih.tu-dresden.de/>`_
+
+   Open Access Repository for research data of Saxon universities with 10-year archiving guarantee.
+
+Multiple Remote Resource Extraction
+------------------------------------
+
+Overview
+^^^^^^^^
+
+The ``fromRemote()`` function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a **merged geometry** (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:
+
+- Processing multiple datasets from different repositories
+- Comparing spatial coverage across multiple sources
+- Automated workflows that need to handle lists of DOIs
+- Creating combined metadata for related datasets
+
+Python API
+^^^^^^^^^^
+
+**Extract from multiple remote resources (list):**
+
+.. code-block:: python
+
+   from geoextent.lib import extent
+
+   identifiers = [
+       '10.5281/zenodo.4593540',
+       '10.25532/OPARA-581',
+       'https://osf.io/abc123/'
+   ]
+
+   result = extent.fromRemote(
+       identifiers,
+       bbox=True,
+       tbox=True,
+       max_download_size='100MB',
+       download_skip_nogeo=True
+   )
+
+   # Access combined bounding box
+   print(result['bbox'])  # Merged bounding box covering all resources
+
+   # Access individual details
+   for identifier, details in result['details'].items():
+       if 'error' in details:
+           print(f"Failed: {identifier} - {details['error']}")
+       else:
+           print(f"Success: {identifier} - {details['bbox']}")
+
+   # Check extraction statistics
+   metadata = result['extraction_metadata']
+   print(f"Total: {metadata['total_resources']}")
+   print(f"Successful: {metadata['successful']}")
+   print(f"Failed: {metadata['failed']}")
+
+**Extract from single remote resource (string):**
+
+.. code-block:: python
+
+   result = extent.fromRemote(
+       '10.5281/zenodo.4593540',
+       bbox=True,
+       tbox=True
+   )
+
+CLI Usage
+^^^^^^^^^
+
+The CLI supports multiple inputs including remote resources::
+
+   # Extract from multiple repositories
+   python -m geoextent -b -t \
+       10.5281/zenodo.4593540 \
+       10.25532/OPARA-581 \
+       https://osf.io/abc123/
+
+   # Mix remote resources with local files (also supported)
+   python -m geoextent -b -t \
+       data.geojson \
+       10.5281/zenodo.4593540 \
+       data_dir/
+
+Features
+^^^^^^^^
+
+All standard ``fromRemote()`` parameters are supported:
+
+- ``bbox``, ``tbox``, ``convex_hull`` - Extraction options
+- ``max_download_size``, ``max_download_method`` - Download control
+- ``download_skip_nogeo`` - File filtering
+- ``max_download_workers`` - Parallel processing
+- ``placename`` - Geographic context lookup
+- ``details`` - Include detailed extraction information
+
+Return Structure
+^^^^^^^^^^^^^^^^
+
+For multiple identifiers (list input):
+
+.. code-block:: python
+
+   {
+       "format": "remote_bulk",
+       "bbox": [minx, miny, maxx, maxy],  # Combined bounding box
+       "crs": "4326",                      # Coordinate reference system
+       "tbox": ["2020-01-01", "2023-12-31"],  # Combined temporal extent
+       "details": {
+           "10.5281/zenodo.4593540": {
+               "bbox": [...],
+               "tbox": [...],
+               "format": "remote",
+               ...
+           },
+           "10.25532/OPARA-581": {
+               "bbox": [...],
+               ...
+           }
+       },
+       "extraction_metadata": {
+           "total_resources": 2,
+           "successful": 2,
+           "failed": 0
+       }
+   }
+
+For single identifier (string input):
+
+.. code-block:: python
+
+   {
+       "format": "remote",
+       "bbox": [minx, miny, maxx, maxy],
+       "crs": "4326",
+       "tbox": ["2020-01-01", "2023-12-31"],
+       ...
+   }
+
 Extraction Metadata
 -------------------
 
