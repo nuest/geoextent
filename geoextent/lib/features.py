@@ -31,7 +31,7 @@ def get_supported_features() -> Dict[str, Any]:
     features = {
         "version": _get_geoextent_version(),
         "file_formats": _get_file_format_info(),
-        "content_providers": _get_content_provider_info()
+        "content_providers": _get_content_provider_info(),
     }
 
     return features
@@ -55,6 +55,7 @@ def _get_geoextent_version() -> str:
     """Get the geoextent version."""
     try:
         from .. import __version__
+
         return __version__
     except (ImportError, AttributeError):
         return "unknown"
@@ -80,16 +81,16 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
         "capabilities": {
             "bounding_box": True,
             "temporal_extent": True,
-            "convex_hull": hasattr(handleCSV, "getConvexHull")
+            "convex_hull": hasattr(handleCSV, "getConvexHull"),
         },
         "supported_patterns": {
             "longitude_columns": handleCSV.search.get("longitude", []),
             "latitude_columns": handleCSV.search.get("latitude", []),
             "geometry_columns": handleCSV.search.get("geometry", []),
-            "time_columns": handleCSV.search.get("time", [])
+            "time_columns": handleCSV.search.get("time", []),
         },
         "file_extensions": [".csv"],
-        "notes": "Automatically detects coordinate columns using pattern matching"
+        "notes": "Automatically detects coordinate columns using pattern matching",
     }
     handlers.append(csv_info)
 
@@ -100,21 +101,24 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
         "capabilities": {
             "bounding_box": True,
             "temporal_extent": True,
-            "convex_hull": hasattr(handleVector, "getConvexHull")
+            "convex_hull": hasattr(handleVector, "getConvexHull"),
         },
-        "supported_patterns": {
-            "time_columns": handleVector.search.get("time", [])
-        },
+        "supported_patterns": {"time_columns": handleVector.search.get("time", [])},
         "file_extensions": [
-            ".shp", ".shx", ".dbf", ".prj",  # Shapefile
-            ".geojson", ".json",              # GeoJSON
-            ".gpkg",                          # GeoPackage
-            ".gpx",                           # GPX
-            ".kml", ".kmz",                   # KML
-            ".gml",                           # GML
-            ".fgb"                            # FlatGeobuf
+            ".shp",
+            ".shx",
+            ".dbf",
+            ".prj",  # Shapefile
+            ".geojson",
+            ".json",  # GeoJSON
+            ".gpkg",  # GeoPackage
+            ".gpx",  # GPX
+            ".kml",
+            ".kmz",  # KML
+            ".gml",  # GML
+            ".fgb",  # FlatGeobuf
         ],
-        "notes": "Uses GDAL/OGR for vector format support"
+        "notes": "Uses GDAL/OGR for vector format support",
     }
     handlers.append(vector_info)
 
@@ -125,14 +129,17 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
         "capabilities": {
             "bounding_box": True,
             "temporal_extent": False,
-            "convex_hull": False
+            "convex_hull": False,
         },
         "file_extensions": [
-            ".tif", ".tiff", ".geotiff",     # GeoTIFF
-            ".nc", ".netcdf",                 # NetCDF
-            ".asc"                            # ASCII Grid
+            ".tif",
+            ".tiff",
+            ".geotiff",  # GeoTIFF
+            ".nc",
+            ".netcdf",  # NetCDF
+            ".asc",  # ASCII Grid
         ],
-        "notes": "Uses GDAL for raster format support"
+        "notes": "Uses GDAL for raster format support",
     }
     handlers.append(raster_info)
 
@@ -150,8 +157,15 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
     - Example identifiers
     """
     from .content_providers import (
-        Zenodo, Figshare, Dryad, Pangaea, OSF,
-        Dataverse, GFZ, Pensoft, Opara
+        Zenodo,
+        Figshare,
+        Dryad,
+        Pangaea,
+        OSF,
+        Dataverse,
+        GFZ,
+        Pensoft,
+        Opara,
     )
 
     providers = []
@@ -169,13 +183,13 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
             "https://zenodo.org/record/{record_id}",
             "https://doi.org/10.5281/zenodo.{record_id}",
             "10.5281/zenodo.{record_id}",
-            "{record_id}"
+            "{record_id}",
         ],
         "doi_prefix": "10.5281/zenodo",
         "examples": [
             "https://doi.org/10.5281/zenodo.4593540",
-            "10.5281/zenodo.4593540"
-        ]
+            "10.5281/zenodo.4593540",
+        ],
     }
     providers.append(zenodo_info)
 
@@ -190,12 +204,10 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         "supported_identifiers": [
             "https://figshare.com/articles/{article_id}",
             "https://doi.org/10.6084/m9.figshare.{article_id}",
-            "10.6084/m9.figshare.{article_id}"
+            "10.6084/m9.figshare.{article_id}",
         ],
         "doi_prefix": "10.6084/m9.figshare",
-        "examples": [
-            "https://doi.org/10.6084/m9.figshare.12345678"
-        ]
+        "examples": ["https://doi.org/10.6084/m9.figshare.12345678"],
     }
     providers.append(figshare_info)
 
@@ -210,12 +222,10 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         "supported_identifiers": [
             "https://datadryad.org/stash/dataset/doi:{doi}",
             "https://doi.org/10.5061/dryad.{id}",
-            "10.5061/dryad.{id}"
+            "10.5061/dryad.{id}",
         ],
         "doi_prefix": "10.5061/dryad",
-        "examples": [
-            "https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x"
-        ]
+        "examples": ["https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x"],
     }
     providers.append(dryad_info)
 
@@ -230,12 +240,10 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         "supported_identifiers": [
             "https://doi.pangaea.de/10.1594/PANGAEA.{dataset_id}",
             "https://doi.org/10.1594/PANGAEA.{dataset_id}",
-            "10.1594/PANGAEA.{dataset_id}"
+            "10.1594/PANGAEA.{dataset_id}",
         ],
         "doi_prefix": "10.1594/PANGAEA",
-        "examples": [
-            "https://doi.org/10.1594/PANGAEA.734969"
-        ]
+        "examples": ["https://doi.org/10.1594/PANGAEA.734969"],
     }
     providers.append(pangaea_info)
 
@@ -251,13 +259,10 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
             "https://osf.io/{project_id}/",
             "https://doi.org/10.17605/OSF.IO/{project_id}",
             "10.17605/OSF.IO/{project_id}",
-            "OSF.IO/{project_id}"
+            "OSF.IO/{project_id}",
         ],
         "doi_prefix": "10.17605/OSF.IO",
-        "examples": [
-            "https://doi.org/10.17605/OSF.IO/4XE6Z",
-            "https://osf.io/4xe6z/"
-        ]
+        "examples": ["https://doi.org/10.17605/OSF.IO/4XE6Z", "https://osf.io/4xe6z/"],
     }
     providers.append(osf_info)
 
@@ -271,20 +276,20 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         "url_patterns": [
             "https://{host}/dataset.xhtml?persistentId={doi}",
             "https://{host}/api/datasets/:persistentId?persistentId={doi}",
-            "https://{host}/api/datasets/{id}"
+            "https://{host}/api/datasets/{id}",
         ],
         "api_endpoint": "https://{host}/api/",
         "supported_identifiers": [
             "https://{instance}/dataset.xhtml?persistentId=doi:{doi}",
             "https://doi.org/{doi}",
             "doi:{doi}",
-            "{doi}"
+            "{doi}",
         ],
         "doi_prefix": "10.7910/DVN (Harvard), varies by instance",
         "examples": [
             "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/12345"
         ],
-        "notes": "Supports multiple Dataverse instances"
+        "notes": "Supports multiple Dataverse instances",
     }
     providers.append(dataverse_info)
 
@@ -299,12 +304,10 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         "supported_identifiers": [
             "https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id={doi}",
             "https://doi.org/10.5880/GFZ.{id}",
-            "10.5880/GFZ.{id}"
+            "10.5880/GFZ.{id}",
         ],
         "doi_prefix": "10.5880/GFZ",
-        "examples": [
-            "10.5880/GFZ.4.8.2023.004"
-        ]
+        "examples": ["10.5880/GFZ.4.8.2023.004"],
     }
     providers.append(gfz_info)
 
@@ -318,12 +321,10 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         "api_endpoint": pensoft_instance.host.get("api", ""),
         "supported_identifiers": [
             "https://doi.org/10.3897/{journal}.{article_id}",
-            "10.3897/{journal}.{article_id}"
+            "10.3897/{journal}.{article_id}",
         ],
         "doi_prefix": "10.3897",
-        "examples": [
-            "https://doi.org/10.3897/BDJ.2.e1068"
-        ]
+        "examples": ["https://doi.org/10.3897/BDJ.2.e1068"],
     }
     providers.append(pensoft_info)
 
@@ -340,15 +341,15 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
             "https://opara.zih.tu-dresden.de/handle/{handle}",
             "https://doi.org/10.25532/OPARA-{id}",
             "10.25532/OPARA-{id}",
-            "{uuid}"
+            "{uuid}",
         ],
         "doi_prefix": "10.25532/OPARA",
         "examples": [
             "https://opara.zih.tu-dresden.de/items/4cdf08d6-2738-4c9e-9d27-345a0647ff7c",
             "https://opara.zih.tu-dresden.de/handle/123456789/821",
-            "10.25532/OPARA-581"
+            "10.25532/OPARA-581",
         ],
-        "notes": "TU Dresden institutional repository using DSpace 7.x"
+        "notes": "TU Dresden institutional repository using DSpace 7.x",
     }
     providers.append(opara_info)
 
@@ -372,8 +373,15 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
             - message: str, description of the result
     """
     from .content_providers import (
-        Zenodo, Figshare, Dryad, Pangaea, OSF,
-        Dataverse, GFZ, Pensoft, Opara
+        Zenodo,
+        Figshare,
+        Dryad,
+        Pangaea,
+        OSF,
+        Dataverse,
+        GFZ,
+        Pensoft,
+        Opara,
     )
 
     # Try each provider in order
@@ -396,7 +404,7 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
                 return {
                     "valid": True,
                     "provider": provider.name,
-                    "message": f"Identifier is supported by {provider.name}"
+                    "message": f"Identifier is supported by {provider.name}",
                 }
         except Exception as e:
             # Continue to next provider if validation fails
@@ -406,7 +414,7 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
     return {
         "valid": False,
         "provider": None,
-        "message": "Identifier is not supported by any known content provider"
+        "message": "Identifier is not supported by any known content provider",
     }
 
 
@@ -428,11 +436,7 @@ def validate_file_format(filepath: str) -> Dict[str, Any]:
     """
     from . import handleCSV, handleRaster, handleVector
 
-    handlers = [
-        ("CSV", handleCSV),
-        ("Vector", handleVector),
-        ("Raster", handleRaster)
-    ]
+    handlers = [("CSV", handleCSV), ("Vector", handleVector), ("Raster", handleRaster)]
 
     for handler_name, handler_module in handlers:
         try:
@@ -440,7 +444,7 @@ def validate_file_format(filepath: str) -> Dict[str, Any]:
                 return {
                     "valid": True,
                     "handler": handler_module.get_handler_name(),
-                    "message": f"File format is supported by {handler_name} handler"
+                    "message": f"File format is supported by {handler_name} handler",
                 }
         except Exception as e:
             # Continue to next handler if validation fails
@@ -450,5 +454,5 @@ def validate_file_format(filepath: str) -> Dict[str, Any]:
     return {
         "valid": False,
         "handler": None,
-        "message": "File format is not supported by any known handler"
+        "message": "File format is not supported by any known handler",
     }

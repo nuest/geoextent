@@ -122,24 +122,27 @@ Output:
 
 `folder_two_files <https://github.com/nuest/geoextent/blob/main/tests/testdata/folders/folder_two_files>`_
 
-Zenodo repositories
+Remote repositories
 -------------------
 
-**Geoextent** also supports queries for **Zenodo repositories**.
-Geoextent creates a *temporal* copy of the repository and extracts the temporal or geographical extent.
-Geoextent only allows to query **Open** Zenodo repositories.
+**Geoextent** supports queries for multiple research data repositories including Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ Data Services, Pensoft, and TU Dresden Opara.
+
+Geoextent downloads files from the repository and extracts the temporal or geographical extent. The function supports both single identifiers (string) and multiple identifiers (list).
 
 ::
 
-   geoextent.fromRemote(repository_identifier, bbox, time, details)
+   geoextent.fromRemote(remote_identifier, bbox, time, details)
 
 **Parameters:**
-   - ``repository_identifier``: a string value with a Zenodo link (e.g., https://zenodo.org/record/3528062) or DOI (e.g., https://doi.org/10.5281/zenodo.3528062)
+   - ``remote_identifier``: a string value with a repository URL or DOI (e.g., https://zenodo.org/record/3528062, https://doi.org/10.5281/zenodo.3528062, 10.5281/zenodo.3528062), or a list of identifiers for multiple resource extraction
    - ``bbox``: a boolean value to extract spatial extent (bounding box)
    - ``time``: a boolean value to extract temporal extent (at "day" precision '%Y-%m-%d')
    - ``details``: a boolean value to return details (geoextent) of individual files (default **False**)
 
 The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: :doc:`../supportedformats/index_supportedformats`) inside the repository. The resulting coordinate reference system  ``CRS`` of the combined bbox is always in the `EPSG: 4326 <https://epsg.io/4326>`_ system.
+
+Single repository extraction
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Code:
 
@@ -155,3 +158,22 @@ Output:
 
    import geoextent.lib.extent as geoextent
    geoextent.fromRemote('https://zenodo.org/record/820562', True, True)
+
+Multiple repositories
+^^^^^^^^^^^^^^^^^^^^^
+
+Extract from multiple repositories in a single call:
+
+::
+
+   identifiers = [
+       '10.5281/zenodo.4593540',
+       '10.25532/OPARA-581',
+       'https://osf.io/abc123/'
+   ]
+
+   geoextent.fromRemote(identifiers, True, True, True)
+
+The function returns a **merged bounding box** covering all resources (similar to directory extraction), plus extraction metadata with success/failure tracking. Individual resource details are available in the ``details`` field for diagnostics.
+
+See :doc:`../features` for detailed documentation on multiple resource extraction features and return structure.

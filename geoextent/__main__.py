@@ -104,6 +104,8 @@ class readable_file_or_dir(argparse.Action):
             OSF,
             GFZ,
             Pensoft,
+            Opara,
+            Dataverse,
         )
 
         # Test against all content providers
@@ -115,6 +117,8 @@ class readable_file_or_dir(argparse.Action):
             OSF.OSF,
             GFZ.GFZ,
             Pensoft.Pensoft,
+            Opara.Opara,
+            Dataverse.Dataverse,
         ]
 
         for provider_class in content_providers:
@@ -147,7 +151,7 @@ def get_arg_parser():
     parser.add_argument(
         "--list-features",
         action="store_true",
-        help="output machine-readable JSON with all supported file formats and content providers"
+        help="output machine-readable JSON with all supported file formats and content providers",
     )
 
     parser.add_argument("--version", action="store_true", help="show installed version")
@@ -344,6 +348,7 @@ def print_version():
 def print_features_json():
     """Print machine-readable JSON with supported features."""
     from .lib.features import get_supported_features_json
+
     print(get_supported_features_json())
 
 

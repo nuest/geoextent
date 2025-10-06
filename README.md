@@ -27,7 +27,7 @@ This project was originally developed as part of the [DFG-funded](https://o2r.in
 
 - `fromFile()` - Extract extent from individual files
 - `fromDirectory()` - Extract extent from directories
-- `fromRemote()` - Extract extent from remote sources (repositories, journals, preprint servers)
+- `fromRemote()` - Extract extent from one or more remote sources (accepts string or list)
 
 ### Recent Breaking Changes
 
@@ -86,6 +86,9 @@ python -m geoextent -b -t tests/testdata/csv/cities_NL.csv
 # Extract from research repository
 python -m geoextent -b -t https://doi.org/10.5281/zenodo.4593540
 
+# Extract from multiple repositories (returns merged geometry)
+python -m geoextent -b -t 10.5281/zenodo.4593540 10.25532/OPARA-581 https://osf.io/abc123/
+
 # Extract with convex hull (more precise for vector data)
 python -m geoextent -b --convex-hull tests/testdata/geojson/muenster_ring.geojson
 
@@ -104,8 +107,14 @@ result = geoextent.fromFile('data.geojson', bbox=True, tbox=True)
 # From directory
 result = geoextent.fromDirectory('data/', bbox=True, tbox=True)
 
-# From repository
+# From single repository
 result = geoextent.fromRemote('10.5281/zenodo.4593540', bbox=True, tbox=True)
+
+# From multiple repositories (returns merged geometry)
+identifiers = ['10.5281/zenodo.4593540', '10.25532/OPARA-581', 'https://osf.io/abc123/']
+result = geoextent.fromRemote(identifiers, bbox=True, tbox=True)
+print(result['bbox'])  # Merged bounding box covering all resources
+print(result['extraction_metadata'])  # Success/failure statistics
 ```
 
 For comprehensive examples and advanced features, see the [examples documentation](https://nuest.github.io/geoextent/examples.html).

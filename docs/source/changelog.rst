@@ -5,6 +5,18 @@ Changelog
 0.9.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^
 
+- **Multiple Remote Resource Extraction**
+
+  - ``fromRemote()`` now accepts both single identifiers (string) and multiple identifiers (list)
+  - Returns merged bounding box and temporal extent across all resources (same as directory extraction)
+  - Individual resource details available in ``details`` field for diagnostics and error tracking
+  - Supports all remote provider features: download limits, file filtering, parallel downloads
+  - CLI already supports multiple remote identifiers (can be mixed with local files)
+  - Example: ``geoextent -b -t 10.5281/zenodo.123 10.25532/OPARA-456 https://osf.io/abc123/``
+  - **Architecture improvement**: Single resource processing is now a special case of multi-resource processing
+  - Maintains full backward compatibility with existing code
+  - Reduces code duplication and ensures consistent behavior
+
 - **Output Enhancements**
 
   - Add extraction metadata to GeoJSON output with ``geoextent_extraction`` field containing:

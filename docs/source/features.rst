@@ -237,21 +237,20 @@ Python API
        download_skip_nogeo=True
    )
 
-   # Access combined bounding box
-   print(result['bbox'])  # Merged bounding box covering all resources
-
-   # Access individual details
-   for identifier, details in result['details'].items():
-       if 'error' in details:
-           print(f"Failed: {identifier} - {details['error']}")
-       else:
-           print(f"Success: {identifier} - {details['bbox']}")
+   # Access merged bounding box (covers all resources)
+   print(result['bbox'])  # [minx, miny, maxx, maxy]
+   print(result['crs'])   # '4326'
 
    # Check extraction statistics
    metadata = result['extraction_metadata']
    print(f"Total: {metadata['total_resources']}")
    print(f"Successful: {metadata['successful']}")
    print(f"Failed: {metadata['failed']}")
+
+   # Optional: Access individual resource details for diagnostics
+   for identifier, details in result['details'].items():
+       if 'error' in details:
+           print(f"Failed: {identifier} - {details['error']}")
 
 **Extract from single remote resource (string):**
 
@@ -295,24 +294,24 @@ All standard ``fromRemote()`` parameters are supported:
 Return Structure
 ^^^^^^^^^^^^^^^^
 
-For multiple identifiers (list input):
+For multiple identifiers (list input), the function returns a **merged geometry** covering all resources:
 
 .. code-block:: python
 
    {
        "format": "remote_bulk",
-       "bbox": [minx, miny, maxx, maxy],  # Combined bounding box
+       "bbox": [minx, miny, maxx, maxy],  # Merged bounding box (all resources)
        "crs": "4326",                      # Coordinate reference system
-       "tbox": ["2020-01-01", "2023-12-31"],  # Combined temporal extent
+       "tbox": ["2020-01-01", "2023-12-31"],  # Merged temporal extent (all resources)
        "details": {
            "10.5281/zenodo.4593540": {
-               "bbox": [...],
+               "bbox": [...],              # Individual resource bbox (for diagnostics)
                "tbox": [...],
                "format": "remote",
                ...
            },
            "10.25532/OPARA-581": {
-               "bbox": [...],
+               "bbox": [...],              # Individual resource bbox (for diagnostics)
                ...
            }
        },
@@ -322,6 +321,8 @@ For multiple identifiers (list input):
            "failed": 0
        }
    }
+
+The primary result is the merged ``bbox`` at the top level, which combines all successfully extracted resources into a single bounding box (or convex hull if ``convex_hull=True``). Individual bounding boxes in ``details`` are retained for diagnostic purposes only.
 
 For single identifier (string input):
 

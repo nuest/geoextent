@@ -674,7 +674,7 @@ def fromFile(
 
 
 def fromRemote(
-    remote_identifier: str,
+    remote_identifier: str | list[str],
     bbox: bool = False,
     tbox: bool = False,
     convex_hull: bool = False,
@@ -694,37 +694,201 @@ def fromRemote(
     download_skip_nogeo_exts: set = None,
     max_download_workers: int = 4,
 ):
-    try:
-        geoextent = geoextent_from_repository()
-        metadata = geoextent.fromRemote(
-            remote_identifier,
-            bbox,
-            tbox,
-            convex_hull,
-            details,
-            throttle,
-            timeout,
-            download_data,
-            show_progress,
-            recursive,
-            include_geojsonio,
-            max_download_size,
-            max_download_method,
-            max_download_method_seed,
-            placename,
-            placename_escape,
-            download_skip_nogeo,
-            download_skip_nogeo_exts,
-            max_download_workers,
-        )
-        metadata["format"] = "remote"
-    except ValueError as e:
-        logger.debug(
-            "Error while inspecting remote source {}: {}".format(remote_identifier, e)
-        )
-        raise Exception(e)
+    """
+    Extract geospatial and temporal extent from one or more remote resources.
 
-    return metadata
+    This function processes remote identifiers (DOIs, URLs) and returns extracted
+    extents. It accepts either a single identifier (string) or multiple identifiers (list).
+
+    Parameters
+    ----------
+    remote_identifier : str or list of str
+        Single identifier (str) or list of identifiers (DOIs, URLs, or repository-specific identifiers)
+    bbox : bool, optional
+        Extract bounding box (default: False)
+    tbox : bool, optional
+        Extract temporal extent (default: False)
+    convex_hull : bool, optional
+        Extract convex hull instead of bounding box (default: False)
+    details : bool, optional
+        Include detailed extraction information (default: False)
+    throttle : bool, optional
+        Enable API rate limiting (default: False)
+    timeout : int or float, optional
+        Timeout in seconds for operations (default: None)
+    download_data : bool, optional
+        Download actual data files (default: True)
+    show_progress : bool, optional
+        Show progress bars (default: True)
+    recursive : bool, optional
+        Process archives recursively (default: True)
+    include_geojsonio : bool, optional
+        Include geojson.io URL (default: False)
+    max_download_size : str, optional
+        Maximum download size (e.g., '100MB') (default: None)
+    max_download_method : str, optional
+        File selection method when size limited (default: 'ordered')
+    max_download_method_seed : int, optional
+        Random seed for reproducible sampling (default: DEFAULT_DOWNLOAD_SAMPLE_SEED)
+    placename : str, optional
+        Gazetteer service for placename lookup (default: None)
+    placename_escape : bool, optional
+        Escape placenames for use in URLs (default: False)
+    download_skip_nogeo : bool, optional
+        Skip non-geospatial files (default: False)
+    download_skip_nogeo_exts : set, optional
+        Additional file extensions to consider geospatial (default: None)
+    max_download_workers : int, optional
+        Number of parallel download workers (default: 4)
+
+    Returns
+    -------
+    dict
+        For single identifier (str input): Metadata dict with format='remote'
+        For multiple identifiers (list input): Metadata dict with format='remote_bulk' and details for each
+
+    Raises
+    ------
+    ValueError
+        If remote_identifier is an empty list
+    Exception
+        If errors occur during extraction
+
+    Examples
+    --------
+    >>> from geoextent.lib import extent
+    >>> # Single resource
+    >>> result = extent.fromRemote('10.5281/zenodo.4593540', bbox=True)
+    >>> print(result['bbox'])
+    >>>
+    >>> # Multiple resources
+    >>> identifiers = ['10.5281/zenodo.4593540', 'https://doi.org/10.25532/OPARA-581']
+    >>> result = extent.fromRemote(identifiers, bbox=True, tbox=True)
+    >>> print(result['bbox'])  # Combined bounding box
+    >>> print(result['extraction_metadata'])  # Processing statistics
+    """
+
+    # Normalize input to list
+    is_single_resource = isinstance(remote_identifier, str)
+    remote_identifiers = [remote_identifier] if is_single_resource else remote_identifier
+
+    # Validate input
+    if not isinstance(remote_identifiers, list):
+        raise ValueError(
+            f"remote_identifier must be a string or list, got {type(remote_identifier).__name__}"
+        )
+
+    if len(remote_identifiers) == 0:
+        raise ValueError("remote_identifier list cannot be empty")
+
+    logger.info(
+        f"Processing extraction from {len(remote_identifiers)} remote resource(s)"
+    )
+
+    # Initialize output structure
+    output = {
+        "format": "remote_bulk" if not is_single_resource else "remote",
+        "details": {},
+        "extraction_metadata": {
+            "total_resources": len(remote_identifiers),
+            "successful": 0,
+            "failed": 0,
+        },
+    }
+
+    # Initialize geoextent_from_repository instance for processing
+    geoextent = geoextent_from_repository()
+
+    # Process each remote identifier
+    for identifier in remote_identifiers:
+        logger.debug(f"Processing remote resource: {identifier}")
+        try:
+            # Call the actual extraction method directly
+            resource_output = geoextent.fromRemote(
+                identifier,
+                bbox=bbox,
+                tbox=tbox,
+                convex_hull=convex_hull,
+                details=details,
+                throttle=throttle,
+                timeout=timeout,
+                download_data=download_data,
+                show_progress=show_progress,
+                recursive=recursive,
+                include_geojsonio=include_geojsonio,
+                max_download_size=max_download_size,
+                max_download_method=max_download_method,
+                max_download_method_seed=max_download_method_seed,
+                placename=placename,
+                placename_escape=placename_escape,
+                download_skip_nogeo=download_skip_nogeo,
+                download_skip_nogeo_exts=download_skip_nogeo_exts,
+                max_download_workers=max_download_workers,
+            )
+            if resource_output is not None:
+                resource_output["format"] = "remote"
+                output["details"][identifier] = resource_output
+                output["extraction_metadata"]["successful"] += 1
+        except Exception as e:
+            logger.warning(f"Error processing {identifier}: {str(e)}")
+            output["details"][identifier] = {"error": str(e)}
+            output["extraction_metadata"]["failed"] += 1
+            continue
+
+    # Merge spatial extents if bbox is requested
+    if bbox:
+        if convex_hull:
+            merged_extent = hf.convex_hull_merge(output["details"], "remote")
+        else:
+            merged_extent = hf.bbox_merge(output["details"], "remote")
+
+        if merged_extent:
+            output["bbox"] = merged_extent.get("bbox")
+            output["crs"] = merged_extent.get("crs")
+
+    # Merge temporal extents if tbox is requested
+    if tbox:
+        merged_tbox = hf.tbox_merge(output["details"], "remote")
+        if merged_tbox:
+            output["tbox"] = merged_tbox
+
+    # Add geojson.io URL if requested
+    if include_geojsonio and bbox:
+        geojsonio_url = hf.create_geojsonio_url(output)
+        if geojsonio_url:
+            output["geojsonio_url"] = geojsonio_url
+
+    logger.info(
+        f"Extraction complete: {output['extraction_metadata']['successful']} successful, "
+        f"{output['extraction_metadata']['failed']} failed"
+    )
+
+    # For single resource, return simplified structure for backward compatibility
+    if is_single_resource:
+        identifier = remote_identifiers[0]
+        if identifier in output["details"]:
+            result = output["details"][identifier]
+
+            # If there was an error, raise it
+            if "error" in result:
+                raise Exception(result["error"])
+
+            # Add merged extents
+            if "bbox" in output:
+                result["bbox"] = output["bbox"]
+            if "crs" in output:
+                result["crs"] = output["crs"]
+            if "tbox" in output:
+                result["tbox"] = output["tbox"]
+            if "geojsonio_url" in output:
+                result["geojsonio_url"] = output["geojsonio_url"]
+
+            return result
+        else:
+            raise Exception(f"Failed to extract from {identifier}")
+
+    # For multiple resources, return full structure
+    return output
 
 
 class geoextent_from_repository(Application):
