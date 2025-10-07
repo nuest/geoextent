@@ -28,25 +28,49 @@ handle_modules = {"CSV": handleCSV, "raster": handleRaster, "vector": handleVect
 
 def compute_bbox_wgs84(module, path):
     """
-    input "module": type module, module from which methods shall be used \n
-    input "path": type string, path to file \n
-    returns a bounding box, type list, length = 4 , type = float,
-        schema = [min(longs), min(lats), max(longs), max(lats)],
-        the bounding box has either its original crs or WGS84(transformed).
+    Extract and transform bounding box to WGS84.
+
+    Trusts GDAL/OGR coordinate order from transformations. For data already in WGS84,
+    uses coordinates as provided by the handler without modification.
+
+    Args:
+        module: Handler module (handleCSV, handleVector, handleRaster)
+        path: File path
+
+    Returns:
+        dict: {"bbox": [minlon, minlat, maxlon, maxlat], "crs": "4326"}
+              Coordinates are always in [longitude, latitude] order per GeoJSON spec.
     """
     logger.debug("compute_bbox_wgs84: {}".format(path))
     spatial_extent_origin = module.getBoundingBox(path)
 
     try:
         if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
+            # Data is already in WGS84 - use as-is
             spatial_extent = spatial_extent_origin
+            logger.debug(
+                "Bbox already in WGS84, using coordinates as-is: {}".format(
+                    spatial_extent["bbox"]
+                )
+            )
         else:
+            # Transform to WGS84 - trust GDAL transformation result
+            logger.debug(
+                "Transforming bbox from EPSG:{} to WGS84".format(
+                    spatial_extent_origin["crs"]
+                )
+            )
             spatial_extent = {
                 "bbox": hf.transformingArrayIntoWGS84(
                     spatial_extent_origin["crs"], spatial_extent_origin["bbox"]
                 ),
                 "crs": str(hf.WGS84_EPSG_ID),
             }
+            logger.debug(
+                "Transformation complete, bbox in WGS84: {}".format(
+                    spatial_extent["bbox"]
+                )
+            )
     except Exception as e:
         raise Exception(
             "The bounding box could not be transformed to the target CRS epsg:{} \n error {}".format(
@@ -54,30 +78,24 @@ def compute_bbox_wgs84(module, path):
             )
         )
 
-    validate = hf.validate_bbox_wgs84(spatial_extent["bbox"])
-    logger.debug("Validate: {}".format(validate))
-
-    if not hf.validate_bbox_wgs84(spatial_extent["bbox"]):
-        try:
-            flip_bbox = hf.flip_bbox(spatial_extent["bbox"])
-            spatial_extent["bbox"] = flip_bbox
-
-        except Exception as e:
-            raise Exception(
-                "The bounding box could not be transformed to the target CRS epsg:{} \n error {}".format(
-                    hf.WGS84_EPSG_ID, e
-                )
-            )
-
     return spatial_extent
 
 
 def compute_convex_hull_wgs84(module, path):
     """
-    input "module": type module, module from which methods shall be used \n
-    input "path": type string, path to file \n
-    returns a convex hull as bounding box, type dict with keys 'bbox' and 'crs',
-        the bounding box has either its original crs or WGS84(transformed).
+    Extract and transform convex hull to WGS84.
+
+    Trusts GDAL/OGR coordinate order from transformations. For data already in WGS84,
+    uses coordinates as provided by the handler without modification.
+
+    Args:
+        module: Handler module (handleCSV, handleVector, handleRaster)
+        path: File path
+
+    Returns:
+        dict: {"bbox": [minlon, minlat, maxlon, maxlat], "crs": "4326",
+               "convex_hull_coords": [[lon1, lat1], [lon2, lat2], ...]}
+              Coordinates are always in [longitude, latitude] order per GeoJSON spec.
     """
     logger.debug("compute_convex_hull_wgs84: {}".format(path))
 
@@ -97,8 +115,20 @@ def compute_convex_hull_wgs84(module, path):
 
     try:
         if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
+            # Data is already in WGS84 - use as-is
             spatial_extent = spatial_extent_origin
+            logger.debug(
+                "Convex hull already in WGS84, using coordinates as-is: {}".format(
+                    spatial_extent["bbox"]
+                )
+            )
         else:
+            # Transform to WGS84 - trust GDAL transformation result
+            logger.debug(
+                "Transforming convex hull from EPSG:{} to WGS84".format(
+                    spatial_extent_origin["crs"]
+                )
+            )
             spatial_extent = {
                 "bbox": hf.transformingArrayIntoWGS84(
                     spatial_extent_origin["crs"], spatial_extent_origin["bbox"]
@@ -131,27 +161,18 @@ def compute_convex_hull_wgs84(module, path):
                 spatial_extent["convex_hull_geom"] = spatial_extent_origin[
                     "convex_hull"
                 ]
+
+            logger.debug(
+                "Transformation complete, convex hull bbox in WGS84: {}".format(
+                    spatial_extent["bbox"]
+                )
+            )
     except Exception as e:
         raise Exception(
             "The convex hull could not be transformed to the target CRS epsg:{} \n error {}".format(
                 hf.WGS84_EPSG_ID, e
             )
         )
-
-    validate = hf.validate_bbox_wgs84(spatial_extent["bbox"])
-    logger.debug("Validate convex hull: {}".format(validate))
-
-    if not hf.validate_bbox_wgs84(spatial_extent["bbox"]):
-        try:
-            flip_bbox = hf.flip_bbox(spatial_extent["bbox"])
-            spatial_extent["bbox"] = flip_bbox
-
-        except Exception as e:
-            raise Exception(
-                "The convex hull could not be transformed to the target CRS epsg:{} \n error {}".format(
-                    hf.WGS84_EPSG_ID, e
-                )
-            )
 
     return spatial_extent
 
@@ -770,7 +791,9 @@ def fromRemote(
 
     # Normalize input to list
     is_single_resource = isinstance(remote_identifier, str)
-    remote_identifiers = [remote_identifier] if is_single_resource else remote_identifier
+    remote_identifiers = (
+        [remote_identifier] if is_single_resource else remote_identifier
+    )
 
     # Validate input
     if not isinstance(remote_identifiers, list):

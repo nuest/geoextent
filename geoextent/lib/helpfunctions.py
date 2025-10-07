@@ -112,16 +112,30 @@ def searchForParameters(elements, param_array, exp_data=None):
 
 def transformingIntoWGS84(crs, coordinate):
     """
-    Function purpose: transforming SRS into WGS84 (EPSG:4326) \n
-    Input: crs, point \n
-    Output: retPoint constisting of x2, y2 (transformed points)
+    Transform coordinates from any CRS to WGS84 (EPSG:4326).
+
+    Uses traditional GIS axis order (longitude/easting, latitude/northing) for both
+    source and target CRS, regardless of GDAL version, to ensure consistent [lon, lat]
+    order per GeoJSON spec.
+
+    Args:
+        crs: Source EPSG code as string or int
+        coordinate: [x, y] coordinate pair in source CRS (always in traditional GIS order: X/lon/easting first)
+
+    Returns:
+        [longitude, latitude] in WGS84 (EPSG:4326)
     """
     # TODO: check whether current src is 4326
     source = osr.SpatialReference()
     source.ImportFromEPSG(int(crs))
+    # Set traditional GIS axis order for source CRS (x/lon/easting, y/lat/northing)
+    source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
 
     target = osr.SpatialReference()
     target.ImportFromEPSG(WGS84_EPSG_ID)
+    # GDAL 3+ honors official EPSG axis order (lat, lon for EPSG:4326)
+    # Set to traditional GIS order (lon, lat) for consistency
+    target.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
 
     transform = osr.CoordinateTransformation(source, target)
 
@@ -178,26 +192,6 @@ def validate_bbox_wgs84(bbox):
         valid = False
 
     return valid
-
-
-def flip_bbox(bbox):
-    """
-    bbox: Bounding box (list)
-    Output: bbox flipped (Latitude to longitude if possible)
-    """
-    # Flip values
-    lon_values = bbox[1:4:2]
-    lat_values = bbox[0:3:2]
-
-    bbox_flip = [lon_values[0], lat_values[0], lon_values[1], lat_values[1]]
-    if validate_bbox_wgs84(bbox_flip):
-        logger.warning("Longitude and latitude values flipped")
-        return bbox_flip
-    else:
-        raise Exception(
-            "Latitude and longitude values extracted do not seem to be correctly transformed. We tried "
-            "flipping latitude and longitude values but both bbox are incorrect"
-        )
 
 
 def validate(date_text):
@@ -443,6 +437,8 @@ def bbox_merge(metadata, origin):
         multipolygon = ogr.Geometry(ogr.wkbMultiPolygon)
         des_crs = ogr.osr.SpatialReference()
         des_crs.ImportFromEPSG(WGS84_EPSG_ID)
+        # Set traditional GIS axis order (lon, lat) for consistency with GeoJSON
+        des_crs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
         multipolygon.AssignSpatialReference(des_crs)
 
         for bbox in boxes_extent:
@@ -458,6 +454,8 @@ def bbox_merge(metadata, origin):
                 if bbox[1] != str(WGS84_EPSG_ID):
                     source = osr.SpatialReference()
                     source.ImportFromEPSG(int(bbox[1]))
+                    # Set traditional GIS axis order for source CRS (x/lon/easting, y/lat/northing)
+                    source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
                     transform = osr.CoordinateTransformation(source, des_crs)
                     box.Transform(transform)
 
@@ -619,8 +617,12 @@ def convex_hull_merge(metadata, origin):
                     if crs != str(WGS84_EPSG_ID):
                         source = osr.SpatialReference()
                         source.ImportFromEPSG(int(crs))
+                        # Set traditional GIS axis order for source CRS (x/lon/easting, y/lat/northing)
+                        source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
                         des_crs = osr.SpatialReference()
                         des_crs.ImportFromEPSG(WGS84_EPSG_ID)
+                        # Set traditional GIS axis order (lon, lat) for consistency with GeoJSON
+                        des_crs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
                         transform = osr.CoordinateTransformation(source, des_crs)
                         polygon.Transform(transform)
 
@@ -645,8 +647,12 @@ def convex_hull_merge(metadata, origin):
                     if crs != str(WGS84_EPSG_ID):
                         source = osr.SpatialReference()
                         source.ImportFromEPSG(int(crs))
+                        # Set traditional GIS axis order for source CRS (x/lon/easting, y/lat/northing)
+                        source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
                         des_crs = osr.SpatialReference()
                         des_crs.ImportFromEPSG(WGS84_EPSG_ID)
+                        # Set traditional GIS axis order (lon, lat) for consistency with GeoJSON
+                        des_crs.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
                         transform = osr.CoordinateTransformation(source, des_crs)
                         polygon.Transform(transform)
 

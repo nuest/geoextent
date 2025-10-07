@@ -321,8 +321,17 @@ def test_bbox_and_tbox_both_false():
 
 
 def test_invalid_bbox_and_flip():
+    """Test that coordinates are extracted as-is from column labels, even if swapped.
+
+    This CSV file has intentionally swapped column labels (no_Latitude contains longitude
+    values and vice versa). Geoextent now trusts the column labels and does not attempt
+    to auto-correct/flip coordinates, following the principle of trusting input data as-is.
+    """
     result = geoextent.fromFile("tests/testdata/csv/cities_NL_case_flip.csv", bbox=True)
+    # Coordinates are extracted as-is based on column labels (no flip applied)
+    # This results in swapped coordinates: [minLon, minLat, maxLon, maxLat]
+    # but the actual values are from swapped columns
     assert result["bbox"] == pytest.approx(
-        [4.3175, 5.0, 95.0, 53.217222], abs=tolerance
+        [5.0, 4.3175, 53.217222, 95.0], abs=tolerance
     )
     assert result["crs"] == "4326"
