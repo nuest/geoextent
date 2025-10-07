@@ -23,6 +23,11 @@ def get_handler_name():
     return "handleVector"
 
 
+def get_handler_display_name():
+    """Return human-readable name for this handler"""
+    return "Vector data"
+
+
 def checkFileSupported(filepath):
     """Checks whether it is valid vector file or not. \n
     input "path": type string, path to file which shall be extracted \n

@@ -41,6 +41,11 @@ def get_handler_name():
     return "handleCSV"
 
 
+def get_handler_display_name():
+    """Return human-readable name for this handler"""
+    return "CSV (comma-separated values)"
+
+
 def checkFileSupported(filepath):
     """Checks whether it is valid CSV or not. \n
     input "path": type string, path to file which shall be extracted \n

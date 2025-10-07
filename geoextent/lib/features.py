@@ -77,6 +77,7 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     # CSV Handler
     csv_info = {
         "handler": handleCSV.get_handler_name(),
+        "display_name": handleCSV.get_handler_display_name(),
         "description": "CSV files with coordinate or geometry columns",
         "capabilities": {
             "bounding_box": True,
@@ -97,6 +98,7 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     # Vector Handler
     vector_info = {
         "handler": handleVector.get_handler_name(),
+        "display_name": handleVector.get_handler_display_name(),
         "description": "Vector geospatial formats (Shapefile, GeoJSON, GeoPackage, etc.)",
         "capabilities": {
             "bounding_box": True,
@@ -125,6 +127,7 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     # Raster Handler
     raster_info = {
         "handler": handleRaster.get_handler_name(),
+        "display_name": handleRaster.get_handler_display_name(),
         "description": "Raster geospatial formats (GeoTIFF, NetCDF, etc.)",
         "capabilities": {
             "bounding_box": True,

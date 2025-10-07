@@ -11,6 +11,11 @@ def get_handler_name():
     return "handleRaster"
 
 
+def get_handler_display_name():
+    """Return human-readable name for this handler"""
+    return "Raster data"
+
+
 def checkFileSupported(filepath):
     """Checks whether it is valid raster file or not. \n
     input "path": type string, path to file which shall be extracted \n
