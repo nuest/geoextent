@@ -43,7 +43,15 @@ Extract extent from PANGAEA Arctic Ocean dataset (~1MB):
 
    python -m geoextent -b -t https://doi.org/10.1594/PANGAEA.734969
 
-PANGAEA datasets often include rich geospatial metadata.
+PANGAEA datasets often include rich geospatial metadata. Both tabular and non-tabular data are supported, including datasets with downloadable files (GeoJSON, GeoTIFF, Shapefile, etc.):
+
+::
+
+   # Non-tabular dataset with GeoTIFF files
+   python -m geoextent -b https://doi.org/10.1594/PANGAEA.913496
+
+   # Non-tabular dataset with GeoJSON files
+   python -m geoextent -b https://doi.org/10.1594/PANGAEA.858767
 
 OSF Example
 ^^^^^^^^^^^
@@ -441,10 +449,15 @@ Dryad:
 
    python -m geoextent -b https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x
 
-PANGAEA:
+PANGAEA (tabular data):
 ::
 
    python -m geoextent -b https://doi.org/10.1594/PANGAEA.734969
+
+PANGAEA (non-tabular data - GeoTIFF files):
+::
+
+   python -m geoextent -b https://doi.org/10.1594/PANGAEA.913496
 
 OSF:
 ::

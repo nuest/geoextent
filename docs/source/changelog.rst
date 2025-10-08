@@ -78,6 +78,7 @@ Changelog
   - Add ``--placename-escape`` option for Unicode character escaping in placenames
   - Shared component algorithm for extracting common location components
   - Progress bar integration for gazetteer API calls
+  - Optimize gazetteer queries to avoid duplicate API calls for closed polygon points (first and last point)
 
 - **Repository Support Enhancements**
 
@@ -89,8 +90,13 @@ Changelog
   - Add GFZ Data Services as content provider (:issue:`17`)
   - Add download size limiting for repositories (:issue:`70`)
   - Enhance content provider support for Dryad and OSF with full filtering capabilities
+    - Dryad provider now supports ``/stash/dataset/`` URL format with ``doi:`` prefix (e.g., ``https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x``)
   - Add support for OSF (Open Science Framework) repository extraction (:pr:`19`)
-  - Add Pangaea provider with web metadata extraction
+  - Enhance PANGAEA provider with non-tabular data support
+    - Support for datasets without tabular data (e.g., GeoTIFF, GeoJSON, Shapefile files)
+    - Automatic fallback to direct file download when tabular data unavailable
+    - Downloads and extracts ZIP archives containing geospatial files
+    - Full compatibility with size filtering and file filtering options
   - Add Dataverse repository support for data extraction (:issue:`57`)
   - Add ``--no-data-download`` option for metadata-only extraction from selected repositories
   - Restructure regex patterns for better repository candidate detection
