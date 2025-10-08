@@ -246,7 +246,14 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
             "10.1594/PANGAEA.{dataset_id}",
         ],
         "doi_prefix": "10.1594/PANGAEA",
-        "examples": ["https://doi.org/10.1594/PANGAEA.734969"],
+        "examples": [
+            "https://doi.org/10.1594/PANGAEA.734969",
+            "https://doi.pangaea.de/10.1594/PANGAEA.858767",
+            "https://doi.org/10.1594/PANGAEA.913496",
+            "https://doi.org/10.1594/PANGAEA.858767",
+            "https://doi.org/10.1594/PANGAEA.890863",
+            "https://doi.org/10.1594/PANGAEA.872701",
+        ],
     }
     providers.append(pangaea_info)
 

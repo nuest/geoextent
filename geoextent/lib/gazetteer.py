@@ -237,13 +237,21 @@ class PlacenameExtractor:
             logger.warning("Empty coordinates for placename extraction")
             return None
 
+        # For closed polygons, remove the duplicate last point (same as first)
+        coords_to_use = coordinates
+        if len(coordinates) > 1 and coordinates[0] == coordinates[-1]:
+            coords_to_use = coordinates[:-1]
+            logger.debug(
+                f"Removed duplicate closing point from polygon ({len(coordinates)} -> {len(coords_to_use)} points)"
+            )
+
         # Convert [lon, lat] to (lat, lon) for geocoding
-        sample_points = [(coord[1], coord[0]) for coord in coordinates]
+        sample_points = [(coord[1], coord[0]) for coord in coords_to_use]
 
         # Add center point
-        if len(coordinates) > 2:
-            center_lon = sum(coord[0] for coord in coordinates) / len(coordinates)
-            center_lat = sum(coord[1] for coord in coordinates) / len(coordinates)
+        if len(coords_to_use) > 2:
+            center_lon = sum(coord[0] for coord in coords_to_use) / len(coords_to_use)
+            center_lat = sum(coord[1] for coord in coords_to_use) / len(coords_to_use)
             sample_points.append((center_lat, center_lon))
 
         return self._extract_from_points(sample_points)

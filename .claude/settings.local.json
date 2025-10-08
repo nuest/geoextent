@@ -23,7 +23,8 @@
       "Bash(python3 -m pip:*)",
       "Bash(make:*)",
       "Bash(python3:*)",
-      "Bash(export PYTHONPATH=/home/daniel/git/geoextent)"
+      "Bash(export PYTHONPATH=/home/daniel/git/geoextent)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
