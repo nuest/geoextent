@@ -21,7 +21,9 @@
       "Bash(PYTHONPATH=/home/daniel/git/geoextent python -c \"\nimport logging\nlogging.basicConfig(level=logging.DEBUG, format=''%(levelname)s: %(message)s'')\n\nfrom geoextent.lib import external_metadata\n\n# Test with a PANGAEA DOI (should be in DataCite, not CrossRef)\nprint(''Testing PANGAEA DOI:'')\nmetadata = external_metadata.get_external_metadata(''10.1594/PANGAEA.909380'')\nimport json\nprint(json.dumps(metadata, indent=2))\n\")",
       "Bash(PYTHONPATH=/home/daniel/git/geoextent python -c \"\nimport logging\nlogging.basicConfig(level=logging.INFO)\n\nfrom geoextent.lib import external_metadata\n\n# Test with a standard academic DOI (CrossRef)\nprint(''Testing academic journal DOI (CrossRef):'')\nmetadata = external_metadata.get_external_metadata(''10.1371/journal.pone.0230416'')\nimport json\nprint(json.dumps(metadata, indent=2))\n\")",
       "Bash(python3 -m pip:*)",
-      "Bash(make:*)"
+      "Bash(make:*)",
+      "Bash(python3:*)",
+      "Bash(export PYTHONPATH=/home/daniel/git/geoextent)"
     ],
     "deny": [],
     "ask": []

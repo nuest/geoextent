@@ -12,6 +12,8 @@ class Dryad(DoiProvider):
         self.log = logging.getLogger("geoextent")
         self.host = {
             "hostname": [
+                "https://datadryad.org/stash/dataset/",
+                "http://datadryad.org/stash/dataset/",
                 "https://datadryad.org/dataset/",
                 "http://datadryad.org/dataset/",
             ],
@@ -43,18 +45,21 @@ class Dryad(DoiProvider):
 
             # Check if it looks like a valid DOI pattern
             if "doi:" in remaining_path:
-                # Check for complete DOI after "doi:"
-                doi_part = remaining_path.split("doi:")[-1]
-                if not doi_part or len(doi_part.strip("/")) < 5:  # Minimal DOI length
+                # Extract DOI after "doi:" prefix
+                doi_part = remaining_path.split("doi:")[-1].strip("/")
+                if not doi_part or len(doi_part) < 5:  # Minimal DOI length
                     return False
+                # Remove the doi: prefix and use just the DOI
+                self.record_id = "doi:" + doi_part
             elif remaining_path.startswith("10."):
                 # Check for complete DOI starting with "10."
                 if len(remaining_path.split(".")) < 2 or len(remaining_path) < 10:
                     return False
+                # Extract DOI from the last two path components
+                self.record_id = url.rsplit("/")[-2] + "/" + url.rsplit("/")[-1]
             else:
                 return False
 
-            self.record_id = url.rsplit("/")[-2] + "/" + url.rsplit("/")[-1]
             self.record_id_html = urllib.parse.quote(self.record_id, safe="")
             return True
         else:

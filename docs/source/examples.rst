@@ -77,7 +77,7 @@ Extract extent from Dryad dataset:
 
 ::
 
-   python -m geoextent -b -t https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x
+   python -m geoextent -b -t https://doi.org/10.5061/dryad.0k6djhb7x
 
 TU Dresden Opara Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^
