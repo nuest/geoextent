@@ -21,6 +21,7 @@ from . import handleCSV
 from . import handleRaster
 from . import handleVector
 from . import helpfunctions as hf
+from . import external_metadata
 
 logger = logging.getLogger("geoextent")
 handle_modules = {"CSV": handleCSV, "raster": handleRaster, "vector": handleVector}
@@ -101,7 +102,7 @@ def compute_convex_hull_wgs84(module, path):
 
     # Check if module has convex hull support
     if not hasattr(module, "getConvexHull"):
-        logger.warning(
+        logger.debug(
             "Module {} does not support convex hull calculation, falling back to bounding box".format(
                 module.get_handler_name()
             )
@@ -714,6 +715,8 @@ def fromRemote(
     download_skip_nogeo: bool = False,
     download_skip_nogeo_exts: set = None,
     max_download_workers: int = 4,
+    ext_metadata: bool = False,
+    ext_metadata_method: str = "auto",
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -761,6 +764,10 @@ def fromRemote(
         Additional file extensions to consider geospatial (default: None)
     max_download_workers : int, optional
         Number of parallel download workers (default: 4)
+    ext_metadata : bool, optional
+        Retrieve external metadata from CrossRef/DataCite for DOIs (default: False)
+    ext_metadata_method : str, optional
+        Method for retrieving metadata: "auto", "all", "crossref", "datacite" (default: "auto")
 
     Returns
     -------
@@ -881,6 +888,19 @@ def fromRemote(
         if geojsonio_url:
             output["geojsonio_url"] = geojsonio_url
 
+    # Retrieve external metadata for all resources if requested
+    if ext_metadata:
+        for identifier in remote_identifiers:
+            if (
+                identifier in output["details"]
+                and "error" not in output["details"][identifier]
+            ):
+                metadata = external_metadata.get_external_metadata(
+                    identifier, method=ext_metadata_method
+                )
+                # Always include external_metadata as an array (even if empty)
+                output["details"][identifier]["external_metadata"] = metadata
+
     logger.info(
         f"Extraction complete: {output['extraction_metadata']['successful']} successful, "
         f"{output['extraction_metadata']['failed']} failed"
@@ -905,6 +925,14 @@ def fromRemote(
                 result["tbox"] = output["tbox"]
             if "geojsonio_url" in output:
                 result["geojsonio_url"] = output["geojsonio_url"]
+
+            # Retrieve external metadata if requested
+            if ext_metadata:
+                metadata = external_metadata.get_external_metadata(
+                    identifier, method=ext_metadata_method
+                )
+                # Always include external_metadata as an array (even if empty)
+                result["external_metadata"] = metadata
 
             return result
         else:

@@ -31,7 +31,7 @@
 [INSPIRE]:      https://themes.jrc.ec.europa.eu/file/view/107486/example-of-gml-file-conformant-to-inspire-land-cover-vector-application-schema
 [unidata]: https://www.unidata.ucar.edu/software/netcdf/examples/files.html
 [geojson.io]: http://geojson.io
-[govdata]: https://www.govdata.de/web/guest/daten/-/details/abgrabungen
+[govdata]: https://offenedaten.kreis-kleve.de/files/?dir=Fachbereich_6/gisverb/Abgrabungen_Kreis_Kleve
 [Carto BCN / martgnz]: https://github.com/martgnz/bcn-geodata/tree/master/districtes
 [Google]: https://developers.google.com/kml/documentation/time#gps
 [Tkrajina]: https://github.com/tkrajina/gpxpy/blob/dev/test_files/gpx1.1_with_all_fields.gpx

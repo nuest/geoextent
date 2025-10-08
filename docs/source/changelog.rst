@@ -5,6 +5,20 @@ Changelog
 0.9.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^
 
+- **External Metadata Retrieval**
+
+  - Add ``--ext-metadata`` option to retrieve bibliographic metadata for DOIs from CrossRef and DataCite APIs
+  - Add ``--ext-metadata-method`` option to control metadata source selection:
+    - ``auto`` (default): Try CrossRef first, then DataCite if CrossRef fails
+    - ``all``: Query all sources and return all results
+    - ``crossref``: Query CrossRef only
+    - ``datacite``: Query DataCite only
+  - Metadata fields extracted: title, authors, publisher, publication year, URL, license
+  - Supports DOI input in multiple formats: plain DOI, DOI URL (https://doi.org/...), or doi: prefix
+  - External metadata always returned as array structure (even if empty or single source)
+  - New dependencies: ``crossref-commons``, ``datacite``
+  - Integration tests included for real API connectivity
+
 - **Multiple Remote Resource Extraction**
 
   - ``fromRemote()`` now accepts both single identifiers (string) and multiple identifiers (list)

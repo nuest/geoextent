@@ -300,6 +300,20 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--ext-metadata",
+        action="store_true",
+        default=False,
+        help="retrieve external metadata for DOIs (title, authors, publisher, publication year, URL, license) from CrossRef and DataCite",
+    )
+
+    parser.add_argument(
+        "--ext-metadata-method",
+        choices=["auto", "all", "crossref", "datacite"],
+        default="auto",
+        help="method for retrieving external metadata: 'auto' (try CrossRef first, then DataCite), 'all' (query all sources), 'crossref' (CrossRef only), 'datacite' (DataCite only) (default: auto)",
+    )
+
+    parser.add_argument(
         "--download-skip-nogeo",
         action="store_true",
         default=False,
@@ -512,6 +526,8 @@ def main():
                     download_skip_nogeo=args["download_skip_nogeo"],
                     download_skip_nogeo_exts=additional_extensions,
                     max_download_workers=args["max_download_workers"],
+                    ext_metadata=args["ext_metadata"],
+                    ext_metadata_method=args["ext_metadata_method"],
                 )
         else:
             # Multiple files handling
@@ -549,6 +565,8 @@ def main():
                             download_skip_nogeo=args["download_skip_nogeo"],
                             download_skip_nogeo_exts=additional_extensions,
                             max_download_workers=args["max_download_workers"],
+                            ext_metadata=args["ext_metadata"],
+                            ext_metadata_method=args["ext_metadata_method"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output

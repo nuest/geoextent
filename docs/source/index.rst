@@ -40,6 +40,7 @@ Documentation overview
     install
     examples
     features
+    external-metadata
     howto/index_howto
     supportedformats/index_supportedformats
     changelog

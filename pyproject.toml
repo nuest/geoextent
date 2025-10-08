@@ -46,7 +46,9 @@ dependencies = [
     "bs4",
     "geopy",
     "python-dotenv",
-    "humanfriendly"
+    "humanfriendly",
+    "crossref-commons",
+    "datacite"
 ]
 
 [project.optional-dependencies]

@@ -111,3 +111,11 @@ geoextent-env/
 bin/
 
 .claude/temp.md
+
+tests/testdata/geojson.zip
+
+tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.zip
+
+tests/testdata/shapefile/ifgi_denkpause.zip
+
+tests/testdata/shapefile/gis_osm_buildings_a_free_1.zip
