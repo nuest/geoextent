@@ -334,7 +334,10 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
             "10.3897/{journal}.{article_id}",
         ],
         "doi_prefix": "10.3897",
-        "examples": ["https://doi.org/10.3897/BDJ.2.e1068"],
+        "examples": [
+            "https://doi.org/10.3897/BDJ.2.e1068",
+            "https://doi.org/10.3897/BDJ.13.e159973",
+        ],
     }
     providers.append(pensoft_info)
 
