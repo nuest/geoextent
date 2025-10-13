@@ -106,6 +106,7 @@ class readable_file_or_dir(argparse.Action):
             Pensoft,
             Opara,
             Dataverse,
+            Senckenberg,
         )
 
         # Test against all content providers
@@ -119,6 +120,7 @@ class readable_file_or_dir(argparse.Action):
             Pensoft.Pensoft,
             Opara.Opara,
             Dataverse.Dataverse,
+            Senckenberg.Senckenberg,
         ]
 
         for provider_class in content_providers:

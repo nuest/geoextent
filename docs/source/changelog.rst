@@ -5,6 +5,29 @@ Changelog
 0.9.0 (unreleased)
 ^^^^^^^^^^^^^^^^^^
 
+- **New Content Providers**
+
+  - Add Senckenberg Biodiversity and Climate Research Centre data portal provider
+  - **Senckenberg is primarily a metadata repository** - most datasets contain rich geospatial and temporal metadata but limited/restricted data files
+  - **Recommended usage**: Always use ``--no-download-data`` (metadata-only mode) for Senckenberg datasets to extract spatial and temporal extents from metadata without downloading files
+  - Support for CKAN-based repositories via new ``CKANProvider`` base class
+  - Senckenberg provider supports:
+
+    - DOI format: ``10.12761/sgn.YYYY.NNNNN``
+    - Dataset URLs: ``https://dataportal.senckenberg.de/dataset/{id}``
+    - Dataset IDs (name slugs and UUIDs)
+    - JSON-LD URLs: ``.jsonld`` metadata format
+
+  - Extracts both spatial extent (bounding box) and temporal extent (date ranges) from CKAN metadata
+  - Temporal extent extraction: Supports ``rangeOfDates`` (begin/end dates) and ``singleDateTime`` fields
+  - Handles both open access and metadata-only restricted datasets
+  - Full support for download size limiting, file filtering, and parallel downloads (when data files are available)
+  - Example datasets:
+
+    - ``10.12761/sgn.2018.10268`` - Complete spatial and temporal metadata (Ecuador, 2014-2015)
+    - ``10.12761/sgn.2018.10225`` - Metadata with global extent
+    - ``as-sahabi-1`` - Dataset with downloadable geospatial files
+
 - **External Metadata Retrieval**
 
   - Add ``--ext-metadata`` option to retrieve bibliographic metadata for DOIs from CrossRef and DataCite APIs

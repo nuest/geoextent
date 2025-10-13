@@ -17,6 +17,7 @@ from .content_providers import Dataverse
 from .content_providers import GFZ
 from .content_providers import Pensoft
 from .content_providers import Opara
+from .content_providers import Senckenberg
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -954,6 +955,7 @@ class geoextent_from_repository(Application):
             GFZ.GFZ,
             Pensoft.Pensoft,
             Opara.Opara,
+            Senckenberg.Senckenberg,
         ],
         config=True,
         help="""

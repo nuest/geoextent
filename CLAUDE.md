@@ -167,7 +167,7 @@ Use the provided script for easy local testing:
 #### Test Categories
 
 - `api-core` - Core API functionality tests
-- `api-repositories` - Remote repository provider tests (Zenodo, Figshare, Dryad, PANGAEA, OSF, GFZ, Pensoft, Dataverse)
+- `api-repositories` - Remote repository provider tests (Zenodo, Figshare, Dryad, PANGAEA, OSF, GFZ, Pensoft, Dataverse, Opara, Senckenberg)
 - `api-formats` - Format handler tests (CSV, GeoJSON, GeoTIFF, Shapefile, FlatGeobuf)
 - `cli` - Command-line interface tests
 - `integration` - Integration and special feature tests
@@ -205,7 +205,8 @@ The project follows a modular handler-based architecture:
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):
-   - Support for extracting data from repositories (Zenodo, Figshare, Dryad, PANGAEA)
+   - Support for extracting data from repositories (Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ, Pensoft, Opara, Senckenberg)
+   - Includes abstract ``CKANProvider`` base class for CKAN-based repositories (used by Senckenberg)
 
 ### Handler Selection
 

@@ -169,6 +169,7 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         GFZ,
         Pensoft,
         Opara,
+        Senckenberg,
     )
 
     providers = []
@@ -366,6 +367,32 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
     }
     providers.append(opara_info)
 
+    # Senckenberg
+    senckenberg_instance = Senckenberg.Senckenberg()
+    senckenberg_info = {
+        "name": senckenberg_instance.name,
+        "description": "Senckenberg Biodiversity and Climate Research Centre operates a CKAN-based data portal providing access to biodiversity, climate, and geoscience research datasets. Supports both open access and metadata-only restricted datasets with rich taxonomic and temporal coverage metadata.",
+        "website": "https://dataportal.senckenberg.de/",
+        "url_patterns": senckenberg_instance.host.get("hostname", []),
+        "api_endpoint": senckenberg_instance.host.get("api", ""),
+        "supported_identifiers": [
+            "https://dataportal.senckenberg.de/dataset/{dataset_id}",
+            "https://dataportal.senckenberg.de/dataset/{dataset_id}.jsonld",
+            "https://doi.org/10.12761/sgn.{year}.{id}",
+            "10.12761/sgn.{year}.{id}",
+            "{dataset_id}",
+        ],
+        "doi_prefix": "10.12761/sgn",
+        "examples": [
+            "https://doi.org/10.12761/sgn.2018.10268",
+            "https://dataportal.senckenberg.de/dataset/as-sahabi-1",
+            "10.12761/sgn.2018.10225",
+            "as-sahabi-1",
+        ],
+        "notes": "CKAN-based repository. Metadata-only mode (--no-download-data) recommended for most datasets.",
+    }
+    providers.append(senckenberg_info)
+
     return providers
 
 
@@ -395,6 +422,7 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
         GFZ,
         Pensoft,
         Opara,
+        Senckenberg,
     )
 
     # Try each provider in order
@@ -408,6 +436,7 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
         GFZ.GFZ,
         Pensoft.Pensoft,
         Opara.Opara,
+        Senckenberg.Senckenberg,
     ]
 
     for provider_class in provider_classes:

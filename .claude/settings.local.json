@@ -24,7 +24,19 @@
       "Bash(make:*)",
       "Bash(python3:*)",
       "Bash(export PYTHONPATH=/home/daniel/git/geoextent)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py -v --tb=short)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_extraction_with_spatial_extent -v --tb=short)",
+      "Bash(PYTHONPATH=. python -c \"\nimport geoextent.lib.extent as extent\nresult = extent.fromRemote(''https://dataportal.senckenberg.de/dataset/as-sahabi-1'', bbox=True)\nimport json\nprint(json.dumps(result, indent=2))\n\")",
+      "Bash(PYTHONPATH=. python -c \"\nimport geoextent.lib.extent as extent\nresult = extent.fromRemote(''10.12761/sgn.2018.10225'', bbox=True, download_data=False)\nimport json\nprint(json.dumps(result, indent=2))\n\")",
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py -v)",
+      "Bash(PYTHONPATH=. python -c:*)",
+      "Bash(PYTHONPATH=. python -m geoextent -b --no-download-data 10.12761/sgn.2018.10225)",
+      "Bash(curl -s \"https://dataportal.senckenberg.de/api/3/action/package_show?id=effects-of-phylogeny-and-geography-on-ecomorphological-traits-in-passerine\")",
+      "Bash(PYTHONPATH=. python -m geoextent -b --no-download-data https://dataportal.senckenberg.de/dataset/00dda005-68c0-4e92-96e5-ceb68034f3ba)",
+      "Bash(PYTHONPATH=. python -m geoextent -b -t --no-download-data 10.12761/sgn.2018.10268)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_temporal_extent_extraction -v --tb=short)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_temporal_metadata_api -v --tb=short)"
     ],
     "deny": [],
     "ask": []

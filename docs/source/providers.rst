@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 9 research data repositories. All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 10 research data repositories. All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -38,6 +38,8 @@ Quick Reference
 | Pensoft           | 10.3897             | 10.3897/BDJ.13.e159973                |
 +-------------------+---------------------+----------------------------------------+
 | TU Dresden Opara  | 10.25532/OPARA      | 10.25532/OPARA-581                    |
++-------------------+---------------------+----------------------------------------+
+| Senckenberg       | 10.12761/sgn        | 10.12761/sgn.2018.10225               |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -288,6 +290,43 @@ TU Dresden Opara
 - Handles complex ZIP archives with nested directories
 - Supports multiple shapefiles in single archive
 - Size filtering and geospatial file filtering fully supported
+
+Senckenberg
+^^^^^^^^^^^
+
+**Description:** CKAN-based data portal for Senckenberg Biodiversity and Climate Research Centre providing access to biodiversity, climate, and geoscience research data. **Primarily a metadata repository** with rich geospatial and temporal metadata but limited/restricted data files.
+
+**Website:** https://dataportal.senckenberg.de/
+
+**DOI Prefix:** ``10.12761/sgn``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.12761/sgn.2018.10268``
+- DOI URL: ``https://doi.org/10.12761/sgn.2018.10268``
+- Dataset URL: ``https://dataportal.senckenberg.de/dataset/as-sahabi-1``
+- Dataset ID (name slug): ``as-sahabi-1``
+- Dataset ID (UUID): ``00dda005-68c0-4e92-96e5-ceb68034f3ba``
+- JSON-LD URL: ``https://dataportal.senckenberg.de/dataset/as-sahabi-1.jsonld``
+
+**Example (Recommended - Metadata Only):**
+
+.. code-block:: bash
+
+   # Extract spatial and temporal extent from metadata
+   python -m geoextent -b -t --no-download-data 10.12761/sgn.2018.10268
+
+**Output:** Bounding box for Ecuador region and temporal extent from 2014-05-01 to 2015-12-30
+
+**Special Notes:**
+
+- **Best Practice:** Always use ``--no-download-data`` for metadata-only extraction
+- Built on CKAN (Comprehensive Knowledge Archive Network) platform
+- Extracts both spatial extent (bounding box) and temporal extent (date ranges) from metadata
+- Supports both open access and metadata-only restricted datasets
+- Rich taxonomic, spatial, and temporal coverage metadata
+- Metadata extraction is fast and does not require downloading data files
+- Full filtering and size limiting capabilities available when data files exist
 
 Usage Examples
 --------------
