@@ -73,13 +73,23 @@ pip install -e .
 ### Testing
 
 ```bash
-# Run tests using pytest
+# Run tests using pytest (automatically uses parallel execution with -n auto)
 pytest
 
-# Run specific test files
+# Run tests with explicit parallelism control
+pytest -n auto          # Auto-detect number of CPUs (default)
+pytest -n 4             # Use 4 workers
+pytest -n 1             # Disable parallelism
+
+# Run specific test files (parallel execution still applies)
 pytest tests/test_api.py
 pytest tests/test_cli.py
+
+# Run specific test with parallelism disabled (useful for debugging)
+pytest -n 0 tests/test_api.py::test_specific_function
 ```
+
+**Note:** Parallel test execution is enabled by default using `pytest-xdist` with automatic CPU detection. This significantly speeds up the test suite.
 
 ### Code Formatting
 

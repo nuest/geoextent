@@ -91,8 +91,14 @@ See the [API documentation](https://nuest.github.io/geoextent/howto/api.html) an
 This project was developed as part of the [DFG-funded](https://o2r.info/about/#funding) research project Opening Reproducible Research (o2r, [https://o2r.info](https://o2r.info)).
 
 ```bash
-# Run tests
+# Run tests (parallel execution enabled by default with -n auto)
 pytest
+
+# Run tests with specific number of workers
+pytest -n 4
+
+# Disable parallel execution for debugging
+pytest -n 0
 
 # Format code
 black geoextent/ tests/

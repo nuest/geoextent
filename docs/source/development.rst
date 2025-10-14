@@ -58,13 +58,28 @@ This will install all required and optional dependencies defined in ``pyproject.
 Run tests
 ---------
 
-After installing geoextent with development dependencies (see above), run the test suite using pytest:
+After installing geoextent with development dependencies (see above), run the test suite using pytest.
+
+**Parallel Test Execution (Default)**
+
+The project is configured to run tests in parallel by default using ``pytest-xdist`` with automatic CPU detection. This significantly speeds up the test suite:
 
 ::
 
+    # Run all tests (parallel execution with auto CPU detection - default)
     pytest
 
-    # Run specific test file
+    # Explicit parallel execution options
+    pytest -n auto          # Auto-detect number of CPUs (default)
+    pytest -n 4             # Use 4 workers
+    pytest -n 1             # Single worker (minimal parallelism)
+    pytest -n 0             # Disable parallelism (useful for debugging)
+
+**Test Selection and Filtering**
+
+::
+
+    # Run specific test file (parallel execution still applies)
     pytest tests/test_api.py
 
     # Run specific test categories
@@ -75,8 +90,15 @@ After installing geoextent with development dependencies (see above), run the te
     # Run with coverage
     pytest --cov=geoextent --cov-report=term-missing
 
-    # Run specific test class or method
-    pytest tests/test_api.py::TestClassName::test_method_name
+    # Run specific test class or method (disable parallelism for debugging)
+    pytest -n 0 tests/test_api.py::TestClassName::test_method_name
+
+**Performance Tips**
+
+- Parallel execution works best with many independent tests
+- Use ``-n 0`` when debugging individual test failures
+- The ``-n auto`` option automatically scales with available CPU cores
+- On CI systems, consider using ``-n logical`` to match virtual CPUs
 
 Local GitHub Actions Testing
 -----------------------------

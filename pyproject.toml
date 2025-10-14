@@ -57,6 +57,7 @@ dev = [
         "twine",
         "pytest",
         "pytest-cov",
+        "pytest-xdist[psutil]",  # Parallel test execution with CPU detection
         "twine",
         "setuptools>=64",
         "setuptools-scm>=8",
@@ -68,6 +69,7 @@ dev = [
 test = [
         "pytest",
         "pytest-cov",
+        "pytest-xdist[psutil]",  # Parallel test execution with CPU detection
         "geojson-validator"
 ]
 docs = [
@@ -98,6 +100,8 @@ testpaths = [
     "tests",
     #"integration",
 ]
+# Enable parallel test execution by default with automatic CPU detection
+addopts = "-n auto"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "integration: marks tests as integration tests",

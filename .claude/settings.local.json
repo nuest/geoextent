@@ -36,7 +36,9 @@
       "Bash(PYTHONPATH=. python -m geoextent -b --no-download-data https://dataportal.senckenberg.de/dataset/00dda005-68c0-4e92-96e5-ceb68034f3ba)",
       "Bash(PYTHONPATH=. python -m geoextent -b -t --no-download-data 10.12761/sgn.2018.10268)",
       "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_temporal_extent_extraction -v --tb=short)",
-      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_temporal_metadata_api -v --tb=short)"
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_temporal_metadata_api -v --tb=short)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py)",
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py -n 0)"
     ],
     "deny": [],
     "ask": []
