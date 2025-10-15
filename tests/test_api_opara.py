@@ -183,17 +183,20 @@ class TestOparaProvider:
         # (though extent extraction may be limited)
         assert result is not None
 
-    def test_opara_provider_in_provider_list(self):
-        """Test that Opara provider is properly registered"""
-        from geoextent.lib.extent import geoextent_from_repository
-
-        extractor = geoextent_from_repository()
-        provider_classes = extractor.content_providers
-
-        # Check that Opara provider is in the list
+    def test_opara_provider_can_be_used(self):
+        """Test that Opara provider can be instantiated and used"""
         from geoextent.lib.content_providers.Opara import Opara
 
-        assert Opara in provider_classes, "Opara provider should be registered"
+        # Provider should be instantiable
+        provider = Opara()
+
+        # Should have validate_provider method
+        assert hasattr(
+            provider, "validate_provider"
+        ), "Provider should have validate_provider method"
+
+        # Should have download method
+        assert hasattr(provider, "download"), "Provider should have download method"
 
     def test_opara_real_extraction_end_to_end(self):
         """End-to-end test with real Opara repository data"""

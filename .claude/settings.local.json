@@ -38,7 +38,17 @@
       "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_temporal_extent_extraction -v --tb=short)",
       "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_temporal_metadata_api -v --tb=short)",
       "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py)",
-      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py -n 0)"
+      "Bash(PYTHONPATH=. pytest tests/test_api_senckenberg.py -n 0)",
+      "Bash(PYTHONPATH=. python -m geoextent --help)",
+      "Bash(PYTHONPATH=. python -m pytest tests/test_api.py::test_defaults -v --tb=short -n 0)",
+      "Bash(PYTHONPATH=. python -m pytest tests/test_api.py::test_folder_one_file -v --tb=short -n 0)",
+      "Bash(PYTHONPATH=. python -m pytest tests/test_api.py -v -n 0 --tb=short)",
+      "Bash(bash:*)",
+      "Bash(PYTHONPATH=. python -m pytest tests/help_functions_test.py -v -n 0 --tb=short)",
+      "Bash(PYTHONPATH=. python -m pytest tests/test_remote_single.py -v --tb=short -n 0)",
+      "Bash(PYTHONPATH=. python -m pytest tests/test_remote_single.py tests/test_remote_multi.py -v --tb=short -n 0)",
+      "Bash(PYTHONPATH=. python -m pytest tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_provider_can_be_used tests/test_api_opara.py::TestOparaProvider::test_opara_provider_can_be_used tests/test_api_repository_combinations.py::TestRepositoryProviderValidation::test_repository_providers_available -v --tb=short -n 0)",
+      "Bash(PYTHONPATH=. python -m pytest tests/test_remote_single.py tests/test_remote_multi.py tests/test_api_senckenberg.py::TestSenckenbergProvider::test_senckenberg_provider_can_be_used tests/test_api_opara.py::TestOparaProvider::test_opara_provider_can_be_used tests/test_api_repository_combinations.py::TestRepositoryProviderValidation::test_repository_providers_available -v --tb=short -n 0)"
     ],
     "deny": [],
     "ask": []

@@ -91,6 +91,9 @@ See the [API documentation](https://nuest.github.io/geoextent/howto/api.html) an
 This project was developed as part of the [DFG-funded](https://o2r.info/about/#funding) research project Opening Reproducible Research (o2r, [https://o2r.info](https://o2r.info)).
 
 ```bash
+# Install dev and test dependencies
+pip install -e .[dev,test,docs]
+
 # Run tests (parallel execution enabled by default with -n auto)
 pytest
 

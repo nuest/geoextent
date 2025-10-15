@@ -312,21 +312,22 @@ class TestRepositoryErrorHandling:
 class TestRepositoryProviderValidation:
     """Test repository provider validation logic"""
 
-    def test_repository_provider_priority(self):
-        """Test that repository providers are tried in priority order"""
-        # This tests the provider selection logic
-        from geoextent.lib.extent import geoextent_from_repository
+    def test_repository_providers_available(self):
+        """Test that repository providers can be instantiated and used"""
+        # Check that key providers can be instantiated
+        from geoextent.lib.content_providers.Pangaea import Pangaea
+        from geoextent.lib.content_providers.Zenodo import Zenodo
+        from geoextent.lib.content_providers.Dryad import Dryad
 
-        geoextent_repo = geoextent_from_repository()
+        # All providers should be instantiable
+        pangaea = Pangaea()
+        zenodo = Zenodo()
+        dryad = Dryad()
 
-        # Check that providers are available
-        assert len(geoextent_repo.content_providers) > 0
-
-        # Check that Pangaea provider is in the list
-        provider_names = [
-            provider.__name__ for provider in geoextent_repo.content_providers
-        ]
-        assert "Pangaea" in provider_names
+        # All should have validate_provider method
+        assert hasattr(pangaea, "validate_provider")
+        assert hasattr(zenodo, "validate_provider")
+        assert hasattr(dryad, "validate_provider")
 
     def test_repository_provider_validation_methods(self):
         """Test individual provider validation methods"""

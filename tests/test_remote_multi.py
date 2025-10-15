@@ -19,10 +19,8 @@ class TestMultiRemoteExtraction(unittest.TestCase):
     def test_fromRemote_accepts_string_or_list(self):
         """Test that fromRemote accepts both string and list inputs"""
         # String input should not raise ValueError
-        with patch('geoextent.lib.extent.geoextent_from_repository') as mock_repo_class:
-            mock_instance = MagicMock()
-            mock_repo_class.return_value = mock_instance
-            mock_instance.fromRemote.return_value = {"bbox": [1, 2, 3, 4], "crs": "4326"}
+        with patch("geoextent.lib.extent._extract_from_remote") as mock_extract:
+            mock_extract.return_value = {"bbox": [1, 2, 3, 4], "crs": "4326"}
 
             # This should work without raising
             result = extent.fromRemote("10.5281/zenodo.123", bbox=True)
@@ -32,13 +30,11 @@ class TestMultiRemoteExtraction(unittest.TestCase):
             result = extent.fromRemote(["10.5281/zenodo.123"], bbox=True)
             self.assertIsInstance(result, dict)
 
-    @patch('geoextent.lib.extent.geoextent_from_repository')
-    def test_fromRemote_processes_multiple_identifiers(self, mock_repo_class):
+    @patch("geoextent.lib.extent._extract_from_remote")
+    def test_fromRemote_processes_multiple_identifiers(self, mock_extract):
         """Test that fromRemote processes multiple remote identifiers"""
-        # Mock successful responses from the instance method
-        mock_instance = MagicMock()
-        mock_repo_class.return_value = mock_instance
-        mock_instance.fromRemote.side_effect = [
+        # Mock successful responses
+        mock_extract.side_effect = [
             {"bbox": [5.0, 50.0, 6.0, 51.0], "crs": "4326"},
             {"bbox": [7.0, 52.0, 8.0, 53.0], "crs": "4326"},
         ]
@@ -60,16 +56,14 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         self.assertIn(identifiers[0], result["details"])
         self.assertIn(identifiers[1], result["details"])
 
-        # Verify the instance method was called for each identifier
-        self.assertEqual(mock_instance.fromRemote.call_count, 2)
+        # Verify _extract_from_remote was called for each identifier
+        self.assertEqual(mock_extract.call_count, 2)
 
-    @patch('geoextent.lib.extent.geoextent_from_repository')
-    def test_fromRemote_handles_errors_gracefully(self, mock_repo_class):
+    @patch("geoextent.lib.extent._extract_from_remote")
+    def test_fromRemote_handles_errors_gracefully(self, mock_extract):
         """Test that fromRemote handles individual failures"""
-        # Mock instance with first succeeds, second fails, third succeeds
-        mock_instance = MagicMock()
-        mock_repo_class.return_value = mock_instance
-        mock_instance.fromRemote.side_effect = [
+        # Mock with first succeeds, second fails, third succeeds
+        mock_extract.side_effect = [
             {"bbox": [5.0, 50.0, 6.0, 51.0], "crs": "4326"},
             Exception("Provider not found"),
             {"bbox": [7.0, 52.0, 8.0, 53.0], "crs": "4326"},
@@ -87,23 +81,18 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         self.assertIn("invalid-doi", result["details"])
         self.assertIn("error", result["details"]["invalid-doi"])
 
-    @patch('geoextent.lib.extent.geoextent_from_repository')
-    @patch('geoextent.lib.helpfunctions.bbox_merge')
-    def test_fromRemote_merges_bboxes(self, mock_bbox_merge, mock_repo_class):
+    @patch("geoextent.lib.extent._extract_from_remote")
+    @patch("geoextent.lib.helpfunctions.bbox_merge")
+    def test_fromRemote_merges_bboxes(self, mock_bbox_merge, mock_extract):
         """Test that fromRemote merges bounding boxes correctly"""
-        # Mock instance responses with bboxes
-        mock_instance = MagicMock()
-        mock_repo_class.return_value = mock_instance
-        mock_instance.fromRemote.side_effect = [
+        # Mock responses with bboxes
+        mock_extract.side_effect = [
             {"bbox": [5.0, 50.0, 6.0, 51.0], "crs": "4326"},
             {"bbox": [7.0, 52.0, 8.0, 53.0], "crs": "4326"},
         ]
 
         # Mock merged bbox
-        mock_bbox_merge.return_value = {
-            "bbox": [5.0, 50.0, 8.0, 53.0],
-            "crs": "4326"
-        }
+        mock_bbox_merge.return_value = {"bbox": [5.0, 50.0, 8.0, 53.0], "crs": "4326"}
 
         identifiers = ["10.5281/zenodo.123", "10.25532/OPARA-456"]
         result = extent.fromRemote(identifiers, bbox=True)
@@ -116,14 +105,12 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         # Verify merge function was called
         mock_bbox_merge.assert_called_once()
 
-    @patch('geoextent.lib.extent.geoextent_from_repository')
-    @patch('geoextent.lib.helpfunctions.tbox_merge')
-    def test_fromRemote_merges_temporal_extents(self, mock_tbox_merge, mock_repo_class):
+    @patch("geoextent.lib.extent._extract_from_remote")
+    @patch("geoextent.lib.helpfunctions.tbox_merge")
+    def test_fromRemote_merges_temporal_extents(self, mock_tbox_merge, mock_extract):
         """Test that fromRemote merges temporal extents correctly"""
-        # Mock instance responses with temporal extents
-        mock_instance = MagicMock()
-        mock_repo_class.return_value = mock_instance
-        mock_instance.fromRemote.side_effect = [
+        # Mock responses with temporal extents
+        mock_extract.side_effect = [
             {"tbox": ["2020-01-01", "2020-12-31"]},
             {"tbox": ["2021-01-01", "2021-12-31"]},
         ]
@@ -141,12 +128,10 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         # Verify merge function was called
         mock_tbox_merge.assert_called_once()
 
-    @patch('geoextent.lib.extent.geoextent_from_repository')
-    def test_fromRemote_passes_parameters_to_fromRemote(self, mock_repo_class):
-        """Test that all parameters are correctly passed to the instance fromRemote method"""
-        mock_instance = MagicMock()
-        mock_repo_class.return_value = mock_instance
-        mock_instance.fromRemote.return_value = {}
+    @patch("geoextent.lib.extent._extract_from_remote")
+    def test_fromRemote_passes_parameters_to_fromRemote(self, mock_extract):
+        """Test that all parameters are correctly passed to _extract_from_remote"""
+        mock_extract.return_value = {}
 
         extent.fromRemote(
             ["10.5281/zenodo.123"],
@@ -157,19 +142,19 @@ class TestMultiRemoteExtraction(unittest.TestCase):
             max_download_size="100MB",
             max_download_method="smallest",
             download_skip_nogeo=True,
-            max_download_workers=8
+            max_download_workers=8,
         )
 
-        # Verify parameters were passed to instance method
-        call_kwargs = mock_instance.fromRemote.call_args[1]
-        self.assertTrue(call_kwargs['bbox'])
-        self.assertTrue(call_kwargs['tbox'])
-        self.assertTrue(call_kwargs['convex_hull'])
-        self.assertTrue(call_kwargs['details'])
-        self.assertEqual(call_kwargs['max_download_size'], "100MB")
-        self.assertEqual(call_kwargs['max_download_method'], "smallest")
-        self.assertTrue(call_kwargs['download_skip_nogeo'])
-        self.assertEqual(call_kwargs['max_download_workers'], 8)
+        # Verify parameters were passed to _extract_from_remote
+        call_kwargs = mock_extract.call_args[1]
+        self.assertTrue(call_kwargs["bbox"])
+        self.assertTrue(call_kwargs["tbox"])
+        self.assertTrue(call_kwargs["convex_hull"])
+        self.assertTrue(call_kwargs["details"])
+        self.assertEqual(call_kwargs["max_download_size"], "100MB")
+        self.assertEqual(call_kwargs["max_download_method"], "smallest")
+        self.assertTrue(call_kwargs["download_skip_nogeo"])
+        self.assertEqual(call_kwargs["max_download_workers"], 8)
 
 
 if __name__ == "__main__":

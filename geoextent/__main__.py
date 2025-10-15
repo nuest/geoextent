@@ -141,7 +141,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -334,6 +334,13 @@ def get_arg_parser():
         type=int,
         default=4,
         help="maximum number of parallel downloads (default: 4, set to 1 to disable parallel downloads)",
+    )
+
+    parser.add_argument(
+        "--keep-files",
+        action="store_true",
+        default=False,
+        help="keep downloaded and extracted files instead of cleaning them up (for debugging purposes)",
     )
 
     parser.add_argument(
@@ -530,6 +537,7 @@ def main():
                     max_download_workers=args["max_download_workers"],
                     ext_metadata=args["ext_metadata"],
                     ext_metadata_method=args["ext_metadata_method"],
+                    keep_files=args["keep_files"],
                 )
         else:
             # Multiple files handling
@@ -569,6 +577,7 @@ def main():
                             max_download_workers=args["max_download_workers"],
                             ext_metadata=args["ext_metadata"],
                             ext_metadata_method=args["ext_metadata_method"],
+                            keep_files=args["keep_files"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output

@@ -233,34 +233,28 @@ class TestDownloadSizeIntegration:
                 from geoextent.lib import extent
 
                 # Small limit - should process only region_a (1MB)
-                with patch(
-                    "geoextent.lib.extent.geoextent_from_repository"
-                ) as mock_geoext:
-                    mock_geoext.return_value.from_repository.return_value = {
+                with patch("geoextent.lib.extent._extract_from_remote") as mock_extract:
+                    mock_extract.return_value = {
                         "bbox": "POLYGON((0 50, 5 50, 5 55, 0 55, 0 50))",  # Only region_a
                         "format": "remote",
                     }
 
-                    result_small = extent.from_repository(
+                    result_small = extent.fromRemote(
                         "https://zenodo.org/record/123456",
                         bbox=True,
-                        format="wkt",
                         max_download_size="2MB",
                     )
 
                 # Large limit - should process all regions
-                with patch(
-                    "geoextent.lib.extent.geoextent_from_repository"
-                ) as mock_geoext:
-                    mock_geoext.return_value.from_repository.return_value = {
+                with patch("geoextent.lib.extent._extract_from_remote") as mock_extract:
+                    mock_extract.return_value = {
                         "bbox": "POLYGON((0 50, 25 50, 25 55, 0 55, 0 50))",  # All regions
                         "format": "remote",
                     }
 
-                    result_large = extent.from_repository(
+                    result_large = extent.fromRemote(
                         "https://zenodo.org/record/123456",
                         bbox=True,
-                        format="wkt",
                         max_download_size="20MB",
                     )
 

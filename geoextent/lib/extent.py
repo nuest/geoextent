@@ -6,8 +6,6 @@ import random
 import threading
 import time
 import tempfile
-from traitlets import List
-from traitlets.config import Application
 from .content_providers import Dryad
 from .content_providers import Figshare
 from .content_providers import Zenodo
@@ -718,6 +716,7 @@ def fromRemote(
     max_download_workers: int = 4,
     ext_metadata: bool = False,
     ext_metadata_method: str = "auto",
+    keep_files: bool = False,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -769,6 +768,8 @@ def fromRemote(
         Retrieve external metadata from CrossRef/DataCite for DOIs (default: False)
     ext_metadata_method : str, optional
         Method for retrieving metadata: "auto", "all", "crossref", "datacite" (default: "auto")
+    keep_files : bool, optional
+        Keep downloaded and extracted files instead of cleaning them up (default: False)
 
     Returns
     -------
@@ -827,15 +828,12 @@ def fromRemote(
         },
     }
 
-    # Initialize geoextent_from_repository instance for processing
-    geoextent = geoextent_from_repository()
-
     # Process each remote identifier
     for identifier in remote_identifiers:
         logger.debug(f"Processing remote resource: {identifier}")
         try:
             # Call the actual extraction method directly
-            resource_output = geoextent.fromRemote(
+            resource_output = _extract_from_remote(
                 identifier,
                 bbox=bbox,
                 tbox=tbox,
@@ -855,6 +853,7 @@ def fromRemote(
                 download_skip_nogeo=download_skip_nogeo,
                 download_skip_nogeo_exts=download_skip_nogeo_exts,
                 max_download_workers=max_download_workers,
+                keep_files=keep_files,
             )
             if resource_output is not None:
                 resource_output["format"] = "remote"
@@ -943,132 +942,255 @@ def fromRemote(
     return output
 
 
-class geoextent_from_repository(Application):
-    content_providers = List(
-        [
-            Dryad.Dryad,
-            Figshare.Figshare,
-            Zenodo.Zenodo,
-            Pangaea.Pangaea,
-            OSF.OSF,
-            Dataverse.Dataverse,
-            GFZ.GFZ,
-            Pensoft.Pensoft,
-            Opara.Opara,
-            Senckenberg.Senckenberg,
-        ],
-        config=True,
-        help="""
-        Ordered list by priority of ContentProviders to try in turn to fetch
-        the contents specified by the user.
-        """,
+def _process_remote_download(
+    repository,
+    tmp,
+    throttle,
+    download_data,
+    show_progress,
+    max_download_size,
+    max_download_method,
+    max_download_method_seed,
+    download_skip_nogeo,
+    download_skip_nogeo_exts,
+    max_download_workers,
+    bbox,
+    tbox,
+    convex_hull,
+    details,
+    timeout,
+    recursive,
+    include_geojsonio,
+    placename,
+    placename_escape,
+):
+    """
+    Shared logic for processing remote downloads and extracting metadata.
+
+    This function handles:
+    - Parsing and validating download size limits
+    - Downloading files from the repository
+    - Extracting metadata from downloaded files
+
+    Args:
+        repository: Content provider instance
+        tmp: Temporary directory path for downloads
+        (other parameters as documented in _extract_from_remote)
+
+    Returns:
+        dict: Extracted metadata
+
+    Raises:
+        ValueError: If download size format is invalid
+    """
+    # Parse download size if provided
+    max_size_bytes = None
+    if max_download_size:
+        # Validate size string format before parsing
+        max_download_size = max_download_size.strip()
+        if not max_download_size:
+            error_msg = "Download size cannot be empty. Please use format like '100MB', '2GB', etc."
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        max_size_bytes = hf.parse_download_size(max_download_size)
+        if max_size_bytes is None:
+            # Invalid format error
+            error_msg = (
+                f"Invalid download size format: '{max_download_size}'. "
+                f"Please use format like '100MB', '2GB', '500KB', '1.5TB', etc. "
+                f"Supported units: B, KB, MB, GB, TB, PB."
+            )
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        elif max_size_bytes <= 0:
+            error_msg = f"Download size must be positive, got: {max_download_size}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+        else:
+            logger.debug(
+                f"Parsed download size limit: {max_download_size} = {max_size_bytes:,} bytes"
+            )
+
+    # Download files from repository
+    repository.download(
+        tmp,
+        throttle,
+        download_data,
+        show_progress,
+        max_size_bytes=max_size_bytes,
+        max_download_method=max_download_method,
+        max_download_method_seed=max_download_method_seed,
+        download_skip_nogeo=download_skip_nogeo,
+        download_skip_nogeo_exts=download_skip_nogeo_exts,
+        max_download_workers=max_download_workers,
     )
 
-    def fromRemote(
-        self,
-        remote_identifier,
-        bbox=False,
-        tbox=False,
-        convex_hull=False,
-        details=False,
-        throttle=False,
-        timeout=None,
-        download_data=True,
-        show_progress=True,
-        recursive=True,
-        include_geojsonio=False,
-        max_download_size=None,
-        max_download_method="ordered",
-        max_download_method_seed=hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
-        placename=None,
-        placename_escape=False,
-        download_skip_nogeo=False,
-        download_skip_nogeo_exts=None,
-        max_download_workers=4,
-    ):
+    # Extract metadata from downloaded files
+    metadata = fromDirectory(
+        tmp,
+        bbox,
+        tbox,
+        convex_hull,
+        details,
+        timeout,
+        show_progress=show_progress,
+        recursive=recursive,
+        include_geojsonio=include_geojsonio,
+        placename=placename,
+        placename_escape=placename_escape,
+    )
 
-        if bbox + tbox == 0:
-            logger.error(
-                "Require at least one of extraction options, but bbox is {} and tbox is {}".format(
-                    bbox, tbox
-                )
+    return metadata
+
+
+def _extract_from_remote(
+    remote_identifier,
+    bbox=False,
+    tbox=False,
+    convex_hull=False,
+    details=False,
+    throttle=False,
+    timeout=None,
+    download_data=True,
+    show_progress=True,
+    recursive=True,
+    include_geojsonio=False,
+    max_download_size=None,
+    max_download_method="ordered",
+    max_download_method_seed=hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+    placename=None,
+    placename_escape=False,
+    download_skip_nogeo=False,
+    download_skip_nogeo_exts=None,
+    max_download_workers=4,
+    keep_files=False,
+):
+    """
+    Internal method to extract extent from a single remote identifier.
+
+    This method handles the download, extraction, and cleanup logic.
+    """
+    import shutil
+    from pathlib import Path
+
+    if bbox + tbox == 0:
+        logger.error(
+            "Require at least one of extraction options, but bbox is {} and tbox is {}".format(
+                bbox, tbox
             )
-            raise Exception("No extraction options enabled!")
+        )
+        raise Exception("No extraction options enabled!")
 
-        supported_by_geoextent = False
-        for h in self.content_providers:
-            repository = h()
-            if repository.validate_provider(reference=remote_identifier):
-                logger.debug(
-                    "Using {} to extract {}".format(repository.name, remote_identifier)
-                )
-                supported_by_geoextent = True
+    content_providers = [
+        Dryad.Dryad,
+        Figshare.Figshare,
+        Zenodo.Zenodo,
+        Pangaea.Pangaea,
+        OSF.OSF,
+        Dataverse.Dataverse,
+        GFZ.GFZ,
+        Pensoft.Pensoft,
+        Opara.Opara,
+        Senckenberg.Senckenberg,
+    ]
+
+    supported_by_geoextent = False
+    for provider_class in content_providers:
+        repository = provider_class()
+        if repository.validate_provider(reference=remote_identifier):
+            logger.debug(
+                "Using {} to extract {}".format(repository.name, remote_identifier)
+            )
+            supported_by_geoextent = True
+
+            # Determine directory strategy based on keep_files setting
+            if not keep_files:
+                # Use context manager for automatic cleanup
                 try:
                     with tempfile.TemporaryDirectory() as tmp:
-                        # Parse download size if provided
-                        max_size_bytes = None
-                        if max_download_size:
-                            # Validate size string format before parsing
-                            max_download_size = max_download_size.strip()
-                            if not max_download_size:
-                                error_msg = "Download size cannot be empty. Please use format like '100MB', '2GB', etc."
-                                logger.error(error_msg)
-                                raise ValueError(error_msg)
+                        logger.debug(f"Created temporary directory: {tmp}")
 
-                            max_size_bytes = hf.parse_download_size(max_download_size)
-                            if max_size_bytes is None:
-                                # Invalid format error
-                                error_msg = (
-                                    f"Invalid download size format: '{max_download_size}'. "
-                                    f"Please use format like '100MB', '2GB', '500KB', '1.5TB', etc. "
-                                    f"Supported units: B, KB, MB, GB, TB, PB."
-                                )
-                                logger.error(error_msg)
-                                raise ValueError(error_msg)
-
-                            elif max_size_bytes <= 0:
-                                error_msg = f"Download size must be positive, got: {max_download_size}"
-                                logger.error(error_msg)
-                                raise ValueError(error_msg)
-                            else:
-                                logger.debug(
-                                    f"Parsed download size limit: {max_download_size} = {max_size_bytes:,} bytes"
-                                )
-
-                        repository.download(
-                            tmp,
-                            throttle,
-                            download_data,
-                            show_progress,
-                            max_size_bytes=max_size_bytes,
+                        # Process the download and extraction (shared logic)
+                        metadata = _process_remote_download(
+                            repository=repository,
+                            tmp=tmp,
+                            throttle=throttle,
+                            download_data=download_data,
+                            show_progress=show_progress,
+                            max_download_size=max_download_size,
                             max_download_method=max_download_method,
                             max_download_method_seed=max_download_method_seed,
                             download_skip_nogeo=download_skip_nogeo,
                             download_skip_nogeo_exts=download_skip_nogeo_exts,
                             max_download_workers=max_download_workers,
-                        )
-                        metadata = fromDirectory(
-                            tmp,
-                            bbox,
-                            tbox,
-                            convex_hull,
-                            details,
-                            timeout,
-                            show_progress=show_progress,
+                            bbox=bbox,
+                            tbox=tbox,
+                            convex_hull=convex_hull,
+                            details=details,
+                            timeout=timeout,
                             recursive=recursive,
                             include_geojsonio=include_geojsonio,
                             placename=placename,
                             placename_escape=placename_escape,
                         )
+
+                        logger.debug(f"Cleaning up temporary directory: {tmp}")
                     return metadata
                 except ValueError as e:
                     raise Exception(e)
-
-        # Only show error if no provider could handle the identifier
-        if not supported_by_geoextent:
-            logger.error(
-                "Geoextent can not handle this repository identifier {}"
-                "\n Check for typos or if the repository exists. ".format(
-                    remote_identifier
+            else:
+                # Create persistent directory for keep_files mode
+                tmp = tempfile.mkdtemp(prefix="geoextent_keep_")
+                logger.info(
+                    f"Created persistent directory (will NOT be cleaned up): {tmp}"
                 )
-            )
+
+                try:
+                    # Process the download and extraction (shared logic)
+                    metadata = _process_remote_download(
+                        repository=repository,
+                        tmp=tmp,
+                        throttle=throttle,
+                        download_data=download_data,
+                        show_progress=show_progress,
+                        max_download_size=max_download_size,
+                        max_download_method=max_download_method,
+                        max_download_method_seed=max_download_method_seed,
+                        download_skip_nogeo=download_skip_nogeo,
+                        download_skip_nogeo_exts=download_skip_nogeo_exts,
+                        max_download_workers=max_download_workers,
+                        bbox=bbox,
+                        tbox=tbox,
+                        convex_hull=convex_hull,
+                        details=details,
+                        timeout=timeout,
+                        recursive=recursive,
+                        include_geojsonio=include_geojsonio,
+                        placename=placename,
+                        placename_escape=placename_escape,
+                    )
+
+                    logger.info(f"Files kept in: {tmp}")
+                    return metadata
+                except Exception as e:
+                    # Even with keep_files, clean up on error
+                    logger.debug(f"Error occurred, cleaning up directory: {tmp}")
+                    try:
+                        shutil.rmtree(tmp)
+                        logger.debug(
+                            f"Successfully cleaned up directory after error: {tmp}"
+                        )
+                    except Exception as cleanup_error:
+                        logger.warning(
+                            f"Failed to clean up directory {tmp}: {cleanup_error}"
+                        )
+                    raise
+
+    # Only show error if no provider could handle the identifier
+    if not supported_by_geoextent:
+        logger.error(
+            "Geoextent can not handle this repository identifier {}"
+            "\n Check for typos or if the repository exists. ".format(remote_identifier)
+        )
