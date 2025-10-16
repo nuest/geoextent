@@ -15,6 +15,7 @@ from . import Dataverse
 from . import GFZ
 from . import Pensoft
 from . import Opara
+from . import BGR
 
 __all__ = [
     "providers",
@@ -27,4 +28,5 @@ __all__ = [
     "GFZ",
     "Pensoft",
     "Opara",
+    "BGR",
 ]

@@ -16,6 +16,7 @@ from .content_providers import GFZ
 from .content_providers import Pensoft
 from .content_providers import Opara
 from .content_providers import Senckenberg
+from .content_providers import BGR
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -1092,6 +1093,7 @@ def _extract_from_remote(
         Dataverse.Dataverse,
         GFZ.GFZ,
         Pensoft.Pensoft,
+        BGR.BGR,  # BGR before Opara because both accept UUIDs
         Opara.Opara,
         Senckenberg.Senckenberg,
     ]
