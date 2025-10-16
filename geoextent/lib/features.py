@@ -170,6 +170,7 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         Pensoft,
         Opara,
         Senckenberg,
+        BGR,
     )
 
     providers = []
@@ -393,6 +394,32 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
     }
     providers.append(senckenberg_info)
 
+    # BGR (Bundesanstalt für Geowissenschaften und Rohstoffe)
+    bgr_instance = BGR.BGR()
+    bgr_info = {
+        "name": bgr_instance.name,
+        "description": "BGR (Federal Institute for Geosciences and Natural Resources) is the German geoscientific research center providing data and advice on geoscience topics. The BGR Geoportal offers access to geological, geophysical, and hydrogeological datasets with metadata following GeoDCAT-AP and INSPIRE standards.",
+        "website": "https://geoportal.bgr.de/",
+        "url_patterns": bgr_instance.host.get("hostname", []),
+        "api_endpoint": bgr_instance.csw_base_url,
+        "supported_identifiers": [
+            "https://geoportal.bgr.de/mapapps/resources/apps/geoportal/index.html?lang=en#/datasets/portal/{uuid}",
+            "https://geoportal.bgr.de/smartfindersdi-csw/api?...&Id={uuid}",
+            "https://doi.org/10.25928/{id}",
+            "10.25928/{id}",
+            "{uuid}",
+        ],
+        "doi_prefix": "10.25928",
+        "examples": [
+            "10.25928/HK1000",
+            "https://doi.org/10.25928/MEDKAM.1",
+            "https://geoportal.bgr.de/mapapps/resources/apps/geoportal/index.html?lang=en#/datasets/portal/b73b55f1-14ec-4b7c-aa59-49b997ce7bbd",
+            "d764e73b-27e4-4aaa-b187-b6141c115eb4",
+        ],
+        "notes": "Supports DOIs, full portal URLs, CSW URLs, and bare UUIDs. Uses CSW 2.0.2 API with ISO 19115/19139 metadata.",
+    }
+    providers.append(bgr_info)
+
     return providers
 
 
@@ -423,6 +450,7 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
         Pensoft,
         Opara,
         Senckenberg,
+        BGR,
     )
 
     # Try each provider in order
@@ -435,6 +463,7 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
         Dataverse.Dataverse,
         GFZ.GFZ,
         Pensoft.Pensoft,
+        BGR.BGR,  # BGR before Opara because both accept UUIDs
         Opara.Opara,
         Senckenberg.Senckenberg,
     ]

@@ -28,6 +28,7 @@ geoextent -t path/to/file_with_temporal_extent
 geoextent -b -t path/to/geospatial_files
 geoextent -b -t --details path/to/zipfile_with_geospatial_data
 geoextent -b -t file1.shp file2.csv file3.geopkg
+geoextent -b -t --geojsonio --no-download-data 10.25928/HK1000
 geoextent -t *.geojson
 geoextent -b -t https://doi.org/10.1594/PANGAEA.918707 https://doi.pangaea.de/10.1594/PANGAEA.858767
 geoextent -b --convex-hull https://zenodo.org/record/4567890 10.1594/PANGAEA.123456
@@ -36,28 +37,43 @@ geoextent -b --placename --placename-service nominatim https://zenodo.org/record
 geoextent -b --placename --placename-service photon --placename-escape https://doi.org/10.3897/BDJ.13.e159973
 """
 
-supported_formats = """
-Supported formats:
-- GeoJSON (.geojson)
-- Tabular data (.csv)
-- GeoTIFF (.geotiff, .tif)
-- Shapefile (.shp)
-- GeoPackage (.gpkg)
-- GPS Exchange Format (.gpx)
-- Geography Markup Language (.gml)
-- Keyhole Markup Language (.kml)
-- FlatGeobuf (.fgb)
 
-Supported data repositories:
-- Zenodo (zenodo.org)
-- Dryad (datadryad.org)
-- Figshare (figshare.com)
-- PANGAEA (pangaea.de)
-- OSF (osf.io)
-- GFZ Data Services (dataservices.gfz-potsdam.de)
-- Pensoft Journals (e.g., bdj.pensoft.net)
+def get_supported_formats_text():
+    """Generate supported formats text dynamically from features API."""
+    from .lib.features import get_supported_features
 
-"""
+    features = get_supported_features()
+
+    lines = ["", "Supported formats:"]
+
+    # Add file formats
+    for fmt in features.get("file_formats", []):
+        display_name = fmt.get("display_name", "")
+        extensions = fmt.get("file_extensions", [])
+        ext_str = ", ".join(extensions) if extensions else ""
+        lines.append(f"- {display_name} ({ext_str})")
+
+    lines.append("")
+    lines.append("Supported data repositories:")
+
+    # Add content providers
+    for provider in features.get("content_providers", []):
+        name = provider.get("name", "")
+        website = provider.get("website", "")
+        # Extract domain from website
+        domain = (
+            website.replace("https://", "")
+            .replace("http://", "")
+            .replace("www.", "")
+            .rstrip("/")
+        )
+        lines.append(f"- {name} ({domain})")
+
+    lines.append("")
+    return "\n".join(lines)
+
+
+# Note: supported_formats is now generated on-demand in print_supported_formats()
 
 
 # custom action, see e.g. https://stackoverflow.com/questions/11415570/directory-path-types-with-argparse
@@ -361,7 +377,8 @@ def print_help():
 
 
 def print_supported_formats():
-    print(supported_formats)
+    """Print supported formats (generated dynamically from features API)."""
+    print(get_supported_formats_text())
 
 
 def print_version():

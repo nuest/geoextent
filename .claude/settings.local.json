@@ -64,7 +64,9 @@
       "Bash(PYTHONPATH=. pytest tests/test_api_bgr.py::TestBGRDOISupport::test_bgr_doi_validation -v --tb=short -n 0)",
       "Bash(PYTHONPATH=. pytest tests/test_api_bgr.py::TestBGRDOISupport::test_bgr_medkam_doi_extraction -v --tb=short -n 0)",
       "Bash(PYTHONPATH=. pytest tests/test_api_bgr.py::TestBGRDOISupport -v --tb=short -n 0)",
-      "Bash(PYTHONPATH=. pytest tests/test_api_bgr.py::TestBGRProvider::test_bgr_uuid_validation tests/test_api_bgr.py::TestBGRProvider::test_bgr_actual_bounding_box_verification tests/test_api_bgr.py::TestBGRFullPortalURL::test_bgr_full_portal_url_validation -v --tb=short)"
+      "Bash(PYTHONPATH=. pytest tests/test_api_bgr.py::TestBGRProvider::test_bgr_uuid_validation tests/test_api_bgr.py::TestBGRProvider::test_bgr_actual_bounding_box_verification tests/test_api_bgr.py::TestBGRFullPortalURL::test_bgr_full_portal_url_validation -v --tb=short)",
+      "Bash(PYTHONPATH=. python -m geoextent --formats)",
+      "Bash(export PYTHONPATH=/home/daniel/git/geoextent:$PYTHONPATH:*)"
     ],
     "deny": [],
     "ask": []
