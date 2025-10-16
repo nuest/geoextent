@@ -1138,7 +1138,18 @@ def _extract_from_remote(
                             placename_escape=placename_escape,
                         )
 
+                        # Explicitly clean up temporary directory
                         logger.debug(f"Cleaning up temporary directory: {tmp}")
+                        try:
+                            shutil.rmtree(tmp)
+                            logger.debug(
+                                f"Successfully removed temporary directory: {tmp}"
+                            )
+                        except Exception as cleanup_error:
+                            logger.warning(
+                                f"Failed to explicitly clean up {tmp}: {cleanup_error}. "
+                                f"TemporaryDirectory context manager will attempt cleanup."
+                            )
                     return metadata
                 except ValueError as e:
                     raise Exception(e)
