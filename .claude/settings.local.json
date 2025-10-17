@@ -69,7 +69,13 @@
       "Bash(export PYTHONPATH=/home/daniel/git/geoextent:$PYTHONPATH:*)",
       "Bash(PYTHONPATH=. pytest:*)",
       "Bash(PYTHONPATH=. python:*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(cat:*)",
+      "Bash(gdalinfo:*)",
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent python3:*)",
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent python:*)",
+      "Bash(PYTHONPATH=. python3:*)",
+      "Bash(ogr2ogr:*)"
     ],
     "deny": [],
     "ask": []

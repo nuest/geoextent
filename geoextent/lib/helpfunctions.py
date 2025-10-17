@@ -416,12 +416,23 @@ def bbox_merge(metadata, origin):
     for x, y in metadata.items():
         if isinstance(y, dict):
             try:
-                bbox_extent = [y["bbox"], y["crs"]]
-                boxes_extent.append(bbox_extent)
-            except:
+                # Check if we have EPSG code or WKT definition
+                if "crs" in y:
+                    bbox_extent = [y["bbox"], y["crs"], "epsg"]
+                    boxes_extent.append(bbox_extent)
+                elif "crs_wkt" in y:
+                    bbox_extent = [y["bbox"], y["crs_wkt"], "wkt"]
+                    boxes_extent.append(bbox_extent)
+                else:
+                    logger.debug(
+                        "{} does not have CRS information (neither EPSG nor WKT)".format(
+                            x
+                        )
+                    )
+            except Exception as e:
                 logger.debug(
-                    "{} does not have identifiable geographical extent (CRS+bbox)".format(
-                        x
+                    "{} does not have identifiable geographical extent (CRS+bbox): {}".format(
+                        x, e
                     )
                 )
                 pass
@@ -451,9 +462,24 @@ def bbox_merge(metadata, origin):
                 box.AddPoint(bbox[0][0], bbox[0][3])
                 box.AddPoint(bbox[0][0], bbox[0][1])
 
-                if bbox[1] != str(WGS84_EPSG_ID):
+                # Check if transformation is needed
+                crs_type = bbox[2]  # "epsg" or "wkt"
+                crs_value = bbox[1]
+
+                needs_transform = False
+                if crs_type == "epsg" and crs_value != str(WGS84_EPSG_ID):
+                    needs_transform = True
+                elif crs_type == "wkt":
+                    needs_transform = True
+
+                if needs_transform:
                     source = osr.SpatialReference()
-                    source.ImportFromEPSG(int(bbox[1]))
+
+                    if crs_type == "epsg":
+                        source.ImportFromEPSG(int(crs_value))
+                    elif crs_type == "wkt":
+                        source.ImportFromWkt(crs_value)
+
                     # Set traditional GIS axis order for source CRS (x/lon/easting, y/lat/northing)
                     source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
                     transform = osr.CoordinateTransformation(source, des_crs)
@@ -465,8 +491,8 @@ def bbox_merge(metadata, origin):
 
             except Exception as e:
                 logger.debug(
-                    "Error extracting geographic extent. CRS {} may be invalid. Error: {}".format(
-                        int(bbox[1]), e
+                    "Error extracting geographic extent. CRS {} ({}) may be invalid. Error: {}".format(
+                        bbox[1], crs_type, e
                     )
                 )
                 continue

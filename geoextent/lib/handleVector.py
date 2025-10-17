@@ -28,6 +28,62 @@ def get_handler_display_name():
     return "Vector data"
 
 
+def _extract_crs_from_layer(layer, layer_name, operation="extraction"):
+    """Extract CRS information from a layer, with fallback to WKT if EPSG unavailable.
+
+    Args:
+        layer: OGR layer object
+        layer_name: Name of the layer (for logging)
+        operation: Description of the operation (for logging, e.g., "extraction", "convex hull transformation")
+
+    Returns:
+        tuple: (crs, crs_wkt) where:
+            - crs: EPSG code as string, or None if not available
+            - crs_wkt: WKT definition as string, or None if not available
+    """
+    crs = None
+    crs_wkt = None
+
+    try:
+        spatial_ref = layer.GetSpatialRef()
+        if spatial_ref:
+            # Try to auto-identify EPSG code
+            try:
+                spatial_ref.AutoIdentifyEPSG()
+                crs = spatial_ref.GetAuthorityCode(None)
+            except Exception as epsg_error:
+                logger.debug(
+                    "Could not auto-identify EPSG for layer {}: {}".format(
+                        layer_name, epsg_error
+                    )
+                )
+                crs = None
+
+            # If no EPSG code, try to use WKT definition
+            if crs is None:
+                try:
+                    crs_wkt = spatial_ref.ExportToWkt()
+                    if crs_wkt:
+                        logger.debug(
+                            "Layer {} has no EPSG code, using WKT definition for {}".format(
+                                layer_name, operation
+                            )
+                        )
+                except Exception as wkt_error:
+                    logger.debug(
+                        "Could not export WKT for layer {}: {}".format(
+                            layer_name, wkt_error
+                        )
+                    )
+                    crs_wkt = None
+    except Exception as e:
+        logger.debug("Error extracting CRS from layer {}: \n {}".format(layer_name, e))
+        crs = None
+        crs_wkt = None
+
+    return crs, crs_wkt
+
+
 def checkFileSupported(filepath):
     """Checks whether it is valid vector file or not. \n
     input "path": type string, path to file which shall be extracted \n
@@ -152,15 +208,8 @@ def getBoundingBox(filepath):
         ext = layer.GetExtent()
         bbox = [ext[0], ext[2], ext[1], ext[3]]
 
-        try:
-            spatial_ref = layer.GetSpatialRef()
-            spatial_ref.AutoIdentifyEPSG()
-            crs = spatial_ref.GetAuthorityCode(None)
-        except Exception as e:
-            logger.debug(
-                "Error extracting EPSG CODE from layer {}: \n {}".format(layer_name, e)
-            )
-            crs = None
+        # Extract CRS information using shared function
+        crs, crs_wkt = _extract_crs_from_layer(layer, layer_name, "transformation")
 
         # Patch GDAL > 3.2 for GML  https://github.com/OSGeo/gdal/issues/2195
         if (
@@ -170,15 +219,19 @@ def getBoundingBox(filepath):
         ):
             bbox = [ext[2], ext[0], ext[3], ext[1]]
 
-        geo_dict[layer_name] = {"bbox": bbox, "crs": crs}
+        geo_dict[layer_name] = {"bbox": bbox}
 
-        if bbox == null_island or crs is None:
+        if crs:
+            geo_dict[layer_name]["crs"] = crs
+        elif crs_wkt:
+            geo_dict[layer_name]["crs_wkt"] = crs_wkt
+
+        if bbox == null_island or (crs is None and crs_wkt is None):
             logger.debug(
                 "Layer {} does not have identifiable geographic extent. CRS may be missing.".format(
                     layer_name
                 )
             )
-            del geo_dict[layer_name]["crs"]
 
     bbox_merge = hf.bbox_merge(geo_dict, filepath)
 
@@ -281,35 +334,29 @@ def getConvexHull(filepath):
                     # OGR envelope format: (min_x, max_x, min_y, max_y)
                     bbox = [envelope[0], envelope[2], envelope[1], envelope[3]]
 
-            # Get CRS information
-            try:
-                spatial_ref = layer.GetSpatialRef()
-                spatial_ref.AutoIdentifyEPSG()
-                crs = spatial_ref.GetAuthorityCode(None)
-            except Exception as e:
-                logger.debug(
-                    "Error extracting EPSG CODE from layer {}: \n {}".format(
-                        layer_name, e
-                    )
-                )
-                crs = None
+            # Extract CRS information using shared function
+            crs, crs_wkt = _extract_crs_from_layer(
+                layer, layer_name, "convex hull transformation"
+            )
 
             # Store the convex hull geometry and its bbox
             geo_dict[layer_name] = {
                 "bbox": bbox,
-                "crs": crs,
                 "convex_hull_coords": convex_hull_coords,  # Store convex hull coordinates
                 "convex_hull": convex_hull,  # Store the actual geometry for merging
             }
 
-            if bbox == null_island or crs is None:
+            if crs:
+                geo_dict[layer_name]["crs"] = crs
+            elif crs_wkt:
+                geo_dict[layer_name]["crs_wkt"] = crs_wkt
+
+            if bbox == null_island or (crs is None and crs_wkt is None):
                 logger.debug(
                     "Layer {} convex hull does not have identifiable geographic extent. CRS may be missing.".format(
                         layer_name
                     )
                 )
-                if crs is None:
-                    del geo_dict[layer_name]["crs"]
 
         except Exception as e:
             logger.debug(
@@ -321,13 +368,70 @@ def getConvexHull(filepath):
     if len(geo_dict) == 1:
         # Single layer case - return the convex hull directly
         for layer_name, layer_data in geo_dict.items():
+            # Check if we have CRS information (EPSG or WKT)
+            if "crs" not in layer_data and "crs_wkt" not in layer_data:
+                logger.debug(
+                    "Layer {} has no CRS information, cannot extract convex hull".format(
+                        layer_name
+                    )
+                )
+                return None
+
+            # For single layer, transform to WGS84 if needed
+            bbox = layer_data["bbox"]
+            convex_hull_coords = layer_data.get("convex_hull_coords", [])
+
+            # Transform coordinates if not in WGS84
+            if "crs" in layer_data and layer_data["crs"] != "4326":
+                # Has EPSG code, use bbox_merge to transform
+                temp_dict = {layer_name: layer_data}
+                merged = hf.bbox_merge(temp_dict, filepath)
+                if merged:
+                    bbox = merged["bbox"]
+                    # Also transform convex hull coords
+                    if convex_hull_coords:
+                        from osgeo import osr
+
+                        source = osr.SpatialReference()
+                        source.ImportFromEPSG(int(layer_data["crs"]))
+                        source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+                        dest = osr.SpatialReference()
+                        dest.ImportFromEPSG(4326)
+                        dest.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+                        transform = osr.CoordinateTransformation(source, dest)
+                        convex_hull_coords = [
+                            list(transform.TransformPoint(x, y)[:2])
+                            for x, y in convex_hull_coords
+                        ]
+            elif "crs_wkt" in layer_data:
+                # Has WKT, use bbox_merge to transform
+                temp_dict = {layer_name: layer_data}
+                merged = hf.bbox_merge(temp_dict, filepath)
+                if merged:
+                    bbox = merged["bbox"]
+                    # Also transform convex hull coords
+                    if convex_hull_coords:
+                        from osgeo import osr
+
+                        source = osr.SpatialReference()
+                        source.ImportFromWkt(layer_data["crs_wkt"])
+                        source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+                        dest = osr.SpatialReference()
+                        dest.ImportFromEPSG(4326)
+                        dest.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+                        transform = osr.CoordinateTransformation(source, dest)
+                        convex_hull_coords = [
+                            list(transform.TransformPoint(x, y)[:2])
+                            for x, y in convex_hull_coords
+                        ]
+
             spatial_extent = {
-                "bbox": layer_data["bbox"],
-                "crs": layer_data["crs"],
+                "bbox": bbox,
+                "crs": "4326",
                 "convex_hull": True,
             }
-            if "convex_hull_coords" in layer_data:
-                spatial_extent["convex_hull_coords"] = layer_data["convex_hull_coords"]
+            if convex_hull_coords:
+                spatial_extent["convex_hull_coords"] = convex_hull_coords
             return spatial_extent
     else:
         # Multiple layers - need to merge using convex hull merge logic
