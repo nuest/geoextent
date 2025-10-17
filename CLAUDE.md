@@ -210,7 +210,7 @@ The project follows a modular handler-based architecture:
 
 2. **Format Handlers** (in `geoextent/lib/`):
    - `handleCSV.py` - CSV file processing with coordinate detection
-   - `handleRaster.py` - Raster data (GeoTIFF) processing using GDAL
+   - `handleRaster.py` - Raster data (GeoTIFF, world files) processing using GDAL
    - `handleVector.py` - Vector data (Shapefile, GeoJSON) processing using OGR
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
@@ -224,6 +224,23 @@ The system automatically selects appropriate handlers based on file format:
 - Files are tested against each handler module's `checkFileSupported()` function
 - Each handler provides format-specific `getBoundingBox()` and `getTemporalExtent()` methods
 - All spatial extents are transformed to WGS84 (EPSG:4326) for consistency
+
+### World File Support
+
+World files provide geospatial transformation information for raster images without embedded georeferencing:
+
+**Supported Extensions:**
+- `.wld` (generic), `.jgw` (JPEG), `.pgw`/`.pngw` (PNG), `.tfw`/`.tifw` (TIFF), `.bpw` (BMP), `.gfw` (GIF)
+
+**Implementation Details:**
+- GDAL automatically detects world files when named correctly (e.g., `image.png` + `image.pngw`)
+- `handleRaster.py` handles cases where projection reference is empty (world files without .prj)
+- When no CRS is specified, assumes WGS84 (EPSG:4326)
+- Test data available in `tests/testdata/worldfile/`
+
+**Testing:**
+- Test file: `test_api_worldfile.py`
+- Example records: Zenodo 820562 (PNG+.pngw), Zenodo 7196949 (TIFF+.tfw)
 
 ### Key Functions
 

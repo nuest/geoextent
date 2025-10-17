@@ -8,7 +8,7 @@ Python library for extracting geospatial and temporal extents from files and dir
 **Key Capabilities:**
 
 - Extract spatial extents (bounding boxes, convex hulls) and temporal extents
-- Support for 9+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf)
+- Support for 9+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf) plus world files
 - Direct integration with 11 research repositories (Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ, Dataverse, Pensoft, TU Dresden Opara, Senckenberg, BGR)
 - Process single files, directories, or multiple repositories in one call
 - Command-line interface and Python API

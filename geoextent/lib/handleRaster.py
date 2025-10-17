@@ -51,11 +51,23 @@ def getBoundingBox(filepath):
     geotiffContent = gdal.Open(filepath)
 
     # get the existing coordinate system
+    projection_ref = geotiffContent.GetProjectionRef()
+
+    # Check if projection exists (may be empty for world files without .prj)
+    has_projection = projection_ref and projection_ref.strip()
+
     old_crs = osr.SpatialReference()
-    old_crs.ImportFromWkt(geotiffContent.GetProjectionRef())
+    if has_projection:
+        try:
+            old_crs.ImportFromWkt(projection_ref)
+        except Exception as e:
+            logger.debug(
+                f"{filepath}: Failed to parse projection: {e}. "
+                "Assuming coordinates are in WGS84 (EPSG:4326)"
+            )
+            has_projection = False
 
     # create the new coordinate system
-
     new_crs = osr.SpatialReference()
     new_crs.ImportFromEPSG(crs_output)
 
@@ -69,24 +81,35 @@ def getBoundingBox(filepath):
     max_x = gt[0] + width * gt[1] + height * gt[2]
     max_y = gt[3]
 
-    transform = osr.CoordinateTransformation(old_crs, new_crs)
-    try:
-        # get the coordinates in lat long
-        lat_long_min = transform.TransformPoint(min_x, min_y)
-        lat_long_max = transform.TransformPoint(max_x, max_y)
-    except:
-        # Assume that coordinates are in EPSG:4236
+    # Transform coordinates if we have a projection, otherwise assume WGS84
+    if has_projection:
+        transform = osr.CoordinateTransformation(old_crs, new_crs)
+        try:
+            # get the coordinates in lat long
+            lat_long_min = transform.TransformPoint(min_x, min_y)
+            lat_long_max = transform.TransformPoint(max_x, max_y)
+        except:
+            # Assume that coordinates are in EPSG:4326
+            logger.debug(
+                "{}: Coordinate transformation failed. Assuming coordinates are in WGS84 (EPSG:4326)".format(
+                    filepath
+                )
+            )
+            lat_long_min = [min_x, min_y]
+            lat_long_max = [max_x, max_y]
+    else:
+        # No projection info (e.g., world file without .prj), assume WGS84
         logger.debug(
-            "{}: There is no identifiable coordinate reference system. We will try to use EPSG: 4326 ".format(
+            "{}: No projection reference found (world file without .prj?). Assuming coordinates are in WGS84 (EPSG:4326)".format(
                 filepath
             )
         )
-        lat_long_min = [min_y, min_x]
-        lat_long_max = [max_y, max_x]
+        lat_long_min = [min_x, min_y]
+        lat_long_max = [max_x, max_y]
 
     bbox = [lat_long_min[0], lat_long_min[1], lat_long_max[0], lat_long_max[1]]
 
-    if int(osgeo.__version__[0]) >= 3:
+    if has_projection and int(osgeo.__version__[0]) >= 3:
         if old_crs.GetAxisMappingStrategy() == 1:
             bbox = [lat_long_min[1], lat_long_min[0], lat_long_max[1], lat_long_max[0]]
 

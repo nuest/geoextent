@@ -115,6 +115,44 @@ The file used in the example is available online: `wf_100m_klas.tif <https://git
 
    geoextent.fromFile('showcase_folder/wf_100m_klas.tif', True, False)
 
+World Files
+^^^^^^^^^^^
+
+World files provide geospatial transformation information for raster images that don't have embedded georeferencing.
+GDAL automatically detects and uses world files when they are present alongside the image file with the appropriate naming convention.
+
+**Supported world file extensions:**
+
+- ``.wld`` - Generic world file
+- ``.jgw`` - JPEG world file
+- ``.pgw`` - PNG world file
+- ``.pngw`` - PNG world file (alternative)
+- ``.tfw`` - TIFF world file
+- ``.tifw`` - TIFF world file (alternative)
+- ``.bpw`` - BMP world file
+- ``.gfw`` - GIF world file
+
+**Important notes:**
+
+- World files contain only geospatial transformation parameters (position, scale, rotation), not coordinate system information
+- When a world file is present but no CRS is specified, geoextent assumes WGS84 (EPSG:4326)
+- For proper CRS support, use a ``.prj`` file alongside the world file
+
+**Example:** PNG image with world file
+
+Test data from: `Zenodo record 820562 <https://zenodo.org/record/820562>`_
+
+::
+
+   geoextent -b image_with_worldfile.png
+
+The world file (``image_with_worldfile.pngw`` or ``image_with_worldfile.pgw``) must be in the same directory as the image.
+
+**References:**
+
+- `Wikipedia: World file <https://en.wikipedia.org/wiki/World_file>`_
+- `GDAL World File documentation <https://gdal.org/en/stable/drivers/raster/wld.html>`_
+
 Shapefile
 ^^^^^^^^^
 
