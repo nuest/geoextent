@@ -178,6 +178,41 @@ def compute_convex_hull_wgs84(module, path):
     return spatial_extent
 
 
+# Set of auxiliary file extensions to skip (defined at module level for efficiency)
+_AUXILIARY_EXTENSIONS = {
+    ".ovr",  # Overview/pyramid files (reduced resolution versions)
+    ".aux.xml",  # GDAL auxiliary metadata
+    ".tif.xml",  # Metadata for TIFF files
+    ".tiff.xml",  # Metadata for TIFF files (alternative extension)
+    ".msk",  # Mask files
+}
+
+
+def _is_auxiliary_file(filename: str) -> bool:
+    """Check if a file is a GDAL/geospatial auxiliary file that should be skipped.
+
+    GDAL and other geospatial tools create auxiliary files alongside the main data files.
+    These files should not be processed independently as they lack proper georeferencing
+    or are already represented in the main file.
+
+    Uses hash-based set lookup for O(1) performance.
+
+    Args:
+        filename: The filename to check
+
+    Returns:
+        True if the file is an auxiliary file and should be skipped, False otherwise
+    """
+    filename_lower = filename.lower()
+
+    # Check if filename ends with any auxiliary extension (O(n) where n is number of extensions)
+    for ext in _AUXILIARY_EXTENSIONS:
+        if filename_lower.endswith(ext):
+            return True
+
+    return False
+
+
 def fromDirectory(
     path: str,
     bbox: bool = False,
@@ -266,6 +301,12 @@ def fromDirectory(
             pbar.set_postfix_str(f"Processing {filename}")
 
         logger.info("path {}, folder/archive {}".format(path, filename))
+
+        # Skip GDAL auxiliary files
+        if _is_auxiliary_file(filename):
+            logger.debug(f"Skipping auxiliary file: {filename}")
+            continue
+
         absolute_path = os.path.join(path, filename)
         is_archive = patoolib.is_archive(absolute_path)
 

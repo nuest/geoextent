@@ -124,6 +124,11 @@ Changelog
   - Add ``--no-data-download`` option for metadata-only extraction from selected repositories
   - Restructure regex patterns for better repository candidate detection
 
+- **Bug Fixes**
+
+  - Fix GML bounding box coordinate order for GDAL >= 3.2 — the version check was inverted, causing incorrect coordinate swapping
+  - Fix Figshare URL validation to reject incomplete URLs without a valid record ID instead of using unsafe fallback parsing
+
 - **Format and Processing Improvements**
 
   - Add ``--no-subdirs`` option to control recursive processing of subdirectories (:issue:`55`)
@@ -131,6 +136,8 @@ Changelog
   - Add FlatGeobuf format support (:issue:`43`)
   - Add support for processing multiple files with automatic extent merging
   - Run code formatter to improve code consistency (:issue:`54`)
+  - Skip GDAL auxiliary files (``.ovr``, ``.aux.xml``, ``.msk``, etc.) during directory processing
+  - Harden CSV handler: force CSV GDAL driver to prevent misidentification as gridded datasets, add extension-based pre-filtering for known vector/raster formats, and improve geometry column detection with prioritized pattern matching
 
 - **User Experience Enhancements**
 

@@ -211,10 +211,12 @@ def getBoundingBox(filepath):
         # Extract CRS information using shared function
         crs, crs_wkt = _extract_crs_from_layer(layer, layer_name, "transformation")
 
-        # Patch GDAL > 3.2 for GML  https://github.com/OSGeo/gdal/issues/2195
+        # Patch GDAL >= 3.2 for GML  https://github.com/OSGeo/gdal/issues/2195
+        # GML files in GDAL 3.2+ return extent in (minLat, maxLat, minLon, maxLon) format
+        # but we need (minLon, minLat, maxLon, maxLat), so we swap the coordinates
         if (
             int(osgeo.__version__[0]) >= 3
-            and int(osgeo.__version__[2]) < 2
+            and int(osgeo.__version__[2]) >= 2
             and datasource.GetDriver().GetName() == "GML"
         ):
             bbox = [ext[2], ext[0], ext[3], ext[1]]

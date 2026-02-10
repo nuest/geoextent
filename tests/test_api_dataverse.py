@@ -582,12 +582,26 @@ class TestDataverseProvider:
             assert "properties" in feature, "Feature should have properties"
             assert "geometry" in feature, "Feature should have geometry"
 
-            # Check format in properties
-            properties = feature["properties"]
-            assert "format" in properties, "Properties should contain format field"
-            assert properties["format"] == "remote", "Format should be 'remote'"
+            # Check geoextent_extraction metadata
+            assert (
+                "geoextent_extraction" in output
+            ), "Output should contain geoextent_extraction metadata"
+            extraction_metadata = output["geoextent_extraction"]
+            assert (
+                "format" in extraction_metadata
+            ), "Extraction metadata should contain format field"
+            assert (
+                extraction_metadata["format"] == "remote"
+            ), "Format should be 'remote'"
+            assert (
+                "crs" in extraction_metadata
+            ), "Extraction metadata should contain CRS field"
+            assert (
+                extraction_metadata["crs"] == "4326"
+            ), "CRS should be WGS84 (EPSG:4326)"
 
             # Extract bounding box from geometry coordinates
+            properties = feature["properties"]
             geometry = feature["geometry"]
             assert geometry["type"] == "Polygon", "Geometry should be a Polygon"
             assert "coordinates" in geometry, "Geometry should have coordinates"
@@ -629,10 +643,6 @@ class TestDataverseProvider:
             assert (
                 abs(maxY - ref_maxY) <= tolerance
             ), f"MaxY differs from reference: extracted={maxY}, reference={ref_maxY}, diff={abs(maxY - ref_maxY)}"
-
-            # Verify CRS information
-            if "crs" in properties:
-                assert properties["crs"] == "4326", "CRS should be WGS84 (EPSG:4326)"
 
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")

@@ -1,5 +1,6 @@
 import csv
 import logging
+import os
 import re
 from osgeo import gdal, ogr
 from . import helpfunctions as hf
@@ -18,20 +19,23 @@ search = {
     ],
     "latitude": ["(.)*latitude(.)*", "^lat", "lat$", "^y", "y$"],
     "geometry": [
-        "(.)*geometry(.)*",
-        "(.)*geom(.)*",
-        "^wkt",
-        "wkt$",
-        "(.)*wkt(.)*",
-        "^wkb",
-        "wkb$",
-        "(.)*wkb(.)*",
-        "(.)*coordinates(.)*",
-        "(.)*coords(.)*",
-        "^coords",
-        "coords$",
-        "^coordinates",
-        "coordinates$",
+        # Order matters: more specific patterns first to avoid false matches
+        # e.g., "geometry" column should match before "geom_type" column
+        "^geometry$",  # Exact match first
+        "(.)*geometry(.)*",  # Then "geometry" substring
+        "^wkt$",  # Exact WKT
+        "(.)*wkt(.)*",  # WKT substring
+        "^wkb$",  # Exact WKB
+        "(.)*wkb(.)*",  # WKB substring
+        "^coordinates$",  # Exact coordinates
+        "^coordinates",  # Starts with coordinates
+        "coordinates$",  # Ends with coordinates
+        "(.)*coordinates(.)*",  # Coordinates substring
+        "^coords$",  # Exact coords
+        "^coords",  # Starts with coords
+        "coords$",  # Ends with coords
+        "(.)*coords(.)*",  # Coords substring
+        "(.)*geom(.)*",  # Most general pattern last to avoid false positives
     ],
     "time": ["(.)*timestamp(.)*", "(.)*datetime(.)*", "(.)*time(.)*", "date$", "^date"],
 }
@@ -52,9 +56,26 @@ def checkFileSupported(filepath):
     raise exception if not valid
     """
 
+    # Quick extension check - reject known vector/raster formats
+    # This prevents CSV handler from trying to open XML-based formats
+    extension = os.path.splitext(filepath)[1].lower()
+    vector_extensions = {".kml", ".gml", ".gpx", ".shp", ".gpkg", ".geojson", ".json"}
+    raster_extensions = {".tif", ".tiff", ".asc", ".jp2", ".png", ".jpg", ".jpeg"}
+
+    if extension in vector_extensions or extension in raster_extensions:
+        logger.debug(f"File {filepath} has extension {extension}, skipping CSV handler")
+        return False
+
     try:
-        file = gdal.OpenEx(filepath)
-        driver = file.GetDriver().ShortName
+        # Force CSV driver to avoid GDAL treating coordinate data as gridded dataset
+        file = gdal.OpenEx(filepath, allowed_drivers=["CSV"])
+        if file:
+            driver = file.GetDriver().ShortName
+        else:
+            logger.debug(
+                "File {} is NOT supported by HandleCSV module".format(filepath)
+            )
+            return False
     except Exception:
         logger.debug("File {} is NOT supported by HandleCSV module".format(filepath))
         return False
@@ -106,16 +127,25 @@ def _extract_bbox_from_geometry_column(filePath, chunk_size=50000):
         header = next(data)
         chunk = [header]
 
-        # Find geometry column index
+        # Find geometry column index - prioritize best match
+        # Check all columns and find the one with the most specific pattern match
         geometry_col_idx = None
+        best_pattern_priority = len(
+            search["geometry"]
+        )  # Lower number = higher priority
+
         for idx, col_name in enumerate(header):
-            for pattern in search["geometry"]:
+            for pattern_priority, pattern in enumerate(search["geometry"]):
                 p = re.compile(pattern, re.IGNORECASE)
                 if p.search(col_name) is not None:
-                    geometry_col_idx = idx
-                    break
-            if geometry_col_idx is not None:
-                break
+                    # Found a match - keep it if it's better (lower priority number) than current best
+                    if pattern_priority < best_pattern_priority:
+                        geometry_col_idx = idx
+                        best_pattern_priority = pattern_priority
+                        logger.debug(
+                            f"Found geometry column candidate: '{col_name}' (index {idx}) matching pattern '{pattern}' (priority {pattern_priority})"
+                        )
+                    break  # Stop checking patterns for this column, move to next column
 
         if geometry_col_idx is None:
             return None

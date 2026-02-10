@@ -262,12 +262,12 @@ class Pensoft(DoiProvider):
         max_download_workers=4,
     ):
         """
-        Download geographic data from Pensoft article as GeoJSON file.
+        Download geographic metadata from Pensoft article as GeoJSON file.
 
         Args:
             folder: Directory to save the generated GeoJSON file
             throttle: Whether to throttle requests (not used for Pensoft)
-            download_data: Whether to extract geographic data
+            download_data: Whether to extract geographic metadata
             show_progress: Whether to show progress (not used for Pensoft)
             max_size_bytes: Size limit (not applicable for Pensoft)
             max_download_method: Download method (not applicable for Pensoft)
@@ -295,7 +295,7 @@ class Pensoft(DoiProvider):
             raise ValueError("No article ID available for download")
 
         self.log.debug(
-            f"Extracting geographic data from Pensoft article {self.article_id}"
+            f"Extracting geographic metadata from Pensoft article {self.article_id}"
         )
 
         try:
@@ -318,7 +318,7 @@ class Pensoft(DoiProvider):
                 f.write(geojson_content)
 
             self.log.info(
-                f"Successfully saved Pensoft geographic data to {output_path}"
+                f"Successfully saved Pensoft geographic metadata to {output_path}"
             )
 
         except Exception as e:

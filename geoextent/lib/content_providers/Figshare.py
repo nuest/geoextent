@@ -42,9 +42,8 @@ class Figshare(DoiProvider):
                 self.record_id = match.group(1)
                 return True
             else:
-                # Fallback to original method for simple cases
-                self.record_id = url.rsplit("/", maxsplit=1)[1]
-                return True
+                # Reject incomplete URLs (no valid record ID found)
+                return False
         else:
             return False
 

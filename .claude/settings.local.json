@@ -75,7 +75,11 @@
       "Bash(PYTHONPATH=/home/daniel/git/geoextent python3:*)",
       "Bash(PYTHONPATH=/home/daniel/git/geoextent python:*)",
       "Bash(PYTHONPATH=. python3:*)",
-      "Bash(ogr2ogr:*)"
+      "Bash(ogr2ogr:*)",
+      "Bash(head:*)",
+      "Bash(time PYTHONPATH=. pytest:*)",
+      "Bash(PYTHONPATH=. timeout 120 python:*)",
+      "Bash(PYTHONPATH=/home/daniel/git/geoextent timeout 120 python:*)"
     ],
     "deny": [],
     "ask": []

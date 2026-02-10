@@ -344,7 +344,7 @@ class TestPensoftProvider:
             assert True  # Expected behavior
 
         # Test with a DOI that might not have coordinates
-        # (This would need to be a real DOI that exists but has no geographic data)
+        # (This would need to be a real DOI that exists but has no geographic metadata)
 
     def test_pensoft_cli_geojson_validation(self):
         """Test Pensoft CLI output with GeoJSON validation"""
@@ -392,10 +392,23 @@ class TestPensoftProvider:
                 feature["geometry"]["type"] == "Polygon"
             ), "Geometry should be a Polygon"
 
-            # Verify properties contain expected metadata
-            properties = feature["properties"]
-            assert "format" in properties, "Properties should contain format field"
-            assert properties["format"] == "remote", "Format should be 'remote'"
+            # Verify geoextent_extraction metadata
+            assert (
+                "geoextent_extraction" in geojson_output
+            ), "Output should contain geoextent_extraction metadata"
+            extraction_metadata = geojson_output["geoextent_extraction"]
+            assert (
+                "format" in extraction_metadata
+            ), "Extraction metadata should contain format field"
+            assert (
+                extraction_metadata["format"] == "remote"
+            ), "Format should be 'remote'"
+            assert (
+                "crs" in extraction_metadata
+            ), "Extraction metadata should contain CRS field"
+            assert (
+                extraction_metadata["crs"] == "4326"
+            ), "CRS should be WGS84 (EPSG:4326)"
 
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")
