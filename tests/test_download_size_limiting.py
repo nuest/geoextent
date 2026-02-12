@@ -307,23 +307,23 @@ class TestRepositoryExtentComparison:
         # Different methods should potentially select different files
         # (verifying the sampling logic works)
 
-    @patch("geoextent.lib.extent.from_repository")
-    def test_repository_extent_extraction_with_size_limits(self, mock_from_repo):
+    @patch("geoextent.lib.extent.fromRemote")
+    def test_repository_extent_extraction_with_size_limits(self, mock_from_remote):
         """Test repository extent extraction with different size limits."""
         # Mock repository responses with different file selections
         mock_small_extent = {
-            "bbox": "POLYGON((2 48, 8 48, 8 51, 2 51, 2 48))",  # Germany + France
+            "bbox": "POLYGON((2 48, 8 48, 8 51, 2 51, 2 48))",
             "format": "remote",
         }
 
         mock_large_extent = {
-            "bbox": "POLYGON((2 48, 12 48, 12 70, 2 70, 2 48))",  # Including Norway
+            "bbox": "POLYGON((2 48, 12 48, 12 70, 2 70, 2 48))",
             "format": "remote",
         }
 
         # Test with small size limit
-        mock_from_repo.return_value = mock_small_extent
-        result_small = extent.from_repository(
+        mock_from_remote.return_value = mock_small_extent
+        result_small = extent.fromRemote(
             "https://example.com/repo",
             bbox=True,
             tbox=False,
@@ -332,8 +332,8 @@ class TestRepositoryExtentComparison:
         )
 
         # Test with large size limit
-        mock_from_repo.return_value = mock_large_extent
-        result_large = extent.from_repository(
+        mock_from_remote.return_value = mock_large_extent
+        result_large = extent.fromRemote(
             "https://example.com/repo",
             bbox=True,
             tbox=False,

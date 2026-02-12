@@ -54,7 +54,6 @@ run_workflow() {
 # Parse command line arguments
 WORKFLOW=""
 PYTHON_VERSION=""
-TEST_CATEGORY=""
 LIST_JOBS=false
 DRY_RUN=false
 VERBOSE=false
@@ -67,10 +66,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --python-version|-p)
             PYTHON_VERSION="$2"
-            shift 2
-            ;;
-        --test-category|-c)
-            TEST_CATEGORY="$2"
             shift 2
             ;;
         --list-jobs|-l)
@@ -89,9 +84,8 @@ while [[ $# -gt 0 ]]; do
             echo "Usage: $0 [options]"
             echo ""
             echo "Options:"
-            echo "  -w, --workflow WORKFLOW     Run specific workflow (pythonpackage|comprehensive-tests|documentation|codeql)"
+            echo "  -w, --workflow WORKFLOW     Run specific workflow (pythonpackage|documentation|codeql)"
             echo "  -p, --python-version VERSION Set Python version (3.10|3.11|3.12)"
-            echo "  -c, --test-category CATEGORY Set test category for comprehensive tests (api-core|api-repositories|api-formats|cli|integration)"
             echo "  -l, --list-jobs             List all jobs without running"
             echo "  -n, --dry-run               Show what would be executed without running"
             echo "  -v, --verbose               Enable verbose output"
@@ -99,7 +93,6 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Examples:"
             echo "  $0                                    # Run main Python package tests"
-            echo "  $0 -w comprehensive-tests -c api-core   # Run core API tests"
             echo "  $0 -w pythonpackage -p 3.11         # Run with Python 3.11"
             echo "  $0 -l                                # List all available jobs"
             exit 0
@@ -144,10 +137,6 @@ if [ -n "$PYTHON_VERSION" ]; then
     ACT_ARGS="$ACT_ARGS --env PYTHON_VERSION=$PYTHON_VERSION --matrix python-version:$PYTHON_VERSION"
 fi
 
-if [ -n "$TEST_CATEGORY" ]; then
-    ACT_ARGS="$ACT_ARGS --matrix test-category:$TEST_CATEGORY"
-fi
-
 # Add secrets file if it exists
 if [ -f ".secrets" ]; then
     ACT_ARGS="$ACT_ARGS --secret-file .secrets"
@@ -171,12 +160,6 @@ case $WORKFLOW in
     pythonpackage|python|main)
         run_workflow "Python Package Tests" "pythonpackage.yml" "$ACT_ARGS"
         ;;
-    comprehensive-tests|comprehensive|tests)
-        if [ -n "$TEST_CATEGORY" ]; then
-            echo -e "${YELLOW}🎯 Running test category: $TEST_CATEGORY${NC}"
-        fi
-        run_workflow "Comprehensive Test Suite" "comprehensive-tests.yml" "$ACT_ARGS"
-        ;;
     documentation|docs)
         run_workflow "Documentation Build" "documentation.yml" "$ACT_ARGS"
         ;;
@@ -186,13 +169,12 @@ case $WORKFLOW in
     all)
         echo -e "${YELLOW}🔄 Running all workflows...${NC}"
         run_workflow "Python Package Tests" "pythonpackage.yml" "$ACT_ARGS"
-        run_workflow "Comprehensive Test Suite" "comprehensive-tests.yml" "$ACT_ARGS"
         run_workflow "Documentation Build" "documentation.yml" "$ACT_ARGS"
         echo -e "${GREEN}✅ All workflows completed${NC}"
         ;;
     *)
         echo -e "${RED}❌ Unknown workflow: $WORKFLOW${NC}"
-        echo "Available workflows: pythonpackage, comprehensive-tests, documentation, codeql, all"
+        echo "Available workflows: pythonpackage, documentation, codeql, all"
         exit 1
         ;;
 esac

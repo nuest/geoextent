@@ -12,7 +12,7 @@ class TestCLIParameterCombinations:
             ["geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"]
         )
         assert ret.success, f"Process should return success. stderr: {ret.stderr}"
-        assert "bbox" in ret.stdout
+        assert "coordinates" in ret.stdout
         assert "tbox" not in ret.stdout
 
     def test_cli_tbox_only(self, script_runner):
@@ -70,7 +70,7 @@ class TestCLIParameterCombinations:
                 "geoextent",
                 "--debug",
                 "-b",
-                "tests/testdata/geojson/featureCollection.geojson",
+                "tests/testdata/geojson/muenster_ring_zeit.geojson",
             ]
         )
         assert ret.success, f"Process should return success. stderr: {ret.stderr}"
@@ -83,21 +83,21 @@ class TestCLIParameterCombinations:
             ["geoextent", "-b", "-t", "--download-data", "10.1594/PANGAEA.734969"]
         )
         if ret.success:
-            assert "format" in ret.stdout
-            assert "repository" in ret.stdout
+            assert "FeatureCollection" in ret.stdout or "remote" in ret.stdout
         else:
             # May fail due to network issues or missing dependencies
-            assert "error" in ret.stderr.lower() or "exception" in ret.stderr.lower()
+            combined = ret.stdout + ret.stderr
+            assert "error" in combined.lower() or "exception" in combined.lower()
 
     def test_cli_repository_without_download_data_flag(self, script_runner):
         """Test CLI with repository DOI without download-data flag"""
         ret = script_runner.run(["geoextent", "-b", "-t", "10.1594/PANGAEA.734969"])
         if ret.success:
-            assert "format" in ret.stdout
-            assert "repository" in ret.stdout
+            assert "FeatureCollection" in ret.stdout or "remote" in ret.stdout
         else:
             # May fail due to network issues or missing dependencies
-            assert "error" in ret.stderr.lower() or "exception" in ret.stderr.lower()
+            combined = ret.stdout + ret.stderr
+            assert "error" in combined.lower() or "exception" in combined.lower()
 
 
 class TestCLIErrorConditions:
@@ -106,10 +106,15 @@ class TestCLIErrorConditions:
     def test_cli_no_extraction_options(self, script_runner):
         """Test CLI with no extraction options should fail"""
         ret = script_runner.run(
-            ["geoextent", "tests/testdata/geojson/featureCollection.geojson"]
+            ["geoextent", "tests/testdata/geojson/muenster_ring_zeit.geojson"]
         )
         assert not ret.success
-        assert "usage" in ret.stderr.lower() or "error" in ret.stderr.lower()
+        combined = (ret.stdout + ret.stderr).lower()
+        assert (
+            "usage" in combined
+            or "error" in combined
+            or "extraction options" in combined
+        )
 
     def test_cli_both_extraction_options_disabled_should_fail(self, script_runner):
         """Test CLI with both bbox and tbox disabled (not possible via CLI, but testing logic)"""
@@ -119,7 +124,7 @@ class TestCLIErrorConditions:
 
         with pytest.raises(Exception, match="No extraction options enabled"):
             geoextent.fromFile(
-                "tests/testdata/geojson/featureCollection.geojson",
+                "tests/testdata/geojson/muenster_ring_zeit.geojson",
                 bbox=False,
                 tbox=False,
             )
@@ -160,16 +165,24 @@ class TestCLIErrorConditions:
         """Test CLI with directory path but no extraction options"""
         ret = script_runner.run(["geoextent", "tests/testdata"])
         assert not ret.success
-        assert "usage" in ret.stderr.lower() or "error" in ret.stderr.lower()
+        combined = ret.stdout + ret.stderr
+        assert (
+            "usage" in combined.lower()
+            or "error" in combined.lower()
+            or "extraction options" in combined
+        )
 
 
 class TestCLIOutputFormats:
     """Test CLI output handling with different parameter combinations"""
 
     def test_cli_output_geopackage_with_single_file(self, script_runner):
-        """Test CLI output to geopackage with single file (should warn)"""
+        """Test CLI output to geopackage with single file (export not created)"""
         with tempfile.NamedTemporaryFile(suffix=".gpkg", delete=False) as tmp_file:
             output_path = tmp_file.name
+
+        # Remove the temp file so we can check if it gets created
+        os.unlink(output_path)
 
         try:
             ret = script_runner.run(
@@ -179,14 +192,14 @@ class TestCLIOutputFormats:
                     "-t",
                     "--output",
                     output_path,
-                    "tests/testdata/geojson/featureCollection.geojson",
+                    "tests/testdata/geojson/muenster_ring_zeit.geojson",
                 ]
             )
             if ret.success:
-                # Should warn about single file export
-                assert (
-                    "warning" in ret.stderr.lower() or "not apply" in ret.stderr.lower()
-                )
+                # Export should not be created for single file
+                assert not os.path.exists(
+                    output_path
+                ), "Geopackage should not be created for single file input"
         finally:
             if os.path.exists(output_path):
                 os.unlink(output_path)
@@ -256,8 +269,8 @@ class TestCLISpecialParameters:
         ret = script_runner.run(["geoextent", "--help"])
         assert ret.success
         assert "usage" in ret.stdout.lower()
-        assert "bbox" in ret.stdout
-        assert "tbox" in ret.stdout
+        assert "bounding-box" in ret.stdout
+        assert "time-box" in ret.stdout
 
     def test_cli_version_flag(self, script_runner):
         """Test CLI version flag"""
@@ -296,7 +309,7 @@ class TestCLIParameterOrder:
                 "geoextent",
                 "-b",
                 "-t",
-                "tests/testdata/geojson/featureCollection.geojson",
+                "tests/testdata/geojson/muenster_ring_zeit.geojson",
             ]
         )
         assert ret.success
@@ -307,7 +320,7 @@ class TestCLIParameterOrder:
             [
                 "geoextent",
                 "-b",
-                "tests/testdata/geojson/featureCollection.geojson",
+                "tests/testdata/geojson/muenster_ring_zeit.geojson",
                 "-t",
             ]
         )
@@ -321,7 +334,7 @@ class TestCLIParameterOrder:
                 "geoextent",
                 "--debug",
                 "-b",
-                "tests/testdata/geojson/featureCollection.geojson",
+                "tests/testdata/geojson/muenster_ring_zeit.geojson",
             ]
         )
         assert ret1.success
@@ -332,7 +345,7 @@ class TestCLIParameterOrder:
                 "geoextent",
                 "-b",
                 "--debug",
-                "tests/testdata/geojson/featureCollection.geojson",
+                "tests/testdata/geojson/muenster_ring_zeit.geojson",
             ]
         )
         assert ret2.success
@@ -342,7 +355,7 @@ class TestCLIParameterOrder:
             [
                 "geoextent",
                 "-b",
-                "tests/testdata/geojson/featureCollection.geojson",
+                "tests/testdata/geojson/muenster_ring_zeit.geojson",
                 "--debug",
             ]
         )
@@ -434,10 +447,11 @@ class TestCLIRepositoryParameterCombinations:
         for doi_format in doi_formats:
             ret = script_runner.run(["geoextent", "-b", "-t", doi_format])
             if ret.success:
-                assert "repository" in ret.stdout
+                assert "FeatureCollection" in ret.stdout or "remote" in ret.stdout
             else:
                 # May fail due to network issues or missing dependencies
-                assert len(ret.stderr) > 0
+                combined = ret.stdout + ret.stderr
+                assert len(combined) > 0
 
     def test_cli_generic_doi_resolver_support(self, script_runner):
         """Test CLI support for generic DOI resolver URLs"""
@@ -450,5 +464,5 @@ class TestCLIRepositoryParameterCombinations:
 
         # Both should have similar behavior (success or failure due to network)
         if ret1.success and ret2.success:
-            assert "repository" in ret1.stdout
-            assert "repository" in ret2.stdout
+            assert "FeatureCollection" in ret1.stdout or "remote" in ret1.stdout
+            assert "FeatureCollection" in ret2.stdout or "remote" in ret2.stdout

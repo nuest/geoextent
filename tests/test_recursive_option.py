@@ -115,15 +115,25 @@ def test_cli_nested_mixed_recursive_vs_non_recursive(script_runner):
     recursive_result = json.loads(ret_recursive.stdout.strip())
     non_recursive_result = json.loads(ret_non_recursive.stdout.strip())
 
-    # Both should have bboxes
-    assert "bbox" in recursive_result, "Recursive processing should produce a bbox"
+    # Both should be FeatureCollections with geometry
     assert (
-        "bbox" in non_recursive_result
+        recursive_result.get("type") == "FeatureCollection"
+    ), "Recursive processing should produce a FeatureCollection"
+    assert (
+        non_recursive_result.get("type") == "FeatureCollection"
+    ), "Non-recursive should produce a FeatureCollection"
+    assert (
+        len(recursive_result["features"]) > 0
+    ), "Recursive processing should produce a bbox"
+    assert (
+        len(non_recursive_result["features"]) > 0
     ), "Non-recursive should still have bbox from top-level file"
 
-    # Extract bounding coordinates
-    recursive_coords = recursive_result["bbox"]["coordinates"][0]
-    non_recursive_coords = non_recursive_result["bbox"]["coordinates"][0]
+    # Extract bounding coordinates from FeatureCollection geometry
+    recursive_coords = recursive_result["features"][0]["geometry"]["coordinates"][0]
+    non_recursive_coords = non_recursive_result["features"][0]["geometry"][
+        "coordinates"
+    ][0]
 
     # Get the x-axis bounds (longitude)
     recursive_min_x = min(coord[0] for coord in recursive_coords)

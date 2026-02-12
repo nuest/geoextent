@@ -490,6 +490,12 @@ def main():
     except ValueError as e:
         raise ValueError(e)
 
+    # Validate that at least one extraction option is enabled
+    if not args["bounding_box"] and not args["time_box"]:
+        arg_parser.error(
+            "one of extraction options must be selected (-b/--bounding-box or -t/--time-box)"
+        )
+
     output = None
     multiple_files = len(files) > 1
 

@@ -19,8 +19,8 @@ class TestMultipleRepositories:
         result["format"] = "multiple_files"
         result["details"] = {}
 
-        # Mock the from_repository function to avoid actual network calls
-        def mock_from_repository(repo_id, **kwargs):
+        # Mock the fromRemote function to avoid actual network calls
+        def mock_fromRemote(repo_id, **kwargs):
             if "918707" in repo_id:
                 return {
                     "format": "remote",
@@ -41,9 +41,7 @@ class TestMultipleRepositories:
                 }
             return None
 
-        with patch(
-            "geoextent.lib.extent.from_repository", side_effect=mock_from_repository
-        ):
+        with patch("geoextent.lib.extent.fromRemote", side_effect=mock_fromRemote):
             # Simulate processing multiple repositories
             repositories = [
                 "https://doi.org/10.1594/PANGAEA.918707",
@@ -51,7 +49,7 @@ class TestMultipleRepositories:
             ]
 
             for repo in repositories:
-                repo_output = extent.from_repository(
+                repo_output = extent.fromRemote(
                     repo, bbox=True, tbox=False, convex_hull=False, download_data=False
                 )
                 if repo_output is not None:
@@ -81,8 +79,8 @@ class TestMultipleRepositories:
             temp_geojson = f.name
 
         try:
-            # Mock the from_repository function
-            def mock_from_repository(repo_id, **kwargs):
+            # Mock the fromRemote function
+            def mock_fromRemote(repo_id, **kwargs):
                 return {
                     "format": "remote",
                     "crs": "4326",
@@ -90,9 +88,7 @@ class TestMultipleRepositories:
                     "details": {},
                 }
 
-            with patch(
-                "geoextent.lib.extent.from_repository", side_effect=mock_from_repository
-            ):
+            with patch("geoextent.lib.extent.fromRemote", side_effect=mock_fromRemote):
                 # Test CLI argument validation
                 from geoextent.__main__ import readable_file_or_dir
                 import argparse
@@ -231,8 +227,8 @@ class TestMultipleRepositories:
                 "https://doi.org/10.1594/PANGAEA.918707",
             ]
 
-            # Mock the from_repository to avoid network calls
-            def mock_from_repository(repo_id, **kwargs):
+            # Mock the fromRemote to avoid network calls
+            def mock_fromRemote(repo_id, **kwargs):
                 return {
                     "format": "remote",
                     "crs": "4326",
@@ -242,8 +238,8 @@ class TestMultipleRepositories:
 
             with patch.object(sys, "argv", test_args):
                 with patch(
-                    "geoextent.lib.extent.from_repository",
-                    side_effect=mock_from_repository,
+                    "geoextent.lib.extent.fromRemote",
+                    side_effect=mock_fromRemote,
                 ):
                     with patch("builtins.print") as mock_print:
                         try:
@@ -298,7 +294,7 @@ class TestMultipleRepositoriesIntegration:
 
         for repo in repositories:
             try:
-                result = extent.from_repository(
+                result = extent.fromRemote(
                     repo,
                     bbox=True,
                     tbox=False,

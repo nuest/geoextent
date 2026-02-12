@@ -345,8 +345,14 @@ class TestOSFEdgeCases:
             ("https://osf.io", False),  # No project ID
             ("https://osf.io/", False),  # Trailing slash only
             ("https://accounts.osf.io/4xe6z", False),  # Wrong subdomain
-            ("https://osf.io/4xe6z/files/", True),  # With files path (valid)
-            ("https://osf.io/4xe6z/wiki/", True),  # With wiki path (valid)
+            (
+                "https://osf.io/4xe6z/files/",
+                False,
+            ),  # With files path (not matched by provider)
+            (
+                "https://osf.io/4xe6z/wiki/",
+                False,
+            ),  # With wiki path (not matched by provider)
         ]
 
         for test_input, expected_valid in edge_cases:

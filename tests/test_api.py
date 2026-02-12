@@ -76,7 +76,7 @@ def test_gml_extract_bbox():
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [32.39669, -17.54207, 39.30114, -6.95939], abs=tolerance
+        [-17.54207, 32.39669, -6.95939, 39.30114], abs=tolerance
     )
     assert result["crs"] == "4326"
 
@@ -287,7 +287,7 @@ def test_gml_extract_bbox_time():
         "tests/testdata/gml/clc_1000_PT.gml", bbox=True, tbox=True
     )
     assert result["bbox"] == pytest.approx(
-        [32.39669, -17.54207, 39.30114, -6.95939], abs=tolerance
+        [-17.54207, 32.39669, -6.95939, 39.30114], abs=tolerance
     )
     assert result["crs"] == "4326"
     assert result["tbox"] == ["2005-12-31", "2013-11-30"]

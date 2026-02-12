@@ -73,8 +73,23 @@ pip install -e .
 ### Testing
 
 ```bash
-# Run tests using pytest (automatically uses parallel execution with -n auto)
+# Run fast tests only (default — excludes slow network tests and large downloads)
 pytest
+
+# Run provider smoke tests (one real-network test per provider, ~11 tests)
+pytest -m provider_sample
+
+# Run all tests except large downloads
+pytest -m "not large_download"
+
+# Run only slow network tests
+pytest -m slow
+
+# Run large download tests explicitly
+pytest -m large_download
+
+# Run ALL tests including large downloads
+pytest -m ""
 
 # Run tests with explicit parallelism control
 pytest -n auto          # Auto-detect number of CPUs (default)
@@ -90,6 +105,11 @@ pytest -n 0 tests/test_api.py::test_specific_function
 ```
 
 **Note:** Parallel test execution is enabled by default using `pytest-xdist` with automatic CPU detection. This significantly speeds up the test suite.
+
+**Test markers:**
+- **`slow`** — Network-dependent provider tests (auto-applied via `conftest.py`). Excluded by default.
+- **`provider_sample`** — One representative real-network test per provider (~11 tests). A subset of `slow`.
+- **`large_download`** — Tests that download >100MB of data. Excluded by default.
 
 ### Code Formatting
 
@@ -148,12 +168,6 @@ Use the provided script for easy local testing:
 # Run main Python package tests (default)
 ./scripts/test-local-ci.sh
 
-# Run specific workflow
-./scripts/test-local-ci.sh --workflow comprehensive-tests
-
-# Run specific test category
-./scripts/test-local-ci.sh --workflow comprehensive-tests --test-category api-core
-
 # Run with specific Python version
 ./scripts/test-local-ci.sh --python-version 3.11
 
@@ -169,18 +183,9 @@ Use the provided script for easy local testing:
 
 #### Available Workflows
 
-1. **pythonpackage** - Main test suite with code formatting and comprehensive tests
-2. **comprehensive-tests** - Category-based testing (api-core, api-repositories, api-formats, cli, integration)
-3. **documentation** - Documentation build and deployment
-4. **codeql** - Security analysis
-
-#### Test Categories
-
-- `api-core` - Core API functionality tests
-- `api-repositories` - Remote repository provider tests (Zenodo, Figshare, Dryad, PANGAEA, OSF, GFZ, Pensoft, Dataverse, Opara, Senckenberg)
-- `api-formats` - Format handler tests (CSV, GeoJSON, GeoTIFF, Shapefile, FlatGeobuf)
-- `cli` - Command-line interface tests
-- `integration` - Integration and special feature tests
+1. **pythonpackage** - Main test suite: fast tests, provider samples, and test collection verification
+2. **documentation** - Documentation build and deployment
+3. **codeql** - Security analysis
 
 #### Direct act Commands
 
@@ -188,14 +193,11 @@ Use the provided script for easy local testing:
 # Run main test workflow
 act -W .github/workflows/pythonpackage.yml
 
-# Run comprehensive tests for api-core category
-act -W .github/workflows/comprehensive-tests.yml --matrix test-category:api-core
-
 # Run with specific Python version
 act -W .github/workflows/pythonpackage.yml --matrix python-version:3.11
 
 # List all jobs in a workflow
-act -W .github/workflows/comprehensive-tests.yml --list
+act -W .github/workflows/pythonpackage.yml --list
 ```
 
 ## Architecture Overview

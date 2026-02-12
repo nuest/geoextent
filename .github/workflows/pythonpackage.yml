@@ -3,13 +3,12 @@ name: Python package tests
 on: [push, pull_request]
 
 jobs:
-  build:
-
+  test-fast:
     runs-on: ${{ matrix.os }}
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.14']
         os: [ubuntu-24.04] # , windows-2019]
 
     steps:
@@ -46,22 +45,15 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
         gdal-config --version
-    #- name: Install system dependencies (macOS)
-    #  if: runner.os == 'macOS'
-    #  run: |
-    #    brew install pkg-config gdal proj geos
-    #    gdal-config --version
-    #- name: Install system dependencies (Windows)
-    #  if: runner.os == 'Windows'
-    #  run: |
-    #    nuget install GDAL -Version 2.4.4
-    #- name: Install dependencies
-    #  run: |
-    #    python -m pip install --upgrade pip
-    #    pip install -r requirements.txt
+
     - name: Upgrade pip
       run: |
         python -m pip install --upgrade pip
+
+    - name: Install GDAL Python bindings matching system library
+      if: runner.os == 'Linux'
+      run: |
+        pip install gdal==$(gdal-config --version)
 
     - name: Install geoextent and dependencies
       run: |
@@ -69,9 +61,9 @@ jobs:
     - name: Check code formatting with black
       run: |
         black --check --diff .
-    - name: Test with pytest
+    - name: Test with pytest (fast tests only)
       run: |
-        # Run all tests with verbose output and coverage
+        # Uses default addopts: -m "not slow and not large_download"
         pytest -v --tb=short --cov=geoextent --cov-report=xml --cov-report=term-missing
 
     - name: Upload coverage reports to Codecov
@@ -81,3 +73,127 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: false
+
+  test-providers:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ['3.10', '3.14']
+        os: [ubuntu-24.04]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/pyproject.toml', '**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-${{ matrix.python-version }}-
+          ${{ runner.os }}-pip-
+    - name: Cache system dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      uses: actions/cache@v3
+      with:
+        path: |
+          /usr/include/gdal
+          /usr/lib/x86_64-linux-gnu/libgdal*
+          /usr/bin/gdal*
+        key: ${{ runner.os }}-gdal-${{ hashFiles('.github/workflows/pythonpackage.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-gdal-
+
+    - name: Install system dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo apt-get update
+        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
+        gdal-config --version
+
+    - name: Upgrade pip
+      run: |
+        python -m pip install --upgrade pip
+
+    - name: Install GDAL Python bindings matching system library
+      if: runner.os == 'Linux'
+      run: |
+        pip install gdal==$(gdal-config --version)
+
+    - name: Install geoextent and dependencies
+      run: |
+        pip install -e .[dev,test]
+    - name: Test provider samples (one test per provider)
+      run: |
+        pytest -v --tb=short -m provider_sample --cov=geoextent --cov-report=xml --cov-report=term-missing
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        file: ./coverage.xml
+        flags: provider-sample
+        name: codecov-provider-sample
+        fail_ci_if_error: false
+
+  verify-test-collection:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.14
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.14'
+
+    - name: Cache system dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          /usr/include/gdal
+          /usr/lib/x86_64-linux-gnu/libgdal*
+          /usr/bin/gdal*
+        key: ${{ runner.os }}-gdal-${{ hashFiles('.github/workflows/pythonpackage.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-gdal-
+
+    - name: Install system dependencies
+      run: |
+        sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable
+        sudo apt-get update
+        sudo apt-get install -y libproj-dev libgeos-dev libspatialite-dev libgdal-dev gdal-bin netcdf-bin
+        gdal-config --version
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install gdal==$(gdal-config --version)
+        pip install -e .[dev,test]
+
+    - name: Discover and list all tests
+      run: |
+        echo "=== Discovering all test files ==="
+        find tests/ -name "test_*.py" -type f | sort
+
+        echo -e "\n=== Test collection verification ==="
+        pytest --collect-only -q | grep "test session starts\|collected"
+
+        echo -e "\n=== Running test collection with detailed output ==="
+        pytest --collect-only --tb=short
+
+    - name: Verify no tests are skipped due to missing dependencies
+      run: |
+        echo "=== Running a dry run to check for import errors ==="
+        pytest --collect-only --tb=line 2>&1 | tee test_collection.log
+
+        echo -e "\n=== Checking for common issues ==="
+        if grep -i "import.*error\|module.*not.*found\|no.*module.*named" test_collection.log; then
+          echo "Found import errors in test collection"
+          exit 1
+        else
+          echo "No import errors found in test collection"
+        fi

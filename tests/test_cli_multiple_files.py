@@ -6,12 +6,48 @@ from help_functions_test import tolerance
 
 
 def run_geoextent_cli(*args):
-    """Helper function to run geoextent CLI and return parsed JSON output"""
-    cmd = ["python", "-m", "geoextent"] + list(args)
+    """Helper function to run geoextent CLI and return parsed JSON output.
+
+    Converts the FeatureCollection output to a flat dict for test compatibility:
+    - format, crs, geoextent_handler from geoextent_extraction
+    - bbox from features[0].geometry coordinates
+    - tbox from features[0].properties
+    - details from top-level if present
+    """
+    cmd = ["python", "-m", "geoextent", "--quiet"] + list(args)
     result = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
     if result.returncode != 0:
         pytest.fail(f"CLI command failed: {result.stderr}")
-    return json.loads(result.stdout)
+    parsed = json.loads(result.stdout)
+
+    # If it's a FeatureCollection, flatten to old-style dict
+    if isinstance(parsed, dict) and parsed.get("type") == "FeatureCollection":
+        flat = {}
+        metadata = parsed.get("geoextent_extraction", {})
+        flat["format"] = metadata.get("format")
+        flat["crs"] = metadata.get("crs")
+        flat["geoextent_handler"] = metadata.get("geoextent_handler")
+
+        # Extract bbox from geometry
+        features = parsed.get("features", [])
+        if features:
+            geom = features[0].get("geometry", {})
+            if geom.get("type") == "Polygon":
+                coords = geom["coordinates"][0]
+                xs = [c[0] for c in coords]
+                ys = [c[1] for c in coords]
+                flat["bbox"] = [min(xs), min(ys), max(xs), max(ys)]
+            props = features[0].get("properties", {})
+            if "tbox" in props:
+                flat["tbox"] = props["tbox"]
+
+        # Copy details if present
+        if "details" in parsed:
+            flat["details"] = parsed["details"]
+
+        return flat
+
+    return parsed
 
 
 def test_multiple_files_bbox_extraction():

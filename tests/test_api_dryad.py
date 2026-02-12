@@ -359,6 +359,7 @@ class TestDryadEdgeCases:
             # Exception is expected for nonexistent datasets
             pass
 
+    @pytest.mark.large_download
     def test_dryad_large_dataset_timeout_handling(self):
         """Test Dryad timeout handling with large datasets"""
         # This tests the timeout behavior with a known large dataset
@@ -400,6 +401,7 @@ class TestDryadEdgeCases:
         assert dryad.record_id_html is not None
         assert "doi" in dryad.record_id_html
 
+    @pytest.mark.large_download
     def test_dryad_cli_geojson_validation(self):
         """Test Dryad CLI output with GeoJSON validation
 
@@ -573,6 +575,7 @@ class TestDryadFilteringCapabilities:
         assert "readme.txt" not in filtered_names
         # CSV could be geospatial or not, depending on implementation
 
+    @pytest.mark.large_download
     def test_dryad_download_with_geospatial_filtering(self):
         """Test Dryad download with geospatial filtering enabled"""
         import tempfile

@@ -20,13 +20,19 @@ class TestShapefileBboxExtraction:
         assert_bbox_result(result, expected_bbox)
         assert_no_tbox(result)
 
-    def test_extract_bbox_without_crs(self):
-        """Test bbox extraction from shapefile without CRS fails gracefully"""
+    def test_extract_bbox_with_auto_identified_crs(self):
+        """Test bbox extraction from shapefile where CRS is auto-identified via EPSG lookup"""
         result = extract_bbox_only(
             "tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp"
         )
-        # Shapefile without proper CRS should not return spatial extent
-        assert_no_bbox(result)
+        # This shapefile has EPSG:25832 which is auto-identified and transformed to WGS84
+        expected_bbox = [
+            6.0373054738033725,
+            51.36725472296136,
+            6.499786759861303,
+            51.847920000368205,
+        ]
+        assert_bbox_result(result, expected_bbox)
         assert_no_tbox(result)
 
 

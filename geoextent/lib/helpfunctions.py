@@ -950,7 +950,7 @@ def extract_output(result, files, current_version):
     }
 
     df = extract_details(result["details"])
-    df = df.append(new_row, ignore_index=True)
+    df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     df["bbox"] = df["bbox"].apply(transform_bbox)
     df["tbox"] = df["tbox"].apply(transform_tbox)
     return df
@@ -1255,7 +1255,7 @@ def create_geojson_feature_collection(extent_output, extraction_metadata=None):
         feature_collection["details"] = extent_output["details"]
 
     # Add or enhance extraction metadata if provided
-    if extraction_metadata:
+    if extraction_metadata is not None:
         # Add extraction-specific properties to metadata
         if "format" in extent_output:
             extraction_metadata["format"] = extent_output["format"]

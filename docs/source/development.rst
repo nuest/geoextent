@@ -132,12 +132,6 @@ Use the provided script for easy local testing::
     # Run main Python package tests (default)
     ./scripts/test-local-ci.sh
 
-    # Run specific workflow
-    ./scripts/test-local-ci.sh --workflow comprehensive-tests
-
-    # Run specific test category
-    ./scripts/test-local-ci.sh --workflow comprehensive-tests --test-category api-core
-
     # Run with specific Python version
     ./scripts/test-local-ci.sh --python-version 3.11
 
@@ -147,15 +141,6 @@ Use the provided script for easy local testing::
     # Show what would be executed (dry run)
     ./scripts/test-local-ci.sh --dry-run
 
-Available Test Categories
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-- ``api-core`` - Core API functionality tests
-- ``api-repositories`` - Remote repository provider tests (Zenodo, Figshare, Dryad, PANGAEA, OSF, GFZ, Pensoft, Dataverse)
-- ``api-formats`` - Format handler tests (CSV, GeoJSON, GeoTIFF, Shapefile, FlatGeobuf)
-- ``cli`` - Command-line interface tests
-- ``integration`` - Integration and special feature tests
-
 Direct act Commands
 ^^^^^^^^^^^^^^^^^^^
 
@@ -164,14 +149,11 @@ Direct act Commands
     # Run main test workflow
     act -W .github/workflows/pythonpackage.yml
 
-    # Run comprehensive tests for api-core category
-    act -W .github/workflows/comprehensive-tests.yml --matrix test-category:api-core
-
     # Run with specific Python version
     act -W .github/workflows/pythonpackage.yml --matrix python-version:3.11
 
     # List all jobs in a workflow
-    act -W .github/workflows/comprehensive-tests.yml --list
+    act -W .github/workflows/pythonpackage.yml --list
 
 Code Formatting
 ---------------

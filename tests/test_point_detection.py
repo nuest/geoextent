@@ -105,7 +105,9 @@ class TestPointDetection:
         }
 
         with patch("geoextent.lib.helpfunctions.logger") as mock_logger:
-            result = create_geojson_feature_collection(extent_output_bbox)
+            result = create_geojson_feature_collection(
+                extent_output_bbox, extraction_metadata={}
+            )
 
             # Check that warning was logged
             mock_logger.warning.assert_called_once()
@@ -121,11 +123,7 @@ class TestPointDetection:
             assert feature["type"] == "Feature"
             assert feature["geometry"]["type"] == "Point"
             assert feature["geometry"]["coordinates"] == [-21.5, 76.5]
-            assert feature["properties"]["extent_type"] == "point"
-            assert (
-                feature["properties"]["description"]
-                == "Point geometry extracted by geoextent"
-            )
+            assert result["geoextent_extraction"]["extent_type"] == "point"
 
     def test_create_geojson_feature_collection_convex_hull_point_detection(self):
         """Test that create_geojson_feature_collection creates Point geometries for convex hull point data"""
@@ -137,7 +135,9 @@ class TestPointDetection:
         }
 
         with patch("geoextent.lib.helpfunctions.logger") as mock_logger:
-            result = create_geojson_feature_collection(extent_output_convex)
+            result = create_geojson_feature_collection(
+                extent_output_convex, extraction_metadata={}
+            )
 
             # Check that warning was logged
             mock_logger.warning.assert_called_once()
@@ -149,7 +149,7 @@ class TestPointDetection:
             feature = result["features"][0]
             assert feature["geometry"]["type"] == "Point"
             assert feature["geometry"]["coordinates"] == [-21.5, 76.5]
-            assert feature["properties"]["extent_type"] == "point"
+            assert result["geoextent_extraction"]["extent_type"] == "point"
 
 
 class TestPangaeaDataset918707:
@@ -223,8 +223,8 @@ class TestPangaeaDataset918707:
             download_data=False,
         )
 
-        # Convert to GeoJSON format
-        geojson_output = format_extent_output(result, "geojson")
+        # Convert to GeoJSON format (pass extraction_metadata to populate geoextent_extraction)
+        geojson_output = format_extent_output(result, "geojson", extraction_metadata={})
 
         # Validate the GeoJSON structure using geojson-validator
         validation_errors = validate_structure(geojson_output)
@@ -246,10 +246,8 @@ class TestPangaeaDataset918707:
         assert abs(coords[0] - (-21.5)) < 0.1  # Longitude
         assert abs(coords[1] - 76.5) < 0.1  # Latitude
 
-        # Verify properties indicate it's a point
-        properties = feature["properties"]
-        assert properties["extent_type"] == "point"
-        assert "Point geometry" in properties["description"]
+        # Verify extraction metadata indicates it's a point
+        assert geojson_output["geoextent_extraction"]["extent_type"] == "point"
 
     def test_pangaea_918707_convex_hull_geojson_output_point_geometry(self):
         """Test that PANGAEA 918707 metadata with convex hull outputs Point geometry in GeoJSON format"""
@@ -261,8 +259,8 @@ class TestPangaeaDataset918707:
             download_data=False,
         )
 
-        # Convert to GeoJSON format
-        geojson_output = format_extent_output(result, "geojson")
+        # Convert to GeoJSON format (pass extraction_metadata to populate geoextent_extraction)
+        geojson_output = format_extent_output(result, "geojson", extraction_metadata={})
 
         # Validate the GeoJSON structure using geojson-validator
         validation_errors = validate_structure(geojson_output)
@@ -284,7 +282,5 @@ class TestPangaeaDataset918707:
         assert abs(coords[0] - (-21.5)) < 0.1  # Longitude
         assert abs(coords[1] - 76.5) < 0.1  # Latitude
 
-        # Properties should indicate it's a point despite convex hull request
-        properties = feature["properties"]
-        assert properties["extent_type"] == "point"
-        assert "Point geometry" in properties["description"]
+        # Extraction metadata should indicate it's a point despite convex hull request
+        assert geojson_output["geoextent_extraction"]["extent_type"] == "point"

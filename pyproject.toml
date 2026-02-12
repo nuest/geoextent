@@ -70,6 +70,7 @@ test = [
         "pytest",
         "pytest-cov",
         "pytest-xdist[psutil]",  # Parallel test execution with CPU detection
+        "pytest-console-scripts",  # CLI test fixture (script_runner)
         "geojson-validator"
 ]
 docs = [
@@ -101,12 +102,15 @@ testpaths = [
     #"integration",
 ]
 # Enable parallel test execution by default with automatic CPU detection
-addopts = "-n auto"
+# Default: run only fast local tests (exclude slow network tests and large downloads)
+addopts = "-n auto -m 'not slow and not large_download'"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "provider_sample: one real-network test per repository provider (run with '-m provider_sample')",
     "integration: marks tests as integration tests",
     "network: marks tests that require network access",
     "repository: marks tests that access remote repositories",
+    "large_download: marks tests that download >100MB of data (skipped by default, run with '-m large_download')",
 ]
 
 [tool.setuptools_scm]
@@ -129,6 +133,9 @@ extend-exclude = '''
   | build
   | dist
 )/
+|
+  # auto-generated files
+  _version\.py
 '''
 
 [tool.coverage.run]
