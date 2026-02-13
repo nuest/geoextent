@@ -143,7 +143,9 @@
       "Bash(git -C /home/daniel/git/geoextent remote -v)",
       "Bash(git -C /home/daniel/git/geoextent branch:*)",
       "Bash(git -C /home/daniel/git/geoextent status)",
-      "Bash(git -C /home/daniel/git/geoextent log v0.10.0..v0.11.0 --oneline)"
+      "Bash(git -C /home/daniel/git/geoextent log v0.10.0..v0.11.0 --oneline)",
+      "WebFetch(domain:setuptools-scm.readthedocs.io)",
+      "WebFetch(domain:packaging-guide.openastronomy.org)"
     ],
     "deny": [],
     "ask": []

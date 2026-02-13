@@ -1,6 +1,6 @@
 # geoextent
 
-![Python package](https://github.com/nuest/geoextent/workflows/Python%20package/badge.svg?branch=main) [![PyPI version](https://badge.fury.io/py/geoextent.svg)](https://pypi.org/project/geoextent/0.1.0/)
+![Python package](https://github.com/nuest/geoextent/workflows/Python%20package/badge.svg?branch=main) [![PyPI version](https://badge.fury.io/py/geoextent.svg)](https://pypi.org/project/geoextent/0.12.0/)
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nuest/main) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3925694.svg)](https://doi.org/10.5281/zenodo.3925694) [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/nuest/geoextent.git/)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/nuest/geoextent.git)
 
 Python library for extracting geospatial and temporal extents from files and directories.
@@ -9,7 +9,7 @@ Python library for extracting geospatial and temporal extents from files and dir
 
 - Extract spatial extents (bounding boxes, convex hulls) and temporal extents
 - Support for 9+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf) plus world files
-- Direct integration with 11 research repositories (Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ, Dataverse, Pensoft, TU Dresden Opara, Senckenberg, BGR)
+- Direct integration with [11 research repositories](https://nuest.github.io/geoextent/providers.html) (Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ, Dataverse, Pensoft, TU Dresden Opara, Senckenberg, BGR)
 - Process single files, directories, or multiple repositories in one call
 - Command-line interface and Python API
 - Export as GeoJSON, WKT, or WKB
