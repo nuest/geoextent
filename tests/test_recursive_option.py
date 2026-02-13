@@ -56,7 +56,7 @@ def test_api_recursive_disabled():
 def test_cli_recursive_default_behavior(script_runner):
     """Test CLI default behavior (should process subdirectories)"""
     ret = script_runner.run(
-        "geoextent", "-b", "-t", "--details", "tests/testdata/folders/nested_folder"
+        ["geoextent", "-b", "-t", "--details", "tests/testdata/folders/nested_folder"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -69,12 +69,14 @@ def test_cli_recursive_default_behavior(script_runner):
 def test_cli_no_subdirs_option(script_runner):
     """Test CLI --no-subdirs option disables recursive processing"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "-t",
-        "--details",
-        "--no-subdirs",
-        "tests/testdata/folders/nested_folder",
+        [
+            "geoextent",
+            "-b",
+            "-t",
+            "--details",
+            "--no-subdirs",
+            "tests/testdata/folders/nested_folder",
+        ]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -85,7 +87,7 @@ def test_cli_no_subdirs_option(script_runner):
 
 def test_cli_help_shows_no_subdirs_option(script_runner):
     """Test that --no-subdirs option appears in help"""
-    ret = script_runner.run("geoextent", "--help")
+    ret = script_runner.run(["geoextent", "--help"])
     assert ret.success, "process should return success"
     assert "--no-subdirs" in ret.stdout
     assert "only process files in the top-level directory" in ret.stdout
@@ -95,17 +97,19 @@ def test_cli_nested_mixed_recursive_vs_non_recursive(script_runner):
     """Test CLI behavior with nested_mixed folder - recursive vs non-recursive bbox differences"""
     # Test with recursive processing (default)
     ret_recursive = script_runner.run(
-        "geoextent", "-b", "--no-progress", "tests/testdata/folders/nested_mixed"
+        ["geoextent", "-b", "--no-progress", "tests/testdata/folders/nested_mixed"]
     )
     assert ret_recursive.success, "recursive process should return success"
 
     # Test with --no-subdirs
     ret_non_recursive = script_runner.run(
-        "geoextent",
-        "-b",
-        "--no-progress",
-        "--no-subdirs",
-        "tests/testdata/folders/nested_mixed",
+        [
+            "geoextent",
+            "-b",
+            "--no-progress",
+            "--no-subdirs",
+            "tests/testdata/folders/nested_mixed",
+        ]
     )
     assert ret_non_recursive.success, "non-recursive process should return success"
 
