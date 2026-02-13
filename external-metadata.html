@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>External Metadata Retrieval &#8212; geoextent 0.1.dev1+g97ed96f32 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <script src="_static/documentation_options.js?v=12799181"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="How-to Guides" href="howto/index_howto.html" />
+    <link rel="prev" title="Advanced Features" href="features.html" />
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+<!-- Favicon variants for better cross-browser and device support -->
+<link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="_static/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="_static/favicon-192x192.png">
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="external-metadata-retrieval">
+<h1>External Metadata Retrieval<a class="headerlink" href="#external-metadata-retrieval" title="Link to this heading">¶</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The external metadata feature allows you to retrieve bibliographic metadata for Digital Object Identifiers (DOIs) from CrossRef and DataCite APIs. This is particularly useful when working with research datasets and publications, as it automatically fetches citation information, licensing details, and publication metadata.</p>
+<p><strong>Key Features:</strong></p>
+<ul class="simple">
+<li><p>Retrieve metadata from CrossRef (academic publications) and DataCite (research data)</p></li>
+<li><p>Flexible source selection: query specific sources or all available sources</p></li>
+<li><p>Support for multiple DOI input formats</p></li>
+<li><p>Automatic DOI extraction from URLs and prefixed formats</p></li>
+<li><p>Rich metadata extraction including title, authors, publisher, publication year, URL, and license</p></li>
+<li><p>Array-based output structure for consistent handling</p></li>
+</ul>
+</section>
+<section id="supported-metadata-sources">
+<h2>Supported Metadata Sources<a class="headerlink" href="#supported-metadata-sources" title="Link to this heading">¶</a></h2>
+<section id="crossref">
+<h3>CrossRef<a class="headerlink" href="#crossref" title="Link to this heading">¶</a></h3>
+<p>CrossRef is primarily used for academic publications, journal articles, books, and conference papers. It covers:</p>
+<ul class="simple">
+<li><p>Academic journals (e.g., PLOS ONE, Nature, Science)</p></li>
+<li><p>Books and book chapters</p></li>
+<li><p>Conference proceedings</p></li>
+<li><p>Reports and working papers</p></li>
+</ul>
+</section>
+<section id="datacite">
+<h3>DataCite<a class="headerlink" href="#datacite" title="Link to this heading">¶</a></h3>
+<p>DataCite is primarily used for research datasets and related outputs. It covers:</p>
+<ul class="simple">
+<li><p>Research datasets (e.g., Zenodo, Figshare)</p></li>
+<li><p>Software and code</p></li>
+<li><p>Protocols and methods</p></li>
+<li><p>Preprints and grey literature</p></li>
+</ul>
+</section>
+</section>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h2>
+<section id="basic-usage">
+<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h3>
+<p>Retrieve metadata for a DOI using the default <code class="docutils literal notranslate"><span class="pre">auto</span></code> method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>This will:</p>
+<ol class="arabic simple">
+<li><p>Extract the geospatial extent from the Zenodo dataset</p></li>
+<li><p>Try to retrieve metadata from CrossRef first</p></li>
+<li><p>Fall back to DataCite if CrossRef doesn’t have the DOI</p></li>
+<li><p>Include the metadata in the GeoJSON output</p></li>
+</ol>
+</section>
+</section>
+<section id="cli-options">
+<h2>CLI Options<a class="headerlink" href="#cli-options" title="Link to this heading">¶</a></h2>
+<section id="ext-metadata">
+<h3><code class="docutils literal notranslate"><span class="pre">--ext-metadata</span></code><a class="headerlink" href="#ext-metadata" title="Link to this heading">¶</a></h3>
+<p>Enable external metadata retrieval. When this flag is set, geoextent will attempt to retrieve bibliographic metadata for the provided DOI.</p>
+<p><strong>Example</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+</section>
+<section id="ext-metadata-method">
+<h3><code class="docutils literal notranslate"><span class="pre">--ext-metadata-method</span></code><a class="headerlink" href="#ext-metadata-method" title="Link to this heading">¶</a></h3>
+<p>Control which metadata sources are queried. Accepts four values:</p>
+<dl>
+<dt><strong>auto</strong> (default)</dt><dd><p>Try CrossRef first, then fall back to DataCite if CrossRef fails. This is the most efficient option for unknown DOIs.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="n">auto</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>all</strong></dt><dd><p>Query all available sources (CrossRef and DataCite) and return all results. Use this when you want to see metadata from all sources that have information about the DOI.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="nb">all</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>crossref</strong></dt><dd><p>Query CrossRef only. Use this for academic publications and journal articles.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="n">crossref</span> <span class="mf">10.1371</span><span class="o">/</span><span class="n">journal</span><span class="o">.</span><span class="n">pone</span><span class="mf">.0230416</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>datacite</strong></dt><dd><p>Query DataCite only. Use this for research datasets and software.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="n">datacite</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</section>
+</section>
+<section id="doi-input-formats">
+<h2>DOI Input Formats<a class="headerlink" href="#doi-input-formats" title="Link to this heading">¶</a></h2>
+<p>The external metadata feature accepts DOIs in multiple formats:</p>
+<section id="plain-doi">
+<h3>Plain DOI<a class="headerlink" href="#plain-doi" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+</section>
+<section id="doi-url">
+<h3>DOI URL<a class="headerlink" href="#doi-url" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+</section>
+<section id="doi-with-prefix">
+<h3>DOI with Prefix<a class="headerlink" href="#doi-with-prefix" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="n">doi</span><span class="p">:</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>All formats are automatically normalized to extract the DOI before querying the metadata sources.</p>
+</section>
+</section>
+<section id="output-format">
+<h2>Output Format<a class="headerlink" href="#output-format" title="Link to this heading">¶</a></h2>
+<section id="metadata-structure">
+<h3>Metadata Structure<a class="headerlink" href="#metadata-structure" title="Link to this heading">¶</a></h3>
+<p>External metadata is always returned as an <strong>array</strong> (list), even when only one source is queried or only one source returns results. Each metadata entry in the array is a dictionary with the following fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">source</span></code>: The metadata source (<code class="docutils literal notranslate"><span class="pre">&quot;CrossRef&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;DataCite&quot;</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">doi</span></code>: The DOI of the resource</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">title</span></code>: The title of the publication or dataset</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">authors</span></code>: Array of author names</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">publisher</span></code>: Publisher name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">publication_year</span></code>: Year of publication (integer)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">url</span></code>: URL to the resource (usually the DOI URL)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">license</span></code>: License information (string or array)</p></li>
+</ul>
+</section>
+<section id="example-output-geojson">
+<h3>Example Output (GeoJSON)<a class="headerlink" href="#example-output-geojson" title="Link to this heading">¶</a></h3>
+<p>When using the default GeoJSON output format, the external metadata is included in the feature properties:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;features&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span><span class="err">...</span><span class="p">]]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;external_metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DataCite&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;doi&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10.5281/zenodo.4593540&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pennsylvania SGL with 1km buffer (GEOJSON)&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Conner, Weston&quot;</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">&quot;publisher&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Zenodo&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;publication_year&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2021</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://zenodo.org/record/4593540&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;license&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">              </span><span class="s2">&quot;https://creativecommons.org/licenses/by/4.0/legalcode&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="s2">&quot;info:eu-repo/semantics/openAccess&quot;</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;geoextent_extraction&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="empty-results">
+<h3>Empty Results<a class="headerlink" href="#empty-results" title="Link to this heading">¶</a></h3>
+<p>If no metadata is found (e.g., invalid DOI or querying the wrong source), the <code class="docutils literal notranslate"><span class="pre">external_metadata</span></code> field will be an empty array:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;external_metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="python-api">
+<h2>Python API<a class="headerlink" href="#python-api" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h3>Basic Usage<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">extent</span>
+
+<span class="c1"># Retrieve extent and metadata</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.5281/zenodo.4593540&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">ext_metadata</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Access metadata</span>
+<span class="n">metadata_list</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;external_metadata&#39;</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">metadata</span> <span class="ow">in</span> <span class="n">metadata_list</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Source: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;source&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Title: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Authors: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Year: </span><span class="si">{</span><span class="n">metadata</span><span class="p">[</span><span class="s1">&#39;publication_year&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="specifying-method">
+<h3>Specifying Method<a class="headerlink" href="#specifying-method" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">extent</span>
+
+<span class="c1"># Query only DataCite</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.5281/zenodo.4593540&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">ext_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">ext_metadata_method</span><span class="o">=</span><span class="s1">&#39;datacite&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Query all sources</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.5281/zenodo.4593540&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">ext_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">ext_metadata_method</span><span class="o">=</span><span class="s1">&#39;all&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="direct-metadata-retrieval">
+<h3>Direct Metadata Retrieval<a class="headerlink" href="#direct-metadata-retrieval" title="Link to this heading">¶</a></h3>
+<p>You can also retrieve metadata directly without extracting geospatial extent:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">external_metadata</span>
+
+<span class="c1"># Retrieve metadata using auto method</span>
+<span class="n">metadata</span> <span class="o">=</span> <span class="n">external_metadata</span><span class="o">.</span><span class="n">get_external_metadata</span><span class="p">(</span>
+    <span class="s1">&#39;10.5281/zenodo.4593540&#39;</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Returns a list of metadata dictionaries</span>
+<span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="use-cases">
+<h2>Use Cases<a class="headerlink" href="#use-cases" title="Link to this heading">¶</a></h2>
+<section id="research-data-citation">
+<h3>Research Data Citation<a class="headerlink" href="#research-data-citation" title="Link to this heading">¶</a></h3>
+<p>Automatically retrieve citation information for research datasets:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>This retrieves both the geospatial extent and the full citation metadata, making it easy to properly cite the dataset in publications.</p>
+</section>
+<section id="license-verification">
+<h3>License Verification<a class="headerlink" href="#license-verification" title="Link to this heading">¶</a></h3>
+<p>Check the license of a dataset before using it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="n">datacite</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>The output includes license information in the <code class="docutils literal notranslate"><span class="pre">license</span></code> field.</p>
+</section>
+<section id="cross-registry-search">
+<h3>Cross-Registry Search<a class="headerlink" href="#cross-registry-search" title="Link to this heading">¶</a></h3>
+<p>Search for a DOI across multiple registries:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="nb">all</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>This queries both CrossRef and DataCite, returning results from all sources that have the DOI.</p>
+</section>
+<section id="publication-metadata">
+<h3>Publication Metadata<a class="headerlink" href="#publication-metadata" title="Link to this heading">¶</a></h3>
+<p>Retrieve metadata for academic publications:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="n">crossref</span> <span class="mf">10.1371</span><span class="o">/</span><span class="n">journal</span><span class="o">.</span><span class="n">pone</span><span class="mf">.0230416</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading">¶</a></h2>
+<p>The external metadata feature requires the following Python packages:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">crossref-commons</span></code>: For querying the CrossRef API</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">datacite</span></code>: For querying the DataCite API</p></li>
+</ul>
+<p>These dependencies are automatically installed when you install geoextent.</p>
+<p>If you’re installing geoextent from source, make sure to install with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+</pre></div>
+</div>
+<p>Or install the dependencies manually:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">crossref</span><span class="o">-</span><span class="n">commons</span> <span class="n">datacite</span>
+</pre></div>
+</div>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading">¶</a></h2>
+<section id="no-metadata-found">
+<h3>No Metadata Found<a class="headerlink" href="#no-metadata-found" title="Link to this heading">¶</a></h3>
+<p>If no metadata is returned:</p>
+<ol class="arabic simple">
+<li><p><strong>Check the DOI</strong>: Ensure the DOI is valid and correctly formatted</p></li>
+<li><p><strong>Try different methods</strong>: Use <code class="docutils literal notranslate"><span class="pre">--ext-metadata-method</span> <span class="pre">all</span></code> to query all sources</p></li>
+<li><p><strong>Check the source</strong>: Some DOIs are only in CrossRef or only in DataCite, not both</p></li>
+<li><p><strong>Network issues</strong>: Ensure you have internet connectivity to access the APIs</p></li>
+</ol>
+<p>Example - DOI only in DataCite:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This will return empty (CrossRef doesn&#39;t have it)</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="n">crossref</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+
+<span class="c1"># This will succeed</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="n">datacite</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+</section>
+<section id="rate-limiting">
+<h3>Rate Limiting<a class="headerlink" href="#rate-limiting" title="Link to this heading">¶</a></h3>
+<p>Both CrossRef and DataCite APIs have rate limits. If you’re processing many DOIs:</p>
+<ul class="simple">
+<li><p>Add delays between requests</p></li>
+<li><p>Use batch processing carefully</p></li>
+<li><p>Consider caching results</p></li>
+<li><p>Check the API documentation for current rate limits</p></li>
+</ul>
+</section>
+<section id="api-errors">
+<h3>API Errors<a class="headerlink" href="#api-errors" title="Link to this heading">¶</a></h3>
+<p>If you encounter API errors:</p>
+<ul class="simple">
+<li><p>Check your internet connection</p></li>
+<li><p>Verify the API services are available</p></li>
+<li><p>Check the geoextent logs for detailed error messages (use <code class="docutils literal notranslate"><span class="pre">--debug</span></code> flag)</p></li>
+</ul>
+<p>Example with debug logging:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">debug</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<section id="example-1-dataset-with-metadata">
+<h3>Example 1: Dataset with Metadata<a class="headerlink" href="#example-1-dataset-with-metadata" title="Link to this heading">¶</a></h3>
+<p>Extract extent and metadata from a Zenodo dataset:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>Output includes geospatial extent and complete bibliographic metadata.</p>
+</section>
+<section id="example-2-academic-publication">
+<h3>Example 2: Academic Publication<a class="headerlink" href="#example-2-academic-publication" title="Link to this heading">¶</a></h3>
+<p>Retrieve metadata for a PLOS ONE article:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="n">crossref</span> <span class="mf">10.1371</span><span class="o">/</span><span class="n">journal</span><span class="o">.</span><span class="n">pone</span><span class="mf">.0230416</span>
+</pre></div>
+</div>
+<p>Output includes publication details, authors, and license.</p>
+</section>
+<section id="example-3-compare-sources">
+<h3>Example 3: Compare Sources<a class="headerlink" href="#example-3-compare-sources" title="Link to this heading">¶</a></h3>
+<p>Query all sources to compare metadata:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span> <span class="o">--</span><span class="n">ext</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">method</span> <span class="nb">all</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>If the DOI is in multiple registries, you’ll see entries from each source.</p>
+</section>
+<section id="example-4-python-integration">
+<h3>Example 4: Python Integration<a class="headerlink" href="#example-4-python-integration" title="Link to this heading">¶</a></h3>
+<p>Integrate metadata retrieval in a Python script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">extent</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="c1"># List of DOIs to process</span>
+<span class="n">dois</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;10.5281/zenodo.4593540&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;10.1371/journal.pone.0230416&#39;</span>
+<span class="p">]</span>
+
+<span class="c1"># Process each DOI</span>
+<span class="k">for</span> <span class="n">doi</span> <span class="ow">in</span> <span class="n">dois</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+        <span class="n">doi</span><span class="p">,</span>
+        <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">ext_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">ext_metadata_method</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+        <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Just get metadata</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Extract and display metadata</span>
+    <span class="n">metadata</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;external_metadata&#39;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="n">metadata</span><span class="p">:</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">metadata</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Title: </span><span class="si">{</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Authors: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;authors&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Year: </span><span class="si">{</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;publication_year&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Source: </span><span class="si">{</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;source&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="best-practices">
+<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Use the auto method for unknown DOIs</strong>: This efficiently tries CrossRef first and falls back to DataCite</p></li>
+<li><p><strong>Specify the source if you know it</strong>: Faster and more efficient than querying all sources</p></li>
+<li><p><strong>Handle empty results gracefully</strong>: Always check if the metadata array is non-empty before accessing data</p></li>
+<li><p><strong>Cache metadata when possible</strong>: Avoid repeated API calls for the same DOI</p></li>
+<li><p><strong>Respect rate limits</strong>: Add delays when processing many DOIs</p></li>
+<li><p><strong>Use –quiet for batch processing</strong>: Suppress progress bars and logs when processing many files</p></li>
+</ol>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="features.html"><span class="doc">Advanced Features</span></a> - Overview of all geoextent features</p></li>
+<li><p><a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> - More usage examples</p></li>
+<li><p><a class="reference internal" href="providers.html"><span class="doc">Content Providers</span></a> - Supported content providers</p></li>
+<li><p><a class="reference internal" href="changelog.html"><span class="doc">Changelog</span></a> - Recent changes and updates</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/geoextent-logo.svg" alt="Logo of geoextent"/>
+            </a></p>
+<h1 class="logo"><a href="index.html">geoextent</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing geoextent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Advanced Features</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">External Metadata Retrieval</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#supported-metadata-sources">Supported Metadata Sources</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cli-options">CLI Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#doi-input-formats">DOI Input Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-format">Output Format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#use-cases">Use Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="howto/index_howto.html">How-to Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supportedformats/index_supportedformats.html">Supported file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="features.html" title="previous chapter">Advanced Features</a></li>
+      <li>Next: <a href="howto/index_howto.html" title="next chapter">How-to Guides</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, o2rproject and all contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/external-metadata.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

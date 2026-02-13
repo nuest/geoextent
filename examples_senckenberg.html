@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Senckenberg Data Portal Examples &#8212; geoextent 0.1.dev1+g97ed96f32 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <script src="_static/documentation_options.js?v=12799181"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+<!-- Favicon variants for better cross-browser and device support -->
+<link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="_static/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="_static/favicon-192x192.png">
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="senckenberg-data-portal-examples">
+<h1>Senckenberg Data Portal Examples<a class="headerlink" href="#senckenberg-data-portal-examples" title="Link to this heading">¶</a></h1>
+<p>This page demonstrates how to use geoextent with the Senckenberg Biodiversity and Climate Research Centre data portal.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>Senckenberg operates a CKAN-based data portal at <a class="reference external" href="https://dataportal.senckenberg.de/">https://dataportal.senckenberg.de/</a> providing access to biodiversity, climate, and geoscience research datasets. Geoextent supports extracting spatial and temporal extents from Senckenberg datasets using various identifier formats.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><strong>Senckenberg is primarily a metadata repository.</strong> Most datasets contain rich geospatial and temporal metadata but may not have downloadable data files, or files may be restricted.</p>
+<p><strong>Best Practice:</strong> Always use <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> (metadata-only mode) when working with Senckenberg datasets to extract spatial and temporal extents from the metadata without attempting to download potentially unavailable files.</p>
+</div>
+</section>
+<section id="supported-identifiers">
+<h2>Supported Identifiers<a class="headerlink" href="#supported-identifiers" title="Link to this heading">¶</a></h2>
+<section id="doi-format">
+<h3>DOI Format<a class="headerlink" href="#doi-format" title="Link to this heading">¶</a></h3>
+<p>Use Senckenberg DOIs directly (recommended with <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code>):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--no-download-data<span class="w"> </span><span class="m">10</span>.12761/sgn.2018.10225
+</pre></div>
+</div>
+<p>DOI Resolver URLs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>https://doi.org/10.12761/sgn.2018.10225
+</pre></div>
+</div>
+</section>
+<section id="dataset-urls">
+<h3>Dataset URLs<a class="headerlink" href="#dataset-urls" title="Link to this heading">¶</a></h3>
+<p>Direct dataset landing pages:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>https://dataportal.senckenberg.de/dataset/as-sahabi-1
+</pre></div>
+</div>
+<p>JSON-LD URLs (metadata format):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>https://dataportal.senckenberg.de/dataset/as-sahabi-1.jsonld
+</pre></div>
+</div>
+</section>
+<section id="dataset-ids">
+<h3>Dataset IDs<a class="headerlink" href="#dataset-ids" title="Link to this heading">¶</a></h3>
+<p>Name slugs:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>as-sahabi-1
+</pre></div>
+</div>
+<p>UUID format:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>00dda005-68c0-4e92-96e5-ceb68034f3ba
+</pre></div>
+</div>
+</section>
+</section>
+<section id="common-use-cases">
+<h2>Common Use Cases<a class="headerlink" href="#common-use-cases" title="Link to this heading">¶</a></h2>
+<section id="temporal-and-spatial-extraction-recommended">
+<h3>Temporal and Spatial Extraction (Recommended)<a class="headerlink" href="#temporal-and-spatial-extraction-recommended" title="Link to this heading">¶</a></h3>
+<p>Extract both spatial and temporal extent from metadata (most common use case):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Command line</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--no-download-data<span class="w"> </span><span class="m">10</span>.12761/sgn.2018.10268
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python API</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Extract both spatial (bbox) and temporal (tbox) extent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.12761/sgn.2018.10268&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Metadata-only extraction</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Location: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;bbox&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># Output: [-79.1667, -4.0992, -78.9667, -3.9667] (Ecuador)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Time period: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;tbox&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="c1"># Output: [&#39;2014-05-01&#39;, &#39;2015-12-30&#39;]</span>
+</pre></div>
+</div>
+<p><strong>Why this example?</strong></p>
+<ul class="simple">
+<li><p>Dataset: “Functional responses of avian frugivores to variation in fruit resources”</p></li>
+<li><p>Contains complete spatial coverage (bounding box in Ecuador)</p></li>
+<li><p>Contains temporal coverage (May 2014 to December 2015)</p></li>
+<li><p>Metadata-only extraction works perfectly without downloading files</p></li>
+<li><p>Demonstrates the recommended workflow for Senckenberg</p></li>
+</ul>
+</section>
+<section id="basic-spatial-extraction">
+<h3>Basic Spatial Extraction<a class="headerlink" href="#basic-spatial-extraction" title="Link to this heading">¶</a></h3>
+<p>Extract spatial extent only from a Senckenberg dataset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Using DOI (always use download_data=False for Senckenberg)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.12761/sgn.2018.10225&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;bbox&#39;</span><span class="p">])</span>
+
+<span class="c1"># Using dataset URL</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://dataportal.senckenberg.de/dataset/as-sahabi-1&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># Using dataset name</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;as-sahabi-1&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="why-use-metadata-only-mode">
+<h3>Why Use Metadata-Only Mode?<a class="headerlink" href="#why-use-metadata-only-mode" title="Link to this heading">¶</a></h3>
+<p>Metadata-only extraction (<code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code>) is <strong>recommended for all Senckenberg datasets</strong> because:</p>
+<ul class="simple">
+<li><p><strong>Primary use case</strong>: Senckenberg is a metadata repository - most datasets have rich metadata but limited/restricted data files</p></li>
+<li><p><strong>Faster extraction</strong>: No time wasted attempting to download unavailable files</p></li>
+<li><p><strong>Accurate results</strong>: Spatial and temporal metadata in CKAN is authoritative</p></li>
+<li><p><strong>Bandwidth efficient</strong>: No unnecessary downloads</p></li>
+<li><p><strong>Works with restricted datasets</strong>: Metadata is publicly accessible even when data files are restricted</p></li>
+</ul>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Always use --no-download-data for Senckenberg</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--no-download-data<span class="w"> </span><span class="m">10</span>.12761/sgn.2018.10225
+</pre></div>
+</div>
+</section>
+<section id="with-size-limits">
+<h3>With Size Limits<a class="headerlink" href="#with-size-limits" title="Link to this heading">¶</a></h3>
+<p>Download only a subset of files to stay within size constraints:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--max-download-size<span class="w"> </span>50MB<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>as-sahabi-1
+</pre></div>
+</div>
+</section>
+<section id="geospatial-files-only">
+<h3>Geospatial Files Only<a class="headerlink" href="#geospatial-files-only" title="Link to this heading">¶</a></h3>
+<p>Skip non-geospatial files (like documentation, scripts, etc.):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--download-skip-nogeo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>as-sahabi-1
+</pre></div>
+</div>
+<p>This will prioritize downloading:</p>
+<ul class="simple">
+<li><p>Shapefiles (.shp, .shx, .dbf, .prj)</p></li>
+<li><p>GeoJSON files (.geojson, .json)</p></li>
+<li><p>GeoTIFF files (.tif, .tiff)</p></li>
+<li><p>Archives that might contain geospatial data (.zip, .tar.gz)</p></li>
+<li><p>Other geospatial formats (GeoPackage, KML, etc.)</p></li>
+</ul>
+</section>
+<section id="multiple-datasets">
+<h3>Multiple Datasets<a class="headerlink" href="#multiple-datasets" title="Link to this heading">¶</a></h3>
+<p>Extract and merge extents from multiple Senckenberg datasets:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;as-sahabi-1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;10.12761/sgn.2018.10225&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Returns merged bounding box covering all datasets</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Combined extent: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;bbox&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Temporal range: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;tbox&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Access individual dataset results</span>
+<span class="k">for</span> <span class="n">dataset_id</span><span class="p">,</span> <span class="n">dataset_result</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;details&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dataset_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bbox&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;No bbox&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="mixed-providers">
+<h3>Mixed Providers<a class="headerlink" href="#mixed-providers" title="Link to this heading">¶</a></h3>
+<p>Combine Senckenberg datasets with other repositories:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="m">10</span>.12761/sgn.2018.10225<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="m">10</span>.5281/zenodo.4593540<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="m">10</span>.25532/OPARA-581
+</pre></div>
+</div>
+</section>
+</section>
+<section id="python-api-examples">
+<h2>Python API Examples<a class="headerlink" href="#python-api-examples" title="Link to this heading">¶</a></h2>
+<section id="basic-usage">
+<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Extract spatial and temporal extent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;as-sahabi-1&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="s1">&#39;bbox&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Spatial extent: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;bbox&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CRS: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;crs&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="s1">&#39;tbox&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Temporal extent: </span><span class="si">{</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;tbox&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-options">
+<h3>Advanced Options<a class="headerlink" href="#advanced-options" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.12761/sgn.2018.10225&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">convex_hull</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>           <span class="c1"># Extract convex hull instead of bbox</span>
+    <span class="n">details</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>               <span class="c1"># Include detailed file information</span>
+    <span class="n">max_download_size</span><span class="o">=</span><span class="s1">&#39;100MB&#39;</span><span class="p">,</span>  <span class="c1"># Limit total download size</span>
+    <span class="n">download_skip_nogeo</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>   <span class="c1"># Skip non-geospatial files</span>
+    <span class="n">max_download_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>     <span class="c1"># Parallel downloads</span>
+    <span class="n">placename</span><span class="o">=</span><span class="s1">&#39;nominatim&#39;</span>       <span class="c1"># Add placename lookup</span>
+<span class="p">)</span>
+
+<span class="c1"># Access detailed information</span>
+<span class="k">if</span> <span class="s1">&#39;details&#39;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file_info</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;details&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_info</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="s1">&#39;invalid-dataset-id&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Success: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error extracting extent: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># For multiple datasets, check individual errors</span>
+<span class="n">datasets</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;as-sahabi-1&#39;</span><span class="p">,</span> <span class="s1">&#39;invalid-dataset&#39;</span><span class="p">]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">dataset_id</span><span class="p">,</span> <span class="n">dataset_result</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;details&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s1">&#39;error&#39;</span> <span class="ow">in</span> <span class="n">dataset_result</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2">: ERROR - </span><span class="si">{</span><span class="n">dataset_result</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dataset_id</span><span class="si">}</span><span class="s2">: SUCCESS - </span><span class="si">{</span><span class="n">dataset_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bbox&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;No bbox&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="example-datasets">
+<h2>Example Datasets<a class="headerlink" href="#example-datasets" title="Link to this heading">¶</a></h2>
+<section id="as-sahabi-1">
+<h3>As-Sahabi 1<a class="headerlink" href="#as-sahabi-1" title="Link to this heading">¶</a></h3>
+<p>Paleontological dataset from Libya with geospatial data:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://dataportal.senckenberg.de/dataset/as-sahabi-1
+</pre></div>
+</div>
+<p><strong>Contains:</strong></p>
+<ul class="simple">
+<li><p>Study area shapefile (ZIP archive)</p></li>
+<li><p>Spatial fossil data (CSV)</p></li>
+<li><p>Research data and analyses</p></li>
+</ul>
+<p><strong>Use case:</strong> Extracting spatial extent from fossil site locations</p>
+</section>
+<section id="grazer-population-model">
+<h3>Grazer Population Model<a class="headerlink" href="#grazer-population-model" title="Link to this heading">¶</a></h3>
+<p>Dataset with spatial extent metadata but restricted data access:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>00dda005-68c0-4e92-96e5-ceb68034f3ba
+</pre></div>
+</div>
+<p><strong>Contains:</strong></p>
+<ul class="simple">
+<li><p>Metadata with spatial coverage (East &amp; South African Savannahs)</p></li>
+<li><p>Temporal coverage (1960-2006)</p></li>
+<li><p>Model data (may require authorization)</p></li>
+</ul>
+<p><strong>Use case:</strong> Metadata extraction for datasets with access restrictions</p>
+</section>
+</section>
+<section id="technical-details">
+<h2>Technical Details<a class="headerlink" href="#technical-details" title="Link to this heading">¶</a></h2>
+<section id="ckan-integration">
+<h3>CKAN Integration<a class="headerlink" href="#ckan-integration" title="Link to this heading">¶</a></h3>
+<p>Senckenberg uses CKAN (Comprehensive Knowledge Archive Network), an open-source data management system. Geoextent leverages the CKAN API for:</p>
+<ul class="simple">
+<li><p>Dataset metadata retrieval</p></li>
+<li><p>File listing and download URLs</p></li>
+<li><p>Spatial and temporal metadata extraction</p></li>
+</ul>
+</section>
+<section id="authentication">
+<h3>Authentication<a class="headerlink" href="#authentication" title="Link to this heading">¶</a></h3>
+<p>Some Senckenberg datasets may have restricted access. Geoextent will:</p>
+<ul class="simple">
+<li><p>Download publicly accessible files</p></li>
+<li><p>Skip restricted files with appropriate warnings</p></li>
+<li><p>Extract metadata when available</p></li>
+</ul>
+<p>For full access to restricted datasets, contact the data providers directly.</p>
+</section>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="providers.html"><span class="doc">Content Providers</span></a> - All supported content providers</p></li>
+<li><p><a class="reference internal" href="howto/api.html"><span class="doc">API Docs</span></a> - Complete Python API documentation</p></li>
+<li><p><a class="reference internal" href="howto/cli.html"><span class="doc">Command-Line Interface (CLI)</span></a> - Command-line interface reference</p></li>
+<li><p><a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> - General usage examples</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/geoextent-logo.svg" alt="Logo of geoextent"/>
+            </a></p>
+<h1 class="logo"><a href="index.html">geoextent</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing geoextent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external-metadata.html">External Metadata Retrieval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howto/index_howto.html">How-to Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supportedformats/index_supportedformats.html">Supported file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, o2rproject and all contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/examples_senckenberg.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

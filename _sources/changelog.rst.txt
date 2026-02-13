@@ -2,60 +2,100 @@
 Changelog
 =========
 
-0.9.0 (unreleased)
-^^^^^^^^^^^^^^^^^^
+0.12.0 (unreleased)
+^^^^^^^^^^^^^^^^^^^^
 
-- **Performance and Infrastructure Improvements**
+- **Breaking Changes**
 
-  - Refactor CI workflows to use custom GDAL installation script instead of pygdal
-  - Remove deprecated pygdal dependency from GitHub Actions for improved build reliability
-  - Add file filtering and parallel downloads to improve performance (:issue:`75`)
-  - Implement ``--download-skip-nogeo`` option to skip downloading non-geospatial files
-  - Add ``--max-download-size`` and ``--max-download-workers`` options for download control
-  - Optimize file download process using parallel downloads for multi-file datasets
-  - Add comprehensive test refactoring to eliminate duplication and focus on single aspects
+  - Default coordinate order for plain bounding boxes is now EPSG:4326 native axis order: **(latitude, longitude)**
+  - Bounding boxes are returned as ``[minlat, minlon, maxlat, maxlon]`` instead of ``[minlon, minlat, maxlon, maxlat]``
+  - GeoJSON output always uses ``[longitude, latitude]`` coordinate order per `RFC 7946 <https://www.rfc-editor.org/rfc/rfc7946>`_
+  - Add ``--legacy`` CLI flag and ``legacy=True`` Python API parameter to restore the previous ``[lon, lat]`` order for plain bounding boxes (does not affect GeoJSON output)
 
-- **Placename Lookup Feature** (:issue:`74`)
+- **New Content Providers**
 
-  - Add ``--placename`` option for automatic geographic placename lookup using gazetteer services
-  - Support for GeoNames, Nominatim, and Photon gazetteer services
-  - Placenames added to GeoJSON feature properties for meaningful location context
-  - Environment variable support for API keys via ``.env`` files
-  - Intelligent sampling of geometry points for optimal placename identification
-  - Add ``--placename-escape`` option for Unicode character escaping in placenames
-  - Shared component algorithm for extracting common location components
-  - Progress bar integration for gazetteer API calls
+  - Add Senckenberg Biodiversity and Climate Research Centre data portal provider (:issue:`66`)
+  - Support for CKAN-based repositories via new ``CKANProvider`` base class
+  - Add BGR Geoportal content provider with ISO 19139 metadata extraction (:issue:`61`)
 
-- **Repository Support Enhancements**
+- **New Features**
 
+  - Add support for world files (``.wld``, ``.jgw``, ``.pgw``, ``.tfw``, etc.) (:issue:`36`)
+  - Add ``--keep-files`` option to preserve downloaded files for debugging
+  - Dynamically generated supported formats list
+  - Explicitly remove temp files on cleanup (:issue:`82`)
+
+- **Improvements**
+
+  - Enable parallel test execution by default using ``pytest-xdist`` (:issue:`38`)
+  - Refactor CRS extraction into shared utility function
+  - Harden CSV handler: force CSV GDAL driver to prevent misidentification, add extension-based pre-filtering, improve geometry column detection
+  - Optimize gazetteer queries to avoid duplicate API calls for closed polygon points
+
+0.11.0
+^^^^^^
+
+- Add ``--ext-metadata`` option to retrieve bibliographic metadata for DOIs from CrossRef and DataCite APIs
+- Add ``--ext-metadata-method`` option to control metadata source (``auto``, ``all``, ``crossref``, ``datacite``)
+- Add display names to file format handlers
+- Fix unwanted coordinate flipping for GML bounding boxes with GDAL >= 3.2
+
+0.10.0
+^^^^^^
+
+- ``fromRemote()`` now accepts both single identifiers (string) and multiple identifiers (list)
+- Add ``--list-features`` CLI option and ``get_supported_features()`` Python API for discovering supported file formats and content providers
+- Add ``validate_remote_identifier()`` and ``validate_file_format()`` validation functions
+
+0.9.0
+^^^^^
+
+- **Content Providers**
+
+  - Add TU Dresden Opara content provider supporting DSpace 7.x repositories (:issue:`77`)
   - Add GFZ Data Services as content provider (:issue:`17`)
+  - Add Dataverse repository support (:issue:`57`)
+  - Add support for OSF (Open Science Framework) (:issue:`19`)
+  - Add support for Dryad and Figshare repositories
+  - Add support for Pensoft journals (:issue:`64`)
+  - Enhance PANGAEA provider with non-tabular data support and ZIP archive handling
   - Add download size limiting for repositories (:issue:`70`)
-  - Enhance content provider support for Dryad and OSF with full filtering capabilities
-  - Add support for OSF (Open Science Framework) repository extraction (:pr:`19`)
-  - Add Pangaea provider with web metadata extraction
-  - Add Dataverse repository support for data extraction (:issue:`57`)
-  - Add ``--no-data-download`` option for metadata-only extraction from selected repositories
+  - Add ``--no-data-download`` option for metadata-only extraction
+  - Add ``--download-skip-nogeo`` option to skip non-geospatial files
+  - Add ``--max-download-size``, ``--max-download-workers``, and ``--max-download-method`` options
   - Restructure regex patterns for better repository candidate detection
 
-- **Format and Processing Improvements**
+- **Output and Visualization**
 
-  - Add ``--no-subdirs`` option to control recursive processing of subdirectories (:issue:`55`)
-  - Add WKT and WKB output format support for spatial extents (:issue:`46`)
-  - Add FlatGeobuf format support (:issue:`43`)
+  - Add extraction metadata to GeoJSON output (``geoextent_extraction`` field)
+  - Add ``--no-metadata`` option to exclude extraction metadata from GeoJSON output
+  - Add geojson.io URL generation (``--geojsonio``)
+  - Add ``--browse`` option to open visualizations in default web browser
+  - Add WKT and WKB output format support (:issue:`46`)
+  - Add convex hull extraction (``--convex-hull``) (:issue:`37`)
+
+- **CLI and Processing**
+
+  - Add ``--no-subdirs`` option to control recursive directory processing (:issue:`55`)
   - Add support for processing multiple files with automatic extent merging
-  - Run code formatter to improve code consistency (:issue:`54`)
+  - Add progress bars with ``--no-progress`` option to disable (:issue:`32`)
+  - Add ``--quiet`` option to suppress all console messages
+  - Add ``--placename`` option for geographic placename lookup via GeoNames, Nominatim, and Photon (:issue:`74`)
+  - Add file filtering and parallel downloads (:issue:`75`)
+  - Add FlatGeobuf format support (:issue:`43`)
 
-- **User Experience Enhancements**
+- **Infrastructure**
 
-  - Add progress bars for file and directory processing with ``--no-progress`` option to disable (:issue:`32`)
-  - Add ``--quiet`` option to suppress all console messages including warnings and progress bars
-  - Add comprehensive test coverage for multiple providers
-  - Add geopy, python-dotenv, and filesizelib dependencies for enhanced functionality
+  - Refactor CI workflows to use custom GDAL installation script instead of pygdal
+  - Run code formatter (:issue:`54`)
+  - Skip GDAL auxiliary files during directory processing
+
+- Fix Figshare URL validation and download handling
 
 0.8.0
 ^^^^^
 
-- Move configuration from ``setup.py` to ``pyproject.toml``
+- Move configuration from ``setup.py`` to ``pyproject.toml``
 
 0.7.1
 ^^^^^

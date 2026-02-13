@@ -5,28 +5,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; geoextent 0.1.dev1+gc485290c5.d20251001 documentation</title>
+    <title>Changelog &#8212; geoextent 0.1.dev1+g97ed96f32 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=a1865c62"></script>
+    <script src="_static/documentation_options.js?v=12799181"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Development" href="development.html" />
     <link rel="prev" title="Supported file formats" href="supportedformats/index_supportedformats.html" />
+
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
 
   
   
+
+<!-- Favicon variants for better cross-browser and device support -->
+<link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="_static/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="_static/favicon-192x192.png">
 
   </head><body>
   
@@ -41,110 +49,156 @@
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
 <section id="unreleased">
-<h2>0.9.0 (unreleased)<a class="headerlink" href="#unreleased" title="Link to this heading">¶</a></h2>
+<h2>0.12.0 (unreleased)<a class="headerlink" href="#unreleased" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><strong>Performance and Infrastructure Improvements</strong></p>
+<li><p><strong>Breaking Changes</strong></p>
 <ul>
-<li><p>Refactor CI workflows to use custom GDAL installation script instead of pygdal</p></li>
-<li><p>Remove deprecated pygdal dependency from GitHub Actions for improved build reliability</p></li>
-<li><p>Add file filtering and parallel downloads to improve performance (<a class="reference external" href="https://github.com/nuest/geoextent/issues/75">#75</a>)</p></li>
-<li><p>Implement <code class="docutils literal notranslate"><span class="pre">--download-skip-nogeo</span></code> option to skip downloading non-geospatial files</p></li>
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">--max-download-size</span></code> and <code class="docutils literal notranslate"><span class="pre">--max-download-workers</span></code> options for download control</p></li>
-<li><p>Optimize file download process using parallel downloads for multi-file datasets</p></li>
-<li><p>Add comprehensive test refactoring to eliminate duplication and focus on single aspects</p></li>
+<li><p>Default coordinate order for plain bounding boxes is now EPSG:4326 native axis order: <strong>(latitude, longitude)</strong></p></li>
+<li><p>Bounding boxes are returned as <code class="docutils literal notranslate"><span class="pre">[minlat,</span> <span class="pre">minlon,</span> <span class="pre">maxlat,</span> <span class="pre">maxlon]</span></code> instead of <code class="docutils literal notranslate"><span class="pre">[minlon,</span> <span class="pre">minlat,</span> <span class="pre">maxlon,</span> <span class="pre">maxlat]</span></code></p></li>
+<li><p>GeoJSON output always uses <code class="docutils literal notranslate"><span class="pre">[longitude,</span> <span class="pre">latitude]</span></code> coordinate order per <a class="reference external" href="https://www.rfc-editor.org/rfc/rfc7946">RFC 7946</a></p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--legacy</span></code> CLI flag and <code class="docutils literal notranslate"><span class="pre">legacy=True</span></code> Python API parameter to restore the previous <code class="docutils literal notranslate"><span class="pre">[lon,</span> <span class="pre">lat]</span></code> order for plain bounding boxes (does not affect GeoJSON output)</p></li>
 </ul>
 </li>
-<li><p><strong>Placename Lookup Feature</strong> (<a class="reference external" href="https://github.com/nuest/geoextent/issues/74">#74</a>)</p>
+<li><p><strong>New Content Providers</strong></p>
 <ul>
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">--placename</span></code> option for automatic geographic placename lookup using gazetteer services</p></li>
-<li><p>Support for GeoNames, Nominatim, and Photon gazetteer services</p></li>
-<li><p>Placenames added to GeoJSON feature properties for meaningful location context</p></li>
-<li><p>Environment variable support for API keys via <code class="docutils literal notranslate"><span class="pre">.env</span></code> files</p></li>
-<li><p>Intelligent sampling of geometry points for optimal placename identification</p></li>
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">--placename-escape</span></code> option for Unicode character escaping in placenames</p></li>
-<li><p>Shared component algorithm for extracting common location components</p></li>
-<li><p>Progress bar integration for gazetteer API calls</p></li>
+<li><p>Add Senckenberg Biodiversity and Climate Research Centre data portal provider (<a class="reference external" href="https://github.com/nuest/geoextent/issues/66">#66</a>)</p></li>
+<li><p>Support for CKAN-based repositories via new <code class="docutils literal notranslate"><span class="pre">CKANProvider</span></code> base class</p></li>
+<li><p>Add BGR Geoportal content provider with ISO 19139 metadata extraction (<a class="reference external" href="https://github.com/nuest/geoextent/issues/61">#61</a>)</p></li>
 </ul>
 </li>
-<li><p><strong>Repository Support Enhancements</strong></p>
+<li><p><strong>New Features</strong></p>
 <ul>
-<li><p>Add GFZ Data Services as content provider (<a class="reference external" href="https://github.com/nuest/geoextent/issues/17">#17</a>)</p></li>
-<li><p>Add download size limiting for repositories (<a class="reference external" href="https://github.com/nuest/geoextent/issues/70">#70</a>)</p></li>
-<li><p>Enhance content provider support for Dryad and OSF with full filtering capabilities</p></li>
-<li><p>Add support for OSF (Open Science Framework) repository extraction (<a class="reference external" href="https://github.com/nuest/geoextent/pull/19">#19</a>)</p></li>
-<li><p>Add Pangaea provider with web metadata extraction</p></li>
-<li><p>Add Dataverse repository support for data extraction (<a class="reference external" href="https://github.com/nuest/geoextent/issues/57">#57</a>)</p></li>
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">--no-data-download</span></code> option for metadata-only extraction from selected repositories</p></li>
-<li><p>Restructure regex patterns for better repository candidate detection</p></li>
+<li><p>Add support for world files (<code class="docutils literal notranslate"><span class="pre">.wld</span></code>, <code class="docutils literal notranslate"><span class="pre">.jgw</span></code>, <code class="docutils literal notranslate"><span class="pre">.pgw</span></code>, <code class="docutils literal notranslate"><span class="pre">.tfw</span></code>, etc.) (<a class="reference external" href="https://github.com/nuest/geoextent/issues/36">#36</a>)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--keep-files</span></code> option to preserve downloaded files for debugging</p></li>
+<li><p>Dynamically generated supported formats list</p></li>
+<li><p>Explicitly remove temp files on cleanup (<a class="reference external" href="https://github.com/nuest/geoextent/issues/82">#82</a>)</p></li>
 </ul>
 </li>
-<li><p><strong>Format and Processing Improvements</strong></p>
+<li><p><strong>Improvements</strong></p>
 <ul>
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">--no-subdirs</span></code> option to control recursive processing of subdirectories (<a class="reference external" href="https://github.com/nuest/geoextent/issues/55">#55</a>)</p></li>
-<li><p>Add WKT and WKB output format support for spatial extents (<a class="reference external" href="https://github.com/nuest/geoextent/issues/46">#46</a>)</p></li>
-<li><p>Add FlatGeobuf format support (<a class="reference external" href="https://github.com/nuest/geoextent/issues/43">#43</a>)</p></li>
-<li><p>Add support for processing multiple files with automatic extent merging</p></li>
-<li><p>Run code formatter to improve code consistency (<a class="reference external" href="https://github.com/nuest/geoextent/issues/54">#54</a>)</p></li>
-</ul>
-</li>
-<li><p><strong>User Experience Enhancements</strong></p>
-<ul>
-<li><p>Add progress bars for file and directory processing with <code class="docutils literal notranslate"><span class="pre">--no-progress</span></code> option to disable (<a class="reference external" href="https://github.com/nuest/geoextent/issues/32">#32</a>)</p></li>
-<li><p>Add <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option to suppress all console messages including warnings and progress bars</p></li>
-<li><p>Add comprehensive test coverage for multiple providers</p></li>
-<li><p>Add geopy, python-dotenv, and filesizelib dependencies for enhanced functionality</p></li>
+<li><p>Enable parallel test execution by default using <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code> (<a class="reference external" href="https://github.com/nuest/geoextent/issues/38">#38</a>)</p></li>
+<li><p>Refactor CRS extraction into shared utility function</p></li>
+<li><p>Harden CSV handler: force CSV GDAL driver to prevent misidentification, add extension-based pre-filtering, improve geometry column detection</p></li>
+<li><p>Optimize gazetteer queries to avoid duplicate API calls for closed polygon points</p></li>
 </ul>
 </li>
 </ul>
 </section>
 <section id="id1">
-<h2>0.8.0<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<h2>0.11.0<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p>Move configuration from <code class="docutils literal notranslate"><span class="pre">setup.py`</span> <span class="pre">to</span> <span class="pre">``pyproject.toml</span></code></p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--ext-metadata</span></code> option to retrieve bibliographic metadata for DOIs from CrossRef and DataCite APIs</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--ext-metadata-method</span></code> option to control metadata source (<code class="docutils literal notranslate"><span class="pre">auto</span></code>, <code class="docutils literal notranslate"><span class="pre">all</span></code>, <code class="docutils literal notranslate"><span class="pre">crossref</span></code>, <code class="docutils literal notranslate"><span class="pre">datacite</span></code>)</p></li>
+<li><p>Add display names to file format handlers</p></li>
+<li><p>Fix unwanted coordinate flipping for GML bounding boxes with GDAL &gt;= 3.2</p></li>
 </ul>
 </section>
 <section id="id2">
-<h2>0.7.1<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<h2>0.10.0<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">fromRemote()</span></code> now accepts both single identifiers (string) and multiple identifiers (list)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--list-features</span></code> CLI option and <code class="docutils literal notranslate"><span class="pre">get_supported_features()</span></code> Python API for discovering supported file formats and content providers</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">validate_remote_identifier()</span></code> and <code class="docutils literal notranslate"><span class="pre">validate_file_format()</span></code> validation functions</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>0.9.0<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Content Providers</strong></p>
+<ul>
+<li><p>Add TU Dresden Opara content provider supporting DSpace 7.x repositories (<a class="reference external" href="https://github.com/nuest/geoextent/issues/77">#77</a>)</p></li>
+<li><p>Add GFZ Data Services as content provider (<a class="reference external" href="https://github.com/nuest/geoextent/issues/17">#17</a>)</p></li>
+<li><p>Add Dataverse repository support (<a class="reference external" href="https://github.com/nuest/geoextent/issues/57">#57</a>)</p></li>
+<li><p>Add support for OSF (Open Science Framework) (<a class="reference external" href="https://github.com/nuest/geoextent/issues/19">#19</a>)</p></li>
+<li><p>Add support for Dryad and Figshare repositories</p></li>
+<li><p>Add support for Pensoft journals (<a class="reference external" href="https://github.com/nuest/geoextent/issues/64">#64</a>)</p></li>
+<li><p>Enhance PANGAEA provider with non-tabular data support and ZIP archive handling</p></li>
+<li><p>Add download size limiting for repositories (<a class="reference external" href="https://github.com/nuest/geoextent/issues/70">#70</a>)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--no-data-download</span></code> option for metadata-only extraction</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--download-skip-nogeo</span></code> option to skip non-geospatial files</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--max-download-size</span></code>, <code class="docutils literal notranslate"><span class="pre">--max-download-workers</span></code>, and <code class="docutils literal notranslate"><span class="pre">--max-download-method</span></code> options</p></li>
+<li><p>Restructure regex patterns for better repository candidate detection</p></li>
+</ul>
+</li>
+<li><p><strong>Output and Visualization</strong></p>
+<ul>
+<li><p>Add extraction metadata to GeoJSON output (<code class="docutils literal notranslate"><span class="pre">geoextent_extraction</span></code> field)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--no-metadata</span></code> option to exclude extraction metadata from GeoJSON output</p></li>
+<li><p>Add geojson.io URL generation (<code class="docutils literal notranslate"><span class="pre">--geojsonio</span></code>)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--browse</span></code> option to open visualizations in default web browser</p></li>
+<li><p>Add WKT and WKB output format support (<a class="reference external" href="https://github.com/nuest/geoextent/issues/46">#46</a>)</p></li>
+<li><p>Add convex hull extraction (<code class="docutils literal notranslate"><span class="pre">--convex-hull</span></code>) (<a class="reference external" href="https://github.com/nuest/geoextent/issues/37">#37</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>CLI and Processing</strong></p>
+<ul>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--no-subdirs</span></code> option to control recursive directory processing (<a class="reference external" href="https://github.com/nuest/geoextent/issues/55">#55</a>)</p></li>
+<li><p>Add support for processing multiple files with automatic extent merging</p></li>
+<li><p>Add progress bars with <code class="docutils literal notranslate"><span class="pre">--no-progress</span></code> option to disable (<a class="reference external" href="https://github.com/nuest/geoextent/issues/32">#32</a>)</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option to suppress all console messages</p></li>
+<li><p>Add <code class="docutils literal notranslate"><span class="pre">--placename</span></code> option for geographic placename lookup via GeoNames, Nominatim, and Photon (<a class="reference external" href="https://github.com/nuest/geoextent/issues/74">#74</a>)</p></li>
+<li><p>Add file filtering and parallel downloads (<a class="reference external" href="https://github.com/nuest/geoextent/issues/75">#75</a>)</p></li>
+<li><p>Add FlatGeobuf format support (<a class="reference external" href="https://github.com/nuest/geoextent/issues/43">#43</a>)</p></li>
+</ul>
+</li>
+<li><p><strong>Infrastructure</strong></p>
+<ul>
+<li><p>Refactor CI workflows to use custom GDAL installation script instead of pygdal</p></li>
+<li><p>Run code formatter (<a class="reference external" href="https://github.com/nuest/geoextent/issues/54">#54</a>)</p></li>
+<li><p>Skip GDAL auxiliary files during directory processing</p></li>
+</ul>
+</li>
+<li><p>Fix Figshare URL validation and download handling</p></li>
+</ul>
+</section>
+<section id="id4">
+<h2>0.8.0<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Move configuration from <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> to <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
+</ul>
+</section>
+<section id="id5">
+<h2>0.7.1<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add DOI-based retrieval functions for Zenodo (<a class="reference external" href="https://github.com/nuest/geoextent/pull/100">#100</a>)</p></li>
 <li><p>Add export function <code class="docutils literal notranslate"><span class="pre">--output</span></code> for folders, ZIP files and repositories (<a class="reference external" href="https://github.com/nuest/geoextent/pull/124">#124</a>)</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>0.6.0<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h2>0.6.0<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add details option <code class="docutils literal notranslate"><span class="pre">--details</span></code> for folders and ZIP files (<a class="reference external" href="https://github.com/nuest/geoextent/pull/116">#116</a>)</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>0.5.0<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id7">
+<h2>0.5.0<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add support for spatial extent for <code class="docutils literal notranslate"><span class="pre">osgeo</span></code> files (via OGR/GDAL) with generic vector (GeoPackage, Shapefile, GeoJSON, GML, GPX, KML) and raster handling (GeoTIFF) (<a class="reference external" href="https://github.com/nuest/geoextent/pull/87">#87</a>, <a class="reference external" href="https://github.com/nuest/geoextent/pull/99">#99</a>)</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>0.4.0<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<section id="id8">
+<h2>0.4.0<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add support for ZIP files and folders (<a class="reference external" href="https://github.com/nuest/geoextent/pull/79">#79</a>)</p></li>
 </ul>
 </section>
-<section id="id6">
-<h2>0.3.0<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<section id="id9">
+<h2>0.3.0<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add debug option <code class="docutils literal notranslate"><span class="pre">--debug</span></code> and environment variable <code class="docutils literal notranslate"><span class="pre">GEOEXTENT_DEBUG</span></code> (<a class="reference external" href="https://github.com/nuest/geoextent/pull/73">#73</a>)</p></li>
 <li><p>Remove need for <code class="docutils literal notranslate"><span class="pre">-input=</span></code> for passing input paths in CLI (<a class="reference external" href="https://github.com/nuest/geoextent/pull/73">#73</a>)</p></li>
 <li><p>Switch to <code class="docutils literal notranslate"><span class="pre">pygdal</span></code> and update docs (<a class="reference external" href="https://github.com/nuest/geoextent/pull/73">#73</a>)</p></li>
 </ul>
 </section>
-<section id="id7">
-<h2>0.2.0<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<section id="id10">
+<h2>0.2.0<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add dependencies to required software (<a class="reference external" href="https://github.com/nuest/geoextent/pull/59">#59</a>, <a class="reference external" href="https://github.com/nuest/geoextent/commit/364692964fc34c467c21a7072e1eefb9d354fbb8">&#64;3646929</a>)</p></li>
 <li><p>Update documentation, now uses Sphinx and is online at <a class="reference external" href="https://o2r.info/geoextent/">https://o2r.info/geoextent/</a> (<a class="reference external" href="https://github.com/nuest/geoextent/pull/67">#67</a>, <a class="reference external" href="https://github.com/nuest/geoextent/pull/65">#65</a>, <a class="reference external" href="https://github.com/nuest/geoextent/pull/64">#64</a>, <a class="reference external" href="https://github.com/nuest/geoextent/pull/62">#62</a>)</p></li>
 </ul>
 </section>
-<section id="id8">
-<h2>0.1.0<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<section id="id11">
+<h2>0.1.0<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Initial release with core functionality</p></li>
 </ul>
@@ -158,6 +212,9 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/geoextent-logo.svg" alt="Logo of geoextent"/>
+            </a></p>
 <h1 class="logo"><a href="index.html">geoextent</a></h1>
 
 
@@ -180,18 +237,23 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="install.html">Installing geoextent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external-metadata.html">External Metadata Retrieval</a></li>
 <li class="toctree-l1"><a class="reference internal" href="howto/index_howto.html">How-to Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="supportedformats/index_supportedformats.html">Supported file formats</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#unreleased">0.9.0 (unreleased)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">0.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">0.7.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">0.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">0.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">0.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">0.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">0.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unreleased">0.12.0 (unreleased)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.11.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">0.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">0.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">0.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">0.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">0.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">0.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">0.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">0.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">0.1.0</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>

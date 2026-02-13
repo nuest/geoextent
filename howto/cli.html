@@ -5,28 +5,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gc485290c5.d20251001 documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g97ed96f32 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=a1865c62"></script>
+    <script src="../_static/documentation_options.js?v=12799181"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="API Docs" href="api.html" />
     <link rel="prev" title="How-to Guides" href="index_howto.html" />
+
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
 
   
   
+
+<!-- Favicon variants for better cross-browser and device support -->
+<link rel="icon" type="image/png" sizes="16x16" href="../_static/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../_static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="../_static/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../_static/favicon-192x192.png">
 
   </head><body>
   
@@ -45,7 +53,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">geoextent</span></code> can be called on the command line with this command :</p>
 <section id="id1">
 <h3><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] input1 [input2 ...]</span>
 </pre></div>
 </div>
 <dl class="std option">
@@ -64,6 +72,12 @@
 <dt class="sig sig-object std" id="cmdoption-formats">
 <span class="sig-name descname"><span class="pre">--formats</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-formats" title="Link to this definition">¶</a></dt>
 <dd><p>show supported formats</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-list-features">
+<span class="sig-name descname"><span class="pre">--list-features</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-list-features" title="Link to this definition">¶</a></dt>
+<dd><p>output machine-readable JSON with all supported file formats and content providers</p>
 </dd></dl>
 
 <dl class="std option">
@@ -145,6 +159,18 @@
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-browse">
+<span class="sig-name descname"><span class="pre">--browse</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-browse" title="Link to this definition">¶</a></dt>
+<dd><p>open the geojson.io URL in the default web browser (use with –geojsonio to also print URL)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-metadata">
+<span class="sig-name descname"><span class="pre">--no-metadata</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-metadata" title="Link to this definition">¶</a></dt>
+<dd><p>exclude extraction metadata and statistics from GeoJSON output</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-max-download-size">
 <span class="sig-name descname"><span class="pre">--max-download-size</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_download_size&gt;</span></span><a class="headerlink" href="#cmdoption-max-download-size" title="Link to this definition">¶</a></dt>
 <dd><p>maximum download size limit (e.g. ‘100MB’, ‘2GB’). Uses filesizelib for parsing.</p>
@@ -152,8 +178,8 @@
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-max-download-method">
-<span class="sig-name descname"><span class="pre">--max-download-method</span></span><span class="sig-prename descclassname"> <span class="pre">{ordered,random}</span></span><a class="headerlink" href="#cmdoption-max-download-method" title="Link to this definition">¶</a></dt>
-<dd><p>method for selecting files when size limit is exceeded (default: ordered)</p>
+<span class="sig-name descname"><span class="pre">--max-download-method</span></span><span class="sig-prename descclassname"> <span class="pre">{ordered,random,smallest,largest}</span></span><a class="headerlink" href="#cmdoption-max-download-method" title="Link to this definition">¶</a></dt>
+<dd><p>method for selecting files when size limit is exceeded: ‘ordered’ (as returned by provider), ‘random’, ‘smallest’ (smallest files first), ‘largest’ (largest files first) (default: ordered)</p>
 </dd></dl>
 
 <dl class="std option">
@@ -181,6 +207,18 @@
 </dd></dl>
 
 <dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-ext-metadata">
+<span class="sig-name descname"><span class="pre">--ext-metadata</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-ext-metadata" title="Link to this definition">¶</a></dt>
+<dd><p>retrieve external metadata for DOIs (title, authors, publisher, publication year, URL, license) from CrossRef and DataCite</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-ext-metadata-method">
+<span class="sig-name descname"><span class="pre">--ext-metadata-method</span></span><span class="sig-prename descclassname"> <span class="pre">{auto,all,crossref,datacite}</span></span><a class="headerlink" href="#cmdoption-ext-metadata-method" title="Link to this definition">¶</a></dt>
+<dd><p>method for retrieving external metadata: ‘auto’ (try CrossRef first, then DataCite), ‘all’ (query all sources), ‘crossref’ (CrossRef only), ‘datacite’ (DataCite only) (default: auto)</p>
+</dd></dl>
+
+<dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-download-skip-nogeo">
 <span class="sig-name descname"><span class="pre">--download-skip-nogeo</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-download-skip-nogeo" title="Link to this definition">¶</a></dt>
 <dd><p>skip downloading files that don’t appear to contain geospatial data (e.g., PDFs, images, plain text)</p>
@@ -196,6 +234,18 @@
 <dt class="sig sig-object std" id="cmdoption-max-download-workers">
 <span class="sig-name descname"><span class="pre">--max-download-workers</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;max_download_workers&gt;</span></span><a class="headerlink" href="#cmdoption-max-download-workers" title="Link to this definition">¶</a></dt>
 <dd><p>maximum number of parallel downloads (default: 4, set to 1 to disable parallel downloads)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-keep-files">
+<span class="sig-name descname"><span class="pre">--keep-files</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-keep-files" title="Link to this definition">¶</a></dt>
+<dd><p>keep downloaded and extracted files instead of cleaning them up (for debugging purposes)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-legacy">
+<span class="sig-name descname"><span class="pre">--legacy</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-legacy" title="Link to this definition">¶</a></dt>
+<dd><p>use traditional GIS coordinate order (longitude, latitude) instead of EPSG:4326 native order (latitude, longitude)</p>
 </dd></dl>
 
 </section>
@@ -218,7 +268,7 @@
 geoextent is a Python library for extracting geospatial and temporal extents of a file
  or a directory of multiple geospatial data formats.
 
-usage: geoextent [-h] [--formats] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] input1 [input2 ...]
+usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] input1 [input2 ...]
 
 positional arguments:
   files                 input file, directory, DOI, or repository URL
@@ -227,6 +277,8 @@ positional arguments:
 options:
   -h, --help            show help message and exit
   --formats             show supported formats
+  --list-features       output machine-readable JSON with all supported file
+                        formats and content providers
   --version             show installed version
   --debug               turn on debug logging, alternatively set environment
                         variable GEOEXTENT_DEBUG=1
@@ -248,12 +300,18 @@ options:
                         subdirectories
   --geojsonio           generate and print a clickable geojson.io URL for the
                         extracted spatial extent
+  --browse              open the geojson.io URL in the default web browser
+                        (use with --geojsonio to also print URL)
+  --no-metadata         exclude extraction metadata and statistics from
+                        GeoJSON output
   --max-download-size MAX_DOWNLOAD_SIZE
                         maximum download size limit (e.g. &#39;100MB&#39;, &#39;2GB&#39;).
                         Uses filesizelib for parsing.
-  --max-download-method {ordered,random}
-                        method for selecting files when size limit is exceeded
-                        (default: ordered)
+  --max-download-method {ordered,random,smallest,largest}
+                        method for selecting files when size limit is
+                        exceeded: &#39;ordered&#39; (as returned by provider),
+                        &#39;random&#39;, &#39;smallest&#39; (smallest files first), &#39;largest&#39;
+                        (largest files first) (default: ordered)
   --max-download-method-seed MAX_DOWNLOAD_METHOD_SEED
                         seed for random file selection when using --max-
                         download-method random (default: 42)
@@ -265,6 +323,14 @@ options:
                         (requires --placename)
   --placename-escape    escape Unicode characters in placename output
                         (requires --placename)
+  --ext-metadata        retrieve external metadata for DOIs (title, authors,
+                        publisher, publication year, URL, license) from
+                        CrossRef and DataCite
+  --ext-metadata-method {auto,all,crossref,datacite}
+                        method for retrieving external metadata: &#39;auto&#39; (try
+                        CrossRef first, then DataCite), &#39;all&#39; (query all
+                        sources), &#39;crossref&#39; (CrossRef only), &#39;datacite&#39;
+                        (DataCite only) (default: auto)
   --download-skip-nogeo
                         skip downloading files that don&#39;t appear to contain
                         geospatial data (e.g., PDFs, images, plain text)
@@ -274,6 +340,11 @@ options:
   --max-download-workers MAX_DOWNLOAD_WORKERS
                         maximum number of parallel downloads (default: 4, set
                         to 1 to disable parallel downloads)
+  --keep-files          keep downloaded and extracted files instead of
+                        cleaning them up (for debugging purposes)
+  --legacy              use traditional GIS coordinate order (longitude,
+                        latitude) instead of EPSG:4326 native order (latitude,
+                        longitude)
 
 
 Examples:
@@ -283,6 +354,7 @@ geoextent -t path/to/file_with_temporal_extent
 geoextent -b -t path/to/geospatial_files
 geoextent -b -t --details path/to/zipfile_with_geospatial_data
 geoextent -b -t file1.shp file2.csv file3.geopkg
+geoextent -b -t --geojsonio --no-download-data 10.25928/HK1000
 geoextent -t *.geojson
 geoextent -b -t https://doi.org/10.1594/PANGAEA.918707 https://doi.pangaea.de/10.1594/PANGAEA.858767
 geoextent -b --convex-hull https://zenodo.org/record/4567890 10.1594/PANGAEA.123456
@@ -292,25 +364,22 @@ geoextent -b --placename --placename-service photon --placename-escape https://d
 
 
 Supported formats:
-- GeoJSON (.geojson)
-- Tabular data (.csv)
-- GeoTIFF (.geotiff, .tif)
-- Shapefile (.shp)
-- GeoPackage (.gpkg)
-- GPS Exchange Format (.gpx)
-- Geography Markup Language (.gml)
-- Keyhole Markup Language (.kml)
-- FlatGeobuf (.fgb)
+- CSV (comma-separated values) (.csv)
+- Vector data (.shp, .shx, .dbf, .prj, .geojson, .json, .gpkg, .gpx, .kml, .kmz, .gml, .fgb)
+- Raster data (.tif, .tiff, .geotiff, .nc, .netcdf, .asc)
 
 Supported data repositories:
 - Zenodo (zenodo.org)
-- Dryad (datadryad.org)
 - Figshare (figshare.com)
-- PANGAEA (pangaea.de)
+- Dryad (datadryad.org)
+- Pangaea (pangaea.de)
 - OSF (osf.io)
-- GFZ Data Services (dataservices.gfz-potsdam.de)
-- Pensoft Journals (e.g., bdj.pensoft.net)
-
+- Dataverse (dataverse.org)
+- GFZ (dataservices.gfz-potsdam.de)
+- Pensoft (pensoft.net)
+- Opara (opara.zih.tu-dresden.de)
+- Senckenberg (dataportal.senckenberg.de)
+- BGR (geoportal.bgr.de)
 
 </pre></div>
 </div>
@@ -343,11 +412,12 @@ Supported data repositories:
 </div>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
  &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
- &#39;bbox&#39;: [7.6016807556152335,
-  51.94881477206191,
-  7.647256851196289,
-  51.974624029877454],
- &#39;crs&#39;: &#39;4326&#39;}
+ &#39;bbox&#39;: [51.94881477206191,
+  7.6016807556152335,
+  51.974624029877454,
+  7.647256851196289],
+ &#39;crs&#39;: &#39;4326&#39;,
+ &#39;file_size_bytes&#39;: 1695}
 </pre></div>
 </div>
 </div>
@@ -379,7 +449,8 @@ Supported data repositories:
 </div>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
  &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
- &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;]}
+ &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;],
+ &#39;file_size_bytes&#39;: 1695}
 </pre></div>
 </div>
 </div>
@@ -403,7 +474,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 134.34task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 154.15task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -413,12 +484,13 @@ Supported data repositories:
 </div>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;geojson&#39;,
  &#39;geoextent_handler&#39;: &#39;handleVector&#39;,
- &#39;bbox&#39;: [7.6016807556152335,
-  51.94881477206191,
-  7.647256851196289,
-  51.974624029877454],
+ &#39;bbox&#39;: [51.94881477206191,
+  7.6016807556152335,
+  51.974624029877454,
+  7.647256851196289],
  &#39;crs&#39;: &#39;4326&#39;,
- &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;]}
+ &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;],
+ &#39;file_size_bytes&#39;: 1695}
 </pre></div>
 </div>
 </div>
@@ -466,7 +538,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 21.76task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 23.68task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -482,7 +554,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 11.43item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 13.57item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -509,7 +581,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 109.89task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 111.66task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -525,10 +597,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 18.90item/s, Processing muenster_ring_zeit.geojson]</pre>
-</div>
-<div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 18.79item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 21.70item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -536,10 +605,10 @@ Supported data repositories:
 </div>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;folder&#39;,
  &#39;crs&#39;: &#39;4326&#39;,
- &#39;bbox&#39;: [2.052333387639205,
-  41.31703852240476,
-  7.647256851196289,
-  51.974624029877454],
+ &#39;bbox&#39;: [41.31703852240476,
+  2.052333387639205,
+  51.974624029877454,
+  7.647256851196289],
  &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2019-09-11&#39;]}
 </pre></div>
 </div>
@@ -628,7 +697,7 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 126.22task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 123.75task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -644,7 +713,7 @@ or time box (tbox).</p>
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 57.89item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 58.33item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -653,18 +722,18 @@ or time box (tbox).</p>
 <div class="output text_plain highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;format&#39;: &#39;folder&#39;,
  &#39;crs&#39;: &#39;4326&#39;,
  &#39;bbox&#39;: {&#39;type&#39;: &#39;Polygon&#39;,
-  &#39;coordinates&#39;: [[[7.608118057250977, 51.94881477206191],
-    [7.602796554565429, 51.953258408047034],
-    [7.6016807556152335, 51.96537036973145],
-    [7.606401443481445, 51.97361943924433],
-    [7.62125015258789, 51.974624029877454],
-    [7.636871337890624, 51.97240332571046],
-    [7.645368576049805, 51.96817310852836],
-    [7.645540237426757, 51.96780294552556],
-    [7.6471710205078125, 51.96330786509095],
-    [7.647256851196289, 51.95807185013927],
-    [7.643308639526367, 51.953258408047034],
-    [7.608118057250977, 51.94881477206191]]]},
+  &#39;coordinates&#39;: [[[51.94881477206191, 7.608118057250977],
+    [51.953258408047034, 7.602796554565429],
+    [51.96537036973145, 7.6016807556152335],
+    [51.97361943924433, 7.606401443481445],
+    [51.974624029877454, 7.62125015258789],
+    [51.97240332571046, 7.636871337890624],
+    [51.96817310852836, 7.645368576049805],
+    [51.96780294552556, 7.645540237426757],
+    [51.96330786509095, 7.6471710205078125],
+    [51.95807185013927, 7.647256851196289],
+    [51.953258408047034, 7.643308639526367],
+    [51.94881477206191, 7.608118057250977]]]},
  &#39;convex_hull&#39;: True,
  &#39;tbox&#39;: [&#39;2018-11-14&#39;, &#39;2018-11-14&#39;]}
 </pre></div>
@@ -690,6 +759,9 @@ folder or repository.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/geoextent-logo.svg" alt="Logo of geoextent"/>
+            </a></p>
 <h1 class="logo"><a href="../index.html">geoextent</a></h1>
 
 
@@ -712,9 +784,12 @@ folder or repository.</p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../install.html">Installing geoextent</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../external-metadata.html">External Metadata Retrieval</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index_howto.html">How-to Guides</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Command-Line Interface (CLI)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html">API Docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker Usage</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../supportedformats/index_supportedformats.html">Supported file formats</a></li>

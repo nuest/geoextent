@@ -5,28 +5,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Examples &#8212; geoextent 0.1.dev1+gc485290c5.d20251001 documentation</title>
+    <title>Examples &#8212; geoextent 0.1.dev1+g97ed96f32 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=a1865c62"></script>
+    <script src="_static/documentation_options.js?v=12799181"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="How-to Guides" href="howto/index_howto.html" />
+    <link rel="next" title="Advanced Features" href="features.html" />
     <link rel="prev" title="Installing geoextent" href="install.html" />
+
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
 
   
   
+
+<!-- Favicon variants for better cross-browser and device support -->
+<link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="_static/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="_static/favicon-192x192.png">
 
   </head><body>
   
@@ -54,6 +62,14 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
 </pre></div>
 </div>
+<section id="zip-file-support">
+<h4>ZIP File Support<a class="headerlink" href="#zip-file-support" title="Link to this heading">¶</a></h4>
+<p>Geoextent automatically detects and extracts ZIP files from remote repositories, including nested archives. Extract from a Zenodo repository containing a single ZIP file (~1MB):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.3446746</span>
+</pre></div>
+</div>
+<p>This will download the ZIP file, extract all geospatial data inside (GeoPackage, Shapefile, etc.), and calculate the spatial extent. Works with all supported repository providers.</p>
+</section>
 </section>
 <section id="pangaea-example">
 <h3>PANGAEA Example<a class="headerlink" href="#pangaea-example" title="Link to this heading">¶</a></h3>
@@ -61,7 +77,14 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.1594</span><span class="o">/</span><span class="n">PANGAEA</span><span class="mf">.734969</span>
 </pre></div>
 </div>
-<p>PANGAEA datasets often include rich geospatial metadata.</p>
+<p>PANGAEA datasets often include rich geospatial metadata. Both tabular and non-tabular data are supported, including datasets with downloadable files (GeoJSON, GeoTIFF, Shapefile, etc.):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Non-tabular dataset with GeoTIFF files</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.1594</span><span class="o">/</span><span class="n">PANGAEA</span><span class="mf">.913496</span>
+
+<span class="c1"># Non-tabular dataset with GeoJSON files</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.1594</span><span class="o">/</span><span class="n">PANGAEA</span><span class="mf">.858767</span>
+</pre></div>
+</div>
 </section>
 <section id="osf-example">
 <h3>OSF Example<a class="headerlink" href="#osf-example" title="Link to this heading">¶</a></h3>
@@ -85,9 +108,23 @@
 <section id="dryad-example">
 <h3>Dryad Example<a class="headerlink" href="#dryad-example" title="Link to this heading">¶</a></h3>
 <p>Extract extent from Dryad dataset:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">datadryad</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">stash</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">doi</span><span class="p">:</span><span class="mf">10.5061</span><span class="o">/</span><span class="n">dryad</span><span class="mf">.0</span><span class="n">k6djhb7x</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5061</span><span class="o">/</span><span class="n">dryad</span><span class="mf">.0</span><span class="n">k6djhb7x</span>
 </pre></div>
 </div>
+</section>
+<section id="tu-dresden-opara-example">
+<h3>TU Dresden Opara Example<a class="headerlink" href="#tu-dresden-opara-example" title="Link to this heading">¶</a></h3>
+<p>Extract extent from TU Dresden Opara repository (DSpace 7.x):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">opara</span><span class="o">.</span><span class="n">zih</span><span class="o">.</span><span class="n">tu</span><span class="o">-</span><span class="n">dresden</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">items</span><span class="o">/</span><span class="mi">4</span><span class="n">cdf08d6</span><span class="o">-</span><span class="mi">2738</span><span class="o">-</span><span class="mi">4</span><span class="n">c9e</span><span class="o">-</span><span class="mi">9</span><span class="n">d27</span><span class="o">-</span><span class="mi">345</span><span class="n">a0647ff7c</span>
+</pre></div>
+</div>
+<p>Multiple URL variants are supported:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="mf">10.25532</span><span class="o">/</span><span class="n">OPARA</span><span class="o">-</span><span class="mi">581</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.25532</span><span class="o">/</span><span class="n">OPARA</span><span class="o">-</span><span class="mi">581</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">opara</span><span class="o">.</span><span class="n">zih</span><span class="o">.</span><span class="n">tu</span><span class="o">-</span><span class="n">dresden</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">handle</span><span class="o">/</span><span class="mi">123456789</span><span class="o">/</span><span class="mi">821</span>
+</pre></div>
+</div>
+<p>This example dataset contains glacier calving front locations with ZIP files containing nested directories and multiple shapefiles.</p>
 </section>
 </section>
 <section id="advanced-features">
@@ -117,8 +154,14 @@
 <section id="size-limiting">
 <h3>Size Limiting<a class="headerlink" href="#size-limiting" title="Link to this heading">¶</a></h3>
 <p>Control download size when processing large repositories:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Limit to 10MB total download</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Limit to 10MB total download (ordered method - files as returned by provider)</span>
 <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">size</span> <span class="mi">10</span><span class="n">MB</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+
+<span class="c1"># Select smallest files first to maximize file coverage within size limit</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">size</span> <span class="mi">100</span><span class="n">MB</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">method</span> <span class="n">smallest</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.25532</span><span class="o">/</span><span class="n">OPARA</span><span class="o">-</span><span class="mi">703</span>
+
+<span class="c1"># Select largest files first (useful when you want the most substantial data)</span>
+<span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">size</span> <span class="mi">500</span><span class="n">MB</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">method</span> <span class="n">largest</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
 
 <span class="c1"># Random sampling with seed for reproducibility</span>
 <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">size</span> <span class="mi">50</span><span class="n">MB</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">method</span> <span class="n">random</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">method</span><span class="o">-</span><span class="n">seed</span> <span class="mi">42</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
@@ -156,8 +199,16 @@
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">geojsonio</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
 </pre></div>
 </div>
-<p>Combine with convex hull:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">convex</span><span class="o">-</span><span class="n">hull</span> <span class="o">--</span><span class="n">geojsonio</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.1594</span><span class="o">/</span><span class="n">PANGAEA</span><span class="mf">.734969</span>
+<p>Open the visualization directly in your browser (without printing URL):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">browse</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>Print URL and open in browser (use both options):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">geojsonio</span> <span class="o">--</span><span class="n">browse</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<p>Combine with other options:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">convex</span><span class="o">-</span><span class="n">hull</span> <span class="o">--</span><span class="n">geojsonio</span> <span class="o">--</span><span class="n">browse</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.1594</span><span class="o">/</span><span class="n">PANGAEA</span><span class="mf">.734969</span>
 </pre></div>
 </div>
 </section>
@@ -176,6 +227,7 @@ echo &quot;Bounding box: $BBOX&quot;
 </section>
 <section id="local-file-examples">
 <h2>Local File Examples<a class="headerlink" href="#local-file-examples" title="Link to this heading">¶</a></h2>
+<p>All GeoJSON outputs automatically include extraction metadata with version information, input sources, and processing statistics. See the Extraction Metadata section in the Advanced Features documentation for details.</p>
 <section id="single-file-processing">
 <h3>Single File Processing<a class="headerlink" href="#single-file-processing" title="Link to this heading">¶</a></h3>
 <p>Extract from GeoJSON:</p>
@@ -359,8 +411,12 @@ echo &quot;Bounding box: $BBOX&quot;
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">datadryad</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">stash</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="n">doi</span><span class="p">:</span><span class="mf">10.5061</span><span class="o">/</span><span class="n">dryad</span><span class="mf">.0</span><span class="n">k6djhb7x</span>
 </pre></div>
 </div>
-<p>PANGAEA:</p>
+<p>PANGAEA (tabular data):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.1594</span><span class="o">/</span><span class="n">PANGAEA</span><span class="mf">.734969</span>
+</pre></div>
+</div>
+<p>PANGAEA (non-tabular data - GeoTIFF files):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.1594</span><span class="o">/</span><span class="n">PANGAEA</span><span class="mf">.913496</span>
 </pre></div>
 </div>
 <p>OSF:</p>
@@ -379,6 +435,45 @@ echo &quot;Bounding box: $BBOX&quot;
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.3897</span><span class="o">/</span><span class="n">BDJ</span><span class="mf">.2</span><span class="o">.</span><span class="n">e1068</span>
 </pre></div>
 </div>
+<p>TU Dresden Opara:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="mf">10.25532</span><span class="o">/</span><span class="n">OPARA</span><span class="o">-</span><span class="mi">581</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="interactive-showcase-notebooks">
+<h2>Interactive Showcase Notebooks<a class="headerlink" href="#interactive-showcase-notebooks" title="Link to this heading">¶</a></h2>
+<p>Explore geoextent’s capabilities through interactive Jupyter notebooks that demonstrate real-world usage with research data repositories.</p>
+<section id="running-showcase-notebooks">
+<h3>Running Showcase Notebooks<a class="headerlink" href="#running-showcase-notebooks" title="Link to this heading">¶</a></h3>
+<a class="reference external image-reference" href="https://mybinder.org/v2/gh/nuest/geoextent/main?filepath=showcase%2FSG_01_Exploring_Research_Data_Repositories_with_geoextent.ipynb"><img alt="Launch Binder" src="https://mybinder.org/badge_logo.svg" />
+</a>
+<p>Click the Binder badge above to run the showcase notebooks in your browser without installation.</p>
+</section>
+<section id="local-setup">
+<h3>Local Setup<a class="headerlink" href="#local-setup" title="Link to this heading">¶</a></h3>
+<p>To run the showcase notebooks locally, install JupyterLab or the classic Jupyter Notebook. We recommend using a virtual environment:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">showcase</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">showcase</span><span class="o">/</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span>
+
+<span class="c1"># Trust the notebook for full functionality</span>
+<span class="n">jupyter</span> <span class="n">trust</span> <span class="n">showcase</span><span class="o">/</span><span class="n">SG_01_Exploring_Research_Data_Repositories_with_geoextent</span><span class="o">.</span><span class="n">ipynb</span>
+
+<span class="c1"># Start Jupyter</span>
+<span class="n">jupyter</span> <span class="n">lab</span>
+</pre></div>
+</div>
+<p>Then open the local Jupyter Notebook server using the displayed link and open the notebook files (<code class="docutils literal notranslate"><span class="pre">*.ipynb</span></code>) in the <code class="docutils literal notranslate"><span class="pre">showcase/</span></code> directory.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The notebook must be <a class="reference external" href="https://jupyter-notebook.readthedocs.io/en/stable/security.html#notebook-security">trusted</a> and the <a class="reference external" href="https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html">python-markdown extension</a> should be installed so that variables within Markdown text can be shown.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some notebooks use <a class="reference external" href="https://github.com/mwouts/jupytext/blob/master/docs/paired-notebooks.md">paired notebooks based on Jupytext</a>. Consult the Jupytext documentation before editing these notebooks.</p>
+</div>
 </section>
 </section>
 </section>
@@ -390,6 +485,9 @@ echo &quot;Bounding box: $BBOX&quot;
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/geoextent-logo.svg" alt="Logo of geoextent"/>
+            </a></p>
 <h1 class="logo"><a href="index.html">geoextent</a></h1>
 
 
@@ -421,8 +519,11 @@ echo &quot;Bounding box: $BBOX&quot;
 <li class="toctree-l2"><a class="reference internal" href="#testing-examples">Testing Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#format-coverage-examples">Format Coverage Examples</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#repository-provider-coverage">Repository Provider Coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#interactive-showcase-notebooks">Interactive Showcase Notebooks</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external-metadata.html">External Metadata Retrieval</a></li>
 <li class="toctree-l1"><a class="reference internal" href="howto/index_howto.html">How-to Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="supportedformats/index_supportedformats.html">Supported file formats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
@@ -434,7 +535,7 @@ echo &quot;Bounding box: $BBOX&quot;
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="install.html" title="previous chapter">Installing geoextent</a></li>
-      <li>Next: <a href="howto/index_howto.html" title="next chapter">How-to Guides</a></li>
+      <li>Next: <a href="features.html" title="next chapter">Advanced Features</a></li>
   </ul></li>
 </ul>
 </div>

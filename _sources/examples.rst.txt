@@ -23,6 +23,17 @@ Or using just the DOI:
 
    python -m geoextent -b -t 10.5281/zenodo.4593540
 
+ZIP File Support
+""""""""""""""""
+
+Geoextent automatically detects and extracts ZIP files from remote repositories, including nested archives. Extract from a Zenodo repository containing a single ZIP file (~1MB):
+
+::
+
+   python -m geoextent -b https://doi.org/10.5281/zenodo.3446746
+
+This will download the ZIP file, extract all geospatial data inside (GeoPackage, Shapefile, etc.), and calculate the spatial extent. Works with all supported repository providers.
+
 PANGAEA Example
 ^^^^^^^^^^^^^^^
 
@@ -32,7 +43,15 @@ Extract extent from PANGAEA Arctic Ocean dataset (~1MB):
 
    python -m geoextent -b -t https://doi.org/10.1594/PANGAEA.734969
 
-PANGAEA datasets often include rich geospatial metadata.
+PANGAEA datasets often include rich geospatial metadata. Both tabular and non-tabular data are supported, including datasets with downloadable files (GeoJSON, GeoTIFF, Shapefile, etc.):
+
+::
+
+   # Non-tabular dataset with GeoTIFF files
+   python -m geoextent -b https://doi.org/10.1594/PANGAEA.913496
+
+   # Non-tabular dataset with GeoJSON files
+   python -m geoextent -b https://doi.org/10.1594/PANGAEA.858767
 
 OSF Example
 ^^^^^^^^^^^
@@ -66,7 +85,26 @@ Extract extent from Dryad dataset:
 
 ::
 
-   python -m geoextent -b -t https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x
+   python -m geoextent -b -t https://doi.org/10.5061/dryad.0k6djhb7x
+
+TU Dresden Opara Example
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Extract extent from TU Dresden Opara repository (DSpace 7.x):
+
+::
+
+   python -m geoextent -b -t https://opara.zih.tu-dresden.de/items/4cdf08d6-2738-4c9e-9d27-345a0647ff7c
+
+Multiple URL variants are supported:
+
+::
+
+   python -m geoextent -b -t 10.25532/OPARA-581
+   python -m geoextent -b -t https://doi.org/10.25532/OPARA-581
+   python -m geoextent -b -t https://opara.zih.tu-dresden.de/handle/123456789/821
+
+This example dataset contains glacier calving front locations with ZIP files containing nested directories and multiple shapefiles.
 
 Advanced Features
 -----------------
@@ -105,8 +143,14 @@ Control download size when processing large repositories:
 
 ::
 
-   # Limit to 10MB total download
+   # Limit to 10MB total download (ordered method - files as returned by provider)
    python -m geoextent -b --max-download-size 10MB https://doi.org/10.5281/zenodo.4593540
+
+   # Select smallest files first to maximize file coverage within size limit
+   python -m geoextent -b --max-download-size 100MB --max-download-method smallest https://doi.org/10.25532/OPARA-703
+
+   # Select largest files first (useful when you want the most substantial data)
+   python -m geoextent -b --max-download-size 500MB --max-download-method largest https://doi.org/10.5281/zenodo.4593540
 
    # Random sampling with seed for reproducibility
    python -m geoextent -b --max-download-size 50MB --max-download-method random --max-download-method-seed 42 https://doi.org/10.5281/zenodo.4593540
@@ -151,11 +195,23 @@ Generate geojson.io URLs for interactive visualization:
 
    python -m geoextent -b --geojsonio https://doi.org/10.5281/zenodo.4593540
 
-Combine with convex hull:
+Open the visualization directly in your browser (without printing URL):
 
 ::
 
-   python -m geoextent -b --convex-hull --geojsonio https://doi.org/10.1594/PANGAEA.734969
+   python -m geoextent -b --browse https://doi.org/10.5281/zenodo.4593540
+
+Print URL and open in browser (use both options):
+
+::
+
+   python -m geoextent -b --geojsonio --browse https://doi.org/10.5281/zenodo.4593540
+
+Combine with other options:
+
+::
+
+   python -m geoextent -b --convex-hull --geojsonio --browse https://doi.org/10.1594/PANGAEA.734969
 
 Quiet Mode
 ^^^^^^^^^^
@@ -175,6 +231,8 @@ Perfect for shell scripts:
 
 Local File Examples
 -------------------
+
+All GeoJSON outputs automatically include extraction metadata with version information, input sources, and processing statistics. See the Extraction Metadata section in the Advanced Features documentation for details.
 
 Single File Processing
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -391,10 +449,15 @@ Dryad:
 
    python -m geoextent -b https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x
 
-PANGAEA:
+PANGAEA (tabular data):
 ::
 
    python -m geoextent -b https://doi.org/10.1594/PANGAEA.734969
+
+PANGAEA (non-tabular data - GeoTIFF files):
+::
+
+   python -m geoextent -b https://doi.org/10.1594/PANGAEA.913496
 
 OSF:
 ::
@@ -415,3 +478,46 @@ Pensoft:
 ::
 
    python -m geoextent -b https://doi.org/10.3897/BDJ.2.e1068
+
+TU Dresden Opara:
+::
+
+   python -m geoextent -b 10.25532/OPARA-581
+
+Interactive Showcase Notebooks
+-------------------------------
+
+Explore geoextent's capabilities through interactive Jupyter notebooks that demonstrate real-world usage with research data repositories.
+
+Running Showcase Notebooks
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. image:: https://mybinder.org/badge_logo.svg
+   :target: https://mybinder.org/v2/gh/nuest/geoextent/main?filepath=showcase%2FSG_01_Exploring_Research_Data_Repositories_with_geoextent.ipynb
+   :alt: Launch Binder
+
+Click the Binder badge above to run the showcase notebooks in your browser without installation.
+
+Local Setup
+^^^^^^^^^^^
+
+To run the showcase notebooks locally, install JupyterLab or the classic Jupyter Notebook. We recommend using a virtual environment::
+
+   cd showcase
+   pip install -r requirements.txt
+   pip install -r showcase/requirements.txt
+   pip install -e .
+
+   # Trust the notebook for full functionality
+   jupyter trust showcase/SG_01_Exploring_Research_Data_Repositories_with_geoextent.ipynb
+
+   # Start Jupyter
+   jupyter lab
+
+Then open the local Jupyter Notebook server using the displayed link and open the notebook files (``*.ipynb``) in the ``showcase/`` directory.
+
+.. note::
+   The notebook must be `trusted <https://jupyter-notebook.readthedocs.io/en/stable/security.html#notebook-security>`_ and the `python-markdown extension <https://jupyter-contrib-nbextensions.readthedocs.io/en/latest/install.html>`_ should be installed so that variables within Markdown text can be shown.
+
+.. note::
+   Some notebooks use `paired notebooks based on Jupytext <https://github.com/mwouts/jupytext/blob/master/docs/paired-notebooks.md>`_. Consult the Jupytext documentation before editing these notebooks.

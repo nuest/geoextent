@@ -8,3 +8,4 @@ How-to Guides
 
    cli
    api
+   docker

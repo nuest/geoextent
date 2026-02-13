@@ -11,11 +11,18 @@ System Requirements
 
 **GDAL:** 3.11.x
 
-The package relies on common system libraries for reading geospatial datasets, such as GDAL and NetCDF.
-On Debian systems, the `UbuntuGIS <https://wiki.ubuntu.com/UbuntuGIS>`_ project offers easy installation of up to date versions of those libraries.
+The package relies on common system libraries for reading geospatial datasets:
+
+- **GDAL/OGR** - Core library for reading raster and vector formats
+- **PROJ** - Coordinate transformation library
+- **GEOS** - Geometric operations library
+- **libspatialite** - Spatial database support
+- **NetCDF** - Climate and atmospheric data format support
 
 Ubuntu/Debian Installation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+On Debian-based systems, the `UbuntuGIS <https://wiki.ubuntu.com/UbuntuGIS>`_ project provides up-to-date versions of geospatial libraries.
 
 Install system dependencies:
 
@@ -31,6 +38,68 @@ Verify GDAL installation:
 
    gdal-config --version
 
+macOS Installation
+^^^^^^^^^^^^^^^^^^
+
+.. note::
+   These macOS installation instructions are provided by the community and have not been extensively tested by the geoextent developers. If you encounter issues, please report them on the `issue tracker <https://github.com/nuest/geoextent/issues>`_.
+
+Install system dependencies using Homebrew:
+
+::
+
+   brew install gdal
+
+Verify GDAL installation:
+
+::
+
+   gdal-config --version
+
+Windows Installation
+^^^^^^^^^^^^^^^^^^^^
+
+.. note::
+   These Windows installation instructions are provided by the community and have not been extensively tested by the geoextent developers. We recommend using Docker (Option 1) for the most reliable experience on Windows. If you encounter issues with other methods, please report them on the `issue tracker <https://github.com/nuest/geoextent/issues>`_.
+
+For Windows, we recommend using one of these approaches:
+
+**Option 1: Docker** (recommended)
+
+Use the Docker installation to avoid system dependency issues. See :doc:`howto/docker` for details.
+
+**Option 2: Conda**
+
+Use conda-forge which handles system dependencies automatically:
+
+::
+
+   conda install -c conda-forge gdal
+
+**Option 3: OSGeo4W**
+
+Install OSGeo4W from https://trac.osgeo.org/osgeo4w/ for a complete geospatial stack on Windows.
+
+Installing GDAL Python Bindings
+--------------------------------
+
+After installing system GDAL, install the matching Python bindings:
+
+::
+
+   # Get your system GDAL version
+   GDAL_VERSION=$(gdal-config --version)
+   echo "System GDAL version: $GDAL_VERSION"
+
+   # Install matching Python bindings
+   pip install "GDAL==$GDAL_VERSION"
+
+If the exact version is not available on PyPI, try the nearest compatible version:
+
+::
+
+   pip install "GDAL>=3.11.0,<3.12.0"
+
 Installing with pip
 -------------------
 
@@ -41,6 +110,11 @@ Recommended installation using virtual environment:
    python -m venv .venv
    source .venv/bin/activate
 
+   # Install GDAL Python bindings first (see above)
+   GDAL_VERSION=$(gdal-config --version)
+   pip install "GDAL==$GDAL_VERSION"
+
+   # Then install geoextent
    pip install geoextent
 
 Development Installation

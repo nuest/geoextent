@@ -5,28 +5,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Installing geoextent &#8212; geoextent 0.1.dev1+gc485290c5.d20251001 documentation</title>
+    <title>Installing geoextent &#8212; geoextent 0.1.dev1+g97ed96f32 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=a1865c62"></script>
+    <script src="_static/documentation_options.js?v=12799181"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Examples" href="examples.html" />
     <link rel="prev" title="Welcome to the geoextent documentation!" href="index.html" />
+
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
 
   
   
+
+<!-- Favicon variants for better cross-browser and device support -->
+<link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="_static/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="_static/favicon-192x192.png">
 
   </head><body>
   
@@ -45,10 +53,17 @@
 <h2>System Requirements<a class="headerlink" href="#system-requirements" title="Link to this heading">¶</a></h2>
 <p><strong>Python:</strong> 3.10 or later</p>
 <p><strong>GDAL:</strong> 3.11.x</p>
-<p>The package relies on common system libraries for reading geospatial datasets, such as GDAL and NetCDF.
-On Debian systems, the <a class="reference external" href="https://wiki.ubuntu.com/UbuntuGIS">UbuntuGIS</a> project offers easy installation of up to date versions of those libraries.</p>
+<p>The package relies on common system libraries for reading geospatial datasets:</p>
+<ul class="simple">
+<li><p><strong>GDAL/OGR</strong> - Core library for reading raster and vector formats</p></li>
+<li><p><strong>PROJ</strong> - Coordinate transformation library</p></li>
+<li><p><strong>GEOS</strong> - Geometric operations library</p></li>
+<li><p><strong>libspatialite</strong> - Spatial database support</p></li>
+<li><p><strong>NetCDF</strong> - Climate and atmospheric data format support</p></li>
+</ul>
 <section id="ubuntu-debian-installation">
 <h3>Ubuntu/Debian Installation<a class="headerlink" href="#ubuntu-debian-installation" title="Link to this heading">¶</a></h3>
+<p>On Debian-based systems, the <a class="reference external" href="https://wiki.ubuntu.com/UbuntuGIS">UbuntuGIS</a> project provides up-to-date versions of geospatial libraries.</p>
 <p>Install system dependencies:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">add</span><span class="o">-</span><span class="n">apt</span><span class="o">-</span><span class="n">repository</span> <span class="n">ppa</span><span class="p">:</span><span class="n">ubuntugis</span><span class="o">/</span><span class="n">ubuntugis</span><span class="o">-</span><span class="n">unstable</span>
 <span class="n">sudo</span> <span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">update</span>
@@ -60,14 +75,67 @@ On Debian systems, the <a class="reference external" href="https://wiki.ubuntu.c
 </pre></div>
 </div>
 </section>
+<section id="macos-installation">
+<h3>macOS Installation<a class="headerlink" href="#macos-installation" title="Link to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These macOS installation instructions are provided by the community and have not been extensively tested by the geoextent developers. If you encounter issues, please report them on the <a class="reference external" href="https://github.com/nuest/geoextent/issues">issue tracker</a>.</p>
+</div>
+<p>Install system dependencies using Homebrew:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">brew</span> <span class="n">install</span> <span class="n">gdal</span>
+</pre></div>
+</div>
+<p>Verify GDAL installation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">gdal</span><span class="o">-</span><span class="n">config</span> <span class="o">--</span><span class="n">version</span>
+</pre></div>
+</div>
+</section>
+<section id="windows-installation">
+<h3>Windows Installation<a class="headerlink" href="#windows-installation" title="Link to this heading">¶</a></h3>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>These Windows installation instructions are provided by the community and have not been extensively tested by the geoextent developers. We recommend using Docker (Option 1) for the most reliable experience on Windows. If you encounter issues with other methods, please report them on the <a class="reference external" href="https://github.com/nuest/geoextent/issues">issue tracker</a>.</p>
+</div>
+<p>For Windows, we recommend using one of these approaches:</p>
+<p><strong>Option 1: Docker</strong> (recommended)</p>
+<p>Use the Docker installation to avoid system dependency issues. See <a class="reference internal" href="howto/docker.html"><span class="doc">Docker Usage</span></a> for details.</p>
+<p><strong>Option 2: Conda</strong></p>
+<p>Use conda-forge which handles system dependencies automatically:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">gdal</span>
+</pre></div>
+</div>
+<p><strong>Option 3: OSGeo4W</strong></p>
+<p>Install OSGeo4W from <a class="reference external" href="https://trac.osgeo.org/osgeo4w/">https://trac.osgeo.org/osgeo4w/</a> for a complete geospatial stack on Windows.</p>
+</section>
+</section>
+<section id="installing-gdal-python-bindings">
+<h2>Installing GDAL Python Bindings<a class="headerlink" href="#installing-gdal-python-bindings" title="Link to this heading">¶</a></h2>
+<p>After installing system GDAL, install the matching Python bindings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Get your system GDAL version
+GDAL_VERSION=$(gdal-config --version)
+echo &quot;System GDAL version: $GDAL_VERSION&quot;
+
+# Install matching Python bindings
+pip install &quot;GDAL==$GDAL_VERSION&quot;
+</pre></div>
+</div>
+<p>If the exact version is not available on PyPI, try the nearest compatible version:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="s2">&quot;GDAL&gt;=3.11.0,&lt;3.12.0&quot;</span>
+</pre></div>
+</div>
 </section>
 <section id="installing-with-pip">
 <h2>Installing with pip<a class="headerlink" href="#installing-with-pip" title="Link to this heading">¶</a></h2>
 <p>Recommended installation using virtual environment:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="o">.</span><span class="n">venv</span>
-<span class="n">source</span> <span class="o">.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>python -m venv .venv
+source .venv/bin/activate
 
-<span class="n">pip</span> <span class="n">install</span> <span class="n">geoextent</span>
+# Install GDAL Python bindings first (see above)
+GDAL_VERSION=$(gdal-config --version)
+pip install &quot;GDAL==$GDAL_VERSION&quot;
+
+# Then install geoextent
+pip install geoextent
 </pre></div>
 </div>
 </section>
@@ -156,6 +224,9 @@ On Debian systems, the <a class="reference external" href="https://wiki.ubuntu.c
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/geoextent-logo.svg" alt="Logo of geoextent"/>
+            </a></p>
 <h1 class="logo"><a href="index.html">geoextent</a></h1>
 
 
@@ -178,6 +249,7 @@ On Debian systems, the <a class="reference external" href="https://wiki.ubuntu.c
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installing geoextent</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#system-requirements">System Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-gdal-python-bindings">Installing GDAL Python Bindings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-with-pip">Installing with pip</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#development-installation">Development Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docker-installation">Docker Installation</a></li>
@@ -186,6 +258,8 @@ On Debian systems, the <a class="reference external" href="https://wiki.ubuntu.c
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external-metadata.html">External Metadata Retrieval</a></li>
 <li class="toctree-l1"><a class="reference internal" href="howto/index_howto.html">How-to Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="supportedformats/index_supportedformats.html">Supported file formats</a></li>
 <li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
