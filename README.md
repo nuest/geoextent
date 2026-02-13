@@ -32,7 +32,7 @@ See the [installation guide](https://nuest.github.io/geoextent/install.html) for
 
 ```bash
 # Extract from a file
-python -m geoextent -b tests/testdata/geojson/muenster_ring.geojson
+geoextent -b -t tests/testdata/geojson/muenster_ring_zeit.geojson
 
 # Extract from research repository
 python -m geoextent -b -t https://doi.org/10.5281/zenodo.4593540

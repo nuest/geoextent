@@ -360,6 +360,13 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--legacy",
+        action="store_true",
+        default=False,
+        help="use traditional GIS coordinate order (longitude, latitude) instead of EPSG:4326 native order (latitude, longitude)",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs="+",
@@ -526,6 +533,7 @@ def main():
                     show_progress=not args["no_progress"],
                     placename=placename_service,
                     placename_escape=args["placename_escape"],
+                    legacy=args["legacy"],
                 )
             elif is_directory or is_zipfile:
                 output = extent.fromDirectory(
@@ -538,6 +546,7 @@ def main():
                     recursive=not args["no_subdirs"],
                     placename=placename_service,
                     placename_escape=args["placename_escape"],
+                    legacy=args["legacy"],
                 )
             elif is_url or is_doi or is_repository:
                 output = extent.fromRemote(
@@ -561,6 +570,7 @@ def main():
                     ext_metadata=args["ext_metadata"],
                     ext_metadata_method=args["ext_metadata_method"],
                     keep_files=args["keep_files"],
+                    legacy=args["legacy"],
                 )
         else:
             # Multiple files handling
@@ -601,6 +611,7 @@ def main():
                             ext_metadata=args["ext_metadata"],
                             ext_metadata_method=args["ext_metadata_method"],
                             keep_files=args["keep_files"],
+                            legacy=args["legacy"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output
@@ -616,6 +627,7 @@ def main():
                             show_progress=not args["no_progress"],
                             placename=placename_service,
                             placename_escape=args["placename_escape"],
+                            legacy=args["legacy"],
                         )
                         if file_output is not None:
                             output["details"][file_path] = file_output
@@ -631,6 +643,7 @@ def main():
                             recursive=not args["no_subdirs"],
                             placename=placename_service,
                             placename_escape=args["placename_escape"],
+                            legacy=args["legacy"],
                         )
                         if dir_output is not None:
                             output["details"][file_path] = dir_output
@@ -692,11 +705,14 @@ def main():
 
         # Generate geojson.io URL if --geojsonio or --browse is requested (before format conversion)
         geojsonio_url = None
+        native_order = not args["legacy"]
         if (args["geojsonio"] or args["browse"]) and output and "bbox" in output:
-            geojsonio_url = hf.generate_geojsonio_url(output)
+            geojsonio_url = hf.generate_geojsonio_url(output, native_order=native_order)
 
         # Apply output format conversion
-        output = hf.format_extent_output(output, args["format"], extraction_metadata)
+        output = hf.format_extent_output(
+            output, args["format"], extraction_metadata, native_order=native_order
+        )
 
     # For WKT and WKB formats, output only the bbox value
     if args["format"].lower() in ["wkt", "wkb"] and output and "bbox" in output:

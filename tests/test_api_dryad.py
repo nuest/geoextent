@@ -90,22 +90,22 @@ class TestDryadProvider:
                 assert isinstance(bbox[3], (int, float))
 
                 # Verify bounding box validity (Pacific region should be reasonable)
-                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
-                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
-                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+                assert bbox[0] <= bbox[2], "South latitude should be <= North latitude"
+                assert bbox[1] <= bbox[3], "West longitude should be <= East longitude"
+                assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+                assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
                 # Pacific atolls should be in Pacific Ocean region
                 # Rough Pacific bounds: 120°E to 80°W, 60°N to 60°S
                 # Allow flexibility for coordinate system transformations
                 assert (
-                    -180 <= bbox[0] <= 180
-                ), f"West longitude {bbox[0]} should be in valid range"
+                    -60 <= bbox[0] <= 60
+                ), f"South latitude {bbox[0]} should be in expected Pacific range"
                 assert (
-                    -60 <= bbox[1] <= 60
-                ), f"South latitude {bbox[1]} should be in expected Pacific range"
+                    -180 <= bbox[1] <= 180
+                ), f"West longitude {bbox[1]} should be in valid range"
 
             # Check CRS
             if "crs" in result:

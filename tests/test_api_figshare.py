@@ -18,11 +18,11 @@ class TestFigshareProvider:
             "id": "19248626",
             "title": "Prince Edward Islands geospatial database",
             "expected_bbox": [
-                37.51696444333383,
                 -47.00490880063488,
-                38.032055268506745,
+                37.51696444333383,
                 -46.58858378306222,
-            ],  # [W, S, E, N]
+                38.032055268506745,
+            ],  # [S, W, N, E]
             "description": "South African sub-Antarctic islands geospatial data",
         },
         "raster_workshop": {
@@ -31,11 +31,11 @@ class TestFigshareProvider:
             "id": "20146919",
             "title": 'Raster dataset for workshop "Introduction to Geospatial Raster and Vector Data with Python"',
             "expected_bbox": [
-                4.464980367155466,
                 52.25345680616433,
-                6.141769904471917,
+                4.464980367155466,
                 53.208217152152926,
-            ],  # [W, S, E, N]
+                6.141769904471917,
+            ],  # [S, W, N, E]
             "description": "Geospatial raster data for Python workshop - covers parts of Netherlands",
         },
     }
@@ -89,24 +89,24 @@ class TestFigshareProvider:
                 # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
                 assert (
                     abs(bbox[0] - expected_bbox[0]) < 0.01
-                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                ), f"South latitude: {bbox[0]} vs {expected_bbox[0]}"
                 assert (
                     abs(bbox[1] - expected_bbox[1]) < 0.01
-                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                ), f"West longitude: {bbox[1]} vs {expected_bbox[1]}"
                 assert (
                     abs(bbox[2] - expected_bbox[2]) < 0.01
-                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                ), f"North latitude: {bbox[2]} vs {expected_bbox[2]}"
                 assert (
                     abs(bbox[3] - expected_bbox[3]) < 0.01
-                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                ), f"East longitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
-                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
-                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
-                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+                assert bbox[0] <= bbox[2], "South latitude should be <= North latitude"
+                assert bbox[1] <= bbox[3], "West longitude should be <= East longitude"
+                assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+                assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
             # Check CRS
             if "crs" in result:
@@ -147,24 +147,24 @@ class TestFigshareProvider:
                 # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
                 assert (
                     abs(bbox[0] - expected_bbox[0]) < 0.01
-                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                ), f"South latitude: {bbox[0]} vs {expected_bbox[0]}"
                 assert (
                     abs(bbox[1] - expected_bbox[1]) < 0.01
-                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                ), f"West longitude: {bbox[1]} vs {expected_bbox[1]}"
                 assert (
                     abs(bbox[2] - expected_bbox[2]) < 0.01
-                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                ), f"North latitude: {bbox[2]} vs {expected_bbox[2]}"
                 assert (
                     abs(bbox[3] - expected_bbox[3]) < 0.01
-                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                ), f"East longitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
-                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
-                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
-                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+                assert bbox[0] <= bbox[2], "South latitude should be <= North latitude"
+                assert bbox[1] <= bbox[3], "West longitude should be <= East longitude"
+                assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+                assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
             # Check CRS
             if "crs" in result:

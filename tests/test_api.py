@@ -33,7 +33,7 @@ def test_defaults():
 def test_netcdf_extract_bbox():
     result = geoextent.fromFile("tests/testdata/nc/zeroes.nc")
     assert result["bbox"] == pytest.approx(
-        [19.86842, -52.63157, 25.13157, 52.63157], abs=tolerance
+        [-52.63157, 19.86842, 52.63157, 25.13157], abs=tolerance
     )
     assert result["crs"] == "4326"
 
@@ -43,7 +43,7 @@ def test_kml_extract_bbox():
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [7.594213, 51.942465, 7.618246, 51.957278], abs=tolerance
+        [51.942465, 7.594213, 51.957278, 7.618246], abs=tolerance
     )
     assert result["crs"] == "4326"
 
@@ -62,7 +62,7 @@ def test_gpkg_extract_bbox():
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [-84.323835, 33.882102, -75.456585, 36.589757], abs=tolerance
+        [33.882102, -84.323835, 36.589757, -75.456585], abs=tolerance
     )
     assert result["crs"] == "4326"
 
@@ -76,7 +76,7 @@ def test_gml_extract_bbox():
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [-17.54207, 32.39669, -6.95939, 39.30114], abs=tolerance
+        [32.39669, -17.54207, 39.30114, -6.95939], abs=tolerance
     )
     assert result["crs"] == "4326"
 
@@ -87,7 +87,7 @@ def test_gpx_extract_bbox():
     )
     assert "bbox" in result
     assert "crs" in result
-    assert result["bbox"] == pytest.approx([-20.2, 10.0, 46.7, 14.0], abs=tolerance)
+    assert result["bbox"] == pytest.approx([10.0, -20.2, 14.0, 46.7], abs=tolerance)
     assert result["crs"] == "4326"
 
 
@@ -122,7 +122,7 @@ def test_folder_one_file():
     assert "tbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [7.601680, 51.948814, 7.647256, 51.974624], abs=tolerance
+        [51.948814, 7.601680, 51.974624, 7.647256], abs=tolerance
     )
     assert result["crs"] == "4326"
     assert result["tbox"] == ["2018-11-14", "2018-11-14"]
@@ -137,7 +137,7 @@ def test_folder_one_file_details():
     assert "crs" in result
     assert "details" in result
     assert result["bbox"] == pytest.approx(
-        [7.601680, 51.948814, 7.647256, 51.974624], abs=tolerance
+        [51.948814, 7.601680, 51.974624, 7.647256], abs=tolerance
     )
     assert result["crs"] == "4326"
     assert result["tbox"] == ["2018-11-14", "2018-11-14"]
@@ -160,7 +160,7 @@ def test_folder_multiple_files():
     assert "tbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [2.052333, 41.317038, 7.647256, 51.974624], abs=tolerance
+        [41.317038, 2.052333, 51.974624, 7.647256], abs=tolerance
     )
     assert result["crs"] == "4326"
     assert result["tbox"] == ["2018-11-14", "2019-09-11"]
@@ -174,7 +174,7 @@ def test_folder_nested_files():
     assert "tbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [7.601680, 34.7, 142.0, 51.974624], abs=tolerance
+        [34.7, 7.601680, 51.974624, 142.0], abs=tolerance
     )
     assert result["crs"] == "4326"
     assert result["tbox"] == ["2017-04-08", "2020-02-06"]
@@ -200,7 +200,7 @@ def test_zipfile_one_file():
         create_zip(folder_name, zip_path)
         result = geoextent.fromDirectory(zip_path, bbox=True, tbox=True)
         assert result["bbox"] == pytest.approx(
-            [7.601680, 51.948814, 7.647256, 51.974624], abs=tolerance
+            [51.948814, 7.601680, 51.974624, 7.647256], abs=tolerance
         )
         assert result["crs"] == "4326"
         assert result["tbox"] == ["2018-11-14", "2018-11-14"]
@@ -213,7 +213,7 @@ def test_zipfile_nested_folders():
         create_zip(folder_name, zip_path)
         result = geoextent.fromDirectory(zip_path, bbox=True, tbox=True)
     assert result["bbox"] == pytest.approx(
-        [7.601680, 34.7, 142.0, 51.974624], abs=tolerance
+        [34.7, 7.601680, 51.974624, 142.0], abs=tolerance
     )
     assert result["crs"] == "4326"
     assert result["tbox"] == ["2017-04-08", "2020-02-06"]
@@ -237,7 +237,7 @@ def test_png_file_extract_bbox():
             # Check if bbox extraction was successful
             if "bbox" in result:
                 assert result["bbox"] == pytest.approx(
-                    [96.21146, 25.55834, 96.35490, 25.63293], abs=tolerance
+                    [25.55834, 96.21146, 25.63293, 96.35490], abs=tolerance
                 )
                 assert result["crs"] == "4326"
             else:
@@ -287,7 +287,7 @@ def test_gml_extract_bbox_time():
         "tests/testdata/gml/clc_1000_PT.gml", bbox=True, tbox=True
     )
     assert result["bbox"] == pytest.approx(
-        [-17.54207, 32.39669, -6.95939, 39.30114], abs=tolerance
+        [32.39669, -17.54207, 39.30114, -6.95939], abs=tolerance
     )
     assert result["crs"] == "4326"
     assert result["tbox"] == ["2005-12-31", "2013-11-30"]
@@ -296,7 +296,7 @@ def test_gml_extract_bbox_time():
 def test_jpeg_2000_extract_bbox():
     result = geoextent.fromFile("tests/testdata/jpeg2000/MSK_SNWPRB_60m.jp2", bbox=True)
     assert result["bbox"] == pytest.approx(
-        [-74.09868, 4.434354, -73.10649, 5.425259], abs=tolerance
+        [4.434354, -74.09868, 5.425259, -73.10649], abs=tolerance
     )
     assert result["crs"] == "4326"
 
@@ -304,7 +304,7 @@ def test_jpeg_2000_extract_bbox():
 def test_esri_ascii_extract_bbox():
     result = geoextent.fromFile("tests/testdata/asc/Churfirsten_30m.asc", bbox=True)
     assert result["bbox"] == pytest.approx(
-        [8.85620, 46.93996, 8.85699, 46.94050], abs=tolerance
+        [46.93996, 8.85620, 46.94050, 8.85699], abs=tolerance
     )
     assert result["crs"] == "4326"
 
@@ -337,6 +337,6 @@ def test_invalid_bbox_and_flip():
     # This results in swapped coordinates: [minLon, minLat, maxLon, maxLat]
     # but the actual values are from swapped columns
     assert result["bbox"] == pytest.approx(
-        [5.0, 4.3175, 53.217222, 95.0], abs=tolerance
+        [4.3175, 5.0, 95.0, 53.217222], abs=tolerance
     )
     assert result["crs"] == "4326"

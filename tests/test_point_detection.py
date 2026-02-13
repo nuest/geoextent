@@ -20,40 +20,40 @@ class TestPointDetection:
     def test_is_geometry_a_point_bounding_box(self):
         """Test point detection for regular bounding box format"""
         # Point case: all coordinates are the same
-        bbox_point = [-21.5, 76.5, -21.5, 76.5]
+        bbox_point = [76.5, -21.5, 76.5, -21.5]
         is_point, coords = is_geometry_a_point(bbox_point, is_convex_hull=False)
         assert is_point is True
-        assert coords == [-21.5, 76.5]
+        assert coords == [76.5, -21.5]
 
         # Non-point case: different coordinates
-        bbox_rect = [-21.5, 76.5, -21.0, 77.0]
+        bbox_rect = [76.5, -21.5, 77.0, -21.0]
         is_point, coords = is_geometry_a_point(bbox_rect, is_convex_hull=False)
         assert is_point is False
         assert coords is None
 
         # Nearly point case: within tolerance
-        bbox_near_point = [-21.5, 76.5, -21.5000001, 76.5000001]
+        bbox_near_point = [76.5, -21.5, 76.5000001, -21.5000001]
         is_point, coords = is_geometry_a_point(
             bbox_near_point, is_convex_hull=False, tolerance=1e-5
         )
         assert is_point is True
-        assert coords == [-21.5, 76.5]
+        assert coords == [76.5, -21.5]
 
     def test_is_geometry_a_point_convex_hull(self):
         """Test point detection for convex hull coordinates format"""
         # Point case: all coordinates are the same
-        convex_hull_point = [[-21.5, 76.5], [-21.5, 76.5], [-21.5, 76.5]]
+        convex_hull_point = [[76.5, -21.5], [76.5, -21.5], [76.5, -21.5]]
         is_point, coords = is_geometry_a_point(convex_hull_point, is_convex_hull=True)
         assert is_point is True
-        assert coords == [-21.5, 76.5]
+        assert coords == [76.5, -21.5]
 
         # Non-point case: different coordinates
         convex_hull_polygon = [
-            [-21.5, 76.5],
-            [-21.0, 76.5],
-            [-21.0, 77.0],
-            [-21.5, 77.0],
-            [-21.5, 76.5],
+            [76.5, -21.5],
+            [76.5, -21.0],
+            [77.0, -21.0],
+            [77.0, -21.5],
+            [76.5, -21.5],
         ]
         is_point, coords = is_geometry_a_point(convex_hull_polygon, is_convex_hull=True)
         assert is_point is False
@@ -66,28 +66,28 @@ class TestPointDetection:
             "type": "Polygon",
             "coordinates": [
                 [
-                    [-21.5, 76.5],
-                    [-21.5, 76.5],
-                    [-21.5, 76.5],
-                    [-21.5, 76.5],
-                    [-21.5, 76.5],
+                    [76.5, -21.5],
+                    [76.5, -21.5],
+                    [76.5, -21.5],
+                    [76.5, -21.5],
+                    [76.5, -21.5],
                 ]
             ],
         }
         is_point, coords = is_geometry_a_point(geojson_point, is_convex_hull=False)
         assert is_point is True
-        assert coords == [-21.5, 76.5]
+        assert coords == [76.5, -21.5]
 
         # Non-point case: actual polygon
         geojson_polygon = {
             "type": "Polygon",
             "coordinates": [
                 [
-                    [-21.5, 76.5],
-                    [-21.0, 76.5],
-                    [-21.0, 77.0],
-                    [-21.5, 77.0],
-                    [-21.5, 76.5],
+                    [76.5, -21.5],
+                    [76.5, -21.0],
+                    [77.0, -21.0],
+                    [77.0, -21.5],
+                    [76.5, -21.5],
                 ]
             ],
         }
@@ -99,7 +99,7 @@ class TestPointDetection:
         """Test that create_geojson_feature_collection creates Point geometries for point data"""
         # Test bounding box point detection
         extent_output_bbox = {
-            "bbox": [-21.5, 76.5, -21.5, 76.5],
+            "bbox": [76.5, -21.5, 76.5, -21.5],
             "crs": "4326",
             "format": "remote",
         }
@@ -122,13 +122,13 @@ class TestPointDetection:
             feature = result["features"][0]
             assert feature["type"] == "Feature"
             assert feature["geometry"]["type"] == "Point"
-            assert feature["geometry"]["coordinates"] == [-21.5, 76.5]
+            assert feature["geometry"]["coordinates"] == [76.5, -21.5]
             assert result["geoextent_extraction"]["extent_type"] == "point"
 
     def test_create_geojson_feature_collection_convex_hull_point_detection(self):
         """Test that create_geojson_feature_collection creates Point geometries for convex hull point data"""
         extent_output_convex = {
-            "bbox": [[-21.5, 76.5], [-21.5, 76.5], [-21.5, 76.5]],
+            "bbox": [[76.5, -21.5], [76.5, -21.5], [76.5, -21.5]],
             "crs": "4326",
             "format": "remote",
             "convex_hull": True,
@@ -148,7 +148,7 @@ class TestPointDetection:
             # Check the result
             feature = result["features"][0]
             assert feature["geometry"]["type"] == "Point"
-            assert feature["geometry"]["coordinates"] == [-21.5, 76.5]
+            assert feature["geometry"]["coordinates"] == [76.5, -21.5]
             assert result["geoextent_extraction"]["extent_type"] == "point"
 
 
@@ -178,10 +178,10 @@ class TestPangaeaDataset918707:
 
         # Verify the coordinates are in the expected Northeast Greenland region
         minx, miny, maxx, maxy = bbox
-        assert abs(minx - (-21.5)) < 0.1  # Longitude around -21.5°
-        assert abs(maxx - (-21.5)) < 0.1
-        assert abs(miny - 76.5) < 0.1  # Latitude around 76.5°
-        assert abs(maxy - 76.5) < 0.1
+        assert abs(minx - 76.5) < 0.1  # Latitude around 76.5°
+        assert abs(maxx - 76.5) < 0.1
+        assert abs(miny - (-21.5)) < 0.1  # Longitude around -21.5°
+        assert abs(maxy - (-21.5)) < 0.1
 
         # Verify it's actually a point (all coordinates should be nearly the same)
         assert abs(minx - maxx) < 1e-6
@@ -208,10 +208,10 @@ class TestPangaeaDataset918707:
         if isinstance(bbox, list) and len(bbox) == 4:
             minx, miny, maxx, maxy = bbox
             # Verify coordinates are in Northeast Greenland region
-            assert abs(minx - (-21.5)) < 0.1
-            assert abs(maxx - (-21.5)) < 0.1
-            assert abs(miny - 76.5) < 0.1
-            assert abs(maxy - 76.5) < 0.1
+            assert abs(minx - 76.5) < 0.1
+            assert abs(maxx - 76.5) < 0.1
+            assert abs(miny - (-21.5)) < 0.1
+            assert abs(maxy - (-21.5)) < 0.1
 
     def test_pangaea_918707_geojson_output_point_geometry(self):
         """Test that PANGAEA 918707 metadata outputs Point geometry in GeoJSON format"""
@@ -223,8 +223,11 @@ class TestPangaeaDataset918707:
             download_data=False,
         )
 
-        # Convert to GeoJSON format (pass extraction_metadata to populate geoextent_extraction)
-        geojson_output = format_extent_output(result, "geojson", extraction_metadata={})
+        # Convert to GeoJSON format - result is in native [lat, lon] order from fromRemote(),
+        # so pass native_order=True to swap back to [lon, lat] for RFC 7946 compliance
+        geojson_output = format_extent_output(
+            result, "geojson", extraction_metadata={}, native_order=True
+        )
 
         # Validate the GeoJSON structure using geojson-validator
         validation_errors = validate_structure(geojson_output)
@@ -241,6 +244,7 @@ class TestPangaeaDataset918707:
         assert geometry["type"] == "Point"
 
         # Verify coordinates are in Northeast Greenland
+        # GeoJSON uses [lon, lat] per RFC 7946
         coords = geometry["coordinates"]
         assert len(coords) == 2
         assert abs(coords[0] - (-21.5)) < 0.1  # Longitude
@@ -259,8 +263,11 @@ class TestPangaeaDataset918707:
             download_data=False,
         )
 
-        # Convert to GeoJSON format (pass extraction_metadata to populate geoextent_extraction)
-        geojson_output = format_extent_output(result, "geojson", extraction_metadata={})
+        # Convert to GeoJSON format - result is in native [lat, lon] order from fromRemote(),
+        # so pass native_order=True to swap back to [lon, lat] for RFC 7946 compliance
+        geojson_output = format_extent_output(
+            result, "geojson", extraction_metadata={}, native_order=True
+        )
 
         # Validate the GeoJSON structure using geojson-validator
         validation_errors = validate_structure(geojson_output)
@@ -277,6 +284,7 @@ class TestPangaeaDataset918707:
         assert geometry["type"] == "Point"
 
         # Verify coordinates are in Northeast Greenland region
+        # GeoJSON uses [lon, lat] per RFC 7946
         coords = geometry["coordinates"]
         assert len(coords) == 2
         assert abs(coords[0] - (-21.5)) < 0.1  # Longitude

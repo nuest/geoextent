@@ -8,7 +8,7 @@ def test_geotiff_extract_bbox():
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [5.915300, 50.310251, 9.468398, 52.530775], abs=tolerance
+        [50.310251, 5.915300, 52.530775, 9.468398], abs=tolerance
     )
     assert result["crs"] == "4326"
 

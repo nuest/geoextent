@@ -400,17 +400,17 @@ class TestSenckenbergProvider:
         # Verify bbox is roughly in the expected region (Ecuador)
         expected = dataset["expected_bbox_rough"]
         assert (
-            expected["west"] <= bbox[0] <= expected["west"] + 0.5
-        ), "West coordinate in expected range"
-        assert (
-            expected["south"] <= bbox[1] <= expected["south"] + 0.5
+            expected["south"] <= bbox[0] <= expected["south"] + 0.5
         ), "South coordinate in expected range"
         assert (
-            expected["east"] - 0.5 <= bbox[2] <= expected["east"]
-        ), "East coordinate in expected range"
+            expected["west"] <= bbox[1] <= expected["west"] + 0.5
+        ), "West coordinate in expected range"
         assert (
-            expected["north"] - 0.5 <= bbox[3] <= expected["north"]
+            expected["north"] - 0.5 <= bbox[2] <= expected["north"]
         ), "North coordinate in expected range"
+        assert (
+            expected["east"] - 0.5 <= bbox[3] <= expected["east"]
+        ), "East coordinate in expected range"
 
     def test_senckenberg_temporal_metadata_api(self):
         """Test temporal metadata extraction via provider API"""

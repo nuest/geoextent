@@ -360,23 +360,23 @@ class TestWKTExtentComparison:
             bounds2 = self._extract_bounds_from_wkt(wkt2)
             bounds_combined = self._extract_bounds_from_wkt(wkt_combined)
 
-            # File 1: bounds should be [0, 50, 1, 51]
-            assert abs(bounds1[0] - 0.0) < 0.001  # min_x
-            assert abs(bounds1[1] - 50.0) < 0.001  # min_y
-            assert abs(bounds1[2] - 1.0) < 0.001  # max_x
-            assert abs(bounds1[3] - 51.0) < 0.001  # max_y
+            # File 1: bounds should be [50, 0, 51, 1] (native EPSG:4326 lat/lon order)
+            assert abs(bounds1[0] - 50.0) < 0.001  # min_lat
+            assert abs(bounds1[1] - 0.0) < 0.001  # min_lon
+            assert abs(bounds1[2] - 51.0) < 0.001  # max_lat
+            assert abs(bounds1[3] - 1.0) < 0.001  # max_lon
 
-            # File 2: bounds should be [2, 52, 4, 54]
-            assert abs(bounds2[0] - 2.0) < 0.001
-            assert abs(bounds2[1] - 52.0) < 0.001
-            assert abs(bounds2[2] - 4.0) < 0.001
-            assert abs(bounds2[3] - 54.0) < 0.001
+            # File 2: bounds should be [52, 2, 54, 4]
+            assert abs(bounds2[0] - 52.0) < 0.001
+            assert abs(bounds2[1] - 2.0) < 0.001
+            assert abs(bounds2[2] - 54.0) < 0.001
+            assert abs(bounds2[3] - 4.0) < 0.001
 
-            # Combined: bounds should be [0, 50, 4, 54]
-            assert abs(bounds_combined[0] - 0.0) < 0.001
-            assert abs(bounds_combined[1] - 50.0) < 0.001
-            assert abs(bounds_combined[2] - 4.0) < 0.001
-            assert abs(bounds_combined[3] - 54.0) < 0.001
+            # Combined: bounds should be [50, 0, 54, 4]
+            assert abs(bounds_combined[0] - 50.0) < 0.001
+            assert abs(bounds_combined[1] - 0.0) < 0.001
+            assert abs(bounds_combined[2] - 54.0) < 0.001
+            assert abs(bounds_combined[3] - 4.0) < 0.001
 
             print(f"File 1 WKT: {wkt1}")
             print(f"File 2 WKT: {wkt2}")

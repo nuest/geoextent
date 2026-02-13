@@ -19,7 +19,7 @@ from test_data_config import (
 )
 
 # Test data constants
-NL_CITIES_BBOX = [4.3175, 51.434444, 6.574722, 53.217222]
+NL_CITIES_BBOX = [51.434444, 4.3175, 53.217222, 6.574722]
 NL_CITIES_TBOX = ["2017-08-01", "2019-09-30"]
 
 
@@ -229,39 +229,40 @@ class TestCSVGeometryColumns:
 
         # Expected bbox based on the 20 sample rows from mc_registry_v6.csv
         # These coordinates cover parts of Africa based on the sample data
-        assert bbox[0] < bbox[2]  # min_x < max_x
-        assert bbox[1] < bbox[3]  # min_y < max_y
+        # Native EPSG:4326 order: [minlat, minlon, maxlat, maxlon]
+        assert bbox[0] < bbox[2]  # minlat < maxlat
+        assert bbox[1] < bbox[3]  # minlon < maxlon
 
         # Check that we get reasonable coordinates for African continent
-        assert -30 <= bbox[0] <= 50  # Longitude range for Africa
-        assert -40 <= bbox[1] <= 40  # Latitude range for Africa
-        assert -30 <= bbox[2] <= 50  # Longitude range for Africa
-        assert -40 <= bbox[3] <= 40  # Latitude range for Africa
+        assert -40 <= bbox[0] <= 41  # Latitude range for Africa
+        assert -30 <= bbox[1] <= 50  # Longitude range for Africa
+        assert -40 <= bbox[2] <= 41  # Latitude range for Africa
+        assert -30 <= bbox[3] <= 50  # Longitude range for Africa
 
     def test_extract_bbox_wkt_geometry_column(self):
         """Test extraction from WKT geometry column"""
         result = extract_bbox_only("tests/testdata/csv_wkt_geometry.csv")
-        assert_bbox_result(result, [8.0, 18.0, 15.0, 25.0])
+        assert_bbox_result(result, [18.0, 8.0, 25.0, 15.0])
 
     def test_extract_bbox_coordinates_column(self):
         """Test extraction from coordinates column"""
         result = extract_bbox_only("tests/testdata/csv_coordinates_column.csv")
-        assert_bbox_result(result, [0.0, 0.0, 12.0, 22.0])
+        assert_bbox_result(result, [0.0, 0.0, 22.0, 12.0])
 
     def test_extract_bbox_coords_column(self):
         """Test extraction from coords column"""
         result = extract_bbox_only("tests/testdata/csv_coords_column.csv")
-        assert_bbox_result(result, [0.0, 0.0, 10.0, 14.0])
+        assert_bbox_result(result, [0.0, 0.0, 14.0, 10.0])
 
     def test_extract_bbox_geom_column(self):
         """Test extraction from geom column"""
         result = extract_bbox_only("tests/testdata/csv_geom_column.csv")
-        assert_bbox_result(result, [1.0, 1.0, 13.0, 23.0])
+        assert_bbox_result(result, [1.0, 1.0, 23.0, 13.0])
 
     def test_extract_bbox_wkb_column(self):
         """Test extraction from WKB (hex-encoded) column"""
         result = extract_bbox_only("tests/testdata/csv_wkb_column.csv")
-        assert_bbox_result(result, [2.0, 2.0, 11.0, 19.0])
+        assert_bbox_result(result, [2.0, 2.0, 19.0, 11.0])
 
     def test_geometry_column_detection_patterns(self):
         """Test that all geometry column name patterns are detected"""
@@ -320,10 +321,10 @@ class TestCSVGeometryColumns:
         bbox = result["bbox"]
 
         # Should still work with traditional coordinate extraction
-        assert pytest.approx(bbox[0], tolerance) == 4.3175
-        assert pytest.approx(bbox[1], tolerance) == 51.434444
-        assert pytest.approx(bbox[2], tolerance) == 6.574722
-        assert pytest.approx(bbox[3], tolerance) == 53.217222
+        assert pytest.approx(bbox[0], tolerance) == 51.434444
+        assert pytest.approx(bbox[1], tolerance) == 4.3175
+        assert pytest.approx(bbox[2], tolerance) == 53.217222
+        assert pytest.approx(bbox[3], tolerance) == 6.574722
 
     def test_invalid_geometry_handling(self):
         """Test that invalid WKT/WKB geometries are handled gracefully"""
@@ -353,7 +354,12 @@ class TestCSVGeometryColumns:
             assert "bbox" in result
             bbox = result["bbox"]
             # Should extract bbox from valid geometries only
-            assert bbox == [10.0, 20.0, 15.0, 25.0]  # min_x, min_y, max_x, max_y
+            assert bbox == [
+                10.0,
+                20.0,
+                15.0,
+                25.0,
+            ]  # internal order: minlon, minlat, maxlon, maxlat
         finally:
             os.unlink(temp_path)
 
@@ -383,7 +389,7 @@ class TestCSVGeometryColumns:
             assert "bbox" in result
             bbox = result["bbox"]
             # Should encompass all geometries
-            assert bbox == [0.0, 0.0, 15.0, 20.0]  # min_x, min_y, max_x, max_y
+            assert bbox == [0.0, 0.0, 20.0, 15.0]  # minlat, minlon, maxlat, maxlon
         finally:
             os.unlink(temp_path)
 

@@ -541,12 +541,12 @@ class TestDataverseProvider:
         # Test DOI: 10.7910/DVN/4YGU5J - a known geospatial dataset
         test_doi = "https://doi.org/10.7910/DVN/4YGU5J"
 
-        # Reference bounding box for comparison: [minX, minY, maxX, maxY]
+        # Reference bounding box for comparison: [minLat, minLon, maxLat, maxLon]
         reference_bbox = [
-            -71.96002219440005,
             41.963676321571086,
-            -70.1479956701181,
+            -71.96002219440005,
             42.724780975329644,
+            -70.1479956701181,
         ]
         tolerance = 0.001  # Allow small differences due to floating point precision
 
@@ -628,21 +628,21 @@ class TestDataverseProvider:
             assert -90 <= minY <= 90, "Latitude should be within valid range"
             assert -90 <= maxY <= 90, "Latitude should be within valid range"
 
-            # Compare with reference bounding box
-            ref_minX, ref_minY, ref_maxX, ref_maxY = reference_bbox
+            # Compare with reference bounding box [minLat, minLon, maxLat, maxLon]
+            ref_minLat, ref_minLon, ref_maxLat, ref_maxLon = reference_bbox
 
             assert (
-                abs(minX - ref_minX) <= tolerance
-            ), f"MinX differs from reference: extracted={minX}, reference={ref_minX}, diff={abs(minX - ref_minX)}"
+                abs(minX - ref_minLon) <= tolerance
+            ), f"MinLon differs from reference: extracted={minX}, reference={ref_minLon}, diff={abs(minX - ref_minLon)}"
             assert (
-                abs(minY - ref_minY) <= tolerance
-            ), f"MinY differs from reference: extracted={minY}, reference={ref_minY}, diff={abs(minY - ref_minY)}"
+                abs(minY - ref_minLat) <= tolerance
+            ), f"MinLat differs from reference: extracted={minY}, reference={ref_minLat}, diff={abs(minY - ref_minLat)}"
             assert (
-                abs(maxX - ref_maxX) <= tolerance
-            ), f"MaxX differs from reference: extracted={maxX}, reference={ref_maxX}, diff={abs(maxX - ref_maxX)}"
+                abs(maxX - ref_maxLon) <= tolerance
+            ), f"MaxLon differs from reference: extracted={maxX}, reference={ref_maxLon}, diff={abs(maxX - ref_maxLon)}"
             assert (
-                abs(maxY - ref_maxY) <= tolerance
-            ), f"MaxY differs from reference: extracted={maxY}, reference={ref_maxY}, diff={abs(maxY - ref_maxY)}"
+                abs(maxY - ref_maxLat) <= tolerance
+            ), f"MaxLat differs from reference: extracted={maxY}, reference={ref_maxLat}, diff={abs(maxY - ref_maxLat)}"
 
         except subprocess.TimeoutExpired:
             pytest.skip("CLI test skipped due to timeout (network issues)")
@@ -684,16 +684,16 @@ class TestDataverseProvider:
                 assert isinstance(bbox, list), "Bounding box should be a list"
                 assert len(bbox) == 4, "Bounding box should have 4 coordinates"
 
-                # Verify coordinate order: [minX, minY, maxX, maxY]
-                minX, minY, maxX, maxY = bbox
-                assert minX <= maxX, "minX should be <= maxX"
-                assert minY <= maxY, "minY should be <= maxY"
+                # Verify coordinate order: [minLat, minLon, maxLat, maxLon]
+                minLat, minLon, maxLat, maxLon = bbox
+                assert minLat <= maxLat, "minLat should be <= maxLat"
+                assert minLon <= maxLon, "minLon should be <= maxLon"
 
                 # Verify coordinates are within reasonable bounds (WGS84)
-                assert -180 <= minX <= 180, "Longitude should be within valid range"
-                assert -180 <= maxX <= 180, "Longitude should be within valid range"
-                assert -90 <= minY <= 90, "Latitude should be within valid range"
-                assert -90 <= maxY <= 90, "Latitude should be within valid range"
+                assert -90 <= minLat <= 90, "Latitude should be within valid range"
+                assert -90 <= maxLat <= 90, "Latitude should be within valid range"
+                assert -180 <= minLon <= 180, "Longitude should be within valid range"
+                assert -180 <= maxLon <= 180, "Longitude should be within valid range"
 
             # Verify CRS information
             if "crs" in result:

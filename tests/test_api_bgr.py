@@ -16,7 +16,7 @@ class TestBGRProvider:
             "title": "Helicopter-borne Electromagnetics (HEM) Area 149 Langeoog2",
             "title_de": "Hubschrauber-Elektromagnetik (HEM) Gebiet 149 Langeoog2",
             # Reference bbox from BGR metadata (Langeoog island, Germany) - Retrieved 2025-01-16
-            "expected_bbox": [7.48, 53.74, 7.62, 53.76],  # [W, S, E, N]
+            "expected_bbox": [53.74, 7.48, 53.76, 7.62],  # [S, W, N, E]
             "expected_tbox": ["2017-03-31", "2017-03-31"],  # Survey date
             "distribution_urls": [
                 "https://download.bgr.de/bgr/aerogeophysik/149Langeoog2HEM/geotiff/149Langeoog2HEM.zip",
@@ -29,7 +29,7 @@ class TestBGRProvider:
             "uuid": "3e7bf95c-eaa2-46df-8df6-cfc68729a6a1",
             "title": "Hydrogeologische Karte von Deutschland 1:1.000.000 (HK1000)",
             # Reference bbox from BGR metadata (Germany) - Retrieved 2025-01-16
-            "expected_bbox": [6.0, 47.0, 15.0, 55.0],  # [W, S, E, N]
+            "expected_bbox": [47.0, 6.0, 55.0, 15.0],  # [S, W, N, E]
         },
         "medkam": {
             "doi": "10.25928/MEDKAM.1",
@@ -37,7 +37,7 @@ class TestBGRProvider:
             "uuid": "65f58412-4a78-4808-9ef6-6b6d9182db8f",
             "title": "Mediterranean Karst Aquifer Map 1:5,000,000 (MEDKAM)",
             # Reference bbox from BGR metadata (Mediterranean region) - Retrieved 2025-01-16
-            "expected_bbox": [-17.5, 26.0, 47.5, 51.0],  # [W, S, E, N]
+            "expected_bbox": [26.0, -17.5, 51.0, 47.5],  # [S, W, N, E]
         },
     }
 
@@ -126,12 +126,13 @@ class TestBGRProvider:
             bbox = metadata["bbox"]
             expected_bbox = dataset["expected_bbox"]
 
-            # Verify bbox format [minx, miny, maxx, maxy]
+            # Internal function returns [minlon, minlat, maxlon, maxlat];
+            # expected_bbox is in public API format [minlat, minlon, maxlat, maxlon]
             assert len(bbox) == 4
-            assert abs(bbox[0] - expected_bbox[0]) < tolerance
-            assert abs(bbox[1] - expected_bbox[1]) < tolerance
-            assert abs(bbox[2] - expected_bbox[2]) < tolerance
-            assert abs(bbox[3] - expected_bbox[3]) < tolerance
+            assert abs(bbox[0] - expected_bbox[1]) < tolerance  # minlon
+            assert abs(bbox[1] - expected_bbox[0]) < tolerance  # minlat
+            assert abs(bbox[2] - expected_bbox[3]) < tolerance  # maxlon
+            assert abs(bbox[3] - expected_bbox[2]) < tolerance  # maxlat
 
             # Check distribution URLs
             assert metadata.get("distribution_urls") is not None
@@ -263,31 +264,31 @@ class TestBGRProvider:
 
         # Verify coordinates are in Europe (rough bounds check)
         assert (
-            -10 <= expected_bbox[0] <= 30
-        ), "Western longitude should be in European range"
-        assert (
-            -10 <= expected_bbox[2] <= 30
-        ), "Eastern longitude should be in European range"
-        assert (
-            40 <= expected_bbox[1] <= 70
+            40 <= expected_bbox[0] <= 70
         ), "Southern latitude should be in Northern European range"
         assert (
-            40 <= expected_bbox[3] <= 70
+            -10 <= expected_bbox[1] <= 30
+        ), "Western longitude should be in European range"
+        assert (
+            40 <= expected_bbox[2] <= 70
         ), "Northern latitude should be in Northern European range"
+        assert (
+            -10 <= expected_bbox[3] <= 30
+        ), "Eastern longitude should be in European range"
 
         # Verify this is specifically North Sea / German coast region
         assert (
-            6 <= expected_bbox[0] <= 9
-        ), "Western longitude should be in German coast region"
-        assert (
-            6 <= expected_bbox[2] <= 9
-        ), "Eastern longitude should be in German coast region"
-        assert (
-            53 <= expected_bbox[1] <= 55
+            53 <= expected_bbox[0] <= 55
         ), "Southern latitude should be in North Sea region"
         assert (
-            53 <= expected_bbox[3] <= 55
+            6 <= expected_bbox[1] <= 9
+        ), "Western longitude should be in German coast region"
+        assert (
+            53 <= expected_bbox[2] <= 55
         ), "Northern latitude should be in North Sea region"
+        assert (
+            6 <= expected_bbox[3] <= 9
+        ), "Eastern longitude should be in German coast region"
 
 
 class TestBGRParameterCombinations:
@@ -450,8 +451,8 @@ class TestBGRIntegration:
             if has_spatial:
                 bbox = result["bbox"]
                 assert len(bbox) == 4
-                assert bbox[0] <= bbox[2]  # west <= east
-                assert bbox[1] <= bbox[3]  # south <= north
+                assert bbox[0] <= bbox[2]  # south <= north
+                assert bbox[1] <= bbox[3]  # west <= east
 
         except ImportError:
             pytest.skip("Required libraries not available")
@@ -504,7 +505,7 @@ class TestBGRFullPortalURL:
 
             bbox = result["bbox"]
             # HYRAUM reference bbox (retrieved 2025-01-16)
-            expected_bbox = [5.565029, 47.141752, 15.571236, 55.058629]
+            expected_bbox = [47.141752, 5.565029, 55.058629, 15.571236]
             assert abs(bbox[0] - expected_bbox[0]) < tolerance
             assert abs(bbox[1] - expected_bbox[1]) < tolerance
             assert abs(bbox[2] - expected_bbox[2]) < tolerance
@@ -594,7 +595,7 @@ class TestBGRDOISupport:
 
             bbox = result["bbox"]
             # HK1000 reference bbox (Germany) - Retrieved 2025-01-16
-            expected_bbox = [6.0, 47.0, 15.0, 55.0]
+            expected_bbox = [47.0, 6.0, 55.0, 15.0]
 
             assert len(bbox) == 4
             assert abs(bbox[0] - expected_bbox[0]) < tolerance
@@ -622,7 +623,7 @@ class TestBGRDOISupport:
 
             bbox = result["bbox"]
             # MEDKAM reference bbox (Mediterranean) - Retrieved 2025-01-16
-            expected_bbox = [-17.5, 26.0, 47.5, 51.0]
+            expected_bbox = [26.0, -17.5, 51.0, 47.5]
 
             assert len(bbox) == 4
             assert abs(bbox[0] - expected_bbox[0]) < tolerance

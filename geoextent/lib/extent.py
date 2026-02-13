@@ -27,6 +27,43 @@ logger = logging.getLogger("geoextent")
 handle_modules = {"CSV": handleCSV, "raster": handleRaster, "vector": handleVector}
 
 
+def _swap_coordinate_order(metadata):
+    """Swap coordinate order from internal [lon, lat] to EPSG:4326 native [lat, lon].
+
+    Transforms bbox [minlon, minlat, maxlon, maxlat] → [minlat, minlon, maxlat, maxlon]
+    and convex hull coords [[lon, lat], ...] → [[lat, lon], ...].
+
+    Recursively processes 'details' dicts for directory/remote results.
+    """
+    if not isinstance(metadata, dict):
+        return metadata
+
+    result = dict(metadata)
+
+    if "bbox" in result and result["bbox"] is not None:
+        bbox = result["bbox"]
+        if isinstance(bbox, dict) and bbox.get("type") == "Polygon":
+            # GeoJSON Polygon format: swap each coordinate pair in the ring(s)
+            new_coords = []
+            for ring in bbox.get("coordinates", []):
+                new_coords.append([[coord[1], coord[0]] for coord in ring])
+            result["bbox"] = {"type": "Polygon", "coordinates": new_coords}
+        elif isinstance(bbox, list) and len(bbox) > 0:
+            if isinstance(bbox[0], list):
+                # Convex hull coords: [[lon, lat], ...] → [[lat, lon], ...]
+                result["bbox"] = [[coord[1], coord[0]] for coord in bbox]
+            elif len(bbox) == 4:
+                # Bbox: [minlon, minlat, maxlon, maxlat] → [minlat, minlon, maxlat, maxlon]
+                result["bbox"] = [bbox[1], bbox[0], bbox[3], bbox[2]]
+
+    if "details" in result and isinstance(result["details"], dict):
+        result["details"] = {
+            k: _swap_coordinate_order(v) for k, v in result["details"].items()
+        }
+
+    return result
+
+
 def compute_bbox_wgs84(module, path):
     """
     Extract and transform bounding box to WGS84.
@@ -226,6 +263,8 @@ def fromDirectory(
     include_geojsonio: bool = False,
     placename: str | None = None,
     placename_escape: bool = False,
+    legacy: bool = False,
+    _internal: bool = False,
 ):
     """Extracts geoextent from a directory/archive
     Keyword arguments:
@@ -332,6 +371,7 @@ def fromDirectory(
                     include_geojsonio=include_geojsonio,
                     placename=placename,
                     placename_escape=placename_escape,
+                    _internal=True,
                 )
             else:
                 logger.info("Skipping archive {} (recursive=False)".format(filename))
@@ -356,6 +396,7 @@ def fromDirectory(
                         include_geojsonio=include_geojsonio,
                         placename=placename,
                         placename_escape=placename_escape,
+                        _internal=True,
                     )
                 else:
                     logger.info(
@@ -371,6 +412,7 @@ def fromDirectory(
                     include_geojsonio=include_geojsonio,
                     placename=placename,
                     placename_escape=placename_escape,
+                    _internal=True,
                 )
                 metadata_directory[str(filename)] = metadata_file
 
@@ -516,6 +558,10 @@ def fromDirectory(
         if geojsonio_url:
             metadata["geojsonio_url"] = geojsonio_url
 
+    # Apply EPSG:4326 native axis order (lat, lon) unless legacy mode or internal call
+    if not legacy and not _internal:
+        metadata = _swap_coordinate_order(metadata)
+
     return metadata
 
 
@@ -529,6 +575,8 @@ def fromFile(
     include_geojsonio=False,
     placename=None,
     placename_escape=False,
+    legacy=False,
+    _internal=False,
 ):
     """Extracts geoextent from a file
     Keyword arguments:
@@ -590,6 +638,7 @@ def fromFile(
         def __init__(self, task):
             threading.Thread.__init__(self)
             self.task = task
+            self.warning_msg = None
 
         def run(self):
 
@@ -619,8 +668,8 @@ def fromFile(
 
                             metadata["crs"] = spatial_extent["crs"]
                 except Exception as e:
-                    logger.warning(
-                        "Error for {} extracting bbox:\n{}".format(filepath, str(e))
+                    self.warning_msg = "Error for {} extracting bbox:\n{}".format(
+                        filepath, str(e)
                     )
             elif self.task == "tbox":
                 try:
@@ -638,7 +687,7 @@ def fromFile(
                         if extract_tbox is not None:
                             metadata["tbox"] = extract_tbox
                 except Exception as e:
-                    logger.warning(
+                    self.warning_msg = (
                         "Error extracting tbox, time format not found \n {}:".format(
                             str(e)
                         )
@@ -682,6 +731,11 @@ def fromFile(
             thread_bbox_except.join()
         if tbox:
             thread_temp_except.join()
+
+    # Emit deferred warnings after progress bar is closed
+    for t in [thread_bbox_except, thread_temp_except]:
+        if t.warning_msg:
+            logger.warning(t.warning_msg)
 
     logger.debug("Extraction finished: {}".format(str(metadata)))
 
@@ -733,6 +787,10 @@ def fromFile(
         if geojsonio_url:
             metadata["geojsonio_url"] = geojsonio_url
 
+    # Apply EPSG:4326 native axis order (lat, lon) unless legacy mode or internal call
+    if not legacy and not _internal:
+        metadata = _swap_coordinate_order(metadata)
+
     return metadata
 
 
@@ -759,6 +817,7 @@ def fromRemote(
     ext_metadata: bool = False,
     ext_metadata_method: str = "auto",
     keep_files: bool = False,
+    legacy: bool = False,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -976,9 +1035,17 @@ def fromRemote(
                 # Always include external_metadata as an array (even if empty)
                 result["external_metadata"] = metadata
 
+            # Apply EPSG:4326 native axis order (lat, lon) unless legacy mode
+            if not legacy:
+                result = _swap_coordinate_order(result)
+
             return result
         else:
             raise Exception(f"Failed to extract from {identifier}")
+
+    # Apply EPSG:4326 native axis order (lat, lon) unless legacy mode
+    if not legacy:
+        output = _swap_coordinate_order(output)
 
     # For multiple resources, return full structure
     return output
@@ -1082,6 +1149,7 @@ def _process_remote_download(
         include_geojsonio=include_geojsonio,
         placename=placename,
         placename_escape=placename_escape,
+        _internal=True,
     )
 
     return metadata

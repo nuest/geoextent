@@ -21,10 +21,10 @@ class TestOparaProvider:
             "file_size": 2739729,  # bytes
             # Expected spatial extent based on Antarctic Peninsula glacier data
             "expected_bbox": [
-                -69.51,
                 -69.46,
-                -58.96,
+                -69.51,
                 -58.93,
+                -58.96,
             ],  # Approximate Antarctica coordinates
             "expected_crs": "4326",
         }
@@ -118,19 +118,19 @@ class TestOparaProvider:
         assert len(bbox) == 4
 
         # Rough bounds check for Antarctic Peninsula region
-        # Based on actual data: bbox is approximately [-69.51, -69.46, -58.96, -58.93]
+        # Based on actual data: bbox is approximately [-69.46, -69.51, -58.93, -58.96]
         assert (
             -70 <= bbox[0] <= -58
-        ), f"Western longitude {bbox[0]} out of expected range"
+        ), f"Southern latitude {bbox[0]} out of expected range"
         assert (
             -70 <= bbox[1] <= -58
-        ), f"Southern latitude {bbox[1]} out of expected range"
+        ), f"Western longitude {bbox[1]} out of expected range"
         assert (
             -70 <= bbox[2] <= -58
-        ), f"Eastern longitude {bbox[2]} out of expected range"
+        ), f"Northern latitude {bbox[2]} out of expected range"
         assert (
             -70 <= bbox[3] <= -58
-        ), f"Northern latitude {bbox[3]} out of expected range"
+        ), f"Eastern longitude {bbox[3]} out of expected range"
 
     def test_opara_extraction_with_size_limit(self):
         """Test extraction with download size limits"""

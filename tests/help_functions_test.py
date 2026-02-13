@@ -75,7 +75,7 @@ def test_generate_geojsonio_url():
     import json
 
     # Test with regular bounding box
-    extent_output = {"bbox": [-74.0059, 40.7128, -73.9352, 40.7589], "crs": "4326"}
+    extent_output = {"bbox": [40.7128, -74.0059, 40.7589, -73.9352], "crs": "4326"}
 
     url = hf.generate_geojsonio_url(extent_output)
     assert url is not None, "should generate URL for valid bbox"
@@ -85,11 +85,11 @@ def test_generate_geojsonio_url():
     # Test with convex hull
     convex_hull_output = {
         "bbox": [
-            [-74.0059, 40.7128],
-            [-73.9352, 40.7128],
-            [-73.9352, 40.7589],
-            [-74.0059, 40.7589],
-            [-74.0059, 40.7128],
+            [40.7128, -74.0059],
+            [40.7128, -73.9352],
+            [40.7589, -73.9352],
+            [40.7589, -74.0059],
+            [40.7128, -74.0059],
         ],
         "convex_hull": True,
         "crs": "4326",
@@ -115,7 +115,7 @@ def test_geojsonio_url_format_independence():
     import geoextent.lib.helpfunctions as hf
 
     # Create extent output with regular bbox
-    extent_output = {"bbox": [-74.0059, 40.7128, -73.9352, 40.7589], "crs": "4326"}
+    extent_output = {"bbox": [40.7128, -74.0059, 40.7589, -73.9352], "crs": "4326"}
 
     # Generate URL - should work regardless of output format
     url = hf.generate_geojsonio_url(extent_output)

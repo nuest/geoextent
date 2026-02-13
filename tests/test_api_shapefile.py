@@ -16,7 +16,7 @@ class TestShapefileBboxExtraction:
         result = extract_bbox_only(
             "tests/testdata/shapefile/gis_osm_buildings_a_free_1.shp"
         )
-        expected_bbox = [-167.400123, -89.998844, 166.700078, -60.708069]
+        expected_bbox = [-89.998844, -167.400123, -60.708069, 166.700078]
         assert_bbox_result(result, expected_bbox)
         assert_no_tbox(result)
 
@@ -27,10 +27,10 @@ class TestShapefileBboxExtraction:
         )
         # This shapefile has EPSG:25832 which is auto-identified and transformed to WGS84
         expected_bbox = [
-            6.0373054738033725,
             51.36725472296136,
-            6.499786759861303,
+            6.0373054738033725,
             51.847920000368205,
+            6.499786759861303,
         ]
         assert_bbox_result(result, expected_bbox)
         assert_no_tbox(result)

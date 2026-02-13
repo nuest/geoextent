@@ -18,11 +18,11 @@ class TestZenodoProvider:
             "id": "820562",
             "title": "Landslide imagery from Hpakant, Myanmar",
             "expected_bbox": [
-                96.21146318274846,
                 25.56156568254296,
-                96.35495081696702,
+                96.21146318274846,
                 25.6297452149091,
-            ],  # [W, S, E, N]
+                96.35495081696702,
+            ],  # [S, W, N, E]
             "expected_tbox": None,  # May not have temporal extent
         },
         "geospatial_dataset": {
@@ -80,24 +80,24 @@ class TestZenodoProvider:
                     # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
                     assert (
                         abs(bbox[0] - expected_bbox[0]) < 0.01
-                    ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                    ), f"South latitude: {bbox[0]} vs {expected_bbox[0]}"
                     assert (
                         abs(bbox[1] - expected_bbox[1]) < 0.01
-                    ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                    ), f"West longitude: {bbox[1]} vs {expected_bbox[1]}"
                     assert (
                         abs(bbox[2] - expected_bbox[2]) < 0.01
-                    ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                    ), f"North latitude: {bbox[2]} vs {expected_bbox[2]}"
                     assert (
                         abs(bbox[3] - expected_bbox[3]) < 0.01
-                    ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                    ), f"East longitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
-                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
-                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
-                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+                assert bbox[0] <= bbox[2], "South latitude should be <= North latitude"
+                assert bbox[1] <= bbox[3], "West longitude should be <= East longitude"
+                assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+                assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
             # Check CRS
             if "crs" in result:
@@ -418,14 +418,14 @@ class TestZenodoZIPFileHandling:
 
             # Verify bbox is valid
             assert len(bbox) == 4, "Bbox should have 4 coordinates"
-            assert bbox[0] <= bbox[2], "West should be <= East"
-            assert bbox[1] <= bbox[3], "South should be <= North"
+            assert bbox[0] <= bbox[2], "South should be <= North"
+            assert bbox[1] <= bbox[3], "West should be <= East"
 
             # Verify coordinates are reasonable for European data
-            assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-            assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-            assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-            assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+            assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+            assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+            assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+            assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
             # Verify CRS
             assert "crs" in result, "Should have CRS"

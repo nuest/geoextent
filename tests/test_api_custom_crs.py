@@ -42,10 +42,10 @@ class TestCustomCRSHandling:
         # Verify bbox is in reasonable range for Northern Ireland
         # Single feature covers a small area in Northern Ireland
         bbox = result["bbox"]
-        assert bbox[0] == pytest.approx(-5.936181762169785, abs=tolerance)
-        assert bbox[1] == pytest.approx(54.56439223609256, abs=tolerance)
-        assert bbox[2] == pytest.approx(-5.887083505972233, abs=tolerance)
-        assert bbox[3] == pytest.approx(54.589879115587856, abs=tolerance)
+        assert bbox[0] == pytest.approx(54.56439223609256, abs=tolerance)
+        assert bbox[1] == pytest.approx(-5.936181762169785, abs=tolerance)
+        assert bbox[2] == pytest.approx(54.589879115587856, abs=tolerance)
+        assert bbox[3] == pytest.approx(-5.887083505972233, abs=tolerance)
 
         # Verify transformation to WGS84 was successful
         assert result["crs"] == "4326"
@@ -91,10 +91,10 @@ class TestCustomCRSIntegration:
         # Full dataset bbox (all 100 features covering Ireland)
         assert result["bbox"] == pytest.approx(
             [
-                -10.882492070935063,
                 51.39984398859542,
-                -5.387863070918008,
+                -10.882492070935063,
                 55.42100543100021,
+                -5.387863070918008,
             ],
             abs=tolerance,
         )
@@ -119,14 +119,14 @@ class TestWKTTransformation:
 
         # Coordinates should be in valid latitude/longitude ranges
         bbox = result["bbox"]
-        assert -180 <= bbox[0] <= 180  # min longitude
-        assert -90 <= bbox[1] <= 90  # min latitude
-        assert -180 <= bbox[2] <= 180  # max longitude
-        assert -90 <= bbox[3] <= 90  # max latitude
+        assert -90 <= bbox[0] <= 90  # min latitude
+        assert -180 <= bbox[1] <= 180  # min longitude
+        assert -90 <= bbox[2] <= 90  # max latitude
+        assert -180 <= bbox[3] <= 180  # max longitude
 
         # Min should be less than max
-        assert bbox[0] < bbox[2]  # min_lon < max_lon
-        assert bbox[1] < bbox[3]  # min_lat < max_lat
+        assert bbox[0] < bbox[2]  # min_lat < max_lat
+        assert bbox[1] < bbox[3]  # min_lon < max_lon
 
     def test_convex_hull_with_custom_crs(self):
         """Verify that convex hull extraction works with WKT-based CRS

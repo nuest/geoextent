@@ -10,7 +10,7 @@ def test_flatgeobuf_extract_bbox():
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [-180.0, -85.609038, 180.0, 83.645130], abs=tolerance
+        [-85.609038, -180.0, 83.645130, 180.0], abs=tolerance
     )
     assert result["crs"] == "4326"
 
@@ -42,7 +42,7 @@ def test_flatgeobuf_extract_both():
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
-        [-180.0, -85.609038, 180.0, 83.645130], abs=tolerance
+        [-85.609038, -180.0, 83.645130, 180.0], abs=tolerance
     )
     assert result["crs"] == "4326"
     # Countries file now has extractable temporal attributes

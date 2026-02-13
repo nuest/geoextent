@@ -163,8 +163,8 @@ class TestEdgeCasesAndErrors:
 
     def test_fromFile_directory_instead_of_file(self):
         """Test fromFile with directory path instead of file"""
-        with pytest.raises(Exception):
-            geoextent.fromFile("tests/testdata", bbox=True)
+        result = geoextent.fromFile("tests/testdata", bbox=True)
+        assert result is None
 
     def test_fromDirectory_nonexistent_directory(self):
         """Test fromDirectory with nonexistent directory"""
@@ -298,3 +298,100 @@ class TestSpecificFileFormats:
         result2 = geoextent.fromFile(file_path, bbox=True, tbox=False)
         assert "bbox" in result2
         assert "tbox" not in result2
+
+
+class TestLegacyMode:
+    """Test legacy coordinate order mode (lon, lat) vs default native EPSG:4326 (lat, lon)"""
+
+    def test_fromFile_legacy_mode(self):
+        """Test that legacy=True returns coordinates in traditional GIS order (lon, lat)"""
+        file_path = "tests/testdata/geojson/muenster_ring_zeit.geojson"
+
+        # Default (native EPSG:4326): bbox = [minlat, minlon, maxlat, maxlon]
+        result_native = geoextent.fromFile(file_path, bbox=True, tbox=False)
+        # Legacy: bbox = [minlon, minlat, maxlon, maxlat]
+        result_legacy = geoextent.fromFile(
+            file_path, bbox=True, tbox=False, legacy=True
+        )
+
+        assert result_native is not None
+        assert result_legacy is not None
+        assert "bbox" in result_native
+        assert "bbox" in result_legacy
+
+        native_bbox = result_native["bbox"]
+        legacy_bbox = result_legacy["bbox"]
+
+        # Native [minlat, minlon, maxlat, maxlon] vs legacy [minlon, minlat, maxlon, maxlat]
+        # So native[0] (minlat) == legacy[1] (minlat)
+        assert abs(native_bbox[0] - legacy_bbox[1]) < tolerance
+        assert abs(native_bbox[1] - legacy_bbox[0]) < tolerance
+        assert abs(native_bbox[2] - legacy_bbox[3]) < tolerance
+        assert abs(native_bbox[3] - legacy_bbox[2]) < tolerance
+
+    def test_fromDirectory_legacy_mode(self):
+        """Test that legacy=True works with fromDirectory"""
+        dir_path = "tests/testdata/geojson"
+
+        result_native = geoextent.fromDirectory(dir_path, bbox=True, tbox=False)
+        result_legacy = geoextent.fromDirectory(
+            dir_path, bbox=True, tbox=False, legacy=True
+        )
+
+        assert result_native is not None
+        assert result_legacy is not None
+        assert "bbox" in result_native
+        assert "bbox" in result_legacy
+
+        native_bbox = result_native["bbox"]
+        legacy_bbox = result_legacy["bbox"]
+
+        # Verify coordinate swap relationship
+        assert abs(native_bbox[0] - legacy_bbox[1]) < tolerance
+        assert abs(native_bbox[1] - legacy_bbox[0]) < tolerance
+        assert abs(native_bbox[2] - legacy_bbox[3]) < tolerance
+        assert abs(native_bbox[3] - legacy_bbox[2]) < tolerance
+
+    def test_fromFile_legacy_false_is_default(self):
+        """Test that legacy=False gives the same result as omitting the parameter"""
+        file_path = "tests/testdata/geojson/muenster_ring_zeit.geojson"
+
+        result_default = geoextent.fromFile(file_path, bbox=True, tbox=False)
+        result_explicit = geoextent.fromFile(
+            file_path, bbox=True, tbox=False, legacy=False
+        )
+
+        assert result_default["bbox"] == result_explicit["bbox"]
+
+    def test_legacy_mode_with_details(self):
+        """Test that legacy mode also swaps coordinates in details"""
+        dir_path = "tests/testdata/geojson"
+
+        result_native = geoextent.fromDirectory(
+            dir_path, bbox=True, tbox=False, details=True
+        )
+        result_legacy = geoextent.fromDirectory(
+            dir_path, bbox=True, tbox=False, details=True, legacy=True
+        )
+
+        assert "details" in result_native
+        assert "details" in result_legacy
+
+        # Check that details entries also have swapped coordinates
+        for filename in result_native["details"]:
+            if filename in result_legacy["details"]:
+                native_detail = result_native["details"][filename]
+                legacy_detail = result_legacy["details"][filename]
+                if (
+                    isinstance(native_detail, dict)
+                    and "bbox" in native_detail
+                    and native_detail["bbox"] is not None
+                    and isinstance(legacy_detail, dict)
+                    and "bbox" in legacy_detail
+                    and legacy_detail["bbox"] is not None
+                ):
+                    nb = native_detail["bbox"]
+                    lb = legacy_detail["bbox"]
+                    if isinstance(nb, list) and len(nb) == 4:
+                        assert abs(nb[0] - lb[1]) < tolerance
+                        assert abs(nb[1] - lb[0]) < tolerance

@@ -15,11 +15,11 @@ class TestGFZProvider:
             "title": "High-resolution photogrammetry data of the Santiaguito lava dome collected by UAS surveys",
             # Expected bounding box extracted from GFZ metadata (approximate)
             "expected_bbox": [
-                -91.8,  # W
                 14.6,  # S
-                -91.7,  # E
+                -91.8,  # W
                 14.8,  # N
-            ],  # [W, S, E, N] - Guatemala coordinates
+                -91.7,  # E
+            ],  # [S, W, N, E] - Guatemala coordinates
             "expected_tbox": ["2020-01-01", "2020-12-31"],  # 2020 data collection
         },
         "geothermal_north_german_basin": {
@@ -29,11 +29,11 @@ class TestGFZProvider:
             "title": "Dataset to Geothermal Resources and ATES Potential of Mesozoic Reservoirs in the North German Basin",
             # Expected bounding box for North German Basin
             "expected_bbox": [
-                3.93,  # W
                 51.32,  # S
-                15.38,  # E
+                3.93,  # W
                 55.91,  # N
-            ],  # [W, S, E, N] - North German Basin coordinates
+                15.38,  # E
+            ],  # [S, W, N, E] - North German Basin coordinates
             "expected_tbox": ["2023-01-01", "2023-12-31"],  # 2023 publication year
         },
     }
@@ -127,18 +127,18 @@ class TestGFZProvider:
                 assert isinstance(bbox[3], (int, float))
 
                 # Verify bounding box validity (Guatemala region)
-                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
-                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
-                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+                assert bbox[0] <= bbox[2], "South latitude should be <= North latitude"
+                assert bbox[1] <= bbox[3], "West longitude should be <= East longitude"
+                assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+                assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
                 # Check if coordinates are in Guatemala region (approximate)
-                assert -92 <= bbox[0] <= -88, "West longitude should be in Guatemala"
-                assert -92 <= bbox[2] <= -88, "East longitude should be in Guatemala"
-                assert 13 <= bbox[1] <= 18, "South latitude should be in Guatemala"
-                assert 13 <= bbox[3] <= 18, "North latitude should be in Guatemala"
+                assert 13 <= bbox[0] <= 18, "South latitude should be in Guatemala"
+                assert -92 <= bbox[1] <= -88, "West longitude should be in Guatemala"
+                assert 13 <= bbox[2] <= 18, "North latitude should be in Guatemala"
+                assert -92 <= bbox[3] <= -88, "East longitude should be in Guatemala"
 
             # Check CRS
             if "crs" in result:
@@ -252,31 +252,31 @@ class TestGFZProvider:
 
         # Verify coordinates are in Europe (rough bounds check)
         assert (
-            -10 <= expected_bbox[0] <= 30
-        ), "Western longitude should be in European range"
-        assert (
-            -10 <= expected_bbox[2] <= 30
-        ), "Eastern longitude should be in European range"
-        assert (
-            40 <= expected_bbox[1] <= 70
+            40 <= expected_bbox[0] <= 70
         ), "Southern latitude should be in Northern European range"
         assert (
-            40 <= expected_bbox[3] <= 70
+            -10 <= expected_bbox[1] <= 30
+        ), "Western longitude should be in European range"
+        assert (
+            40 <= expected_bbox[2] <= 70
         ), "Northern latitude should be in Northern European range"
+        assert (
+            -10 <= expected_bbox[3] <= 30
+        ), "Eastern longitude should be in European range"
 
         # Verify this is specifically North German Basin region
         assert (
-            3 <= expected_bbox[0] <= 16
-        ), "Western longitude should be in German region"
-        assert (
-            3 <= expected_bbox[2] <= 16
-        ), "Eastern longitude should be in German region"
-        assert (
-            50 <= expected_bbox[1] <= 56
+            50 <= expected_bbox[0] <= 56
         ), "Southern latitude should be in North German region"
         assert (
-            50 <= expected_bbox[3] <= 56
+            3 <= expected_bbox[1] <= 16
+        ), "Western longitude should be in German region"
+        assert (
+            50 <= expected_bbox[2] <= 56
         ), "Northern latitude should be in North German region"
+        assert (
+            3 <= expected_bbox[3] <= 16
+        ), "Eastern longitude should be in German region"
 
     def test_gfz_directory_listing_url_fix(self):
         """Test that directory listings with URLs not ending in '/' work correctly"""

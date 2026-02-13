@@ -25,11 +25,11 @@ class TestMultipleRepositories:
                 return {
                     "format": "remote",
                     "crs": "4326",
-                    "bbox": [-21.5, 76.5, -21.5, 76.5],
+                    "bbox": [76.5, -21.5, 76.5, -21.5],
                     "details": {
                         "pangaea_918707.geojson": {
                             "format": "geojson",
-                            "bbox": [-21.5, 76.5, -21.5, 76.5],
+                            "bbox": [76.5, -21.5, 76.5, -21.5],
                             "crs": "4326",
                         }
                     },
@@ -64,7 +64,7 @@ class TestMultipleRepositories:
             first_repo_result = result["details"][
                 "https://doi.org/10.1594/PANGAEA.918707"
             ]
-            assert first_repo_result["bbox"] == [-21.5, 76.5, -21.5, 76.5]
+            assert first_repo_result["bbox"] == [76.5, -21.5, 76.5, -21.5]
             assert first_repo_result["crs"] == "4326"
 
     def test_mixed_file_and_repository_inputs(self):
@@ -84,7 +84,7 @@ class TestMultipleRepositories:
                 return {
                     "format": "remote",
                     "crs": "4326",
-                    "bbox": [-21.5, 76.5, -21.5, 76.5],
+                    "bbox": [76.5, -21.5, 76.5, -21.5],
                     "details": {},
                 }
 
@@ -178,7 +178,7 @@ class TestMultipleRepositories:
         mock_details = {
             "https://doi.org/10.1594/PANGAEA.918707": {
                 "format": "remote",
-                "bbox": [-21.5, 76.5, -21.5, 76.5],
+                "bbox": [76.5, -21.5, 76.5, -21.5],
                 "crs": "4326",
             },
             "test.geojson": {
@@ -196,10 +196,10 @@ class TestMultipleRepositories:
 
         # The merged bounding box should encompass both points
         bbox = merged_bbox["bbox"]
-        assert bbox[0] <= -21.5  # min longitude
-        assert bbox[1] <= 1.0  # min latitude
-        assert bbox[2] >= 1.0  # max longitude
-        assert bbox[3] >= 76.5  # max latitude
+        assert bbox[0] <= 1.0  # min latitude
+        assert bbox[1] <= -21.5  # min longitude
+        assert bbox[2] >= 76.5  # max latitude
+        assert bbox[3] >= 1.0  # max longitude
 
     def test_cli_multiple_inputs_format_output(self):
         """Test CLI output format for multiple inputs"""
@@ -232,7 +232,7 @@ class TestMultipleRepositories:
                 return {
                     "format": "remote",
                     "crs": "4326",
-                    "bbox": [-21.5, 76.5, -21.5, 76.5],
+                    "bbox": [76.5, -21.5, 76.5, -21.5],
                     "details": {},
                 }
 

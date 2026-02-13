@@ -4,6 +4,8 @@ from urllib3.util.retry import Retry
 from geoextent.lib import helpfunctions as hf
 import logging
 import math
+
+logger = logging.getLogger("geoextent")
 import time
 import os
 from pathlib import Path
@@ -400,7 +402,7 @@ class DoiProvider(ContentProvider):
                 if e.response.status_code == 429:
                     self._throttle(e.response)
                 else:
-                    print(e.response.status_code)
+                    logger.debug("HTTP %s for %s", e.response.status_code, url)
                     raise
 
         if throttle:

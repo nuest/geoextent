@@ -13,7 +13,7 @@ class TestPangaeaProvider:
             "url": "https://doi.pangaea.de/10.1594/PANGAEA.734969",
             "id": "734969",
             "title": "Physical oceanography during POLARSTERN cruise ANT-II/3",
-            "expected_bbox": [-61.7867, -63.96, -44.0667, -60.535],  # [W, S, E, N]
+            "expected_bbox": [-63.96, -61.7867, -60.535, -44.0667],  # [S, W, N, E]
             "expected_tbox": ["1983-11-25", "1983-12-21"],
         },
         "drilling": {
@@ -22,10 +22,10 @@ class TestPangaeaProvider:
             "id": "786028",
             "title": "Mineralogy and grain size composition of ODP Site 182-1128 sediments",
             "expected_bbox": [
-                127.590835,
                 -34.391055,
                 127.590835,
                 -34.391055,
+                127.590835,
             ],  # Point location
             "expected_tbox": ["1998-11-03", "1998-11-11"],
         },
@@ -42,7 +42,7 @@ class TestPangaeaProvider:
             "url": "https://doi.pangaea.de/10.1594/PANGAEA.853890",
             "id": "853890",
             "title": "Radiosonde measurements from station Kwajalein (2015-06)",
-            "expected_bbox": [167.731, 8.72, 167.731, 8.72],  # Point location
+            "expected_bbox": [8.72, 167.731, 8.72, 167.731],  # Point location
             "expected_tbox": ["2015-06-01", "2015-06-29"],
         },
         "oceanography_meteor": {
@@ -50,7 +50,7 @@ class TestPangaeaProvider:
             "url": "https://doi.pangaea.de/10.1594/PANGAEA.807588",
             "id": "807588",
             "title": "Physical oceanography during METEOR cruise M36/1",
-            "expected_bbox": [-41.905, 29.255, -15.505, 46.653],  # [W, S, E, N]
+            "expected_bbox": [29.255, -41.905, 46.653, -15.505],  # [S, W, N, E]
             "expected_tbox": ["1996-06-11", "1996-06-18"],
         },
         "sediment_core": {
@@ -59,10 +59,10 @@ class TestPangaeaProvider:
             "id": "842589",
             "title": "Dinoflagellate cyst measurements from sediment core HH11-134-BC",
             "expected_bbox": [
-                9.887500,
                 77.599330,
                 9.887500,
                 77.599330,
+                9.887500,
             ],  # Point location
             # Temporal coverage might be geological ages, not calendar dates
         },
@@ -71,7 +71,7 @@ class TestPangaeaProvider:
             "url": "https://doi.pangaea.de/10.1594/PANGAEA.841243",
             "id": "841243",
             "title": "Radiosonde measurements from station Momote (2005-09)",
-            "expected_bbox": [147.425, -2.058, 147.425, -2.058],  # Point location
+            "expected_bbox": [-2.058, 147.425, -2.058, 147.425],  # Point location
             "expected_tbox": ["2005-09-01", "2005-09-30"],
         },
     }
@@ -147,24 +147,24 @@ class TestPangaeaProvider:
                 # Verify bounding box with reasonable tolerance (0.01 degrees ~ 1.1 km)
                 assert (
                     abs(bbox[0] - expected_bbox[0]) < 0.01
-                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                ), f"South latitude: {bbox[0]} vs {expected_bbox[0]}"
                 assert (
                     abs(bbox[1] - expected_bbox[1]) < 0.01
-                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                ), f"West longitude: {bbox[1]} vs {expected_bbox[1]}"
                 assert (
                     abs(bbox[2] - expected_bbox[2]) < 0.01
-                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                ), f"North latitude: {bbox[2]} vs {expected_bbox[2]}"
                 assert (
                     abs(bbox[3] - expected_bbox[3]) < 0.01
-                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                ), f"East longitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
-                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
-                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
-                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+                assert bbox[0] <= bbox[2], "South latitude should be <= North latitude"
+                assert bbox[1] <= bbox[3], "West longitude should be <= East longitude"
+                assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+                assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
             # Check CRS
             if "crs" in result:
@@ -201,8 +201,8 @@ class TestPangaeaProvider:
                 expected_bbox = dataset["expected_bbox"]
                 assert len(bbox) == 4
                 # For point locations, min and max should be close or identical
-                assert abs(bbox[0] - expected_bbox[0]) < 0.1  # longitude
-                assert abs(bbox[1] - expected_bbox[1]) < 0.1  # latitude
+                assert abs(bbox[0] - expected_bbox[0]) < 0.1  # latitude
+                assert abs(bbox[1] - expected_bbox[1]) < 0.1  # longitude
 
             # Check temporal coverage
             if "tbox" in result:
@@ -287,8 +287,8 @@ class TestPangaeaProvider:
                 ]
                 assert len(bbox) == 4
                 # Allow tolerance for extraction differences
-                assert abs(bbox[0] - expected_bbox[0]) < 5.0  # longitude tolerance
-                assert abs(bbox[1] - expected_bbox[1]) < 5.0  # latitude tolerance
+                assert abs(bbox[0] - expected_bbox[0]) < 5.0  # latitude tolerance
+                assert abs(bbox[1] - expected_bbox[1]) < 5.0  # longitude tolerance
 
         except ImportError:
             pytest.skip("pangaeapy not available")
@@ -313,8 +313,8 @@ class TestPangaeaProvider:
                     expected_bbox = dataset["expected_bbox"]
                     assert len(bbox) == 4
                     # For point locations, coordinates should be very close
-                    assert abs(bbox[0] - expected_bbox[0]) < 0.01  # longitude
-                    assert abs(bbox[1] - expected_bbox[1]) < 0.01  # latitude
+                    assert abs(bbox[0] - expected_bbox[0]) < 0.01  # latitude
+                    assert abs(bbox[1] - expected_bbox[1]) < 0.01  # longitude
 
                 # Check temporal coverage
                 if "tbox" in result and "expected_tbox" in dataset:
@@ -343,8 +343,8 @@ class TestPangaeaProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
                 assert len(bbox) == 4
-                assert abs(bbox[0] - expected_bbox[0]) < 0.1  # longitude
-                assert abs(bbox[1] - expected_bbox[1]) < 0.1  # latitude
+                assert abs(bbox[0] - expected_bbox[0]) < 0.1  # latitude
+                assert abs(bbox[1] - expected_bbox[1]) < 0.1  # longitude
 
             # Temporal coverage might not be available for geological datasets
             # This is OK - the test should pass even without temporal data

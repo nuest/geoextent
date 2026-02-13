@@ -18,10 +18,10 @@ class TestPensoftProvider:
             "article_id": "1068",
             "title": "Recent noteworthy findings of fungus gnats from Finland and northwestern Russia",
             "expected_bbox": [
-                19.7,  # W
                 59.963,  # S
-                36.622,  # E
+                19.7,  # W
                 69.909,  # N
+                36.622,  # E
             ],
             "coordinate_count": 251,
             "description": "Fungus gnat records from Finland and northwestern Russia with extensive coordinate data",
@@ -33,10 +33,10 @@ class TestPensoftProvider:
             "article_id": "159973",
             "title": "New records of amphibians for Ha Nam Province, Vietnam",
             "expected_bbox": [
-                105.83960166667,  # W
                 20.536216666667,  # S
-                106.54058333333,  # E
+                105.83960166667,  # W
                 20.8705,  # N
+                106.54058333333,  # E
             ],
             "coordinate_count": 6,
             "description": "Amphibian records from Ha Nam Province, Vietnam",
@@ -48,10 +48,10 @@ class TestPensoftProvider:
             "article_id": "979",
             "title": "A contribution to the study of the Lower Volga center of scarab beetle diversity",
             "expected_bbox": [
-                47.900,  # W
                 46.900,  # S
-                48.020,  # E
+                47.900,  # W
                 47.000,  # N
+                48.020,  # E
             ],
             "coordinate_count": 9,
             "description": "Historic DOI from volume 1, scarab beetle diversity study",
@@ -204,10 +204,10 @@ class TestPensoftProvider:
                 print(f"  Expected bbox: {expected_bbox}")
                 print(f"  Actual bbox:   {actual_bbox}")
 
-                # Check bbox format [W, S, E, N]
+                # Check bbox format [S, W, N, E]
                 assert len(actual_bbox) == 4
-                assert actual_bbox[0] <= actual_bbox[2]  # W <= E
-                assert actual_bbox[1] <= actual_bbox[3]  # S <= N
+                assert actual_bbox[0] <= actual_bbox[2]  # S <= N
+                assert actual_bbox[1] <= actual_bbox[3]  # W <= E
 
                 # Check bbox values are within tolerance
                 for i in range(4):
@@ -306,10 +306,10 @@ class TestPensoftProvider:
             assert abs(bbox[i] - expected_bbox[i]) <= tolerance
 
         # Verify geographic extent makes sense (Finland/Russia region)
-        assert 15 <= bbox[0] <= 40  # Western longitude
-        assert 55 <= bbox[1] <= 75  # Southern latitude
-        assert 30 <= bbox[2] <= 45  # Eastern longitude
-        assert 65 <= bbox[3] <= 75  # Northern latitude
+        assert 55 <= bbox[0] <= 75  # Southern latitude
+        assert 15 <= bbox[1] <= 40  # Western longitude
+        assert 65 <= bbox[2] <= 75  # Northern latitude
+        assert 30 <= bbox[3] <= 45  # Eastern longitude
 
     def test_pensoft_error_handling(self):
         """Test error handling for invalid inputs and network issues"""

@@ -135,7 +135,7 @@ def test_cli_nested_mixed_recursive_vs_non_recursive(script_runner):
         "coordinates"
     ][0]
 
-    # Get the x-axis bounds (longitude)
+    # Get the x-axis bounds (longitude in GeoJSON [lon, lat] per RFC 7946)
     recursive_min_x = min(coord[0] for coord in recursive_coords)
     recursive_max_x = max(coord[0] for coord in recursive_coords)
     non_recursive_min_x = min(coord[0] for coord in non_recursive_coords)
@@ -149,7 +149,7 @@ def test_cli_nested_mixed_recursive_vs_non_recursive(script_runner):
     # Both should have same minimum (from top-level file)
     assert pytest.approx(recursive_min_x, abs=tolerance) == non_recursive_min_x
 
-    # Verify expected specific values
+    # Verify expected specific values (longitude from GeoJSON [lon, lat] per RFC 7946)
     # Recursive: covers both ausgleichsflaechen_moers.geojson and subdir/muenster_ring_zeit.geojson
     assert pytest.approx(recursive_min_x, abs=tolerance) == 6.59663465544554
     assert pytest.approx(recursive_max_x, abs=tolerance) == 7.647256851196289
@@ -183,33 +183,35 @@ def test_api_bbox_merging_recursive_vs_non_recursive():
         "bbox" in result_non_recursive
     ), "Non-recursive should still have bbox from top-level file"
 
-    # Extract bbox coordinates - API returns [min_x, min_y, max_x, max_y]
+    # Extract bbox coordinates - API returns [minlat, minlon, maxlat, maxlon] (native EPSG:4326 order)
     recursive_bbox = result_recursive["bbox"]
     non_recursive_bbox = result_non_recursive["bbox"]
 
-    # Expected coordinates based on actual file analysis:
-    # Top-level file (ausgleichsflaechen_moers.geojson): [6.59663465544554, 51.422305272549615, 6.662839251596646, 51.486636388722296]
-    # Subdirectory file (muenster_ring_zeit.geojson): [7.6016807556152335, 51.94881477206191, 7.647256851196289, 51.974624029877454]
-    # Combined: [6.59663465544554, 51.422305272549615, 7.647256851196289, 51.974624029877454]
+    # Expected coordinates based on actual file analysis (native EPSG:4326 order):
+    # Top-level file (ausgleichsflaechen_moers.geojson): [51.422305272549615, 6.59663465544554, 51.486636388722296, 6.662839251596646]
+    # Subdirectory file (muenster_ring_zeit.geojson): [51.94881477206191, 7.6016807556152335, 51.974624029877454, 7.647256851196289]
+    # Combined: [51.422305272549615, 6.59663465544554, 51.974624029877454, 7.647256851196289]
 
-    recursive_min_x, recursive_min_y, recursive_max_x, recursive_max_y = recursive_bbox
+    recursive_min_lat, recursive_min_lon, recursive_max_lat, recursive_max_lon = (
+        recursive_bbox
+    )
     (
-        non_recursive_min_x,
-        non_recursive_min_y,
-        non_recursive_max_x,
-        non_recursive_max_y,
+        non_recursive_min_lat,
+        non_recursive_min_lon,
+        non_recursive_max_lat,
+        non_recursive_max_lon,
     ) = non_recursive_bbox
 
     # Verify the recursive extent is larger (includes subdirectory file)
     assert (
-        recursive_max_x > non_recursive_max_x
+        recursive_max_lat > non_recursive_max_lat
     ), "Recursive processing should include larger extent from subdirectory"
 
-    # The min_x should be the same (both include the top-level file)
-    assert pytest.approx(recursive_min_x, abs=tolerance) == non_recursive_min_x
+    # The min_lat should be the same (both include the top-level file)
+    assert pytest.approx(recursive_min_lat, abs=tolerance) == non_recursive_min_lat
 
     # Specific expected values based on file analysis
-    assert pytest.approx(recursive_min_x, abs=tolerance) == 6.59663465544554
-    assert pytest.approx(recursive_max_x, abs=tolerance) == 7.647256851196289
-    assert pytest.approx(non_recursive_min_x, abs=tolerance) == 6.59663465544554
-    assert pytest.approx(non_recursive_max_x, abs=tolerance) == 6.662839251596646
+    assert pytest.approx(recursive_min_lat, abs=tolerance) == 51.422305272549615
+    assert pytest.approx(recursive_max_lat, abs=tolerance) == 51.974624029877454
+    assert pytest.approx(non_recursive_min_lat, abs=tolerance) == 51.422305272549615
+    assert pytest.approx(non_recursive_max_lat, abs=tolerance) == 51.486636388722296

@@ -41,7 +41,7 @@ class TestWorldFileSupport:
         assert "bbox" in result
         assert "crs" in result
         assert result["bbox"] == pytest.approx(
-            [96.2114631828, 25.558346194400002, 96.3549032194, 25.632931128800003],
+            [25.558346194400002, 96.2114631828, 25.632931128800003, 96.3549032194],
             abs=tolerance,
         )
         assert result["crs"] == "4326"
@@ -103,10 +103,10 @@ class TestWorldFileIntegration:
         assert "bbox" in result
         assert result["bbox"] == pytest.approx(
             [
-                96.21146318274846,
                 25.558346194400002,
-                96.35495081696702,
+                96.21146318274846,
                 25.632931128800003,
+                96.35495081696702,
             ],
             abs=tolerance,
         )
@@ -121,5 +121,5 @@ class TestWorldFileIntegration:
         result = geoextent.fromRemote("https://zenodo.org/records/7196949", bbox=True)
         assert "bbox" in result
         assert result["bbox"] == pytest.approx(
-            [-60.0, -180.0, 60.0, 180.0], abs=tolerance
+            [-180.0, -60.0, 180.0, 60.0], abs=tolerance
         )

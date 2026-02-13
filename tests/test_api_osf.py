@@ -398,11 +398,11 @@ class TestOSFActualBoundingBoxVerification:
             "project_id": "9jg2u",
             "title": "Boston area geospatial data",
             "expected_bbox": [
-                -71.11696719686476,
                 42.33758042479756,
-                -71.04845692576838,
+                -71.11696719686476,
                 42.37900158005487,
-            ],  # [W, S, E, N]
+                -71.04845692576838,
+            ],  # [S, W, N, E]
             "description": "Boston metropolitan area spatial data",
         },
         "southeast_asia": {
@@ -413,11 +413,11 @@ class TestOSFActualBoundingBoxVerification:
             "project_id": "4xe6z",
             "title": "Southeast Asia regional data",
             "expected_bbox": [
-                93.885557,
                 10.0017,
-                108.72980074860037,
+                93.885557,
                 33.267781,
-            ],  # [W, S, E, N]
+                108.72980074860037,
+            ],  # [S, W, N, E]
             "description": "Southeast Asia regional spatial dataset",
         },
     }
@@ -449,32 +449,32 @@ class TestOSFActualBoundingBoxVerification:
                 # Verify bounding box with reasonable tolerance (0.001 degrees ~ 110 m)
                 assert (
                     abs(bbox[0] - expected_bbox[0]) < 0.001
-                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                ), f"South latitude: {bbox[0]} vs {expected_bbox[0]}"
                 assert (
                     abs(bbox[1] - expected_bbox[1]) < 0.001
-                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                ), f"West longitude: {bbox[1]} vs {expected_bbox[1]}"
                 assert (
                     abs(bbox[2] - expected_bbox[2]) < 0.001
-                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                ), f"North latitude: {bbox[2]} vs {expected_bbox[2]}"
                 assert (
                     abs(bbox[3] - expected_bbox[3]) < 0.001
-                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                ), f"East longitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
-                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
-                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
-                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+                assert bbox[0] <= bbox[2], "South latitude should be <= North latitude"
+                assert bbox[1] <= bbox[3], "West longitude should be <= East longitude"
+                assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+                assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
                 # Boston area should be in reasonable geographic bounds
                 assert (
-                    -75 <= bbox[0] <= -70
-                ), f"West longitude {bbox[0]} should be in Boston area"
+                    40 <= bbox[0] <= 45
+                ), f"South latitude {bbox[0]} should be in Boston area"
                 assert (
-                    40 <= bbox[1] <= 45
-                ), f"South latitude {bbox[1]} should be in Boston area"
+                    -75 <= bbox[1] <= -70
+                ), f"West longitude {bbox[1]} should be in Boston area"
 
             # Check CRS
             if "crs" in result:
@@ -512,32 +512,32 @@ class TestOSFActualBoundingBoxVerification:
                 # Verify bounding box with reasonable tolerance (0.001 degrees ~ 110 m)
                 assert (
                     abs(bbox[0] - expected_bbox[0]) < 0.001
-                ), f"West longitude: {bbox[0]} vs {expected_bbox[0]}"
+                ), f"South latitude: {bbox[0]} vs {expected_bbox[0]}"
                 assert (
                     abs(bbox[1] - expected_bbox[1]) < 0.001
-                ), f"South latitude: {bbox[1]} vs {expected_bbox[1]}"
+                ), f"West longitude: {bbox[1]} vs {expected_bbox[1]}"
                 assert (
                     abs(bbox[2] - expected_bbox[2]) < 0.001
-                ), f"East longitude: {bbox[2]} vs {expected_bbox[2]}"
+                ), f"North latitude: {bbox[2]} vs {expected_bbox[2]}"
                 assert (
                     abs(bbox[3] - expected_bbox[3]) < 0.001
-                ), f"North latitude: {bbox[3]} vs {expected_bbox[3]}"
+                ), f"East longitude: {bbox[3]} vs {expected_bbox[3]}"
 
                 # Verify bounding box validity
-                assert bbox[0] <= bbox[2], "West longitude should be <= East longitude"
-                assert bbox[1] <= bbox[3], "South latitude should be <= North latitude"
-                assert -180 <= bbox[0] <= 180, "West longitude should be valid"
-                assert -180 <= bbox[2] <= 180, "East longitude should be valid"
-                assert -90 <= bbox[1] <= 90, "South latitude should be valid"
-                assert -90 <= bbox[3] <= 90, "North latitude should be valid"
+                assert bbox[0] <= bbox[2], "South latitude should be <= North latitude"
+                assert bbox[1] <= bbox[3], "West longitude should be <= East longitude"
+                assert -90 <= bbox[0] <= 90, "South latitude should be valid"
+                assert -90 <= bbox[2] <= 90, "North latitude should be valid"
+                assert -180 <= bbox[1] <= 180, "West longitude should be valid"
+                assert -180 <= bbox[3] <= 180, "East longitude should be valid"
 
                 # Southeast Asia should be in reasonable geographic bounds
                 assert (
-                    90 <= bbox[0] <= 115
-                ), f"West longitude {bbox[0]} should be in Southeast Asia"
+                    5 <= bbox[0] <= 35
+                ), f"South latitude {bbox[0]} should be in Southeast Asia"
                 assert (
-                    5 <= bbox[1] <= 35
-                ), f"South latitude {bbox[1]} should be in Southeast Asia"
+                    90 <= bbox[1] <= 115
+                ), f"West longitude {bbox[1]} should be in Southeast Asia"
 
             # Check CRS
             if "crs" in result:
@@ -578,16 +578,16 @@ class TestOSFActualBoundingBoxVerification:
             for identifier, bbox in bboxes[1:]:
                 assert (
                     abs(bbox[0] - reference_bbox[0]) < 0.001
-                ), f"West longitude mismatch for {identifier}"
-                assert (
-                    abs(bbox[1] - reference_bbox[1]) < 0.001
                 ), f"South latitude mismatch for {identifier}"
                 assert (
+                    abs(bbox[1] - reference_bbox[1]) < 0.001
+                ), f"West longitude mismatch for {identifier}"
+                assert (
                     abs(bbox[2] - reference_bbox[2]) < 0.001
-                ), f"East longitude mismatch for {identifier}"
+                ), f"North latitude mismatch for {identifier}"
                 assert (
                     abs(bbox[3] - reference_bbox[3]) < 0.001
-                ), f"North latitude mismatch for {identifier}"
+                ), f"East longitude mismatch for {identifier}"
 
 
 class TestOSFFilteringCapabilities:

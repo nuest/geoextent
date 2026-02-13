@@ -63,7 +63,7 @@ def test_multiple_files_bbox_extraction():
     assert "crs" in result
     assert result["crs"] == "4326"
     # Merged bbox should cover both Münster (Germany) and Barcelona (Spain)
-    # Expected: [min_lon, min_lat, max_lon, max_lat] = [2.05, 41.32, 7.65, 51.97]
+    # Extracted from GeoJSON geometry → [minlon, minlat, maxlon, maxlat] per RFC 7946
     assert result["bbox"] == pytest.approx(
         [2.052333387639205, 41.31703852240476, 7.647256851196289, 51.974624029877454],
         abs=tolerance,
@@ -101,7 +101,7 @@ def test_multiple_files_bbox_and_tbox():
     assert "crs" in result
     assert result["crs"] == "4326"
     # Merged bbox should cover Germany, Spain, and Netherlands
-    # Expected: [min_lon, min_lat, max_lon, max_lat] = [2.05, 41.32, 7.65, 53.22]
+    # Extracted from GeoJSON geometry → [minlon, minlat, maxlon, maxlat] per RFC 7946
     assert result["bbox"] == pytest.approx(
         [2.052333387639205, 41.31703852240476, 7.647256851196289, 53.217222],
         abs=tolerance,
@@ -155,6 +155,7 @@ def test_multiple_files_different_formats():
     assert "bbox" in result
     assert "crs" in result
     # Should cover Netherlands, Germany, and Spain
+    # Extracted from GeoJSON geometry → [minlon, minlat, maxlon, maxlat] per RFC 7946
     assert result["bbox"] == pytest.approx(
         [2.052333387639205, 41.31703852240476, 7.647256851196289, 53.217222],
         abs=tolerance,

@@ -36,30 +36,38 @@ All main API functions use **camelCase** for consistency:
 
 ### Coordinate Format Standards
 
-All spatial data in geoextent follows these conventions:
+geoextent uses two coordinate order modes:
 
-1. **Coordinate Order**: Always `[longitude, latitude]` (GeoJSON standard)
-   - NOT `[latitude, longitude]`
-   - X-coordinate (longitude) comes first, Y-coordinate (latitude) second
+1. **Default (Native EPSG:4326)**: Coordinates follow EPSG:4326 native axis order: **(latitude, longitude)**
+   - Bounding Box: `[minlat, minlon, maxlat, maxlon]`
+   - Coordinate pairs: `[lat, lon]`
+   - GeoJSON geometries: `{"type": "Point", "coordinates": [lat, lon]}`
+   - WKT/WKB: Coordinates encoded in `[lat, lon]` order
 
-2. **Bounding Box Format**: `[minx, miny, maxx, maxy]`
-   - `minx` = westernmost longitude
-   - `miny` = southernmost latitude
-   - `maxx` = easternmost longitude
-   - `maxy` = northernmost latitude
+2. **Legacy Mode** (`--legacy` CLI flag or `legacy=True` API parameter): Traditional GIS order **(longitude, latitude)**
+   - Bounding Box: `[minlon, minlat, maxlon, maxlat]`
+   - Coordinate pairs: `[lon, lat]`
+   - Matches the old geoextent behavior and GeoJSON standard `[lon, lat]` order
 
-3. **GeoJSON Geometries**: Standard GeoJSON format
-   - Points: `{"type": "Point", "coordinates": [lon, lat]}`
-   - Polygons: `{"type": "Polygon", "coordinates": [[[lon1, lat1], [lon2, lat2], ...]]}`
+3. **CRS**: Default to WGS84 (EPSG:4326) unless otherwise specified
 
-4. **CRS**: Default to WGS84 (EPSG:4326) unless otherwise specified
+4. **WKB output**: Uses **little-endian** (NDR, byte-order flag `01`) via `ogr.wkbNDR`, matching GDAL/PostGIS/Shapely defaults
+
+### Internal vs Output Coordinate Order
+
+- **Internally**, all processing uses traditional GIS order `[longitude, latitude]` (i.e. `[x, y]`)
+- The coordinate swap to native EPSG:4326 `[latitude, longitude]` happens **only at the output boundary** of public API functions (`fromFile`, `fromDirectory`, `fromRemote`)
+- OGR's `GetExtent()` returns `(minX, maxX, minY, maxY)` in traditional order; do **not** swap axes internally
+- The `_swap_coordinate_order()` function in `extent.py` handles the output swap
+- Internal calls between functions use `_internal=True` to prevent double-swapping
 
 ### Internal Function Contracts
 
-- `bbox_merge()`: Expects `[minx, miny, maxx, maxy]` format from each file
-- `convex_hull_merge()`: Can handle both bbox format and coordinate arrays
-- All coordinate transformations use `[longitude, latitude]` order
-- Handler modules should return standardized bbox format
+- `bbox_merge()`: Expects `[minx, miny, maxx, maxy]` format (internal lon/lat order)
+- `convex_hull_merge()`: Can handle both bbox format and coordinate arrays (internal lon/lat order)
+- All coordinate transformations use `[longitude, latitude]` order internally
+- Handler modules should return standardized bbox format in `[minlon, minlat, maxlon, maxlat]` order
+- `bbox_to_wkb()` / `convex_hull_coords_to_wkb()`: Always use `ogr.wkbNDR` (little-endian)
 
 ## Development Commands
 

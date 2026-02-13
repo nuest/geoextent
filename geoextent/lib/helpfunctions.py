@@ -1026,6 +1026,26 @@ def path_output(path):
     return absolute_file_path
 
 
+def _swap_to_geojson_order(bbox):
+    """Swap coordinates from EPSG:4326 native [lat, lon] back to GeoJSON [lon, lat] (RFC 7946).
+
+    Handles all bbox formats: simple list, coordinate pair list, GeoJSON Polygon dict.
+    """
+    if isinstance(bbox, dict) and bbox.get("type") == "Polygon":
+        new_coords = []
+        for ring in bbox.get("coordinates", []):
+            new_coords.append([[coord[1], coord[0]] for coord in ring])
+        return {"type": "Polygon", "coordinates": new_coords}
+    elif isinstance(bbox, list) and len(bbox) > 0:
+        if isinstance(bbox[0], list):
+            return [[coord[1], coord[0]] for coord in bbox]
+        elif len(bbox) == 4:
+            return [bbox[1], bbox[0], bbox[3], bbox[2]]
+        elif len(bbox) == 2:
+            return [bbox[1], bbox[0]]
+    return bbox
+
+
 def is_geometry_a_point(bbox, is_convex_hull=False, tolerance=1e-6):
     """
     Determine if a geometry is actually a point (all coordinates are the same within tolerance)
@@ -1170,13 +1190,20 @@ def create_extraction_metadata(inputs, version, output_data=None):
     return metadata
 
 
-def create_geojson_feature_collection(extent_output, extraction_metadata=None):
+def create_geojson_feature_collection(
+    extent_output, extraction_metadata=None, native_order=False
+):
     """
     Convert geoextent output to a valid GeoJSON FeatureCollection
+
+    GeoJSON coordinates always use [longitude, latitude] order per RFC 7946,
+    regardless of the --legacy flag or axis order setting.
 
     Args:
         extent_output: Dict containing the geoextent output
         extraction_metadata: Optional dict with extraction metadata (inputs, version, statistics)
+        native_order: If True, input bbox is in EPSG:4326 native [lat, lon] order and
+                      coordinates will be swapped back to [lon, lat] for RFC 7946 compliance
 
     Returns:
         Dict containing a GeoJSON FeatureCollection with a single Feature
@@ -1186,6 +1213,10 @@ def create_geojson_feature_collection(extent_output, extraction_metadata=None):
 
     bbox = extent_output.get("bbox")
     is_convex_hull = extent_output.get("convex_hull", False)
+
+    # If input is in native EPSG:4326 order [lat, lon], swap back to [lon, lat] for GeoJSON
+    if native_order:
+        bbox = _swap_to_geojson_order(bbox)
 
     # Check if the geometry is actually a point
     is_point, point_coords = is_geometry_a_point(bbox, is_convex_hull)
@@ -1280,15 +1311,19 @@ def create_geojson_feature_collection(extent_output, extraction_metadata=None):
 
 
 def format_extent_output(
-    extent_output, output_format="geojson", extraction_metadata=None
+    extent_output, output_format="geojson", extraction_metadata=None, native_order=False
 ):
     """
     Convert geoextent output to different formats
+
+    For GeoJSON format, coordinates always use [lon, lat] per RFC 7946.
+    For WKT/WKB formats, coordinate order follows the axis order setting.
 
     Args:
         extent_output: Dict containing the geoextent output
         output_format: String specifying the output format ("geojson", "wkt", "wkb")
         extraction_metadata: Optional dict with extraction metadata (inputs, version, statistics)
+        native_order: If True, input is in EPSG:4326 native [lat, lon] order (passed to GeoJSON construction)
 
     Returns:
         Dict with formatted output - for GeoJSON format, returns a FeatureCollection
@@ -1298,7 +1333,9 @@ def format_extent_output(
 
     # For GeoJSON format, create a proper FeatureCollection
     if output_format.lower() == "geojson" and extent_output.get("bbox"):
-        return create_geojson_feature_collection(extent_output, extraction_metadata)
+        return create_geojson_feature_collection(
+            extent_output, extraction_metadata, native_order=native_order
+        )
 
     # For other formats or when no bbox present, use the original logic
     if not extent_output.get("bbox"):
@@ -1354,8 +1391,12 @@ def bbox_to_wkt(bbox):
     """
     Convert bounding box coordinates to WKT POLYGON format
 
+    Coordinate order follows the axis order setting:
+    - Default (native EPSG:4326): [minlat, minlon, maxlat, maxlon]
+    - Legacy mode: [minlon, minlat, maxlon, maxlat]
+
     Args:
-        bbox: List of [minx, miny, maxx, maxy]
+        bbox: List of 4 coordinates in the current axis order
 
     Returns:
         String containing WKT polygon representation
@@ -1372,8 +1413,12 @@ def bbox_to_wkb(bbox):
     """
     Convert bounding box coordinates to WKB (Well-Known Binary) format
 
+    Coordinate order follows the axis order setting:
+    - Default (native EPSG:4326): [minlat, minlon, maxlat, maxlon]
+    - Legacy mode: [minlon, minlat, maxlon, maxlat]
+
     Args:
-        bbox: List of [minx, miny, maxx, maxy]
+        bbox: List of 4 coordinates in the current axis order
 
     Returns:
         String containing hexadecimal WKB representation
@@ -1386,7 +1431,7 @@ def bbox_to_wkb(bbox):
     if wkt:
         geom = ogr.CreateGeometryFromWkt(wkt)
         if geom:
-            return geom.ExportToWkb().hex().upper()
+            return geom.ExportToWkb(ogr.wkbNDR).hex().upper()
     return None
 
 
@@ -1394,11 +1439,14 @@ def bbox_to_geojson(bbox):
     """
     Convert bounding box coordinates to GeoJSON Polygon format
 
+    Caller must ensure bbox is in [minlon, minlat, maxlon, maxlat] order
+    so that GeoJSON coordinates follow RFC 7946 [longitude, latitude] convention.
+
     Args:
-        bbox: List of [minx, miny, maxx, maxy] (WGS84 coordinates)
+        bbox: List of 4 coordinates [minlon, minlat, maxlon, maxlat] (WGS84)
 
     Returns:
-        Dict containing GeoJSON polygon representation
+        Dict containing GeoJSON Polygon with [lon, lat] coordinates per RFC 7946
     """
     if not bbox or len(bbox) != 4:
         return None
@@ -1517,8 +1565,12 @@ def convex_hull_coords_to_wkb(coords):
     """
     Convert convex hull coordinates to WKB (Well-Known Binary) format
 
+    Coordinate order follows the axis order setting:
+    - Default (native EPSG:4326): [lat, lon] pairs
+    - Legacy mode: [lon, lat] pairs
+
     Args:
-        coords: List of [x,y] coordinate pairs representing convex hull vertices
+        coords: List of coordinate pairs representing convex hull vertices
 
     Returns:
         String containing hexadecimal WKB representation
@@ -1541,8 +1593,8 @@ def convex_hull_coords_to_wkb(coords):
         polygon = ogr.Geometry(ogr.wkbPolygon)
         polygon.AddGeometry(ring)
 
-        # Convert to WKB and then to hex string
-        wkb_bytes = polygon.ExportToWkb()
+        # Convert to WKB (little-endian) and then to hex string
+        wkb_bytes = polygon.ExportToWkb(ogr.wkbNDR)
         return wkb_bytes.hex().upper()
 
     except Exception as e:
@@ -1789,13 +1841,14 @@ def filter_files_by_size(
     return selected_files, total_size, skipped_items
 
 
-def generate_geojsonio_url(extent_output):
+def generate_geojsonio_url(extent_output, native_order=False):
     """
     Generate a geojson.io URL for the spatial extent
-    Always uses GeoJSON format regardless of the output format requested
+    Always uses GeoJSON format with [lon, lat] coordinates per RFC 7946
 
     Args:
         extent_output: Dict containing the geoextent output with bbox data
+        native_order: If True, input is in EPSG:4326 native [lat, lon] order
 
     Returns:
         String containing the geojson.io URL, or None if no spatial extent available
@@ -1807,7 +1860,9 @@ def generate_geojsonio_url(extent_output):
     # Force conversion to GeoJSON format for geojsonio URL generation
     # This ensures that regardless of the requested output format (WKT, WKB, etc.),
     # the geojsonio URL will always display proper GeoJSON geometry
-    geojson_output = format_extent_output(extent_output, "geojson")
+    geojson_output = format_extent_output(
+        extent_output, "geojson", native_order=native_order
+    )
 
     # The format_extent_output function will return a FeatureCollection for GeoJSON format
     if geojson_output and geojson_output.get("type") == "FeatureCollection":
@@ -1824,6 +1879,10 @@ def generate_geojsonio_url(extent_output):
     # Fallback to original logic for cases where format_extent_output doesn't return FeatureCollection
     bbox = extent_output.get("bbox")
     is_convex_hull = extent_output.get("convex_hull", False)
+
+    # Swap back to [lon, lat] for GeoJSON if input is in native [lat, lon] order
+    if native_order:
+        bbox = _swap_to_geojson_order(bbox)
 
     # Convert bbox to GeoJSON format
     if (
