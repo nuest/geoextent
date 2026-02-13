@@ -63,32 +63,6 @@ class TestWorldFileSupport:
         assert result["geoextent_handler"] == "handleRaster"
 
 
-class TestWorldFileExtensions:
-    """Test documentation and awareness of world file extensions"""
-
-    def test_supported_world_file_extensions(self):
-        """Document the world file extensions that should be supported via GDAL
-
-        This test serves as documentation for supported world file extensions.
-        GDAL automatically detects these when present alongside raster files.
-        """
-        supported_extensions = {
-            ".wld": "Generic world file",
-            ".jgw": "JPEG world file",
-            ".pgw": "PNG world file",
-            ".pngw": "PNG world file (alternative)",
-            ".tfw": "TIFF world file",
-            ".tifw": "TIFF world file (alternative)",
-            ".bpw": "BMP world file",
-            ".gfw": "GIF world file",
-        }
-
-        # This test documents that these extensions are supported via GDAL
-        assert len(supported_extensions) == 8
-        assert ".pngw" in supported_extensions
-        assert ".tfw" in supported_extensions
-
-
 class TestWorldFileIntegration:
     """Integration tests with remote repositories"""
 

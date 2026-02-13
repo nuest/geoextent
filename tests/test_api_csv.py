@@ -264,53 +264,6 @@ class TestCSVGeometryColumns:
         result = extract_bbox_only("tests/testdata/csv_wkb_column.csv")
         assert_bbox_result(result, [2.0, 2.0, 19.0, 11.0])
 
-    def test_geometry_column_detection_patterns(self):
-        """Test that all geometry column name patterns are detected"""
-        import geoextent.lib.handleCSV as handleCSV
-        import re
-
-        # Test all search patterns
-        search_geometry = [
-            "(.)*geometry(.)*",
-            "(.)*geom(.)*",
-            "^wkt",
-            "wkt$",
-            "(.)*wkt(.)*",
-            "^wkb",
-            "wkb$",
-            "(.)*wkb(.)*",
-            "(.)*coordinates(.)*",
-            "(.)*coords(.)*",
-            "^coords",
-            "coords$",
-            "^coordinates",
-            "coordinates$",
-        ]
-
-        test_columns = [
-            "geometry",
-            "geom",
-            "wkt",
-            "wkb",
-            "coordinates",
-            "coords",
-            "my_geometry",
-            "data_geom",
-            "point_wkt",
-            "line_wkb",
-            "spatial_coordinates",
-            "location_coords",
-        ]
-
-        for col_name in test_columns:
-            found = False
-            for pattern in search_geometry:
-                p = re.compile(pattern, re.IGNORECASE)
-                if p.search(col_name) is not None:
-                    found = True
-                    break
-            assert found, f"Should detect geometry column: {col_name}"
-
     def test_geometry_fallback_to_coordinate_columns(self):
         """Test that extraction falls back to coordinate columns when no geometry column exists"""
         # Test with traditional lat/lon CSV that doesn't have geometry column

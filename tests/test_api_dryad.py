@@ -630,41 +630,6 @@ class TestDryadFilteringCapabilities:
         except Exception as e:
             pytest.skip(f"Network, timeout, or processing error: {e}")
 
-    def test_dryad_bulk_vs_individual_download_decision(self):
-        """Test that Dryad chooses appropriate download method based on filtering"""
-        # Test logic for when to use individual file downloads
-        # This tests the logic used in the download method
-
-        # Should use individual files when filtering is requested
-        use_individual_1 = (
-            True  # download_skip_nogeo
-            or None is not None  # max_size_bytes
-            or "ordered" != "ordered"  # max_download_method
-        )
-        assert use_individual_1 == True
-
-        use_individual_2 = (
-            False  # download_skip_nogeo
-            or 1000000 is not None  # max_size_bytes (1MB limit)
-            or "ordered" != "ordered"  # max_download_method
-        )
-        assert use_individual_2 == True
-
-        use_individual_3 = (
-            False  # download_skip_nogeo
-            or None is not None  # max_size_bytes
-            or "random" != "ordered"  # max_download_method
-        )
-        assert use_individual_3 == True
-
-        # Should use bulk download when no filtering is needed
-        use_individual_4 = (
-            False  # download_skip_nogeo
-            or None is not None  # max_size_bytes
-            or "ordered" != "ordered"  # max_download_method
-        )
-        assert use_individual_4 == False
-
     def test_dryad_combined_filtering(self):
         """Test Dryad download with both geospatial and size filtering"""
         import tempfile
