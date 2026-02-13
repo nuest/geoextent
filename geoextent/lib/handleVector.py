@@ -100,10 +100,11 @@ def checkFileSupported(filepath):
     if file.GetLayerCount() > 0:
         if driver != "CSV":
             logger.debug("File {} is supported by HandleVector module".format(filepath))
+            file = None
             return True
-    else:
-        logger.debug("File {} is NOT supported by HandleVector module".format(filepath))
-        return False
+    logger.debug("File {} is NOT supported by HandleVector module".format(filepath))
+    file = None
+    return False
 
 
 def getTemporalExtent(filepath):
@@ -181,6 +182,8 @@ def getTemporalExtent(filepath):
                     )
                     pass
 
+    datasource = None
+
     if len(datetime_list) == 0:
         logger.debug(
             "File {} do not have recognizable temporal extent".format(filepath)
@@ -224,6 +227,8 @@ def getBoundingBox(filepath):
                     layer_name
                 )
             )
+
+    datasource = None
 
     bbox_merge = hf.bbox_merge(geo_dict, filepath)
 
@@ -355,6 +360,8 @@ def getConvexHull(filepath):
                 "Error calculating convex hull for layer {}: {}".format(layer_name, e)
             )
             continue
+
+    datasource = None
 
     # For convex hull with single file, we don't need to merge - just return the first result
     if len(geo_dict) == 1:
