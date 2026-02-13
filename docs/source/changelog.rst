@@ -25,12 +25,18 @@ Changelog
   - Dynamically generated supported formats list
   - Explicitly remove temp files on cleanup (:issue:`82`)
 
+- **Bug Fixes**
+
+  - Skip layers with degenerate extent ``[0,0,0,0]`` and emit a user-visible warning instead of silently including invalid coordinates
+  - Fix resource leak for GeoPackage/SQLite-backed files (unclosed database connections)
+
 - **Improvements**
 
   - Enable parallel test execution by default using ``pytest-xdist`` (:issue:`38`)
   - Refactor CRS extraction into shared utility function
   - Harden CSV handler: force CSV GDAL driver to prevent misidentification, add extension-based pre-filtering, improve geometry column detection
   - Optimize gazetteer queries to avoid duplicate API calls for closed polygon points
+  - Suppress noisy pandas date-parsing warnings during temporal extent detection
 
 0.11.0
 ^^^^^^

@@ -121,7 +121,9 @@
       "Bash(git log:*)",
       "Bash(black:*)",
       "Bash(gdal-config:*)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(for commit in 6fc163a 97ed96f 4ae3ad3 f123a15 5cc172a 511084d 1388238)",
+      "Bash(do)"
     ],
     "deny": [],
     "ask": []
