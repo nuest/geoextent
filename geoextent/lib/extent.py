@@ -17,6 +17,7 @@ from .content_providers import Pensoft
 from .content_providers import Opara
 from .content_providers import Senckenberg
 from .content_providers import BGR
+from .content_providers import MendeleyData
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -1209,6 +1210,7 @@ def _extract_from_remote(
         BGR.BGR,  # BGR before Opara because both accept UUIDs
         Opara.Opara,
         Senckenberg.Senckenberg,
+        MendeleyData.MendeleyData,
     ]
 
     supported_by_geoextent = False

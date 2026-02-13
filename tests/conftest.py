@@ -28,6 +28,7 @@ _PROVIDER_FILES = {
     "test_api_figshare.py",
     "test_api_dryad.py",
     "test_api_bgr.py",
+    "test_api_mendeley_data.py",
     "test_external_metadata.py",
     "test_remote_single.py",
     "test_remote_multi.py",
@@ -61,6 +62,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_figshare_metadata_only_extraction",
     "test_dryad_metadata_only_extraction",
     "test_bgr_metadata_only_extraction",
+    "test_mendeley_data_metadata_only_extraction",
 }
 
 

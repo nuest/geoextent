@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 10 research data repositories. All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 11 research data repositories. All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -40,6 +40,8 @@ Quick Reference
 | TU Dresden Opara  | 10.25532/OPARA      | 10.25532/OPARA-581                    |
 +-------------------+---------------------+----------------------------------------+
 | Senckenberg       | 10.12761/sgn        | 10.12761/sgn.2018.10225               |
++-------------------+---------------------+----------------------------------------+
+| Mendeley Data     | 10.17632            | 10.17632/ybx6zp2rfp.1                 |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -327,6 +329,34 @@ Senckenberg
 - Rich taxonomic, spatial, and temporal coverage metadata
 - Metadata extraction is fast and does not require downloading data files
 - Full filtering and size limiting capabilities available when data files exist
+
+Mendeley Data
+^^^^^^^^^^^^^
+
+**Description:** Elsevier-hosted generalist research data repository and part of the NIH Generalist Repository Ecosystem Initiative (GREI). Supports sharing, discovering, and citing research data across all disciplines with DOI assignment.
+
+**Website:** https://data.mendeley.com/
+
+**DOI Prefix:** ``10.17632``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.17632/ybx6zp2rfp.1``
+- DOI URL: ``https://doi.org/10.17632/ybx6zp2rfp.1``
+- Mendeley Data URL: ``https://data.mendeley.com/datasets/ybx6zp2rfp/1``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b 10.17632/ybx6zp2rfp.1
+
+**Special Notes:**
+
+- Uses unauthenticated public API (no OAuth tokens required)
+- No geospatial metadata available; requires downloading data files for extent extraction
+- Full support for download size limiting and geospatial file filtering
+- Parallel downloads supported
 
 Usage Examples
 --------------

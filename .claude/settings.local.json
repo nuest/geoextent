@@ -145,7 +145,11 @@
       "Bash(git -C /home/daniel/git/geoextent status)",
       "Bash(git -C /home/daniel/git/geoextent log v0.10.0..v0.11.0 --oneline)",
       "WebFetch(domain:setuptools-scm.readthedocs.io)",
-      "WebFetch(domain:packaging-guide.openastronomy.org)"
+      "WebFetch(domain:packaging-guide.openastronomy.org)",
+      "WebFetch(domain:data.mendeley.com)",
+      "WebFetch(domain:dev.mendeley.com)",
+      "Bash(__NEW_LINE_075fcdbf72eb0f03__ echo \"=== /datasets/id \\(no version\\) ===\")",
+      "WebFetch(domain:geojson.io)"
     ],
     "deny": [],
     "ask": []

@@ -2,6 +2,13 @@
 Changelog
 =========
 
+Unreleased
+^^^^^^^^^^
+
+- **New Content Providers**
+
+  - Add Mendeley Data as content provider (:issue:`58`)
+
 0.12.0
 ^^^^^^
 
