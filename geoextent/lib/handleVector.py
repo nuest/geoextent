@@ -214,6 +214,14 @@ def getBoundingBox(filepath):
         # Extract CRS information using shared function
         crs, crs_wkt = _extract_crs_from_layer(layer, layer_name, "transformation")
 
+        if bbox == null_island:
+            logger.warning(
+                "Skipping layer '{}' in {}: degenerate extent [0,0,0,0] (possibly malformed geometry)".format(
+                    layer_name, filepath
+                )
+            )
+            continue
+
         geo_dict[layer_name] = {"bbox": bbox}
 
         if crs:
@@ -221,9 +229,9 @@ def getBoundingBox(filepath):
         elif crs_wkt:
             geo_dict[layer_name]["crs_wkt"] = crs_wkt
 
-        if bbox == null_island or (crs is None and crs_wkt is None):
+        if crs is None and crs_wkt is None:
             logger.debug(
-                "Layer {} does not have identifiable geographic extent. CRS may be missing.".format(
+                "Layer {} does not have identifiable CRS. Extent may be unreliable.".format(
                     layer_name
                 )
             )

@@ -604,6 +604,10 @@ def fromFile(
         )
         raise Exception("No extraction options enabled!")
 
+    if os.path.isdir(filepath):
+        logger.info("{} is a directory, not a file".format(filepath))
+        return None
+
     file_format = os.path.splitext(filepath)[1][1:]
 
     usedModule = None

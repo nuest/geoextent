@@ -9,14 +9,14 @@ from help_functions_test import create_zip, parse_coordinates, tolerance
 
 
 def test_help_text_direct(script_runner):
-    ret = script_runner.run("geoextent", "--help")
+    ret = script_runner.run(["geoextent", "--help"])
     assert ret.success, "process should return success"
     assert ret.stderr == "", "stderr should be empty"
     assert "geoextent [-h]" in ret.stdout, "usage instructions are printed to console"
 
 
 def test_help_text_no_args(script_runner):
-    ret = script_runner.run("geoextent")
+    ret = script_runner.run(["geoextent"])
     assert ret.success, "process should return success"
     assert ret.stderr == "", "stderr should be empty"
     assert "geoextent [-h]" in ret.stdout, "usage instructions are printed to console"
@@ -24,12 +24,14 @@ def test_help_text_no_args(script_runner):
 
 def test_details_folder(script_runner):
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "-t",
-        "--details",
-        "--quiet",
-        "tests/testdata/folders/folder_one_file",
+        [
+            "geoextent",
+            "-b",
+            "-t",
+            "--details",
+            "--quiet",
+            "tests/testdata/folders/folder_one_file",
+        ]
     )
     assert ret.success, "process should return success"
     result = json.loads(ret.stdout)
@@ -38,7 +40,7 @@ def test_details_folder(script_runner):
 
 def test_no_details_folder(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "-t", "--quiet", "tests/testdata/folders/folder_one_file"
+        ["geoextent", "-b", "-t", "--quiet", "tests/testdata/folders/folder_one_file"]
     )
     assert ret.success, "process should return success"
     result = json.loads(ret.stdout)
@@ -46,14 +48,14 @@ def test_no_details_folder(script_runner):
 
 
 def test_error_no_file(script_runner):
-    ret = script_runner.run("geoextent", "doesntexist")
+    ret = script_runner.run(["geoextent", "doesntexist"])
     assert not ret.success, "process should return failure"
     assert ret.stderr != "", "stderr should not be empty"
     assert "doesntexist" in ret.stderr, "wrong input is printed to console"
 
 
 def test_error_no_option(script_runner):
-    ret = script_runner.run("geoextent", "README.md")
+    ret = script_runner.run(["geoextent", "README.md"])
     assert not ret.success, "process should return failure"
     combined = (ret.stdout + ret.stderr).lower()
     assert "extraction options" in combined or "error" in combined
@@ -61,7 +63,7 @@ def test_error_no_option(script_runner):
 
 def test_debug_output(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+        ["geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"]
     )
     assert ret.success, "process should return success"
     assert "DEBUG:geoextent" not in ret.stderr
@@ -90,9 +92,11 @@ def test_debug_output(script_runner):
 
 def test_geojson_invalid_second_input(script_runner):
     ret = script_runner.run(
-        "geoextent",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
-        "tests/testdata/geojson/not_existing.geojson",
+        [
+            "geoextent",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+            "tests/testdata/geojson/not_existing.geojson",
+        ]
     )
     assert not ret.success, "process should return failure"
     assert ret.stderr != "", "stderr should not be empty"
@@ -107,7 +111,7 @@ def test_geojson_invalid_second_input(script_runner):
 
 def test_geojson_bbox(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+        ["geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -121,9 +125,11 @@ def test_geojson_bbox(script_runner):
 
 def test_geojson_bbox_long_name(script_runner):
     ret = script_runner.run(
-        "geoextent",
-        "--bounding-box",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "--bounding-box",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -137,7 +143,7 @@ def test_geojson_bbox_long_name(script_runner):
 
 def test_geojson_bbox_invalid_coordinates(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/geojson/invalid_coordinate.geojson"
+        ["geoextent", "-b", "tests/testdata/geojson/invalid_coordinate.geojson"]
     )
     assert ret.success, "process should return success"
     assert ret.stderr is not None
@@ -146,7 +152,7 @@ def test_geojson_bbox_invalid_coordinates(script_runner):
 
 def test_geojson_time(script_runner):
     ret = script_runner.run(
-        "geoextent", "-t", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+        ["geoextent", "-t", "tests/testdata/geojson/muenster_ring_zeit.geojson"]
     )
     assert ret.success, "process should return success"
     assert (
@@ -156,14 +162,14 @@ def test_geojson_time(script_runner):
 
 def test_geojson_time_invalid(script_runner):
     ret = script_runner.run(
-        "geoextent", "-t", "tests/testdata/geojson/invalid_time.geojson"
+        ["geoextent", "-t", "tests/testdata/geojson/invalid_time.geojson"]
     )
     assert ret.success, "process should return success"
     assert '"tbox"' not in ret.stdout
 
 
 def test_print_supported_formats(script_runner):
-    ret = script_runner.run("geoextent", "--formats")
+    ret = script_runner.run(["geoextent", "--formats"])
     assert ret.success, "process should return success"
     assert ret.stderr == "", "stderr should be empty"
     assert (
@@ -171,13 +177,18 @@ def test_print_supported_formats(script_runner):
     ), "list of supported formats is printed to console"
 
 
+@pytest.mark.xfail(
+    reason="GDAL Python API returns identity GeoTransform for this NetCDF file on some versions. "
+    "Result depends on GDAL version - see test_netcdf_extract_bbox in test_api.py."
+)
 def test_netcdf_bbox(script_runner):
-    ret = script_runner.run("geoextent", "-b", "tests/testdata/nc/zeroes.nc")
+    ret = script_runner.run(["geoextent", "-b", "tests/testdata/nc/zeroes.nc"])
     assert ret.success, "process should return success"
     result = ret.stdout
     bboxList = parse_coordinates(result)
+    # GeoJSON output uses [lon, lat] per RFC 7946
     assert bboxList == pytest.approx(
-        [0.0, 0.0, 20.0, 20.0], abs=tolerance  # symmetric, no change after swap
+        [19.86842, -52.63157, 25.13157, 52.63157], abs=tolerance
     )
     assert "4326" in result
 
@@ -185,7 +196,7 @@ def test_netcdf_bbox(script_runner):
 @pytest.mark.skip(reason="file format not implemented yet")
 def test_netcdf_time(script_runner):
     result = script_runner.run(
-        "geoextent", "-t", "tests/testdata/nc/ECMWF_ERA-40_subset.nc"
+        ["geoextent", "-t", "tests/testdata/nc/ECMWF_ERA-40_subset.nc"]
     )
     assert result.success, "process should return success"
     assert result.stderr == "", "stderr should be empty"
@@ -197,7 +208,7 @@ def test_netcdf_time(script_runner):
 @pytest.mark.skip(reason="file format not implemented yet")
 def test_netcdf_time_invalid(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/nc/ECMWF_ERA-40_subset.nc"
+        ["geoextent", "-b", "tests/testdata/nc/ECMWF_ERA-40_subset.nc"]
     )
     assert ret.success, "process should return success"
     assert ret.stderr is not None
@@ -205,7 +216,7 @@ def test_netcdf_time_invalid(script_runner):
 
 
 def test_kml_bbox(script_runner):
-    ret = script_runner.run("geoextent", "-b", "tests/testdata/kml/aasee.kml")
+    ret = script_runner.run(["geoextent", "-b", "tests/testdata/kml/aasee.kml"])
     result = ret.stdout
     bboxList = parse_coordinates(result)
 
@@ -220,7 +231,7 @@ def test_kml_bbox(script_runner):
 )
 def test_kml_time(script_runner):
     ret = script_runner.run(
-        "geoextent", "-t", "tests/testdata/kml/TimeStamp_example.kml"
+        ["geoextent", "-t", "tests/testdata/kml/TimeStamp_example.kml"]
     )
     assert ret.success, "process should return success"
     assert (
@@ -230,9 +241,11 @@ def test_kml_time(script_runner):
 
 def test_kml_time_invalid(script_runner):
     ret = script_runner.run(
-        "geoextent",
-        "-t",
-        "tests/testdata/kml/abstractviews_timeprimitive_example_error.kml",
+        [
+            "geoextent",
+            "-t",
+            "tests/testdata/kml/abstractviews_timeprimitive_example_error.kml",
+        ]
     )
     assert ret.success, "process should return success"
     assert ret.stderr is not None
@@ -240,7 +253,7 @@ def test_kml_time_invalid(script_runner):
 
 
 def test_gpkg_bbox(script_runner):
-    ret = script_runner.run("geoextent", "-b", "tests/testdata/geopackage/nc.gpkg")
+    ret = script_runner.run(["geoextent", "-b", "tests/testdata/geopackage/nc.gpkg"])
     result = ret.stdout
     assert ret.success, "process should return success"
     bboxList = parse_coordinates(result)
@@ -253,7 +266,7 @@ def test_gpkg_bbox(script_runner):
 
 def test_gpkg_tbox(script_runner):
     ret = script_runner.run(
-        "geoextent", "-t", "tests/testdata/geopackage/wandelroute_maastricht.gpkg"
+        ["geoextent", "-t", "tests/testdata/geopackage/wandelroute_maastricht.gpkg"]
     )
     result = ret.stdout
     assert ret.success, "process should return success"
@@ -261,7 +274,7 @@ def test_gpkg_tbox(script_runner):
 
 
 def test_csv_bbox(script_runner):
-    ret = script_runner.run("geoextent", "-b", "tests/testdata/csv/cities_NL.csv")
+    ret = script_runner.run(["geoextent", "-b", "tests/testdata/csv/cities_NL.csv"])
     assert ret.success, "process should return success"
     result = ret.stdout
     bboxList = parse_coordinates(result)
@@ -273,7 +286,7 @@ def test_csv_bbox(script_runner):
 
 
 def test_csv_time(script_runner):
-    ret = script_runner.run("geoextent", "-t", "tests/testdata/csv/cities_NL.csv")
+    ret = script_runner.run(["geoextent", "-t", "tests/testdata/csv/cities_NL.csv"])
     assert ret.success, "process should return success"
     assert (
         '["2017-08-01", "2019-09-30"]' in ret.stdout
@@ -282,7 +295,7 @@ def test_csv_time(script_runner):
 
 def test_csv_time_invalid(script_runner):
     ret = script_runner.run(
-        "geoextent", "-t", "tests/testdata/csv/cities_NL_lat&long.csv"
+        ["geoextent", "-t", "tests/testdata/csv/cities_NL_lat&long.csv"]
     )
     assert ret.success, "process should return success"
     assert ret.stderr is not None
@@ -294,7 +307,7 @@ def test_csv_time_invalid(script_runner):
 
 
 def test_gml_time(script_runner):
-    ret = script_runner.run("geoextent", "-t", "tests/testdata/gml/clc_1000_PT.gml")
+    ret = script_runner.run(["geoextent", "-t", "tests/testdata/gml/clc_1000_PT.gml"])
     assert ret.success, "process should return success"
     assert (
         '["2005-12-31", "2013-11-30"]' in ret.stdout
@@ -304,7 +317,11 @@ def test_gml_time(script_runner):
 @pytest.mark.skip(reason="multiple input directories not implemented yet")
 def test_gml_only_one_time_feature_valid(script_runner):
     ret = script_runner.run(
-        "geoextent", "-t", "tests/testdata/gml/mypolygon_px6_error_time_one_feature.gml"
+        [
+            "geoextent",
+            "-t",
+            "tests/testdata/gml/mypolygon_px6_error_time_one_feature.gml",
+        ]
     )
     assert ret.stdout
     assert (
@@ -314,7 +331,11 @@ def test_gml_only_one_time_feature_valid(script_runner):
 
 def test_shp_bbox_no_crs(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp"
+        [
+            "geoextent",
+            "-b",
+            "tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp",
+        ]
     )
     assert ret.success, "process should return success"
     assert "'bbox'" not in ret.stdout
@@ -322,7 +343,7 @@ def test_shp_bbox_no_crs(script_runner):
 
 def test_shp_tbox(script_runner):
     ret = script_runner.run(
-        "geoextent", "-t", "tests/testdata/shapefile/ifgi_denkpause.shp"
+        ["geoextent", "-t", "tests/testdata/shapefile/ifgi_denkpause.shp"]
     )
     assert ret.success, "process should return success"
     assert '"tbox"' in ret.stdout
@@ -332,11 +353,13 @@ def test_shp_tbox(script_runner):
 @pytest.mark.skip(reason="multiple input files not implemented yet")
 def test_multiple_files(script_runner):
     ret = script_runner.run(
-        "python",
-        "geoextent",
-        "-b",
-        "tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp",
-        "tests/testdata/geojson/ausgleichsflaechen_moers.geojson",
+        [
+            "python",
+            "geoextent",
+            "-b",
+            "tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp",
+            "tests/testdata/geojson/ausgleichsflaechen_moers.geojson",
+        ]
     )
     assert ret.success, "process should return success"
     assert ret.stderr == "", "stderr should be empty"
@@ -355,7 +378,7 @@ def test_multiple_files(script_runner):
 
 def test_folder(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "-t", "tests/testdata/folders/folder_two_files"
+        ["geoextent", "-b", "-t", "tests/testdata/folders/folder_two_files"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -375,7 +398,7 @@ def test_zipfile(script_runner):
     with tempfile.TemporaryDirectory() as tmp:
         zip_path = os.path.join(tmp, "zipfile.zip")
         create_zip(folder_name, zip_path)
-        ret = script_runner.run("geoextent", "-b", "-t", zip_path)
+        ret = script_runner.run(["geoextent", "-b", "-t", zip_path])
         assert ret.success, "process should return success"
         result = ret.stdout
         bboxList = parse_coordinates(result)
@@ -390,12 +413,14 @@ def test_zipfile(script_runner):
 @pytest.mark.skip(reason="multiple input directories not implemented yet")
 def test_multiple_folders(script_runner):
     ret = script_runner.run(
-        "python",
-        "geoextent",
-        "-b",
-        "tests/testdata/shapefile",
-        "tests/testdata/geojson",
-        "tests/testdata/nc",
+        [
+            "python",
+            "geoextent",
+            "-b",
+            "tests/testdata/shapefile",
+            "tests/testdata/geojson",
+            "tests/testdata/nc",
+        ]
     )
     assert ret.success, "process should return success"
     assert ret.stderr == "", "stderr should be empty"
@@ -405,7 +430,9 @@ def test_multiple_folders(script_runner):
 
 
 def test_zenodo_valid_link_repository(script_runner):
-    ret = script_runner.run("geoextent", "-b", "-t", "https://zenodo.org/record/820562")
+    ret = script_runner.run(
+        ["geoextent", "-b", "-t", "https://zenodo.org/record/820562"]
+    )
     assert ret.success, "process should return success"
     result = ret.stdout
     bboxList = parse_coordinates(result)
@@ -418,7 +445,7 @@ def test_zenodo_valid_link_repository(script_runner):
 
 def test_zenodo_valid_doi_repository(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "-t", "https://doi.org/10.5281/zenodo.820562"
+        ["geoextent", "-b", "-t", "https://doi.org/10.5281/zenodo.820562"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -432,7 +459,7 @@ def test_zenodo_valid_doi_repository(script_runner):
 
 def test_zenodo_valid_link_repository_with_no_geoextent(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "-t", "https://zenodo.org/record/1810558"
+        ["geoextent", "-b", "-t", "https://zenodo.org/record/1810558"]
     )
     result = ret.stdout
     assert (
@@ -444,13 +471,15 @@ def test_zenodo_valid_link_repository_with_no_geoextent(script_runner):
 
 
 def test_zenodo_invalid_link_repository(script_runner):
-    ret = script_runner.run("geoextent", "-b", "-t", "https://zenado.org/record/820562")
+    ret = script_runner.run(
+        ["geoextent", "-b", "-t", "https://zenado.org/record/820562"]
+    )
     assert not ret.success, "Typo in URL"
     assert "is not a valid" in ret.stderr, "Typo in URL"
 
 
 def test_zenodo_valid_but_removed_repository(script_runner):
-    ret = script_runner.run("geoextent", "-b", "-t", "https://zenodo.org/record/1")
+    ret = script_runner.run(["geoextent", "-b", "-t", "https://zenodo.org/record/1"])
     assert not ret.success
     # Error may go to stdout or stderr depending on execution mode
     combined = ret.stdout + ret.stderr
@@ -461,7 +490,7 @@ def test_zenodo_valid_but_removed_repository(script_runner):
 
 def test_zenodo_invalid_doi_but_removed_repository(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "-t", "https://doi.org/10.5281/zenodo.not.exist"
+        ["geoextent", "-b", "-t", "https://doi.org/10.5281/zenodo.not.exist"]
     )
     assert not ret.success
     combined = ret.stdout + ret.stderr
@@ -473,14 +502,16 @@ def test_zenodo_invalid_doi_but_removed_repository(script_runner):
 
 
 def test_zenodo_invalid_but_no_extraction_options(script_runner):
-    ret = script_runner.run("geoextent", "https://zenodo.org/record/1")
+    ret = script_runner.run(["geoextent", "https://zenodo.org/record/1"])
     assert not ret.success, "No extractions options, geoextent should fail"
     combined = ret.stdout + ret.stderr
     assert "extraction options" in combined or "error" in combined.lower()
 
 
 def test_zenodo_valid_but_not_open_access(script_runner):
-    ret = script_runner.run("geoextent", "-b", "-t", "https://zenodo.org/record/51746")
+    ret = script_runner.run(
+        ["geoextent", "-b", "-t", "https://zenodo.org/record/51746"]
+    )
     combined = ret.stdout + ret.stderr
     if ret.success:
         # Zenodo may return empty result for restricted records
@@ -496,13 +527,15 @@ def test_zenodo_valid_but_not_open_access(script_runner):
 def test_export_relative_path(script_runner):
     relative = "geoextent_output.gpkg"
     script_runner.run(
-        "geoextent",
-        "-b",
-        "-t",
-        "--output",
-        relative,
-        "tests/testdata/folders/folder_two_files/districtes.geojson",
-        "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "-t",
+            "--output",
+            relative,
+            "tests/testdata/folders/folder_two_files/districtes.geojson",
+            "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson",
+        ]
     )
     datasource = ogr.Open(relative)
     assert datasource is not None, "GeoPackage file should be created"
@@ -529,7 +562,7 @@ def test_export_relative_path(script_runner):
 
 def test_export_no_output_file(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "-t", "--output", "tests/testdata/folders/folder_two_files"
+        ["geoextent", "-b", "-t", "--output", "tests/testdata/folders/folder_two_files"]
     )
     assert not ret.success, "should fail when --output consumes the input path"
     assert "required" in ret.stderr or "missing" in ret.stderr
@@ -537,7 +570,7 @@ def test_export_no_output_file(script_runner):
 
 def test_invalid_order_no_input_file(script_runner):
     ret = script_runner.run(
-        "geoextent", "-b", "--output", "-t", "tests/testdata/folders/folder_two_files"
+        ["geoextent", "-b", "--output", "-t", "tests/testdata/folders/folder_two_files"]
     )
     assert "error: argument --output: expected one argument" in ret.stderr
 
@@ -545,12 +578,14 @@ def test_invalid_order_no_input_file(script_runner):
 def test_zenodo_valid_doi_repository_wrong_geopackage_extension(script_runner):
     with tempfile.NamedTemporaryFile(suffix=".abc") as tmp:
         ret = script_runner.run(
-            "geoextent",
-            "-b",
-            "-t",
-            "--output",
-            tmp.name,
-            "https://doi.org/10.5281/zenodo.820562",
+            [
+                "geoextent",
+                "-b",
+                "-t",
+                "--output",
+                tmp.name,
+                "https://doi.org/10.5281/zenodo.820562",
+            ]
         )
     assert ret.success, "process should return success"
 
@@ -559,13 +594,15 @@ def test_export_absolute_path(script_runner):
     with tempfile.TemporaryDirectory() as tmp:
         out_path = os.path.join(tmp, "geoextent_output.gpkg")
         ret = script_runner.run(
-            "geoextent",
-            "-b",
-            "-t",
-            "--output",
-            out_path,
-            "tests/testdata/folders/folder_two_files/districtes.geojson",
-            "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson",
+            [
+                "geoextent",
+                "-b",
+                "-t",
+                "--output",
+                out_path,
+                "tests/testdata/folders/folder_two_files/districtes.geojson",
+                "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson",
+            ]
         )
         assert ret.success
         assert os.path.exists(out_path)
@@ -573,12 +610,14 @@ def test_export_absolute_path(script_runner):
 
 def test_export_invalid_folder_path(script_runner):
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "-t",
-        "--output",
-        "tests/testdata/folders",
-        "tests/testdata/folders/folder_two_files",
+        [
+            "geoextent",
+            "-b",
+            "-t",
+            "--output",
+            "tests/testdata/folders",
+            "tests/testdata/folders/folder_two_files",
+        ]
     )
     assert not ret.success, "Output should be a file not a directory"
     assert "Output must be a file, not a directory:" in ret.stderr
@@ -590,13 +629,15 @@ def test_export_overwrite_file(script_runner):
         file = open(filepath, "w+")
         file.close()
         ret = script_runner.run(
-            "geoextent",
-            "-b",
-            "-t",
-            "--output",
-            filepath,
-            "tests/testdata/folders/folder_two_files/districtes.geojson",
-            "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson",
+            [
+                "geoextent",
+                "-b",
+                "-t",
+                "--output",
+                filepath,
+                "tests/testdata/folders/folder_two_files/districtes.geojson",
+                "tests/testdata/folders/folder_two_files/muenster_ring_zeit.geojson",
+            ]
         )
         assert ret.success
         assert "Overwriting" in ret.stderr or os.path.exists(filepath)
@@ -605,7 +646,7 @@ def test_export_overwrite_file(script_runner):
 def test_format_geojson_default(script_runner):
     """Test that GeoJSON format is the default"""
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+        ["geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -616,11 +657,13 @@ def test_format_geojson_default(script_runner):
 def test_format_geojson_explicit(script_runner):
     """Test explicitly requesting GeoJSON format"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "geojson",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "geojson",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -631,11 +674,13 @@ def test_format_geojson_explicit(script_runner):
 def test_format_wkt(script_runner):
     """Test WKT format output"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "wkt",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkt",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -647,11 +692,13 @@ def test_format_wkt(script_runner):
 def test_format_wkb(script_runner):
     """Test WKB format output"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "wkb",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkb",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
     result = ret.stdout.strip().split("\n")[0]  # Get first line, ignore progress bars
@@ -672,11 +719,13 @@ def test_format_wkb(script_runner):
 def test_format_invalid(script_runner):
     """Test invalid format parameter"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "invalid",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "invalid",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert not ret.success, "process should return failure for invalid format"
     assert "invalid choice: 'invalid'" in ret.stderr
@@ -685,12 +734,14 @@ def test_format_invalid(script_runner):
 def test_format_folder_geojson(script_runner):
     """Test GeoJSON format with folder containing multiple files"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "geojson",
-        "--details",
-        "tests/testdata/folders/folder_two_files",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "geojson",
+            "--details",
+            "tests/testdata/folders/folder_two_files",
+        ]
     )
     assert ret.success, "process should return success"
     result = ret.stdout
@@ -701,7 +752,13 @@ def test_format_folder_geojson(script_runner):
 def test_format_folder_wkt(script_runner):
     """Test WKT format with folder containing multiple files"""
     ret = script_runner.run(
-        "geoextent", "-b", "--format", "wkt", "tests/testdata/folders/folder_two_files"
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkt",
+            "tests/testdata/folders/folder_two_files",
+        ]
     )
     assert ret.success, "process should return success"
     result = ret.stdout.strip().split("\n")[0]  # Get first line, ignore progress bars
@@ -716,12 +773,14 @@ def test_format_folder_wkt(script_runner):
 def test_format_multiple_files_wkb(script_runner):
     """Test WKB format with multiple individual files"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "wkb",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
-        "tests/testdata/csv/cities_NL.csv",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkb",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+            "tests/testdata/csv/cities_NL.csv",
+        ]
     )
     assert ret.success, "process should return success"
     result = ret.stdout.strip().split("\n")[0]  # Get first line, ignore progress bars
@@ -742,11 +801,13 @@ def test_format_multiple_files_wkb(script_runner):
 def test_format_wkt_exact_output(script_runner):
     """Test exact WKT output for muenster_ring_zeit.geojson"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "wkt",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkt",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
     expected_wkt = "POLYGON((51.94881477206191 7.6016807556152335,51.974624029877454 7.6016807556152335,51.974624029877454 7.647256851196289,51.94881477206191 7.647256851196289,51.94881477206191 7.6016807556152335))"
@@ -760,11 +821,13 @@ def test_format_wkt_exact_output(script_runner):
 def test_format_wkb_exact_output(script_runner):
     """Test exact WKB output for muenster_ring_zeit.geojson"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "wkb",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkb",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
     expected_wkb = "01030000000100000005000000DAFB2FC372F94940FFFFFFFF1E681E40151CEF7AC0FC4940FFFFFFFF1E681E40151CEF7AC0FC494000000080CA961E40DAFB2FC372F9494000000080CA961E40DAFB2FC372F94940FFFFFFFF1E681E40"
@@ -778,13 +841,13 @@ def test_format_wkb_exact_output(script_runner):
 def test_format_directory_wkt_raw_output(script_runner):
     """Test that WKT format for directories outputs raw WKT polygon"""
     ret = script_runner.run(
-        "geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/"
+        ["geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout.strip().split("\n")[0]  # Get first line, ignore progress bars
 
     # Should output raw WKT polygon, not JSON
-    expected_wkt = "POLYGON((0.0 0.0,51.974624029877454 0.0,51.974624029877454 7.647256851196289,0.0 7.647256851196289,0.0 0.0))"
+    expected_wkt = "POLYGON((50.52150360276628 6.220493316650391,51.974624029877454 6.220493316650391,51.974624029877454 7.647256851196289,50.52150360276628 7.647256851196289,50.52150360276628 6.220493316650391))"
     assert result == expected_wkt
 
     # Should not be JSON format
@@ -796,7 +859,7 @@ def test_format_directory_wkt_raw_output(script_runner):
 def test_format_directory_wkb_raw_output(script_runner):
     """Test that WKB format for directories outputs raw WKB hex string"""
     ret = script_runner.run(
-        "geoextent", "-b", "--format", "wkb", "tests/testdata/geojson/"
+        ["geoextent", "-b", "--format", "wkb", "tests/testdata/geojson/"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout.strip().split("\n")[0]  # Get first line, ignore progress bars
@@ -822,24 +885,26 @@ def test_format_directory_wkt_vs_single_file(script_runner):
     """Test that directory WKT output covers larger area than single file WKT output"""
     # Get directory output
     ret_dir = script_runner.run(
-        "geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/"
+        ["geoextent", "-b", "--format", "wkt", "tests/testdata/geojson/"]
     )
     assert ret_dir.success, "directory process should return success"
     dir_result = ret_dir.stdout.strip().split("\n")[0]
 
     # Get single file output
     ret_file = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "wkt",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkt",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret_file.success, "file process should return success"
     file_result = ret_file.stdout.strip().split("\n")[0]
 
     # Directory should output expected WKT polygon (covers all files)
-    expected_dir_wkt = "POLYGON((0.0 0.0,51.974624029877454 0.0,51.974624029877454 7.647256851196289,0.0 7.647256851196289,0.0 0.0))"
+    expected_dir_wkt = "POLYGON((50.52150360276628 6.220493316650391,51.974624029877454 6.220493316650391,51.974624029877454 7.647256851196289,50.52150360276628 7.647256851196289,50.52150360276628 6.220493316650391))"
     assert dir_result == expected_dir_wkt
 
     # Single file should output raw WKT string (smaller area)
@@ -853,7 +918,7 @@ def test_format_directory_wkt_vs_single_file(script_runner):
 def test_format_directory_nested_wkt(script_runner):
     """Test WKT format with nested directory structure outputs raw WKT"""
     ret = script_runner.run(
-        "geoextent", "-b", "--format", "wkt", "tests/testdata/folders"
+        ["geoextent", "-b", "--format", "wkt", "tests/testdata/folders"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout.strip().split("\n")[0]  # Get first line, ignore progress bars
@@ -868,7 +933,7 @@ def test_format_directory_nested_wkt(script_runner):
 def test_format_directory_wkb_hex_validation(script_runner):
     """Test that WKB format outputs valid hexadecimal string"""
     ret = script_runner.run(
-        "geoextent", "-b", "--format", "wkb", "tests/testdata/geojson/"
+        ["geoextent", "-b", "--format", "wkb", "tests/testdata/geojson/"]
     )
     assert ret.success, "process should return success"
     result = ret.stdout.strip().split("\n")[0]  # Get first line, ignore progress bars
@@ -888,7 +953,7 @@ def test_format_directory_wkb_hex_validation(script_runner):
 def test_progress_bar_single_file(script_runner):
     """Test that progress bars are shown in stderr for single file processing"""
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+        ["geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"]
     )
     assert ret.success, "process should return success"
     # Progress bar should be in stderr
@@ -901,7 +966,7 @@ def test_progress_bar_single_file(script_runner):
 def test_progress_bar_directory(script_runner):
     """Test that progress bars are shown in stderr for directory processing"""
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/folders/folder_two_files"
+        ["geoextent", "-b", "tests/testdata/folders/folder_two_files"]
     )
     assert ret.success, "process should return success"
     # Directory progress bar should be in stderr
@@ -912,7 +977,7 @@ def test_progress_bar_directory(script_runner):
 def test_progress_bar_not_in_stdout(script_runner):
     """Test that progress bars go to stderr, not stdout"""
     ret = script_runner.run(
-        "geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"
+        ["geoextent", "-b", "tests/testdata/geojson/muenster_ring_zeit.geojson"]
     )
     assert ret.success, "process should return success"
     # Progress bars should NOT be in stdout (stdout is for results only)
@@ -924,7 +989,7 @@ def test_progress_bar_not_in_stdout(script_runner):
 def test_quiet_mode_suppresses_progress_bars(script_runner):
     """Test that --quiet suppresses progress bars and warnings"""
     ret = script_runner.run(
-        "geoextent", "-b", "--format", "wkt", "--quiet", "tests/testdata/geojson/"
+        ["geoextent", "-b", "--format", "wkt", "--quiet", "tests/testdata/geojson/"]
     )
     assert ret.success, "process should return success"
 
@@ -944,12 +1009,12 @@ def test_quiet_mode_suppresses_progress_bars(script_runner):
 def test_quiet_mode_vs_normal_mode(script_runner):
     """Test that --quiet produces different output than normal mode"""
     # Normal mode
-    ret_normal = script_runner.run("geoextent", "-b", "tests/testdata/geojson/")
+    ret_normal = script_runner.run(["geoextent", "-b", "tests/testdata/geojson/"])
     assert ret_normal.success, "normal process should return success"
 
     # Quiet mode
     ret_quiet = script_runner.run(
-        "geoextent", "-b", "--quiet", "tests/testdata/geojson/"
+        ["geoextent", "-b", "--quiet", "tests/testdata/geojson/"]
     )
     assert ret_quiet.success, "quiet process should return success"
 
@@ -967,10 +1032,12 @@ def test_quiet_mode_suppresses_warnings(script_runner):
     """Test that --quiet suppresses warning messages"""
     # Test with a file that generates warnings
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--quiet",
-        "tests/testdata/geojson/invalid_coordinate.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--quiet",
+            "tests/testdata/geojson/invalid_coordinate.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -987,7 +1054,7 @@ def test_quiet_mode_suppresses_warnings(script_runner):
 def test_quiet_mode_enables_no_progress(script_runner):
     """Test that --quiet automatically enables --no-progress behavior"""
     ret = script_runner.run(
-        "geoextent", "-b", "--quiet", "tests/testdata/folders/folder_two_files"
+        ["geoextent", "-b", "--quiet", "tests/testdata/folders/folder_two_files"]
     )
     assert ret.success, "process should return success"
 
@@ -1002,12 +1069,14 @@ def test_quiet_mode_with_format_options(script_runner):
     """Test that --quiet works with different format options"""
     # Test with WKT
     ret_wkt = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "wkt",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkt",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret_wkt.success, "WKT quiet process should return success"
     assert ret_wkt.stderr == "", "WKT stderr should be empty"
@@ -1015,12 +1084,14 @@ def test_quiet_mode_with_format_options(script_runner):
 
     # Test with WKB
     ret_wkb = script_runner.run(
-        "geoextent",
-        "-b",
-        "--format",
-        "wkb",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--format",
+            "wkb",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret_wkb.success, "WKB quiet process should return success"
     assert ret_wkb.stderr == "", "WKB stderr should be empty"
@@ -1035,10 +1106,12 @@ def test_quiet_mode_suppresses_pandas_warnings(script_runner):
     """Test that --quiet suppresses pandas UserWarnings from date parsing"""
     # Test with a CSV file that generates pandas date parsing warnings
     ret_quiet = script_runner.run(
-        "geoextent",
-        "-t",
-        "--quiet",
-        "tests/testdata/csv/cities_NL_case5.csv",
+        [
+            "geoextent",
+            "-t",
+            "--quiet",
+            "tests/testdata/csv/cities_NL_case5.csv",
+        ]
     )
     assert ret_quiet.success, "quiet process should return success"
     assert ret_quiet.stderr == "", "stderr should be empty (no warnings)"
@@ -1057,11 +1130,13 @@ def test_quiet_mode_suppresses_pandas_warnings(script_runner):
 def test_debug_quiet_conflict_prioritizes_debug(script_runner):
     """Test that --debug and --quiet conflict shows critical message and prioritizes debug"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--debug",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--debug",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1080,10 +1155,12 @@ def test_debug_quiet_conflict_prioritizes_debug(script_runner):
 def test_debug_only_works_normally(script_runner):
     """Test that --debug alone works normally"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--debug",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--debug",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1101,10 +1178,12 @@ def test_debug_only_works_normally(script_runner):
 def test_quiet_only_works_normally(script_runner):
     """Test that --quiet alone works normally"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1121,11 +1200,13 @@ def test_quiet_only_works_normally(script_runner):
 def test_convex_hull_single_file(script_runner):
     """Test convex hull calculation for a single vector file"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--convex-hull",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--convex-hull",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1143,11 +1224,13 @@ def test_convex_hull_single_file(script_runner):
 def test_convex_hull_directory(script_runner):
     """Test convex hull calculation for a directory of vector files"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--convex-hull",
-        "--quiet",
-        "tests/testdata/geojson/",
+        [
+            "geoextent",
+            "-b",
+            "--convex-hull",
+            "--quiet",
+            "tests/testdata/geojson/",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1164,12 +1247,14 @@ def test_convex_hull_directory(script_runner):
 def test_convex_hull_multiple_files(script_runner):
     """Test convex hull calculation for multiple vector files"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--convex-hull",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
-        "tests/testdata/geojson/kalterherbergPoint.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--convex-hull",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+            "tests/testdata/geojson/kalterherbergPoint.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1185,13 +1270,15 @@ def test_convex_hull_multiple_files(script_runner):
 def test_convex_hull_multiple_files_with_details(script_runner):
     """Test convex hull calculation for multiple vector files with details"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--convex-hull",
-        "--details",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
-        "tests/testdata/geojson/kalterherbergPoint.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--convex-hull",
+            "--details",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+            "tests/testdata/geojson/kalterherbergPoint.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1208,11 +1295,13 @@ def test_convex_hull_multiple_files_with_details(script_runner):
 def test_convex_hull_fallback_csv(script_runner):
     """Test that convex hull falls back to bounding box for non-vector files like CSV"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--convex-hull",
-        "--quiet",
-        "tests/testdata/csv/cities_NL_case5.csv",
+        [
+            "geoextent",
+            "-b",
+            "--convex-hull",
+            "--quiet",
+            "tests/testdata/csv/cities_NL_case5.csv",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1230,13 +1319,15 @@ def test_convex_hull_fallback_csv(script_runner):
 def test_convex_hull_with_wkt_format(script_runner):
     """Test convex hull with WKT output format"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "--convex-hull",
-        "--format",
-        "wkt",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "--convex-hull",
+            "--format",
+            "wkt",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1249,12 +1340,14 @@ def test_convex_hull_with_wkt_format(script_runner):
 def test_convex_hull_with_temporal_extent(script_runner):
     """Test convex hull combined with temporal extent extraction"""
     ret = script_runner.run(
-        "geoextent",
-        "-b",
-        "-t",
-        "--convex-hull",
-        "--quiet",
-        "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        [
+            "geoextent",
+            "-b",
+            "-t",
+            "--convex-hull",
+            "--quiet",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+        ]
     )
     assert ret.success, "process should return success"
 
@@ -1305,7 +1398,7 @@ def test_convex_hull_vs_gdal_direct_calculation(script_runner):
                 gdal_coords.append([x, y])
 
     # Get convex hull from geoextent
-    ret = script_runner.run("geoextent", "-b", "--convex-hull", "--quiet", test_file)
+    ret = script_runner.run(["geoextent", "-b", "--convex-hull", "--quiet", test_file])
     assert ret.success, "geoextent should return success"
 
     geoextent_result = json.loads(ret.stdout.strip())
@@ -1374,7 +1467,7 @@ def test_convex_hull_ausgleichsflaechen_moers_baseline(script_runner):
     test_file = "tests/testdata/geojson/ausgleichsflaechen_moers.geojson"
 
     # Get convex hull from geoextent
-    ret = script_runner.run("geoextent", "-b", "--convex-hull", "--quiet", test_file)
+    ret = script_runner.run(["geoextent", "-b", "--convex-hull", "--quiet", test_file])
     assert ret.success, "geoextent should return success"
 
     geoextent_result = json.loads(ret.stdout.strip())
@@ -1958,13 +2051,13 @@ def test_cli_legacy_flag(script_runner):
 
     # Default (native EPSG:4326 lat/lon order)
     ret_native = script_runner.run(
-        "geoextent", "-b", "--format", "wkt", "--quiet", test_file
+        ["geoextent", "-b", "--format", "wkt", "--quiet", test_file]
     )
     assert ret_native.success
 
     # Legacy (traditional GIS lon/lat order)
     ret_legacy = script_runner.run(
-        "geoextent", "-b", "--format", "wkt", "--quiet", "--legacy", test_file
+        ["geoextent", "-b", "--format", "wkt", "--quiet", "--legacy", test_file]
     )
     assert ret_legacy.success
 

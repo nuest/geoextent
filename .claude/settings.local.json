@@ -119,7 +119,9 @@
       "WebFetch(domain:gdal.org)",
       "WebFetch(domain:locationtech.github.io)",
       "Bash(git log:*)",
-      "Bash(black:*)"
+      "Bash(black:*)",
+      "Bash(gdal-config:*)",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [],
     "ask": []

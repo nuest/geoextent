@@ -325,6 +325,25 @@ def test_bbox_and_tbox_both_false():
     assert "No extraction options" in str(excinfo.value)
 
 
+def test_degenerate_layer_skipped_with_warning(caplog):
+    """Test that a file with degenerate extent [0,0,0,0] logs a warning and is skipped."""
+    import logging
+
+    with caplog.at_level(logging.WARNING, logger="geoextent"):
+        result = geoextent.fromFile(
+            "tests/testdata/geojson/null_island_point.geojson", bbox=True
+        )
+
+    # File has all geometry at [0,0] → OGR returns [0,0,0,0] → layer should be skipped
+    assert result is None or "bbox" not in result or result.get("bbox") is None
+
+    # Verify the warning was logged
+    assert any(
+        "degenerate extent" in msg and "skipping" in msg.lower()
+        for msg in caplog.messages
+    ), f"Expected warning about degenerate extent, got: {caplog.messages}"
+
+
 def test_invalid_bbox_and_flip():
     """Test that coordinates are extracted as-is from column labels, even if swapped.
 

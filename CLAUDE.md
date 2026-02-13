@@ -71,10 +71,20 @@ geoextent uses two coordinate order modes:
 
 ## Development Commands
 
+**IMPORTANT: Always use the project's `.venv` virtual environment.** The system Python may have mismatched GDAL bindings. The `.venv` has GDAL Python bindings that match the system GDAL library (both 3.11.4), which is critical for correct behavior. Run all commands via `.venv/bin/python` or activate the venv first:
+
+```bash
+# Activate the virtual environment (do this first!)
+source .venv/bin/activate
+
+# Or prefix commands explicitly
+.venv/bin/python -m pytest ...
+```
+
 ### Installation and Setup
 
 ```bash
-# Install in development mode
+# Install in development mode (inside .venv)
 pip install -e .
 ```
 
