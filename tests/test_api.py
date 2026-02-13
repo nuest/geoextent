@@ -344,6 +344,38 @@ def test_degenerate_layer_skipped_with_warning(caplog):
     ), f"Expected warning about degenerate extent, got: {caplog.messages}"
 
 
+def test_csv_no_time_column_warning(caplog):
+    """Test that a CSV without time columns logs a warning about missing temporal extent."""
+    import logging
+
+    with caplog.at_level(logging.WARNING, logger="geoextent"):
+        result = geoextent.fromFile(
+            "tests/testdata/csv/cities_NL_lat&long.csv", tbox=True
+        )
+
+    assert "tbox" not in result, "should not have temporal extent"
+    assert any(
+        "no TemporalExtent" in msg or "time format not found" in msg
+        for msg in caplog.messages
+    ), f"Expected warning about missing temporal extent, got: {caplog.messages}"
+
+
+def test_csv_unparseable_time_column_warning(caplog):
+    """Test that a CSV with unparseable time values logs a warning."""
+    import logging
+
+    with caplog.at_level(logging.WARNING, logger="geoextent"):
+        result = geoextent.fromFile(
+            "tests/testdata/csv/cities_NL_unparseable_time.csv", tbox=True
+        )
+
+    assert "tbox" not in result, "should not have temporal extent"
+    assert any(
+        "no TemporalExtent" in msg or "time format not found" in msg
+        for msg in caplog.messages
+    ), f"Expected warning about temporal extent, got: {caplog.messages}"
+
+
 def test_invalid_bbox_and_flip():
     """Test that coordinates are extracted as-is from column labels, even if swapped.
 

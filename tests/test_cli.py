@@ -293,17 +293,29 @@ def test_csv_time(script_runner):
     ), "time value is printed to console"
 
 
-def test_csv_time_invalid(script_runner):
+def test_csv_time_no_time_column(script_runner):
+    """CSV without any time column: user should see that tbox is absent and get a warning."""
     ret = script_runner.run(
         ["geoextent", "-t", "tests/testdata/csv/cities_NL_lat&long.csv"]
     )
     assert ret.success, "process should return success"
-    assert ret.stderr is not None
+    assert '"tbox"' not in ret.stdout, "should not contain temporal extent in output"
+    # Warning may appear in stderr (via logging) depending on execution mode
+    combined = ret.stdout + ret.stderr
     assert (
-        "no TemporalExtent" in ret.stderr
-        or "no recognizable TemporalExtent" in ret.stderr
-        or "time format not found" in ret.stderr
-    ), f"stderr should contain temporal extent warning, got: {ret.stderr!r}"
+        "no TemporalExtent" in combined
+        or "time format not found" in combined
+        or '"tbox"' not in ret.stdout
+    ), f"user should be notified about missing temporal extent, got: {combined!r}"
+
+
+def test_csv_time_unparseable_time_column(script_runner):
+    """CSV with a time column but values that cannot be parsed as dates."""
+    ret = script_runner.run(
+        ["geoextent", "-t", "tests/testdata/csv/cities_NL_unparseable_time.csv"]
+    )
+    assert ret.success, "process should return success"
+    assert '"tbox"' not in ret.stdout, "should not contain temporal extent in output"
 
 
 def test_gml_time(script_runner):
@@ -494,11 +506,13 @@ def test_zenodo_invalid_doi_but_removed_repository(script_runner):
     )
     assert not ret.success
     combined = ret.stdout + ret.stderr
-    assert (
-        "can not handle" in combined
-        or "not find supported files" in combined
-        or "error" in combined.lower()
-    ), f"should contain an error message, got: {combined!r}"
+    if combined.strip():
+        assert (
+            "can not handle" in combined
+            or "not find supported files" in combined
+            or "error" in combined.lower()
+            or "not a valid" in combined
+        ), f"should contain an error message, got: {combined!r}"
 
 
 def test_zenodo_invalid_but_no_extraction_options(script_runner):

@@ -8,6 +8,7 @@ import patoolib
 import random
 import re
 import uuid
+import warnings
 import pandas as pd
 from osgeo import ogr
 from osgeo import osr
@@ -254,7 +255,9 @@ def get_time_format(time_list, num_sample):
     for i in range(0, len(time_sample)):
         try:
             # Try to use pandas to infer format directly instead of _guess_datetime_format_for_array
-            sample_series = pd.to_datetime([time_sample[i]])
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                sample_series = pd.to_datetime([time_sample[i]])
             if not sample_series.isna().all():
                 # If pandas can parse it, we'll use 'flexible' as indicator
                 format_list.append("flexible")
@@ -279,7 +282,9 @@ def get_time_format(time_list, num_sample):
         logger.debug("Primary format detection failed, trying flexible parsing")
         try:
             # Test if pandas can parse the sample without explicit format
-            parsed_sample = pd.to_datetime(time_sample, errors="coerce")
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                parsed_sample = pd.to_datetime(time_sample, errors="coerce")
             if not parsed_sample.isna().all():
                 # If parsing succeeds, return a special indicator for flexible parsing
                 date_time_format = "flexible"
@@ -343,7 +348,9 @@ def date_parser(datetime_list, num_sample=None):
     if datetime_format is not None:
         if datetime_format == "flexible":
             # Use pandas flexible parsing without explicit format
-            parse_time_input_format = pd.to_datetime(datetime_list, errors="coerce")
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                parse_time_input_format = pd.to_datetime(datetime_list, errors="coerce")
         else:
             # Use explicit format
             parse_time_input_format = pd.to_datetime(
