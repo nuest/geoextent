@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; geoextent 0.1.dev1+g1388238fd documentation</title>
+    <title>Changelog &#8212; geoextent 0.1.dev1+g6dc4e7d01 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=cb31d2c7"></script>
+    <script src="_static/documentation_options.js?v=4aedc6fb"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -48,8 +48,8 @@
             
   <section id="changelog">
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
-<section id="unreleased">
-<h2>0.12.0 (unreleased)<a class="headerlink" href="#unreleased" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h2>0.12.0<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Breaking Changes</strong></p>
 <ul>
@@ -74,18 +74,25 @@
 <li><p>Explicitly remove temp files on cleanup (<a class="reference external" href="https://github.com/nuest/geoextent/issues/82">#82</a>)</p></li>
 </ul>
 </li>
+<li><p><strong>Bug Fixes</strong></p>
+<ul>
+<li><p>Skip layers with degenerate extent <code class="docutils literal notranslate"><span class="pre">[0,0,0,0]</span></code> and emit a user-visible warning instead of silently including invalid coordinates</p></li>
+<li><p>Fix resource leak for GeoPackage/SQLite-backed files (unclosed database connections)</p></li>
+</ul>
+</li>
 <li><p><strong>Improvements</strong></p>
 <ul>
 <li><p>Enable parallel test execution by default using <code class="docutils literal notranslate"><span class="pre">pytest-xdist</span></code> (<a class="reference external" href="https://github.com/nuest/geoextent/issues/38">#38</a>)</p></li>
 <li><p>Refactor CRS extraction into shared utility function</p></li>
 <li><p>Harden CSV handler: force CSV GDAL driver to prevent misidentification, add extension-based pre-filtering, improve geometry column detection</p></li>
 <li><p>Optimize gazetteer queries to avoid duplicate API calls for closed polygon points</p></li>
+<li><p>Suppress noisy pandas date-parsing warnings during temporal extent detection</p></li>
 </ul>
 </li>
 </ul>
 </section>
-<section id="id1">
-<h2>0.11.0<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<section id="id2">
+<h2>0.11.0<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">--ext-metadata</span></code> option to retrieve bibliographic metadata for DOIs from CrossRef and DataCite APIs</p></li>
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">--ext-metadata-method</span></code> option to control metadata source (<code class="docutils literal notranslate"><span class="pre">auto</span></code>, <code class="docutils literal notranslate"><span class="pre">all</span></code>, <code class="docutils literal notranslate"><span class="pre">crossref</span></code>, <code class="docutils literal notranslate"><span class="pre">datacite</span></code>)</p></li>
@@ -93,16 +100,16 @@
 <li><p>Fix unwanted coordinate flipping for GML bounding boxes with GDAL &gt;= 3.2</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2>0.10.0<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<section id="id3">
+<h2>0.10.0<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">fromRemote()</span></code> now accepts both single identifiers (string) and multiple identifiers (list)</p></li>
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">--list-features</span></code> CLI option and <code class="docutils literal notranslate"><span class="pre">get_supported_features()</span></code> Python API for discovering supported file formats and content providers</p></li>
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">validate_remote_identifier()</span></code> and <code class="docutils literal notranslate"><span class="pre">validate_file_format()</span></code> validation functions</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>0.9.0<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id4">
+<h2>0.9.0<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Content Providers</strong></p>
 <ul>
@@ -151,54 +158,54 @@
 <li><p>Fix Figshare URL validation and download handling</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>0.8.0<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h2>0.8.0<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Move configuration from <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> to <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>0.7.1<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h2>0.7.1<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add DOI-based retrieval functions for Zenodo (<a class="reference external" href="https://github.com/nuest/geoextent/pull/100">#100</a>)</p></li>
 <li><p>Add export function <code class="docutils literal notranslate"><span class="pre">--output</span></code> for folders, ZIP files and repositories (<a class="reference external" href="https://github.com/nuest/geoextent/pull/124">#124</a>)</p></li>
 </ul>
 </section>
-<section id="id6">
-<h2>0.6.0<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<section id="id7">
+<h2>0.6.0<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add details option <code class="docutils literal notranslate"><span class="pre">--details</span></code> for folders and ZIP files (<a class="reference external" href="https://github.com/nuest/geoextent/pull/116">#116</a>)</p></li>
 </ul>
 </section>
-<section id="id7">
-<h2>0.5.0<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<section id="id8">
+<h2>0.5.0<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add support for spatial extent for <code class="docutils literal notranslate"><span class="pre">osgeo</span></code> files (via OGR/GDAL) with generic vector (GeoPackage, Shapefile, GeoJSON, GML, GPX, KML) and raster handling (GeoTIFF) (<a class="reference external" href="https://github.com/nuest/geoextent/pull/87">#87</a>, <a class="reference external" href="https://github.com/nuest/geoextent/pull/99">#99</a>)</p></li>
 </ul>
 </section>
-<section id="id8">
-<h2>0.4.0<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<section id="id9">
+<h2>0.4.0<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add support for ZIP files and folders (<a class="reference external" href="https://github.com/nuest/geoextent/pull/79">#79</a>)</p></li>
 </ul>
 </section>
-<section id="id9">
-<h2>0.3.0<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<section id="id10">
+<h2>0.3.0<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add debug option <code class="docutils literal notranslate"><span class="pre">--debug</span></code> and environment variable <code class="docutils literal notranslate"><span class="pre">GEOEXTENT_DEBUG</span></code> (<a class="reference external" href="https://github.com/nuest/geoextent/pull/73">#73</a>)</p></li>
 <li><p>Remove need for <code class="docutils literal notranslate"><span class="pre">-input=</span></code> for passing input paths in CLI (<a class="reference external" href="https://github.com/nuest/geoextent/pull/73">#73</a>)</p></li>
 <li><p>Switch to <code class="docutils literal notranslate"><span class="pre">pygdal</span></code> and update docs (<a class="reference external" href="https://github.com/nuest/geoextent/pull/73">#73</a>)</p></li>
 </ul>
 </section>
-<section id="id10">
-<h2>0.2.0<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
+<section id="id11">
+<h2>0.2.0<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add dependencies to required software (<a class="reference external" href="https://github.com/nuest/geoextent/pull/59">#59</a>, <a class="reference external" href="https://github.com/nuest/geoextent/commit/364692964fc34c467c21a7072e1eefb9d354fbb8">&#64;3646929</a>)</p></li>
 <li><p>Update documentation, now uses Sphinx and is online at <a class="reference external" href="https://o2r.info/geoextent/">https://o2r.info/geoextent/</a> (<a class="reference external" href="https://github.com/nuest/geoextent/pull/67">#67</a>, <a class="reference external" href="https://github.com/nuest/geoextent/pull/65">#65</a>, <a class="reference external" href="https://github.com/nuest/geoextent/pull/64">#64</a>, <a class="reference external" href="https://github.com/nuest/geoextent/pull/62">#62</a>)</p></li>
 </ul>
 </section>
-<section id="id11">
-<h2>0.1.0<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
+<section id="id12">
+<h2>0.1.0<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Initial release with core functionality</p></li>
 </ul>
@@ -242,18 +249,18 @@
 <li class="toctree-l1"><a class="reference internal" href="howto/index_howto.html">How-to Guides</a></li>
 <li class="toctree-l1"><a class="reference internal" href="supportedformats/index_supportedformats.html">Supported file formats</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#unreleased">0.12.0 (unreleased)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">0.11.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">0.10.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id3">0.9.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">0.8.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">0.7.1</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id6">0.6.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id7">0.5.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id8">0.4.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id9">0.3.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id10">0.2.0</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id11">0.1.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id1">0.12.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id2">0.11.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">0.10.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id4">0.9.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id5">0.8.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id6">0.7.1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id7">0.6.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id8">0.5.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id9">0.4.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id10">0.3.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id11">0.2.0</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id12">0.1.0</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
