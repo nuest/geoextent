@@ -112,6 +112,9 @@ bin/
 
 .claude/temp.md
 
+# setuptools-scm generated version file (must not be tracked, see setuptools-scm docs)
+geoextent/_version.py
+
 tests/testdata/geojson.zip
 
 tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.zip

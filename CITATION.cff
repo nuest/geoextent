@@ -20,7 +20,7 @@ doi: 10.5281/zenodo.3925693
 date-released: 2026-02-13
 license: MIT
 url: https://github.com/nuest/geoextent/
-commit: PLACEHOLDER
+commit: 6dc4e7d
 abstract: "Python library for extracting geospatial extent of files and directories with multiple data formats. This project is developed as part of the DFG-funded research project Opening Reproducible Research (o2r, https://o2r.info)."
 repository-artifact: https://pypi.org/project/geoextent/0.12.0/
 repository-code: https://github.com/nuest/geoextent/releases/tag/v0.12.0
