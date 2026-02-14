@@ -92,7 +92,17 @@ def compute_bbox_wgs84(module, path, assume_wgs84=False):
 
     try:
         if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
-            # Data is already in WGS84 - use as-is
+            # Data claims to be in WGS84 - check for clearly projected coordinates
+            bbox = spatial_extent_origin["bbox"]
+            if any(abs(c) > 360 for c in bbox):
+                logger.warning(
+                    "{}: Reported CRS is WGS84 but coordinates {} are clearly outside "
+                    "geographic range (values > 360). This typically indicates a file "
+                    "with projected coordinates but no CRS declaration. Skipping.".format(
+                        path, bbox
+                    )
+                )
+                return None
             spatial_extent = spatial_extent_origin
             logger.debug(
                 "Bbox already in WGS84, using coordinates as-is: {}".format(
@@ -162,7 +172,22 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
 
     try:
         if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
-            # Data is already in WGS84 - use as-is
+            # Data claims to be in WGS84 - check for clearly projected coordinates
+            bbox = spatial_extent_origin["bbox"]
+            # For convex hull, bbox may be a list of coordinate pairs — extract the envelope
+            if isinstance(bbox, list) and len(bbox) > 0 and isinstance(bbox[0], list):
+                all_coords = [c for p in bbox for c in p]
+            else:
+                all_coords = bbox
+            if any(abs(c) > 360 for c in all_coords):
+                logger.warning(
+                    "{}: Reported CRS is WGS84 but coordinates are clearly outside "
+                    "geographic range (values > 360). This typically indicates a file "
+                    "with projected coordinates but no CRS declaration. Skipping.".format(
+                        path
+                    )
+                )
+                return None
             spatial_extent = spatial_extent_origin
             logger.debug(
                 "Convex hull already in WGS84, using coordinates as-is: {}".format(

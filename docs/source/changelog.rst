@@ -20,6 +20,7 @@ Unreleased
 
   - Skip raster files with pixel-based coordinates (outside WGS84 bounds) instead of merging them into geographic extents
   - Validate bounding boxes against WGS84 coordinate ranges before including in results
+  - Reject vector files with projected coordinates falsely reported as WGS84 (e.g., GeoJSON files without CRS declaration)
 
 - **Improvements**
 
