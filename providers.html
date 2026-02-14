@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Content Providers &#8212; geoextent 0.1.dev1+gaad238f66 documentation</title>
+    <title>Content Providers &#8212; geoextent 0.1.dev1+g3c5de3164 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=12328772"></script>
+    <script src="_static/documentation_options.js?v=c6dbfd89"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -46,7 +46,7 @@
             
   <section id="content-providers">
 <h1>Content Providers<a class="headerlink" href="#content-providers" title="Link to this heading">¶</a></h1>
-<p>Geoextent supports extracting geospatial data from 14 research data repositories (including 10 Dataverse instances). All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.</p>
+<p>Geoextent supports extracting geospatial data from 15 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
 <p>All content providers support:</p>
@@ -437,6 +437,42 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>No geospatial metadata available; requires downloading data files for extent extraction</p></li>
 <li><p>Full support for download size limiting and geospatial file filtering</p></li>
 <li><p>Parallel downloads supported</p></li>
+</ul>
+</section>
+<section id="wikidata">
+<h3>Wikidata<a class="headerlink" href="#wikidata" title="Link to this heading">¶</a></h3>
+<p><strong>Description:</strong> Free, collaborative, multilingual knowledge base operated by the Wikimedia Foundation. Contains structured geographic data for millions of entities including countries, cities, parks, rivers, and other geographic features. Geoextent extracts bounding boxes from Wikidata’s coordinate properties via the SPARQL endpoint.</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://www.wikidata.org/">https://www.wikidata.org/</a></p>
+<p><strong>Identifier Format:</strong> Q-numbers (e.g., <code class="docutils literal notranslate"><span class="pre">Q64</span></code>) or Wikidata URLs</p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>Q-number: <code class="docutils literal notranslate"><span class="pre">Q64</span></code></p></li>
+<li><p>Wiki URL: <code class="docutils literal notranslate"><span class="pre">https://www.wikidata.org/wiki/Q64</span></code></p></li>
+<li><p>Entity URI: <code class="docutils literal notranslate"><span class="pre">http://www.wikidata.org/entity/Q64</span></code></p></li>
+</ul>
+<p><strong>Coordinate Extraction:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Extreme coordinates</strong> (P1332-P1335): northernmost, southernmost, easternmost, westernmost points — used to construct a bounding box</p></li>
+<li><p><strong>Coordinate location</strong> (P625): single or multiple point locations — used as fallback when extreme coordinates are not available</p></li>
+</ol>
+<p><strong>Example:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract bbox for Berlin</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>Q64
+
+<span class="c1"># Using Wikidata URL</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://www.wikidata.org/wiki/Q64
+
+<span class="c1"># Multiple Wikidata items (merged bbox)</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>Q64<span class="w"> </span>Q35<span class="w"> </span>Q60786916
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p><strong>Metadata-only provider</strong>: Extracts coordinates from Wikidata SPARQL endpoint, no data files are downloaded</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> flag is accepted but has no effect (there are no data files)</p></li>
+<li><p>Supports multiple Wikidata items in a single call, returning a merged bounding box</p></li>
+<li><p>When only P625 point coordinates are available, the bounding box is computed from all available points</p></li>
+<li><p>For entities with a single P625 point, a zero-extent bounding box (point) is returned</p></li>
 </ul>
 </section>
 </section>
