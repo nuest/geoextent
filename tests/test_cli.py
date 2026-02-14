@@ -1306,8 +1306,8 @@ def test_convex_hull_multiple_files_with_details(script_runner):
     assert "details" in result
 
 
-def test_convex_hull_fallback_csv(script_runner):
-    """Test that convex hull falls back to bounding box for non-vector files like CSV"""
+def test_convex_hull_csv(script_runner):
+    """Test that convex hull works for CSV files with coordinate columns"""
     ret = script_runner.run(
         [
             "geoextent",
@@ -1323,8 +1323,8 @@ def test_convex_hull_fallback_csv(script_runner):
     assert result["type"] == "FeatureCollection"
     assert len(result["features"]) == 1
     metadata = result["geoextent_extraction"]
-    # CSV files fall back to bounding box, not convex hull
-    assert metadata["extent_type"] == "bounding_box"
+    # CSV files now support convex hull extraction
+    assert metadata["extent_type"] == "convex_hull"
     assert metadata["crs"] == "4326"
     assert metadata["format"] == "csv"
     assert metadata["geoextent_handler"] == "handleCSV"

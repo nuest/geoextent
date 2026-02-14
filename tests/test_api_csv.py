@@ -405,6 +405,75 @@ class TestCSVGdalColumnNames:
         assert result is None
 
 
+class TestCSVConvexHull:
+    """Test convex hull extraction from CSV files"""
+
+    def test_convex_hull_from_csv(self):
+        """Test convex hull extraction from CSV with X/Y columns"""
+        import geoextent.lib.extent as geoextent
+
+        result = geoextent.fromFile(
+            get_test_file("csv", "cities_nl_xy"),
+            bbox=True,
+            tbox=False,
+            convex_hull=True,
+        )
+        assert result is not None
+        assert "bbox" in result
+        assert "crs" in result
+        assert result.get("convex_hull") is True
+        # bbox should be a list of coordinate pairs (convex hull coords)
+        bbox = result["bbox"]
+        assert isinstance(bbox, list)
+        assert len(bbox) >= 3  # At least 3 points for a polygon
+        assert isinstance(bbox[0], list)  # Each element is a coordinate pair
+
+    def test_convex_hull_from_wkt_csv(self):
+        """Test convex hull extraction from CSV with the_geom WKT column"""
+        import geoextent.lib.extent as geoextent
+
+        result = geoextent.fromFile(
+            get_test_file("csv", "cities_nl_the_geom"),
+            bbox=True,
+            tbox=False,
+            convex_hull=True,
+        )
+        assert result is not None
+        assert "bbox" in result
+        assert result.get("convex_hull") is True
+        bbox = result["bbox"]
+        assert isinstance(bbox, list)
+        assert len(bbox) >= 3
+        assert isinstance(bbox[0], list)
+
+    def test_convex_hull_coords_are_not_rectangle(self):
+        """Verify that convex hull for non-rectangular point distribution is not a simple bbox rectangle.
+
+        cities_NL has cities scattered across the Netherlands — the convex hull
+        should have more than 5 vertices (4 corners + closing point of a rectangle).
+        """
+        import geoextent.lib.extent as geoextent
+
+        result = geoextent.fromFile(
+            get_test_file("csv", "cities_nl"),
+            bbox=True,
+            tbox=False,
+            convex_hull=True,
+            legacy=True,
+        )
+        assert result is not None
+        assert result.get("convex_hull") is True
+        hull_coords = result["bbox"]
+        assert isinstance(hull_coords, list)
+        assert isinstance(hull_coords[0], list)
+        # A rectangle has exactly 5 points (4 corners + closing).
+        # A real convex hull of scattered points should have more.
+        assert len(hull_coords) > 5, (
+            "Convex hull should have more than 5 vertices for non-rectangular "
+            "point distribution, got {}".format(len(hull_coords))
+        )
+
+
 class TestCSVEdgeCases:
     """Test CSV edge cases and error conditions"""
 

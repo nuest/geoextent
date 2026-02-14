@@ -121,14 +121,15 @@ def checkFileSupported(filepath):
         return False
 
 
-def _extract_bbox_via_gdal(filepath):
-    """Try to extract bounding box using GDAL's CSV driver with open options.
+def _open_csv_via_gdal(filepath):
+    """Open CSV with GDAL using coordinate column open options.
 
     Uses X_POSSIBLE_NAMES, Y_POSSIBLE_NAMES, and GEOM_POSSIBLE_NAMES to let
     GDAL auto-detect coordinate and geometry columns. Also picks up CSVT sidecar
     files automatically when present.
 
-    Returns dict with bbox and crs, or None if GDAL cannot detect geometry.
+    Returns (dataset, layer) tuple, or (None, None) if detection fails.
+    The caller is responsible for setting ds = None when done.
     """
     try:
         open_options = [
@@ -145,17 +146,33 @@ def _extract_bbox_via_gdal(filepath):
             open_options=open_options,
         )
         if not ds:
-            return None
+            return None, None
 
         layer = ds.GetLayer(0)
         if layer is None or layer.GetGeomType() == ogr.wkbNone:
             ds = None
-            return None
+            return None, None
 
         if layer.GetFeatureCount() == 0:
             ds = None
-            return None
+            return None, None
 
+        return ds, layer
+    except Exception as e:
+        logger.debug("GDAL CSV open options failed for {}: {}".format(filepath, e))
+        return None, None
+
+
+def _extract_bbox_via_gdal(filepath):
+    """Try to extract bounding box using GDAL's CSV driver with open options.
+
+    Returns dict with bbox and crs, or None if GDAL cannot detect geometry.
+    """
+    ds, layer = _open_csv_via_gdal(filepath)
+    if ds is None:
+        return None
+
+    try:
         extent = layer.GetExtent()  # (minX, maxX, minY, maxY)
         bbox = [
             extent[0],
@@ -186,6 +203,7 @@ def _extract_bbox_via_gdal(filepath):
         logger.debug(
             "GDAL CSV open options extraction failed for {}: {}".format(filepath, e)
         )
+        ds = None
         return None
 
 
@@ -440,6 +458,229 @@ def getBoundingBox(filePath, chunk_size=50000):
             raise Exception("Bounding box could not be extracted")
 
     return spatialExtent
+
+
+def _parse_geometry_from_value(geometry_value):
+    """Parse a geometry value (WKT or hex-encoded WKB) into an OGR geometry.
+
+    Returns OGR Geometry object, or None if parsing fails.
+    """
+    if not geometry_value or not geometry_value.strip():
+        return None
+
+    try:
+        geom = None
+        # Try parsing as WKT first
+        if (
+            geometry_value.strip()
+            .upper()
+            .startswith(
+                (
+                    "POINT",
+                    "LINESTRING",
+                    "POLYGON",
+                    "MULTIPOINT",
+                    "MULTILINESTRING",
+                    "MULTIPOLYGON",
+                    "GEOMETRYCOLLECTION",
+                )
+            )
+        ):
+            geom = ogr.CreateGeometryFromWkt(geometry_value)
+        else:
+            # Try parsing as WKB (hex-encoded)
+            try:
+                geom = ogr.CreateGeometryFromWkb(bytes.fromhex(geometry_value))
+            except (ValueError, TypeError):
+                # If not hex, might be binary WKB
+                try:
+                    geom = ogr.CreateGeometryFromWkb(geometry_value.encode())
+                except Exception:
+                    # Last resort: try as WKT anyway
+                    geom = ogr.CreateGeometryFromWkt(geometry_value)
+        return geom
+    except Exception:
+        return None
+
+
+def _extract_convex_hull_from_geometry_column(filePath):
+    """Extract convex hull from geometry column containing WKT/WKB data.
+
+    Similar to _extract_bbox_from_geometry_column but collects all OGR
+    geometries and computes a convex hull instead of tracking min/max.
+
+    Returns dict with bbox, crs, convex_hull_coords, convex_hull keys, or None.
+    """
+    with open(filePath) as csv_file:
+        delimiter = hf.getDelimiter(csv_file)
+        data = csv.reader(csv_file, delimiter=delimiter)
+
+        header = next(data)
+
+        # Find geometry column index (same logic as _extract_bbox_from_geometry_column)
+        geometry_col_idx = None
+        best_pattern_priority = len(search["geometry"])
+
+        for idx, col_name in enumerate(header):
+            for pattern_priority, pattern in enumerate(search["geometry"]):
+                p = re.compile(pattern, re.IGNORECASE)
+                if p.search(col_name) is not None:
+                    if pattern_priority < best_pattern_priority:
+                        geometry_col_idx = idx
+                        best_pattern_priority = pattern_priority
+                    break
+
+        if geometry_col_idx is None:
+            return None
+
+        # Collect all geometries
+        geom_collection = ogr.Geometry(ogr.wkbGeometryCollection)
+        has_geometries = False
+
+        for row in data:
+            if len(row) > geometry_col_idx:
+                geom = _parse_geometry_from_value(row[geometry_col_idx])
+                if geom:
+                    geom_collection.AddGeometry(geom)
+                    has_geometries = True
+
+        if not has_geometries:
+            return None
+
+        # Compute convex hull
+        envelope = geom_collection.GetEnvelope()  # (minX, maxX, minY, maxY)
+        min_x, max_x, min_y, max_y = envelope
+
+        is_point = min_x == max_x and min_y == max_y
+
+        if is_point:
+            convex_hull_coords = [[min_x, min_y]]
+            bbox = [min_x, min_y, max_x, max_y]
+        else:
+            convex_hull = geom_collection.ConvexHull()
+            if convex_hull is None or convex_hull.GetGeometryType() != ogr.wkbPolygon:
+                return None
+
+            convex_hull_coords = []
+            ring = convex_hull.GetGeometryRef(0)
+            if ring is not None:
+                for i in range(ring.GetPointCount()):
+                    x, y, z = ring.GetPoint(i)
+                    convex_hull_coords.append([x, y])
+
+            hull_envelope = convex_hull.GetEnvelope()
+            bbox = [
+                hull_envelope[0],
+                hull_envelope[2],
+                hull_envelope[1],
+                hull_envelope[3],
+            ]
+
+        logger.debug(
+            "Extracted convex hull from geometry column: {} coords".format(
+                len(convex_hull_coords)
+            )
+        )
+        return {
+            "bbox": bbox,
+            "crs": "4326",
+            "convex_hull_coords": convex_hull_coords,
+            "convex_hull": True,
+        }
+
+
+def getConvexHull(filepath):
+    """Extract convex hull from CSV file.
+
+    Returns dict with 'bbox', 'crs', 'convex_hull_coords', 'convex_hull' keys,
+    or None if convex hull cannot be computed.
+    """
+    # 1. Try GDAL CSV driver with open options
+    ds, layer = _open_csv_via_gdal(filepath)
+    if ds is not None:
+        try:
+            geometries = []
+            for feature in layer:
+                geom = feature.GetGeometryRef()
+                if geom is not None:
+                    geometries.append(geom.Clone())
+
+            if not geometries:
+                ds = None
+                return None
+
+            geom_collection = ogr.Geometry(ogr.wkbGeometryCollection)
+            for geom in geometries:
+                geom_collection.AddGeometry(geom)
+
+            envelope = geom_collection.GetEnvelope()  # (minX, maxX, minY, maxY)
+            min_x, max_x, min_y, max_y = envelope
+
+            is_point = min_x == max_x and min_y == max_y
+
+            if is_point:
+                convex_hull_coords = [[min_x, min_y]]
+                bbox = [min_x, min_y, max_x, max_y]
+            else:
+                convex_hull = geom_collection.ConvexHull()
+                if (
+                    convex_hull is None
+                    or convex_hull.GetGeometryType() != ogr.wkbPolygon
+                ):
+                    ds = None
+                    return None
+
+                convex_hull_coords = []
+                ring = convex_hull.GetGeometryRef(0)
+                if ring is not None:
+                    for i in range(ring.GetPointCount()):
+                        x, y, z = ring.GetPoint(i)
+                        convex_hull_coords.append([x, y])
+
+                hull_envelope = convex_hull.GetEnvelope()
+                bbox = [
+                    hull_envelope[0],
+                    hull_envelope[2],
+                    hull_envelope[1],
+                    hull_envelope[3],
+                ]
+
+            crs = "4326"
+            srs = layer.GetSpatialRef()
+            if srs:
+                try:
+                    srs.AutoIdentifyEPSG()
+                    code = srs.GetAuthorityCode(None)
+                    if code:
+                        crs = code
+                except Exception:
+                    pass
+
+            ds = None
+            logger.debug(
+                "GDAL CSV driver extracted convex hull with {} coords from {}".format(
+                    len(convex_hull_coords), filepath
+                )
+            )
+            return {
+                "bbox": bbox,
+                "crs": crs,
+                "convex_hull_coords": convex_hull_coords,
+                "convex_hull": True,
+            }
+        except Exception as e:
+            logger.debug(
+                "GDAL CSV convex hull extraction failed for {}: {}".format(filepath, e)
+            )
+            ds = None
+
+    # 2. Try extracting from geometry column via manual WKT/WKB parsing
+    geom_hull = _extract_convex_hull_from_geometry_column(filepath)
+    if geom_hull:
+        return geom_hull
+
+    # 3. No convex hull possible — caller (compute_convex_hull_wgs84) will fall back
+    return None
 
 
 def getTemporalExtent(filepath, num_sample):
