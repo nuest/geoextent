@@ -2,6 +2,31 @@
 Changelog
 =========
 
+Unreleased
+^^^^^^^^^^
+
+- **New Content Providers**
+
+  - Add Mendeley Data as content provider (:issue:`58`)
+  - Add ioerDATA (Leibniz IOER) Dataverse instance support (:issue:`85`)
+  - Add heiDATA (Heidelberg University) Dataverse instance support (:issue:`94`)
+  - Add Edmond (Max Planck Society) Dataverse instance support (:issue:`93`)
+
+- **New Features**
+
+  - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
+  - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
+
+- **Bug Fixes**
+
+  - Skip raster files with pixel-based coordinates (outside WGS84 bounds) instead of merging them into geographic extents
+  - Validate bounding boxes against WGS84 coordinate ranges before including in results
+  - Reject vector files with projected coordinates falsely reported as WGS84 (e.g., GeoJSON files without CRS declaration)
+
+- **Improvements**
+
+  - Automatically skip restricted files in Dataverse downloads
+
 0.12.0
 ^^^^^^
 

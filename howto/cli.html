@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g0414c751f documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gaad238f66 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=b6adbe19"></script>
+    <script src="../_static/documentation_options.js?v=12328772"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -53,7 +53,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">geoextent</span></code> can be called on the command line with this command :</p>
 <section id="id1">
 <h3><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] input1 [input2 ...]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]</span>
 </pre></div>
 </div>
 <dl class="std option">
@@ -248,6 +248,12 @@
 <dd><p>use traditional GIS coordinate order (longitude, latitude) instead of EPSG:4326 native order (latitude, longitude)</p>
 </dd></dl>
 
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-assume-wgs84">
+<span class="sig-name descname"><span class="pre">--assume-wgs84</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-assume-wgs84" title="Link to this definition">¶</a></dt>
+<dd><p>assume WGS84 (EPSG:4326) for raster files without projection information (e.g., world files without .prj). By default, ungeoreferenced rasters are skipped.</p>
+</dd></dl>
+
 </section>
 </section>
 <section id="examples">
@@ -268,7 +274,7 @@
 geoextent is a Python library for extracting geospatial and temporal extents of a file
  or a directory of multiple geospatial data formats.
 
-usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] input1 [input2 ...]
+usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]
 
 positional arguments:
   files                 input file, directory, DOI, or repository URL
@@ -345,6 +351,10 @@ options:
   --legacy              use traditional GIS coordinate order (longitude,
                         latitude) instead of EPSG:4326 native order (latitude,
                         longitude)
+  --assume-wgs84        assume WGS84 (EPSG:4326) for raster files without
+                        projection information (e.g., world files without
+                        .prj). By default, ungeoreferenced rasters are
+                        skipped.
 
 
 Examples:
@@ -474,7 +484,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 136.00task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 166.41task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -538,7 +548,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 26.80task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 25.43task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -554,7 +564,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 14.53item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 14.25item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -581,7 +591,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 123.29task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 113.50task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -597,7 +607,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 23.19item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 22.49item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -697,7 +707,7 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 108.05task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 118.18task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -713,7 +723,7 @@ or time box (tbox).</p>
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 53.01item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 50.32item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">

@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 10 research data repositories. All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 14 research data repositories (including 10 Dataverse instances). All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -33,6 +33,12 @@ Quick Reference
 +-------------------+---------------------+----------------------------------------+
 | Dataverse         | Varies by instance  | 10.7910/DVN/123456                    |
 +-------------------+---------------------+----------------------------------------+
+| ioerDATA          | 10.71830            | 10.71830/VDMUWW                        |
++-------------------+---------------------+----------------------------------------+
+| heiDATA           | 10.11588/DATA       | 10.11588/DATA/TJNQZG                  |
++-------------------+---------------------+----------------------------------------+
+| Edmond            | 10.17617            | 10.17617/3.QZGTDU                     |
++-------------------+---------------------+----------------------------------------+
 | GFZ Data Services | 10.5880/GFZ         | 10.5880/GFZ.2.1.2020.001              |
 +-------------------+---------------------+----------------------------------------+
 | Pensoft           | 10.3897             | 10.3897/BDJ.13.e159973                |
@@ -40,6 +46,8 @@ Quick Reference
 | TU Dresden Opara  | 10.25532/OPARA      | 10.25532/OPARA-581                    |
 +-------------------+---------------------+----------------------------------------+
 | Senckenberg       | 10.12761/sgn        | 10.12761/sgn.2018.10225               |
++-------------------+---------------------+----------------------------------------+
+| Mendeley Data     | 10.17632            | 10.17632/ybx6zp2rfp.1                 |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -188,7 +196,33 @@ Dataverse
 
 **Website:** https://dataverse.org/
 
-**DOI Prefix:** Varies by Dataverse instance (commonly ``10.7910/DVN``)
+**DOI Prefix:** Varies by Dataverse instance
+
+**Supported Dataverse Instances:**
+
++----------------------------+------------------------------+--------------------+
+| Instance                   | Host                         | DOI Prefix         |
++============================+==============================+====================+
+| Harvard Dataverse          | dataverse.harvard.edu        | 10.7910/DVN        |
++----------------------------+------------------------------+--------------------+
+| DataverseNL                | dataverse.nl                 | 10.34894           |
++----------------------------+------------------------------+--------------------+
+| DataverseNO                | dataverse.no                 | 10.18710           |
++----------------------------+------------------------------+--------------------+
+| UNC Dataverse              | dataverse.unc.edu            | 10.5064            |
++----------------------------+------------------------------+--------------------+
+| UVA Library Dataverse      | data.library.virginia.edu    | (varies)           |
++----------------------------+------------------------------+--------------------+
+| Recherche Data Gouv        | recherche.data.gouv.fr       | (varies)           |
++----------------------------+------------------------------+--------------------+
+| ioerDATA                   | data.fdz.ioer.de             | 10.71830           |
++----------------------------+------------------------------+--------------------+
+| heiDATA                    | heidata.uni-heidelberg.de    | 10.11588/DATA      |
++----------------------------+------------------------------+--------------------+
+| Edmond                     | edmond.mpg.de                | 10.17617           |
++----------------------------+------------------------------+--------------------+
+| Demo DataverseNL           | demo.dataverse.nl            | (varies)           |
++----------------------------+------------------------------+--------------------+
 
 **Supported Identifier Formats:**
 
@@ -204,9 +238,93 @@ Dataverse
 
 **Special Notes:**
 
-- Supports multiple Dataverse instances (Harvard, ICPSR, etc.)
+- Supports 10 Dataverse instances (see table above)
+- Automatically skips restricted files that require authentication
 - Handles complex dataset structures
 - API-based metadata and file retrieval
+
+ioerDATA
+^^^^^^^^
+
+**Description:** Research data repository of the Leibniz Institute of Ecological Urban and Regional Development (IOER), hosted on Dataverse. Specializes in urban and regional development, land use monitoring, and spatial analysis data for Germany and Europe.
+
+**Website:** https://data.fdz.ioer.de/
+
+**DOI Prefix:** ``10.71830``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.71830/VDMUWW``
+- DOI URL: ``https://doi.org/10.71830/VDMUWW``
+- ioerDATA URL: ``https://data.fdz.ioer.de/dataset.xhtml?persistentId=doi:10.71830/VDMUWW``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b 10.71830/VDMUWW
+
+**Special Notes:**
+
+- Standard Dataverse instance (uses Dataverse provider internally)
+- Some datasets have restricted files requiring authentication; these are automatically skipped
+- Specializes in German urban/regional development and land use data
+- Uses the same Dataverse API as all other Dataverse instances
+
+heiDATA
+^^^^^^^
+
+**Description:** Research data repository of Heidelberg University, hosted on Dataverse. Part of the NFDI4Earth initiative. Provides access to research data across multiple disciplines, with a focus on geosciences, environmental science, and digital humanities.
+
+**Website:** https://heidata.uni-heidelberg.de/
+
+**DOI Prefix:** ``10.11588/DATA``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.11588/DATA/TJNQZG``
+- DOI URL: ``https://doi.org/10.11588/DATA/TJNQZG``
+- heiDATA URL: ``https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/DATA/TJNQZG``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b 10.11588/DATA/TJNQZG
+
+**Special Notes:**
+
+- Standard Dataverse instance (uses Dataverse provider internally)
+- Has the NFDI4Earth Label for geoscience data
+- Supports both open access and restricted datasets
+- Uses the same Dataverse API as all other Dataverse instances
+
+Edmond
+^^^^^^
+
+**Description:** Research data repository of the Max Planck Society, hosted on Dataverse. Provides open access to research data from Max Planck Institutes across all scientific disciplines, including earth sciences, chemistry, and biogeochemistry.
+
+**Website:** https://edmond.mpg.de/
+
+**DOI Prefix:** ``10.17617``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.17617/3.QZGTDU``
+- DOI URL: ``https://doi.org/10.17617/3.QZGTDU``
+- Edmond URL: ``https://edmond.mpg.de/dataset.xhtml?persistentId=doi:10.17617/3.QZGTDU``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b 10.17617/3.QZGTDU
+
+**Special Notes:**
+
+- Standard Dataverse instance (uses Dataverse provider internally)
+- Hosts data from Max Planck Institutes worldwide
+- Uses the same Dataverse API as all other Dataverse instances
 
 GFZ Data Services
 ^^^^^^^^^^^^^^^^^
@@ -327,6 +445,34 @@ Senckenberg
 - Rich taxonomic, spatial, and temporal coverage metadata
 - Metadata extraction is fast and does not require downloading data files
 - Full filtering and size limiting capabilities available when data files exist
+
+Mendeley Data
+^^^^^^^^^^^^^
+
+**Description:** Elsevier-hosted generalist research data repository and part of the NIH Generalist Repository Ecosystem Initiative (GREI). Supports sharing, discovering, and citing research data across all disciplines with DOI assignment.
+
+**Website:** https://data.mendeley.com/
+
+**DOI Prefix:** ``10.17632``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.17632/ybx6zp2rfp.1``
+- DOI URL: ``https://doi.org/10.17632/ybx6zp2rfp.1``
+- Mendeley Data URL: ``https://data.mendeley.com/datasets/ybx6zp2rfp/1``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b 10.17632/ybx6zp2rfp.1
+
+**Special Notes:**
+
+- Uses unauthenticated public API (no OAuth tokens required)
+- No geospatial metadata available; requires downloading data files for extent extraction
+- Full support for download size limiting and geospatial file filtering
+- Parallel downloads supported
 
 Usage Examples
 --------------
