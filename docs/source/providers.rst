@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 12 research data repositories (including 8 Dataverse instances). All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 13 research data repositories (including 9 Dataverse instances). All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -34,6 +34,8 @@ Quick Reference
 | Dataverse         | Varies by instance  | 10.7910/DVN/123456                    |
 +-------------------+---------------------+----------------------------------------+
 | ioerDATA          | 10.71830            | 10.71830/VDMUWW                        |
++-------------------+---------------------+----------------------------------------+
+| heiDATA           | 10.11588/DATA       | 10.11588/DATA/TJNQZG                  |
 +-------------------+---------------------+----------------------------------------+
 | GFZ Data Services | 10.5880/GFZ         | 10.5880/GFZ.2.1.2020.001              |
 +-------------------+---------------------+----------------------------------------+
@@ -213,6 +215,8 @@ Dataverse
 +----------------------------+------------------------------+--------------------+
 | ioerDATA                   | data.fdz.ioer.de             | 10.71830           |
 +----------------------------+------------------------------+--------------------+
+| heiDATA                    | heidata.uni-heidelberg.de    | 10.11588/DATA      |
++----------------------------+------------------------------+--------------------+
 | Demo DataverseNL           | demo.dataverse.nl            | (varies)           |
 +----------------------------+------------------------------+--------------------+
 
@@ -230,7 +234,7 @@ Dataverse
 
 **Special Notes:**
 
-- Supports 8 Dataverse instances (see table above)
+- Supports 9 Dataverse instances (see table above)
 - Automatically skips restricted files that require authentication
 - Handles complex dataset structures
 - API-based metadata and file retrieval
@@ -261,6 +265,34 @@ ioerDATA
 - Standard Dataverse instance (uses Dataverse provider internally)
 - Some datasets have restricted files requiring authentication; these are automatically skipped
 - Specializes in German urban/regional development and land use data
+- Uses the same Dataverse API as all other Dataverse instances
+
+heiDATA
+^^^^^^^
+
+**Description:** Research data repository of Heidelberg University, hosted on Dataverse. Part of the NFDI4Earth initiative. Provides access to research data across multiple disciplines, with a focus on geosciences, environmental science, and digital humanities.
+
+**Website:** https://heidata.uni-heidelberg.de/
+
+**DOI Prefix:** ``10.11588/DATA``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.11588/DATA/TJNQZG``
+- DOI URL: ``https://doi.org/10.11588/DATA/TJNQZG``
+- heiDATA URL: ``https://heidata.uni-heidelberg.de/dataset.xhtml?persistentId=doi:10.11588/DATA/TJNQZG``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b 10.11588/DATA/TJNQZG
+
+**Special Notes:**
+
+- Standard Dataverse instance (uses Dataverse provider internally)
+- Has the NFDI4Earth Label for geoscience data
+- Supports both open access and restricted datasets
 - Uses the same Dataverse API as all other Dataverse instances
 
 GFZ Data Services

@@ -153,6 +153,22 @@ The world file (``image_with_worldfile.pngw`` or ``image_with_worldfile.pgw``) m
 - `Wikipedia: World file <https://en.wikipedia.org/wiki/World_file>`_
 - `GDAL World File documentation <https://gdal.org/en/stable/drivers/raster/wld.html>`_
 
+Esri File Geodatabase
+^^^^^^^^^^^^^^^^^^^^^
+
+Esri File Geodatabases (``.gdb``) are directory-based containers that can hold multiple feature classes, tables, and raster datasets.
+geoextent supports reading File Geodatabases via GDAL's `OpenFileGDB driver <https://gdal.org/en/stable/drivers/vector/openfilegdb.html>`_.
+
+**Important notes:**
+
+- A ``.gdb`` is a directory, not a single file, but geoextent treats it as a single dataset
+- All layers in the geodatabase are processed and their extents merged
+- Only the OpenFileGDB driver (read-only, included with GDAL) is needed; the proprietary FileGDB SDK is not required
+
+::
+
+   geoextent -b my_data.gdb
+
 Shapefile
 ^^^^^^^^^
 

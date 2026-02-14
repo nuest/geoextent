@@ -15,6 +15,7 @@ Supported Dataverse installations:
 - UVA Library (data.library.virginia.edu)
 - Recherche Data Gouv (recherche.data.gouv.fr)
 - ioerDATA (data.fdz.ioer.de)
+- heiDATA (heidata.uni-heidelberg.de)
 - Other Dataverse installations following the standard API
 
 Supported identifier formats:
@@ -61,6 +62,7 @@ class Dataverse(DoiProvider):
             "dataverse.no",
             "recherche.data.gouv.fr",
             "data.fdz.ioer.de",
+            "heidata.uni-heidelberg.de",
         ]
 
         # URL patterns for validation
@@ -182,6 +184,7 @@ class Dataverse(DoiProvider):
             r"10\.18710/",  # DataverseNO
             r"10\.5064/",  # UNC Dataverse
             r"10\.71830/",  # ioerDATA (Leibniz Institute of Ecological Urban and Regional Development)
+            r"10\.11588/DATA/",  # heiDATA (Heidelberg University)
         ]
 
         return any(

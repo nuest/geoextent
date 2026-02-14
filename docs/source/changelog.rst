@@ -9,10 +9,12 @@ Unreleased
 
   - Add Mendeley Data as content provider (:issue:`58`)
   - Add ioerDATA (Leibniz IOER) Dataverse instance support (:issue:`85`)
+  - Add heiDATA (Heidelberg University) Dataverse instance support (:issue:`94`)
 
 - **New Features**
 
   - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
+  - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
 
 - **Bug Fixes**
 

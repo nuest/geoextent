@@ -151,7 +151,8 @@
       "Bash(__NEW_LINE_075fcdbf72eb0f03__ echo \"=== /datasets/id \\(no version\\) ===\")",
       "WebFetch(domain:geojson.io)",
       "WebFetch(domain:data.fdz.ioer.de)",
-      "Bash(source:*)"
+      "Bash(source:*)",
+      "WebFetch(domain:heidata.uni-heidelberg.de)"
     ],
     "deny": [],
     "ask": []
