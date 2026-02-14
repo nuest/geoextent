@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 14 research data repositories (including 10 Dataverse instances). All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 15 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -48,6 +48,8 @@ Quick Reference
 | Senckenberg       | 10.12761/sgn        | 10.12761/sgn.2018.10225               |
 +-------------------+---------------------+----------------------------------------+
 | Mendeley Data     | 10.17632            | 10.17632/ybx6zp2rfp.1                 |
++-------------------+---------------------+----------------------------------------+
+| Wikidata          | Q-numbers / URLs    | Q64                                    |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -473,6 +475,47 @@ Mendeley Data
 - No geospatial metadata available; requires downloading data files for extent extraction
 - Full support for download size limiting and geospatial file filtering
 - Parallel downloads supported
+
+Wikidata
+^^^^^^^^
+
+**Description:** Free, collaborative, multilingual knowledge base operated by the Wikimedia Foundation. Contains structured geographic data for millions of entities including countries, cities, parks, rivers, and other geographic features. Geoextent extracts bounding boxes from Wikidata's coordinate properties via the SPARQL endpoint.
+
+**Website:** https://www.wikidata.org/
+
+**Identifier Format:** Q-numbers (e.g., ``Q64``) or Wikidata URLs
+
+**Supported Identifier Formats:**
+
+- Q-number: ``Q64``
+- Wiki URL: ``https://www.wikidata.org/wiki/Q64``
+- Entity URI: ``http://www.wikidata.org/entity/Q64``
+
+**Coordinate Extraction:**
+
+1. **Extreme coordinates** (P1332-P1335): northernmost, southernmost, easternmost, westernmost points — used to construct a bounding box
+2. **Coordinate location** (P625): single or multiple point locations — used as fallback when extreme coordinates are not available
+
+**Example:**
+
+.. code-block:: bash
+
+   # Extract bbox for Berlin
+   python -m geoextent -b Q64
+
+   # Using Wikidata URL
+   python -m geoextent -b https://www.wikidata.org/wiki/Q64
+
+   # Multiple Wikidata items (merged bbox)
+   python -m geoextent -b Q64 Q35 Q60786916
+
+**Special Notes:**
+
+- **Metadata-only provider**: Extracts coordinates from Wikidata SPARQL endpoint, no data files are downloaded
+- The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
+- Supports multiple Wikidata items in a single call, returning a merged bounding box
+- When only P625 point coordinates are available, the bounding box is computed from all available points
+- For entities with a single P625 point, a zero-extent bounding box (point) is returned
 
 Usage Examples
 --------------

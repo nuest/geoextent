@@ -11,6 +11,7 @@ Unreleased
   - Add ioerDATA (Leibniz IOER) Dataverse instance support (:issue:`85`)
   - Add heiDATA (Heidelberg University) Dataverse instance support (:issue:`94`)
   - Add Edmond (Max Planck Society) Dataverse instance support (:issue:`93`)
+  - Add Wikidata as content provider for extracting geographic extents from Wikidata items via SPARQL (:issue:`83`)
 
 - **New Features**
 

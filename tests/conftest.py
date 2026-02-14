@@ -32,6 +32,7 @@ _PROVIDER_FILES = {
     "test_api_ioer_data.py",
     "test_api_heidata.py",
     "test_api_edmond.py",
+    "test_api_wikidata.py",
     "test_external_metadata.py",
     "test_remote_single.py",
     "test_remote_multi.py",
@@ -49,6 +50,8 @@ _FAST_PATTERNS = {
     "known_host",
     "doi_pattern_recognition",
     "can_be_used",
+    "parse_wkt_point",
+    "extract_coordinates",
 }
 
 # One representative real-network test per provider for smoke-testing.
@@ -69,6 +72,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_ioer_data_metadata_only_extraction",
     "test_heidata_metadata_only_extraction",
     "test_edmond_metadata_only_extraction",
+    "test_wikidata_metadata_only_extraction",
 }
 
 

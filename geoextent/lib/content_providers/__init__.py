@@ -18,6 +18,7 @@ from . import Opara
 from . import BGR
 from . import Senckenberg
 from . import MendeleyData
+from . import Wikidata
 
 __all__ = [
     "providers",
@@ -33,4 +34,5 @@ __all__ = [
     "BGR",
     "Senckenberg",
     "MendeleyData",
+    "Wikidata",
 ]

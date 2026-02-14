@@ -18,6 +18,7 @@ from .content_providers import Opara
 from .content_providers import Senckenberg
 from .content_providers import BGR
 from .content_providers import MendeleyData
+from .content_providers import Wikidata
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -1260,6 +1261,7 @@ def _extract_from_remote(
         raise Exception("No extraction options enabled!")
 
     content_providers = [
+        Wikidata.Wikidata,  # Wikidata first: Q-numbers won't match DOI providers
         Dryad.Dryad,
         Figshare.Figshare,
         Zenodo.Zenodo,

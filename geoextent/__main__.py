@@ -123,10 +123,14 @@ class readable_file_or_dir(argparse.Action):
             Opara,
             Dataverse,
             Senckenberg,
+            BGR,
+            MendeleyData,
+            Wikidata,
         )
 
         # Test against all content providers
         content_providers = [
+            Wikidata.Wikidata,
             Dryad.Dryad,
             Figshare.Figshare,
             Zenodo.Zenodo,
@@ -137,6 +141,8 @@ class readable_file_or_dir(argparse.Action):
             Opara.Opara,
             Dataverse.Dataverse,
             Senckenberg.Senckenberg,
+            BGR.BGR,
+            MendeleyData.MendeleyData,
         ]
 
         for provider_class in content_providers:
