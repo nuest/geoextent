@@ -53,7 +53,16 @@ CSV
 ^^^
 
 Different CSV delimiters (``;``, ``,``) are automatically detected.
-Supported column names, by using `Regular expressions operations <https://docs.python.org/3/library/re.html>`_, are as follows:
+
+**GDAL-based column detection** (preferred): geoextent first tries to open CSV files using the `GDAL CSV driver <https://gdal.org/drivers/vector/csv.html>`_ with open options for automatic coordinate column detection. The following column names are recognised:
+
+- Longitude/X: ``Longitude``, ``Long``, ``Lon``, ``Lng``, ``X``, ``Easting``
+- Latitude/Y: ``Latitude``, ``Lat``, ``Y``, ``Northing``
+- Geometry (WKT/WKB): ``geometry``, ``geom``, ``the_geom``, ``wkt``, ``WKT``, ``wkb``, ``WKB``, ``coordinates``, ``coords``
+
+**CSVT sidecar files**: If a ``.csvt`` file is present alongside the CSV, GDAL uses it to determine column types. Supported geometric type declarations include ``CoordX``, ``CoordY``, ``Point(X)``, ``Point(Y)``, and ``WKT``. See the `GDAL CSV driver documentation <https://gdal.org/drivers/vector/csv.html>`_ for details.
+
+**Regex fallback**: If GDAL cannot detect coordinate columns, geoextent falls back to `Regular expressions <https://docs.python.org/3/library/re.html>`_-based column name matching:
 
 - Latitude
   - ``(.)*latitude(.)*``
