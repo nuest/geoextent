@@ -152,7 +152,10 @@
       "WebFetch(domain:geojson.io)",
       "WebFetch(domain:data.fdz.ioer.de)",
       "Bash(source:*)",
-      "WebFetch(domain:heidata.uni-heidelberg.de)"
+      "WebFetch(domain:heidata.uni-heidelberg.de)",
+      "WebFetch(domain:edmond.mpg.de)",
+      "Bash(unzip:*)",
+      "Bash(7z l:*)"
     ],
     "deny": [],
     "ask": []

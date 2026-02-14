@@ -10,6 +10,7 @@ Unreleased
   - Add Mendeley Data as content provider (:issue:`58`)
   - Add ioerDATA (Leibniz IOER) Dataverse instance support (:issue:`85`)
   - Add heiDATA (Heidelberg University) Dataverse instance support (:issue:`94`)
+  - Add Edmond (Max Planck Society) Dataverse instance support (:issue:`93`)
 
 - **New Features**
 

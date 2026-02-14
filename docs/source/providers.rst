@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 13 research data repositories (including 9 Dataverse instances). All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 14 research data repositories (including 10 Dataverse instances). All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -36,6 +36,8 @@ Quick Reference
 | ioerDATA          | 10.71830            | 10.71830/VDMUWW                        |
 +-------------------+---------------------+----------------------------------------+
 | heiDATA           | 10.11588/DATA       | 10.11588/DATA/TJNQZG                  |
++-------------------+---------------------+----------------------------------------+
+| Edmond            | 10.17617            | 10.17617/3.QZGTDU                     |
 +-------------------+---------------------+----------------------------------------+
 | GFZ Data Services | 10.5880/GFZ         | 10.5880/GFZ.2.1.2020.001              |
 +-------------------+---------------------+----------------------------------------+
@@ -217,6 +219,8 @@ Dataverse
 +----------------------------+------------------------------+--------------------+
 | heiDATA                    | heidata.uni-heidelberg.de    | 10.11588/DATA      |
 +----------------------------+------------------------------+--------------------+
+| Edmond                     | edmond.mpg.de                | 10.17617           |
++----------------------------+------------------------------+--------------------+
 | Demo DataverseNL           | demo.dataverse.nl            | (varies)           |
 +----------------------------+------------------------------+--------------------+
 
@@ -234,7 +238,7 @@ Dataverse
 
 **Special Notes:**
 
-- Supports 9 Dataverse instances (see table above)
+- Supports 10 Dataverse instances (see table above)
 - Automatically skips restricted files that require authentication
 - Handles complex dataset structures
 - API-based metadata and file retrieval
@@ -293,6 +297,33 @@ heiDATA
 - Standard Dataverse instance (uses Dataverse provider internally)
 - Has the NFDI4Earth Label for geoscience data
 - Supports both open access and restricted datasets
+- Uses the same Dataverse API as all other Dataverse instances
+
+Edmond
+^^^^^^
+
+**Description:** Research data repository of the Max Planck Society, hosted on Dataverse. Provides open access to research data from Max Planck Institutes across all scientific disciplines, including earth sciences, chemistry, and biogeochemistry.
+
+**Website:** https://edmond.mpg.de/
+
+**DOI Prefix:** ``10.17617``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.17617/3.QZGTDU``
+- DOI URL: ``https://doi.org/10.17617/3.QZGTDU``
+- Edmond URL: ``https://edmond.mpg.de/dataset.xhtml?persistentId=doi:10.17617/3.QZGTDU``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b 10.17617/3.QZGTDU
+
+**Special Notes:**
+
+- Standard Dataverse instance (uses Dataverse provider internally)
+- Hosts data from Max Planck Institutes worldwide
 - Uses the same Dataverse API as all other Dataverse instances
 
 GFZ Data Services
