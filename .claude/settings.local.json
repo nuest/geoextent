@@ -171,7 +171,8 @@
       "Bash(# Look for geoshapes that contain LineString # Search commons for .map files that might have LineString \\(rivers, routes, etc.\\) curl -s -X POST ''https://query.wikidata.org/sparql'' \\\\ -H ''Accept: application/json'' \\\\ -H ''User-Agent: geoextent/0.12 \\(https://github.com/o2r-project/geoextent\\)'' \\\\ --data-urlencode ''query=SELECT ?item ?itemLabel ?geoshape WHERE { ?item wdt:P31 wd:Q4022 . ?item wdt:P3896 ?geoshape . SERVICE wikibase:label { bd:serviceParam wikibase:language \"\"en\"\" . } } LIMIT 5'' \\\\ 2>&1 | python3 -m json.tool)",
       "Bash(# Let''s also search for how the Wikidata Query Service handles geo:wktLiteral # Check if there are any geometry collections or other types in coordinate qualifiers curl -s -X POST ''https://query.wikidata.org/sparql'' \\\\ -H ''Accept: application/json'' \\\\ -H ''User-Agent: geoextent/0.12 \\(https://github.com/o2r-project/geoextent\\)'' \\\\ --data-urlencode ''query=SELECT ?item ?itemLabel ?geoshape WHERE { ?item wdt:P31 wd:Q12284 . ?item wdt:P3896 ?geoshape . SERVICE wikibase:label { bd:serviceParam wikibase:language \"\"en\"\" . } } LIMIT 5'' \\\\ 2>&1 | python3 -m json.tool)",
       "WebFetch(domain:query.wikidata.org)",
-      "WebFetch(domain:commons.wikimedia.org)"
+      "WebFetch(domain:commons.wikimedia.org)",
+      "Bash(wc:*)"
     ],
     "deny": [],
     "ask": []

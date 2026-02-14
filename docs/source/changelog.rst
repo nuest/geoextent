@@ -26,6 +26,7 @@ Unreleased
 
 - **Improvements**
 
+  - Use GDAL CSV driver open options for coordinate column detection, supporting GDAL column naming conventions (``X``/``Y``, ``Easting``/``Northing``) and CSVT sidecar files (:issue:`53`)
   - Automatically skip restricted files in Dataverse downloads
 
 0.12.0

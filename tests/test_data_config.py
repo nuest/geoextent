@@ -56,6 +56,11 @@ TEST_DATA = {
         "time_dd_mm_yyyy": "tests/testdata/csv/3DCMTcatalog_TakemuraEPS_dd_mm_yyyy.csv",
         "time_month_abbr": "tests/testdata/csv/3DCMTcatalog_TakemuraEPS_month_abbr_dd_yyyy_time_format.csv",
         "time_mixed": "tests/testdata/csv/3DCMTcatalog_TakemuraEPS_mixed_time_formats.csv",
+        # GDAL column name variations (issue #53)
+        "cities_nl_xy": "tests/testdata/csv/cities_NL_XY.csv",
+        "cities_nl_easting_northing": "tests/testdata/csv/cities_NL_easting_northing.csv",
+        "cities_nl_the_geom": "tests/testdata/csv/cities_NL_the_geom.csv",
+        "cities_nl_csvt": "tests/testdata/csv/cities_NL_csvt.csv",
     },
     # Folders
     "folders": {

@@ -7,6 +7,14 @@ from . import helpfunctions as hf
 
 logger = logging.getLogger("geoextent")
 
+# Column name patterns for GDAL CSV open options.
+# These are comma-separated lists used with X_POSSIBLE_NAMES, Y_POSSIBLE_NAMES,
+# and GEOM_POSSIBLE_NAMES to let GDAL auto-detect coordinate/geometry columns.
+# See https://gdal.org/drivers/vector/csv.html
+_GDAL_X_NAMES = "Longitude,Long,Lon,Lng,X,Easting"
+_GDAL_Y_NAMES = "Latitude,Lat,Y,Northing"
+_GDAL_GEOM_NAMES = "geometry,geom,the_geom,wkt,WKT,wkb,WKB,coordinates,coords"
+
 search = {
     "longitude": [
         "(.)*longitude",
@@ -111,6 +119,74 @@ def checkFileSupported(filepath):
                 return True
     else:
         return False
+
+
+def _extract_bbox_via_gdal(filepath):
+    """Try to extract bounding box using GDAL's CSV driver with open options.
+
+    Uses X_POSSIBLE_NAMES, Y_POSSIBLE_NAMES, and GEOM_POSSIBLE_NAMES to let
+    GDAL auto-detect coordinate and geometry columns. Also picks up CSVT sidecar
+    files automatically when present.
+
+    Returns dict with bbox and crs, or None if GDAL cannot detect geometry.
+    """
+    try:
+        open_options = [
+            "X_POSSIBLE_NAMES={}".format(_GDAL_X_NAMES),
+            "Y_POSSIBLE_NAMES={}".format(_GDAL_Y_NAMES),
+            "GEOM_POSSIBLE_NAMES={}".format(_GDAL_GEOM_NAMES),
+            "KEEP_GEOM_COLUMNS=YES",
+            "AUTODETECT_TYPE=YES",
+        ]
+        ds = gdal.OpenEx(
+            filepath,
+            gdal.OF_VECTOR,
+            allowed_drivers=["CSV"],
+            open_options=open_options,
+        )
+        if not ds:
+            return None
+
+        layer = ds.GetLayer(0)
+        if layer is None or layer.GetGeomType() == ogr.wkbNone:
+            ds = None
+            return None
+
+        if layer.GetFeatureCount() == 0:
+            ds = None
+            return None
+
+        extent = layer.GetExtent()  # (minX, maxX, minY, maxY)
+        bbox = [
+            extent[0],
+            extent[2],
+            extent[1],
+            extent[3],
+        ]  # [minlon, minlat, maxlon, maxlat]
+
+        crs = "4326"
+        srs = layer.GetSpatialRef()
+        if srs:
+            try:
+                srs.AutoIdentifyEPSG()
+                code = srs.GetAuthorityCode(None)
+                if code:
+                    crs = code
+            except Exception:
+                pass
+
+        ds = None
+        logger.debug(
+            "GDAL CSV driver extracted bbox {} with CRS {} from {}".format(
+                bbox, crs, filepath
+            )
+        )
+        return {"bbox": bbox, "crs": crs}
+    except Exception as e:
+        logger.debug(
+            "GDAL CSV open options extraction failed for {}: {}".format(filepath, e)
+        )
+        return None
 
 
 def _extract_bbox_from_geometry_column(filePath, chunk_size=50000):
@@ -285,12 +361,18 @@ def getBoundingBox(filePath, chunk_size=50000):
     returns spatialExtent: type list, length = 4 , type = float, schema = [min(longs), min(lats), max(longs), max(lats)]
     """
 
-    # First, try to extract from geometry column (WKT data)
+    # 1. Try GDAL CSV driver with open options (handles CSVT sidecars, GDAL column
+    #    name conventions like X/Y/Easting/Northing, and GEOM_POSSIBLE_NAMES for WKT)
+    gdal_extent = _extract_bbox_via_gdal(filePath)
+    if gdal_extent:
+        return gdal_extent
+
+    # 2. Try extracting from geometry column via manual WKT/WKB parsing
     geometry_extent = _extract_bbox_from_geometry_column(filePath, chunk_size)
     if geometry_extent:
         return geometry_extent
 
-    # Fall back to traditional coordinate column extraction
+    # 3. Fall back to traditional regex-based coordinate column extraction
     with open(filePath) as csv_file:
         delimiter = hf.getDelimiter(csv_file)
         data = csv.reader(csv_file, delimiter=delimiter)

@@ -347,6 +347,64 @@ class TestCSVGeometryColumns:
             os.unlink(temp_path)
 
 
+class TestCSVGdalColumnNames:
+    """Test CSV files with GDAL-recognized column naming conventions (issue #53)"""
+
+    def test_gdal_xy_columns(self):
+        """Test bbox extraction from CSV with X/Y column names"""
+        result = extract_bbox_only(get_test_file("csv", "cities_nl_xy"))
+        assert_bbox_result(result, NL_CITIES_BBOX)
+
+    def test_gdal_easting_northing_columns(self):
+        """Test bbox extraction from CSV with Easting/Northing column names"""
+        result = extract_bbox_only(get_test_file("csv", "cities_nl_easting_northing"))
+        assert_bbox_result(result, NL_CITIES_BBOX)
+
+    def test_gdal_the_geom_column(self):
+        """Test bbox extraction from CSV with the_geom WKT column (PostGIS convention)"""
+        result = extract_bbox_only(get_test_file("csv", "cities_nl_the_geom"))
+        assert_bbox_result(result, NL_CITIES_BBOX)
+
+    def test_gdal_csvt_sidecar(self):
+        """Test bbox extraction from CSV with CSVT sidecar file specifying CoordX/CoordY"""
+        result = extract_bbox_only(get_test_file("csv", "cities_nl_csvt"))
+        assert_bbox_result(result, NL_CITIES_BBOX)
+
+    def test_gdal_xy_columns_with_tbox(self):
+        """Test combined extraction from CSV with X/Y columns"""
+        result = extract_bbox_and_tbox(get_test_file("csv", "cities_nl_xy"))
+        assert_bbox_and_tbox_result(result, NL_CITIES_BBOX, NL_CITIES_TBOX)
+
+    def test_existing_columns_still_work_via_gdal(self):
+        """Test that standard Latitude/Longitude columns are now handled by GDAL path"""
+        result = extract_bbox_only(get_test_file("csv", "cities_nl"))
+        assert_bbox_result(result, get_expected_bbox("csv", "cities_nl"))
+
+    def test_gdal_direct_function(self):
+        """Test the _extract_bbox_via_gdal function directly"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        result = handleCSV._extract_bbox_via_gdal(get_test_file("csv", "cities_nl_xy"))
+        assert result is not None
+        assert "bbox" in result
+        assert "crs" in result
+        bbox = result["bbox"]
+        assert pytest.approx(bbox[0], tolerance) == 4.3175  # minlon
+        assert pytest.approx(bbox[1], tolerance) == 51.434444  # minlat
+        assert pytest.approx(bbox[2], tolerance) == 6.574722  # maxlon
+        assert pytest.approx(bbox[3], tolerance) == 53.217222  # maxlat
+
+    def test_gdal_returns_none_for_unrecognized_columns(self):
+        """Test that GDAL path returns None for CSV with unrecognized column names"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        # case_flip has columns no_Latitude and no_Longitude — not in GDAL name lists
+        result = handleCSV._extract_bbox_via_gdal(
+            "tests/testdata/csv/cities_NL_case_flip.csv"
+        )
+        assert result is None
+
+
 class TestCSVEdgeCases:
     """Test CSV edge cases and error conditions"""
 
