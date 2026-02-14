@@ -10,6 +10,11 @@ information from datasets hosted on Dataverse installations.
 Supported Dataverse installations:
 - Harvard Dataverse (dataverse.harvard.edu)
 - DataverseNL (dataverse.nl)
+- DataverseNO (dataverse.no)
+- UNC Dataverse (dataverse.unc.edu)
+- UVA Library (data.library.virginia.edu)
+- Recherche Data Gouv (recherche.data.gouv.fr)
+- ioerDATA (data.fdz.ioer.de)
 - Other Dataverse installations following the standard API
 
 Supported identifier formats:
@@ -55,6 +60,7 @@ class Dataverse(DoiProvider):
             "data.library.virginia.edu",
             "dataverse.no",
             "recherche.data.gouv.fr",
+            "data.fdz.ioer.de",
         ]
 
         # URL patterns for validation
@@ -175,6 +181,7 @@ class Dataverse(DoiProvider):
             r"10\.34894/",  # DataverseNL
             r"10\.18710/",  # DataverseNO
             r"10\.5064/",  # UNC Dataverse
+            r"10\.71830/",  # ioerDATA (Leibniz Institute of Ecological Urban and Regional Development)
         ]
 
         return any(
@@ -353,20 +360,15 @@ class Dataverse(DoiProvider):
             folder (str): Target folder for downloads
             throttle (bool): Whether to throttle requests
             download_data (bool): Whether to download actual data files
+            max_size_bytes (int): Maximum total download size in bytes
+            download_skip_nogeo (bool): Skip non-geospatial files
+            download_skip_nogeo_exts (set): Additional geospatial file extensions
+            max_download_workers (int): Number of parallel download workers
         """
-        from tqdm import tqdm
-
         if max_download_method_seed is None:
             max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
 
         self.throttle = throttle
-
-        # Warning for download skip nogeo not being supported
-        if download_skip_nogeo:
-            self.log.warning(
-                "Dataverse provider does not support selective file filtering. "
-                "The --download-skip-nogeo option will be ignored. All files will be downloaded."
-            )
 
         if not download_data:
             self.log.warning(
@@ -389,66 +391,85 @@ class Dataverse(DoiProvider):
 
             self.log.debug(f"Found {len(files)} files in dataset")
 
-            # Log download summary before starting
+            # Filter out restricted files
+            accessible_files = []
+            restricted_count = 0
+            for file_info in files:
+                if file_info.get("restricted", False):
+                    restricted_count += 1
+                    filename = (
+                        file_info.get("dataFile", {}).get("filename")
+                        or file_info.get("filename")
+                        or file_info.get("label", "unknown")
+                    )
+                    self.log.debug(f"Skipping restricted file: {filename}")
+                else:
+                    accessible_files.append(file_info)
+
+            if restricted_count > 0:
+                self.log.info(
+                    f"Skipping {restricted_count} restricted file(s) "
+                    f"({len(accessible_files)} accessible file(s) remaining)"
+                )
+
+            if not accessible_files:
+                self.log.warning(
+                    "No accessible files found in dataset (all files are restricted)"
+                )
+                return
+
+            # Convert to standard file info format for filtering and batch download
+            file_info_list = []
+            for f in accessible_files:
+                download_url = self._get_file_download_url(f)
+                df = f.get("dataFile", {})
+                filename = (
+                    df.get("filename")
+                    or f.get("filename")
+                    or f.get("label", f"file_{len(file_info_list) + 1}")
+                )
+                file_size = df.get("filesize", 0)
+                file_info_list.append(
+                    {"name": filename, "url": download_url, "size": file_size}
+                )
+
+            # Apply geospatial file filtering
+            if download_skip_nogeo:
+                file_info_list = self._filter_geospatial_files(
+                    file_info_list,
+                    skip_non_geospatial=True,
+                    additional_extensions=download_skip_nogeo_exts,
+                )
+
+            # Apply size limiting
+            if max_size_bytes:
+                max_size_mb = max_size_bytes / (1024 * 1024)
+                selected = self._filter_geospatial_files(
+                    file_info_list,
+                    skip_non_geospatial=False,
+                    max_size_mb=max_size_mb,
+                )
+                if not selected:
+                    self.log.warning(
+                        f"No files fit within the download size limit of {max_size_mb:.1f} MB"
+                    )
+                    return
+                file_info_list = selected
+
+            if not file_info_list:
+                self.log.warning("No files to download after filtering")
+                return
+
             self.log.info(
-                f"Starting download of {len(files)} files from Dataverse dataset {self.persistent_id or self.dataset_id}"
+                f"Downloading {len(file_info_list)} file(s) from Dataverse dataset "
+                f"{self.persistent_id or self.dataset_id}"
             )
 
-            counter = 1
-            # Process files with progress bar
-            with tqdm(
-                total=len(files),
-                desc=f"Downloading Dataverse files from {self.persistent_id or self.dataset_id}",
-                unit="file",
-            ) as pbar:
-                for file_info in files:
-                    try:
-                        download_url = self._get_file_download_url(file_info)
-
-                        # Get filename
-                        if (
-                            "dataFile" in file_info
-                            and "filename" in file_info["dataFile"]
-                        ):
-                            filename = file_info["dataFile"]["filename"]
-                        elif "filename" in file_info:
-                            filename = file_info["filename"]
-                        elif "label" in file_info:
-                            filename = file_info["label"]
-                        else:
-                            filename = f"file_{counter}"
-
-                        pbar.set_postfix_str(f"Downloading {filename}")
-
-                        filepath = os.path.join(folder, filename)
-
-                        self.log.debug(
-                            f"Downloading file {counter}/{len(files)}: {filename}"
-                        )
-
-                        # Download file
-                        response = self._request(
-                            download_url,
-                            throttle=self.throttle,
-                            stream=True,
-                        )
-                        response.raise_for_status()
-
-                        # Write file to disk
-                        with open(filepath, "wb") as dst:
-                            for chunk in response.iter_content(chunk_size=8192):
-                                if chunk:
-                                    dst.write(chunk)
-
-                        self.log.debug(
-                            f"Downloaded: {filename} ({counter}/{len(files)})"
-                        )
-                        counter += 1
-                        pbar.update(1)
-
-                    except Exception as e:
-                        self.log.warning(f"Failed to download file {filename}: {e}")
-                        continue
+            self._download_files_batch(
+                file_info_list,
+                folder,
+                max_workers=max_download_workers,
+            )
 
         except Exception as e:
             self.log.error(f"Error downloading Dataverse dataset: {e}")

@@ -97,6 +97,7 @@ class TestDataverseProvider:
         "data.library.virginia.edu",
         "dataverse.no",
         "recherche.data.gouv.fr",
+        "data.fdz.ioer.de",
     ]
 
     def test_provider_instantiation(self, dataverse_provider):
@@ -148,6 +149,17 @@ class TestDataverseProvider:
             assert dataverse_provider._is_dataverse_doi(
                 doi
             ), f"Should recognize DataverseNL DOI: {doi}"
+
+        # ioerDATA DOIs
+        ioer_dois = [
+            "10.71830/VDMUWW",
+            "10.71830/ABCDEF",
+        ]
+
+        for doi in ioer_dois:
+            assert dataverse_provider._is_dataverse_doi(
+                doi
+            ), f"Should recognize ioerDATA DOI: {doi}"
 
         # Non-Dataverse DOIs
         non_dataverse_dois = [
@@ -444,15 +456,17 @@ class TestDataverseProvider:
             }
         ]
 
-        # Mock the responses
-        with patch.object(provider, "_get_file_list", return_value=mock_files):
-            with patch.object(provider, "_request") as mock_request:
-                # Mock successful download response
-                mock_response = MagicMock()
-                mock_response.iter_content.return_value = [b"test,data\n1,2\n"]
-                mock_request.return_value = mock_response
+        # Mock the batch download to write a file directly
+        def mock_batch_download(file_list, target_folder, **kwargs):
+            for f in file_list:
+                filepath = os.path.join(target_folder, f["name"])
+                with open(filepath, "w") as dst:
+                    dst.write("test,data\n1,2\n")
 
-                # Test download
+        with patch.object(provider, "_get_file_list", return_value=mock_files):
+            with patch.object(
+                provider, "_download_files_batch", side_effect=mock_batch_download
+            ):
                 provider.download(temp_dir, download_data=True)
 
                 # Verify file was "downloaded"

@@ -8,6 +8,11 @@ Unreleased
 - **New Content Providers**
 
   - Add Mendeley Data as content provider (:issue:`58`)
+  - Add ioerDATA (Leibniz IOER) Dataverse instance support (:issue:`85`)
+
+- **Improvements**
+
+  - Automatically skip restricted files in Dataverse downloads
 
 0.12.0
 ^^^^^^

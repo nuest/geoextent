@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 11 research data repositories. All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 12 research data repositories (including 8 Dataverse instances). All providers support DOI-based and URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -32,6 +32,8 @@ Quick Reference
 | OSF               | 10.17605/OSF.IO     | 10.17605/OSF.IO/ABC123                |
 +-------------------+---------------------+----------------------------------------+
 | Dataverse         | Varies by instance  | 10.7910/DVN/123456                    |
++-------------------+---------------------+----------------------------------------+
+| ioerDATA          | 10.71830            | 10.71830/VDMUWW                        |
 +-------------------+---------------------+----------------------------------------+
 | GFZ Data Services | 10.5880/GFZ         | 10.5880/GFZ.2.1.2020.001              |
 +-------------------+---------------------+----------------------------------------+
@@ -190,7 +192,29 @@ Dataverse
 
 **Website:** https://dataverse.org/
 
-**DOI Prefix:** Varies by Dataverse instance (commonly ``10.7910/DVN``)
+**DOI Prefix:** Varies by Dataverse instance
+
+**Supported Dataverse Instances:**
+
++----------------------------+------------------------------+--------------------+
+| Instance                   | Host                         | DOI Prefix         |
++============================+==============================+====================+
+| Harvard Dataverse          | dataverse.harvard.edu        | 10.7910/DVN        |
++----------------------------+------------------------------+--------------------+
+| DataverseNL                | dataverse.nl                 | 10.34894           |
++----------------------------+------------------------------+--------------------+
+| DataverseNO                | dataverse.no                 | 10.18710           |
++----------------------------+------------------------------+--------------------+
+| UNC Dataverse              | dataverse.unc.edu            | 10.5064            |
++----------------------------+------------------------------+--------------------+
+| UVA Library Dataverse      | data.library.virginia.edu    | (varies)           |
++----------------------------+------------------------------+--------------------+
+| Recherche Data Gouv        | recherche.data.gouv.fr       | (varies)           |
++----------------------------+------------------------------+--------------------+
+| ioerDATA                   | data.fdz.ioer.de             | 10.71830           |
++----------------------------+------------------------------+--------------------+
+| Demo DataverseNL           | demo.dataverse.nl            | (varies)           |
++----------------------------+------------------------------+--------------------+
 
 **Supported Identifier Formats:**
 
@@ -206,9 +230,38 @@ Dataverse
 
 **Special Notes:**
 
-- Supports multiple Dataverse instances (Harvard, ICPSR, etc.)
+- Supports 8 Dataverse instances (see table above)
+- Automatically skips restricted files that require authentication
 - Handles complex dataset structures
 - API-based metadata and file retrieval
+
+ioerDATA
+^^^^^^^^
+
+**Description:** Research data repository of the Leibniz Institute of Ecological Urban and Regional Development (IOER), hosted on Dataverse. Specializes in urban and regional development, land use monitoring, and spatial analysis data for Germany and Europe.
+
+**Website:** https://data.fdz.ioer.de/
+
+**DOI Prefix:** ``10.71830``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.71830/VDMUWW``
+- DOI URL: ``https://doi.org/10.71830/VDMUWW``
+- ioerDATA URL: ``https://data.fdz.ioer.de/dataset.xhtml?persistentId=doi:10.71830/VDMUWW``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b 10.71830/VDMUWW
+
+**Special Notes:**
+
+- Standard Dataverse instance (uses Dataverse provider internally)
+- Some datasets have restricted files requiring authentication; these are automatically skipped
+- Specializes in German urban/regional development and land use data
+- Uses the same Dataverse API as all other Dataverse instances
 
 GFZ Data Services
 ^^^^^^^^^^^^^^^^^

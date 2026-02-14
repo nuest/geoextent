@@ -149,7 +149,8 @@
       "WebFetch(domain:data.mendeley.com)",
       "WebFetch(domain:dev.mendeley.com)",
       "Bash(__NEW_LINE_075fcdbf72eb0f03__ echo \"=== /datasets/id \\(no version\\) ===\")",
-      "WebFetch(domain:geojson.io)"
+      "WebFetch(domain:geojson.io)",
+      "WebFetch(domain:data.fdz.ioer.de)"
     ],
     "deny": [],
     "ask": []
