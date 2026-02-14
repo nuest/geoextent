@@ -16,6 +16,7 @@ from . import GFZ
 from . import Pensoft
 from . import Opara
 from . import BGR
+from . import Senckenberg
 from . import MendeleyData
 
 __all__ = [
@@ -30,5 +31,6 @@ __all__ = [
     "Pensoft",
     "Opara",
     "BGR",
+    "Senckenberg",
     "MendeleyData",
 ]
