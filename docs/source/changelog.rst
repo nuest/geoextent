@@ -10,6 +10,15 @@ Unreleased
   - Add Mendeley Data as content provider (:issue:`58`)
   - Add ioerDATA (Leibniz IOER) Dataverse instance support (:issue:`85`)
 
+- **New Features**
+
+  - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
+
+- **Bug Fixes**
+
+  - Skip raster files with pixel-based coordinates (outside WGS84 bounds) instead of merging them into geographic extents
+  - Validate bounding boxes against WGS84 coordinate ranges before including in results
+
 - **Improvements**
 
   - Automatically skip restricted files in Dataverse downloads

@@ -157,7 +157,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -367,6 +367,13 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--assume-wgs84",
+        action="store_true",
+        default=False,
+        help="assume WGS84 (EPSG:4326) for raster files without projection information (e.g., world files without .prj). By default, ungeoreferenced rasters are skipped.",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs="+",
@@ -534,6 +541,7 @@ def main():
                     placename=placename_service,
                     placename_escape=args["placename_escape"],
                     legacy=args["legacy"],
+                    assume_wgs84=args["assume_wgs84"],
                 )
             elif is_directory or is_zipfile:
                 output = extent.fromDirectory(
@@ -547,6 +555,7 @@ def main():
                     placename=placename_service,
                     placename_escape=args["placename_escape"],
                     legacy=args["legacy"],
+                    assume_wgs84=args["assume_wgs84"],
                 )
             elif is_url or is_doi or is_repository:
                 output = extent.fromRemote(
@@ -571,6 +580,7 @@ def main():
                     ext_metadata_method=args["ext_metadata_method"],
                     keep_files=args["keep_files"],
                     legacy=args["legacy"],
+                    assume_wgs84=args["assume_wgs84"],
                 )
         else:
             # Multiple files handling
@@ -612,6 +622,7 @@ def main():
                             ext_metadata_method=args["ext_metadata_method"],
                             keep_files=args["keep_files"],
                             legacy=args["legacy"],
+                            assume_wgs84=args["assume_wgs84"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output
@@ -628,6 +639,7 @@ def main():
                             placename=placename_service,
                             placename_escape=args["placename_escape"],
                             legacy=args["legacy"],
+                            assume_wgs84=args["assume_wgs84"],
                         )
                         if file_output is not None:
                             output["details"][file_path] = file_output
@@ -644,6 +656,7 @@ def main():
                             placename=placename_service,
                             placename_escape=args["placename_escape"],
                             legacy=args["legacy"],
+                            assume_wgs84=args["assume_wgs84"],
                         )
                         if dir_output is not None:
                             output["details"][file_path] = dir_output

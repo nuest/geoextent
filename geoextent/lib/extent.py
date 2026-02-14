@@ -65,7 +65,7 @@ def _swap_coordinate_order(metadata):
     return result
 
 
-def compute_bbox_wgs84(module, path):
+def compute_bbox_wgs84(module, path, assume_wgs84=False):
     """
     Extract and transform bounding box to WGS84.
 
@@ -75,13 +75,20 @@ def compute_bbox_wgs84(module, path):
     Args:
         module: Handler module (handleCSV, handleVector, handleRaster)
         path: File path
+        assume_wgs84: If True, assume WGS84 for ungeoreferenced rasters (default False)
 
     Returns:
         dict: {"bbox": [minlon, minlat, maxlon, maxlat], "crs": "4326"}
               Coordinates are always in [longitude, latitude] order per GeoJSON spec.
     """
     logger.debug("compute_bbox_wgs84: {}".format(path))
-    spatial_extent_origin = module.getBoundingBox(path)
+    if module.get_handler_name() == "handleRaster":
+        spatial_extent_origin = module.getBoundingBox(path, assume_wgs84=assume_wgs84)
+    else:
+        spatial_extent_origin = module.getBoundingBox(path)
+
+    if spatial_extent_origin is None:
+        return None
 
     try:
         if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
@@ -120,7 +127,7 @@ def compute_bbox_wgs84(module, path):
     return spatial_extent
 
 
-def compute_convex_hull_wgs84(module, path):
+def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
     """
     Extract and transform convex hull to WGS84.
 
@@ -130,6 +137,7 @@ def compute_convex_hull_wgs84(module, path):
     Args:
         module: Handler module (handleCSV, handleVector, handleRaster)
         path: File path
+        assume_wgs84: If True, assume WGS84 for ungeoreferenced rasters (default False)
 
     Returns:
         dict: {"bbox": [minlon, minlat, maxlon, maxlat], "crs": "4326",
@@ -145,7 +153,7 @@ def compute_convex_hull_wgs84(module, path):
                 module.get_handler_name()
             )
         )
-        return compute_bbox_wgs84(module, path)
+        return compute_bbox_wgs84(module, path, assume_wgs84=assume_wgs84)
 
     spatial_extent_origin = module.getConvexHull(path)
 
@@ -265,6 +273,7 @@ def fromDirectory(
     placename: str | None = None,
     placename_escape: bool = False,
     legacy: bool = False,
+    assume_wgs84: bool = False,
     _internal: bool = False,
 ):
     """Extracts geoextent from a directory/archive
@@ -277,6 +286,7 @@ def fromDirectory(
     recursive -- True to process subdirectories recursively (default True)
     include_geojsonio -- True if geojson.io URL should be included in output (default False)
     placename -- gazetteer to use for placename lookup (geonames, nominatim, photon) (default None)
+    assume_wgs84 -- True to assume WGS84 for ungeoreferenced rasters (default False)
     """
 
     from tqdm import tqdm
@@ -383,7 +393,22 @@ def fromDirectory(
                 )
             )
             if os.path.isdir(absolute_path):
-                if recursive:
+                if absolute_path.rstrip(os.sep).endswith(".gdb"):
+                    # ESRI File Geodatabase — treat as a dataset, not a directory
+                    metadata_file = fromFile(
+                        absolute_path,
+                        bbox,
+                        tbox,
+                        convex_hull,
+                        show_progress=show_progress,
+                        include_geojsonio=include_geojsonio,
+                        placename=placename,
+                        placename_escape=placename_escape,
+                        assume_wgs84=assume_wgs84,
+                        _internal=True,
+                    )
+                    metadata_directory[str(filename)] = metadata_file
+                elif recursive:
                     metadata_directory[filename] = fromDirectory(
                         absolute_path,
                         bbox,
@@ -397,6 +422,7 @@ def fromDirectory(
                         include_geojsonio=include_geojsonio,
                         placename=placename,
                         placename_escape=placename_escape,
+                        assume_wgs84=assume_wgs84,
                         _internal=True,
                     )
                 else:
@@ -413,6 +439,7 @@ def fromDirectory(
                     include_geojsonio=include_geojsonio,
                     placename=placename,
                     placename_escape=placename_escape,
+                    assume_wgs84=assume_wgs84,
                     _internal=True,
                 )
                 metadata_directory[str(filename)] = metadata_file
@@ -577,6 +604,7 @@ def fromFile(
     placename=None,
     placename_escape=False,
     legacy=False,
+    assume_wgs84=False,
     _internal=False,
 ):
     """Extracts geoextent from a file
@@ -588,6 +616,7 @@ def fromFile(
     num_sample -- sample size to determine time format (Only required for csv files)
     include_geojsonio -- True if geojson.io URL should be included in output (default False)
     placename -- gazetteer to use for placename lookup (geonames, nominatim, photon) (default None)
+    assume_wgs84 -- True to assume WGS84 for ungeoreferenced rasters (default False)
     """
     from tqdm import tqdm
 
@@ -605,7 +634,7 @@ def fromFile(
         )
         raise Exception("No extraction options enabled!")
 
-    if os.path.isdir(filepath):
+    if os.path.isdir(filepath) and not filepath.rstrip(os.sep).endswith(".gdb"):
         logger.info("{} is a directory, not a file".format(filepath))
         return None
 
@@ -658,10 +687,12 @@ def fromFile(
                     if bbox:
                         if convex_hull:
                             spatial_extent = compute_convex_hull_wgs84(
-                                usedModule, filepath
+                                usedModule, filepath, assume_wgs84=assume_wgs84
                             )
                         else:
-                            spatial_extent = compute_bbox_wgs84(usedModule, filepath)
+                            spatial_extent = compute_bbox_wgs84(
+                                usedModule, filepath, assume_wgs84=assume_wgs84
+                            )
 
                         if spatial_extent is not None:
                             # For convex hull, use the actual convex hull coordinates, not the envelope
@@ -823,6 +854,7 @@ def fromRemote(
     ext_metadata_method: str = "auto",
     keep_files: bool = False,
     legacy: bool = False,
+    assume_wgs84: bool = False,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -960,6 +992,7 @@ def fromRemote(
                 download_skip_nogeo_exts=download_skip_nogeo_exts,
                 max_download_workers=max_download_workers,
                 keep_files=keep_files,
+                assume_wgs84=assume_wgs84,
             )
             if resource_output is not None:
                 resource_output["format"] = "remote"
@@ -1077,6 +1110,7 @@ def _process_remote_download(
     include_geojsonio,
     placename,
     placename_escape,
+    assume_wgs84=False,
 ):
     """
     Shared logic for processing remote downloads and extracting metadata.
@@ -1154,6 +1188,7 @@ def _process_remote_download(
         include_geojsonio=include_geojsonio,
         placename=placename,
         placename_escape=placename_escape,
+        assume_wgs84=assume_wgs84,
         _internal=True,
     )
 
@@ -1181,6 +1216,7 @@ def _extract_from_remote(
     download_skip_nogeo_exts=None,
     max_download_workers=4,
     keep_files=False,
+    assume_wgs84=False,
 ):
     """
     Internal method to extract extent from a single remote identifier.
@@ -1251,6 +1287,7 @@ def _extract_from_remote(
                             include_geojsonio=include_geojsonio,
                             placename=placename,
                             placename_escape=placename_escape,
+                            assume_wgs84=assume_wgs84,
                         )
 
                         # Explicitly clean up temporary directory
