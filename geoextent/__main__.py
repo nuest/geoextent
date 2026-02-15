@@ -126,12 +126,14 @@ class readable_file_or_dir(argparse.Action):
             BGR,
             MendeleyData,
             Wikidata,
+            FourTU,
         )
 
         # Test against all content providers
         content_providers = [
             Wikidata.Wikidata,
             Dryad.Dryad,
+            FourTU.FourTU,
             Figshare.Figshare,
             Zenodo.Zenodo,
             Pangaea.Pangaea,

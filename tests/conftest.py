@@ -33,6 +33,7 @@ _PROVIDER_FILES = {
     "test_api_heidata.py",
     "test_api_edmond.py",
     "test_api_wikidata.py",
+    "test_api_fourtu.py",
     "test_external_metadata.py",
     "test_remote_single.py",
     "test_remote_multi.py",
@@ -73,6 +74,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_heidata_metadata_only_extraction",
     "test_edmond_metadata_only_extraction",
     "test_wikidata_metadata_only_extraction",
+    "test_fourtu_metadata_only_extraction",
 }
 
 

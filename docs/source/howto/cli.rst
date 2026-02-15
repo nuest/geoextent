@@ -143,6 +143,20 @@ Extract from GFZ Data Services
 
    geoextent -b -t 10.5880/GFZ.4.8.2023.004
 
+Extract from 4TU.ResearchData
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t https://data.4tu.nl/articles/_/12707150/1
+
+Extract from 4TU.ResearchData (metadata only)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b --no-download-data https://data.4tu.nl/articles/_/12707150/1
+
 The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: :doc:`../supportedformats/index_supportedformats`) inside the repository. The resulting coordinate reference system  ``CRS`` of the combined bbox is always in the `EPSG: 4326 <https://epsg.io/4326>`_ system.
 
 For comprehensive examples including all supported repositories and advanced features, see :doc:`../examples`.

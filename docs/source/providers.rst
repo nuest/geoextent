@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 15 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 16 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -24,6 +24,8 @@ Quick Reference
 | Zenodo            | 10.5281/zenodo      | 10.5281/zenodo.4593540                |
 +-------------------+---------------------+----------------------------------------+
 | Figshare          | 10.6084/m9.figshare | 10.6084/m9.figshare.12345678          |
++-------------------+---------------------+----------------------------------------+
+| 4TU.ResearchData  | 10.4121             | 10.4121/uuid:8ce9d22a-...             |
 +-------------------+---------------------+----------------------------------------+
 | Dryad             | 10.5061/dryad       | 10.5061/dryad.0k6djhb7x               |
 +-------------------+---------------------+----------------------------------------+
@@ -108,6 +110,62 @@ Figshare
 - Full support for size limiting and file filtering
 - API-based file metadata retrieval
 - Supports private and public datasets (public only accessible)
+
+4TU.ResearchData
+^^^^^^^^^^^^^^^^
+
+**Description:** Research data repository of the four Dutch Universities of Technology (TU Delft, TU Eindhoven, University of Twente, Wageningen University & Research). Based on the open-source Djehuty platform with a Figshare-compatible API. Supports both metadata-only and full data download extraction.
+
+**Website:** https://data.4tu.nl/
+
+**DOI Prefix:** ``10.4121``
+
+**Supported Identifier Formats:**
+
+- DOI (legacy): ``10.4121/uuid:8ce9d22a-9aa4-41ea-9299-f44efa9c8b75``
+- DOI (new-style): ``10.4121/19361018.v2``
+- DOI URL: ``https://doi.org/10.4121/uuid:8ce9d22a-9aa4-41ea-9299-f44efa9c8b75``
+- Dataset URL (new): ``https://data.4tu.nl/datasets/61e28011-f96d-4b01-900e-15145b77ee59/2``
+- Article URL (legacy): ``https://data.4tu.nl/articles/_/12707150/1``
+
+**Example (Data Download):**
+
+.. code-block:: bash
+
+   # Download data files and extract spatial extent from their contents
+   python -m geoextent -b -t https://data.4tu.nl/articles/_/12707150/1
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # Extract extent from repository metadata without downloading data files
+   python -m geoextent -b --no-download-data https://data.4tu.nl/articles/_/12707150/1
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Data download mode: downloads files and extracts extent from file contents
+   result = geoextent.fromRemote(
+       'https://data.4tu.nl/articles/_/12707150/1',
+       bbox=True, tbox=False, download_data=True
+   )
+
+   # Metadata-only mode: uses repository metadata (no file download)
+   result = geoextent.fromRemote(
+       'https://data.4tu.nl/articles/_/12707150/1',
+       bbox=True, tbox=True, download_data=False
+   )
+
+**Special Notes:**
+
+- Uses a Figshare-compatible API (Djehuty platform) but with its own domain and DOI prefix
+- Handles both new-style UUID identifiers and legacy numeric article IDs
+- Supports ``--no-download-data`` for metadata-only extraction (limited spatial information from repository metadata)
+- Full support for download size limiting (``--max-download-size``), geospatial file filtering (``--download-skip-nogeo``), and parallel downloads (``--max-download-workers``)
 
 Dryad
 ^^^^^

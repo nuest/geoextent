@@ -172,7 +172,12 @@
       "Bash(# Let''s also search for how the Wikidata Query Service handles geo:wktLiteral # Check if there are any geometry collections or other types in coordinate qualifiers curl -s -X POST ''https://query.wikidata.org/sparql'' \\\\ -H ''Accept: application/json'' \\\\ -H ''User-Agent: geoextent/0.12 \\(https://github.com/o2r-project/geoextent\\)'' \\\\ --data-urlencode ''query=SELECT ?item ?itemLabel ?geoshape WHERE { ?item wdt:P31 wd:Q12284 . ?item wdt:P3896 ?geoshape . SERVICE wikibase:label { bd:serviceParam wikibase:language \"\"en\"\" . } } LIMIT 5'' \\\\ 2>&1 | python3 -m json.tool)",
       "WebFetch(domain:query.wikidata.org)",
       "WebFetch(domain:commons.wikimedia.org)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "WebFetch(domain:data.4tu.nl)",
+      "WebFetch(domain:doi.org)",
+      "WebFetch(domain:djehuty.4tu.nl)",
+      "Bash(# Check the Figshare v2 API reference URL pattern to see how it differs curl -s ''https://data.4tu.nl/v2/articles?page_size=2'' | python3 -m json.tool)",
+      "Bash(# Test the v3 datasets endpoint curl -s ''https://data.4tu.nl/v3/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f'' | python3 -m json.tool)"
     ],
     "deny": [],
     "ask": []

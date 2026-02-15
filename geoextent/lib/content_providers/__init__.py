@@ -19,6 +19,7 @@ from . import BGR
 from . import Senckenberg
 from . import MendeleyData
 from . import Wikidata
+from . import FourTU
 
 __all__ = [
     "providers",
@@ -35,4 +36,5 @@ __all__ = [
     "Senckenberg",
     "MendeleyData",
     "Wikidata",
+    "FourTU",
 ]
