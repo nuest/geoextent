@@ -114,13 +114,8 @@ class OSF(DoiProvider):
 
     def _get_files_via_osfclient(self, target_folder, show_progress=True):
         """Download files using osfclient library"""
-        try:
-            from osfclient import OSF as OSFClient
-            from tqdm import tqdm
-        except ImportError:
-            raise Exception(
-                "osfclient library is required for OSF support. Install with: pip install osfclient"
-            )
+        from osfclient import OSF as OSFClient
+        from tqdm import tqdm
 
         try:
             # Initialize OSF client (no authentication needed for public projects)

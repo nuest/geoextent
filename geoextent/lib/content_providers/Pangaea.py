@@ -8,6 +8,10 @@ from .. import helpfunctions as hf
 
 
 class Pangaea(DoiProvider):
+    @property
+    def supports_metadata_extraction(self):
+        return True
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")
@@ -51,9 +55,9 @@ class Pangaea(DoiProvider):
 
     def _get_metadata(self):
         """Get metadata from Pangaea using pangaeapy"""
-        try:
-            from pangaeapy.pandataset import PanDataSet
+        from pangaeapy.pandataset import PanDataSet
 
+        try:
             if self.dataset_id:
                 self.log.debug(f"Fetching Pangaea dataset {self.dataset_id}")
 
@@ -72,8 +76,6 @@ class Pangaea(DoiProvider):
 
                 return metadata
 
-        except ImportError:
-            raise Exception("pangaeapy library is required for Pangaea support")
         except Exception as e:
             self.log.error(f"Error fetching Pangaea metadata: {e}")
             raise Exception(f"Failed to fetch Pangaea dataset {self.dataset_id}: {e}")
@@ -494,11 +496,11 @@ class Pangaea(DoiProvider):
         if max_download_method_seed is None:
             max_download_method_seed = hf.DEFAULT_DOWNLOAD_SAMPLE_SEED
 
-        try:
-            from pangaeapy.pandataset import PanDataSet
-            from tqdm import tqdm
-            import os
+        from pangaeapy.pandataset import PanDataSet
+        from tqdm import tqdm
+        import os
 
+        try:
             if self.dataset_id:
                 self.log.debug(
                     f"Downloading Pangaea data files for dataset {self.dataset_id}"
@@ -566,8 +568,6 @@ class Pangaea(DoiProvider):
                             self._download_metadata_only(target_folder)
                         pbar.update(1)
 
-        except ImportError:
-            raise Exception("pangaeapy library is required for data download")
         except Exception as e:
             self.log.error(f"Error downloading Pangaea data files: {e}")
             # Try fallback to actual file download before giving up

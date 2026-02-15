@@ -882,6 +882,7 @@ def fromRemote(
     keep_files: bool = False,
     legacy: bool = False,
     assume_wgs84: bool = False,
+    metadata_first: bool = False,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -935,6 +936,9 @@ def fromRemote(
         Method for retrieving metadata: "auto", "all", "crossref", "datacite" (default: "auto")
     keep_files : bool, optional
         Keep downloaded and extracted files instead of cleaning them up (default: False)
+    metadata_first : bool, optional
+        Try metadata-only extraction first, fall back to data download if metadata
+        yields no results. Mutually exclusive with download_data=False. (default: False)
 
     Returns
     -------
@@ -978,6 +982,13 @@ def fromRemote(
     if len(remote_identifiers) == 0:
         raise ValueError("remote_identifier list cannot be empty")
 
+    # Validate mutual exclusion: metadata_first implies download_data=True
+    if metadata_first and not download_data:
+        raise ValueError(
+            "--metadata-first and --no-download-data are mutually exclusive. "
+            "metadata-first tries metadata first, then falls back to data download."
+        )
+
     logger.info(
         f"Processing extraction from {len(remote_identifiers)} remote resource(s)"
     )
@@ -1020,6 +1031,7 @@ def fromRemote(
                 max_download_workers=max_download_workers,
                 keep_files=keep_files,
                 assume_wgs84=assume_wgs84,
+                metadata_first=metadata_first,
             )
             if resource_output is not None:
                 resource_output["format"] = "remote"
@@ -1222,6 +1234,141 @@ def _process_remote_download(
     return metadata
 
 
+def _metadata_first_extract(
+    repository,
+    bbox,
+    tbox,
+    convex_hull,
+    details,
+    throttle,
+    timeout,
+    download_data,
+    show_progress,
+    recursive,
+    include_geojsonio,
+    max_download_size,
+    max_download_method,
+    max_download_method_seed,
+    placename,
+    placename_escape,
+    download_skip_nogeo,
+    download_skip_nogeo_exts,
+    max_download_workers,
+    keep_files,
+    assume_wgs84,
+):
+    """Try metadata-only extraction first, fall back to data download if needed.
+
+    Phase 1: If the provider supports metadata extraction, try with download_data=False.
+    Phase 2: If metadata didn't yield the requested extents, fall back to download_data=True.
+
+    Returns:
+        dict: Extracted metadata with 'extraction_method' field ('metadata' or 'download').
+    """
+    import shutil
+
+    _common_kwargs = dict(
+        repository=repository,
+        throttle=throttle,
+        show_progress=show_progress,
+        max_download_size=max_download_size,
+        max_download_method=max_download_method,
+        max_download_method_seed=max_download_method_seed,
+        download_skip_nogeo=download_skip_nogeo,
+        download_skip_nogeo_exts=download_skip_nogeo_exts,
+        max_download_workers=max_download_workers,
+        bbox=bbox,
+        tbox=tbox,
+        convex_hull=convex_hull,
+        details=details,
+        timeout=timeout,
+        recursive=recursive,
+        include_geojsonio=include_geojsonio,
+        placename=placename,
+        placename_escape=placename_escape,
+        assume_wgs84=assume_wgs84,
+    )
+
+    # Phase 1: Try metadata-only extraction if the provider supports it
+    if repository.supports_metadata_extraction:
+        logger.info(
+            f"Metadata-first: trying metadata-only extraction from {repository.name}"
+        )
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                metadata = _process_remote_download(
+                    tmp=tmp, download_data=False, **_common_kwargs
+                )
+
+                # Check whether metadata extraction yielded the requested extents
+                has_bbox = metadata and metadata.get("bbox") is not None
+                has_tbox = metadata and metadata.get("tbox") is not None
+                has_requested = (has_bbox if bbox else True) and (
+                    has_tbox if tbox else True
+                )
+
+                if has_requested:
+                    logger.info(
+                        f"Metadata-first: extraction succeeded for {repository.name}"
+                    )
+                    metadata["extraction_method"] = "metadata"
+                    return metadata
+                else:
+                    logger.info(
+                        f"Metadata-first: incomplete results from {repository.name}, "
+                        f"falling back to data download"
+                    )
+        except Exception as e:
+            logger.warning(
+                f"Metadata-first: metadata extraction failed for {repository.name}: {e}, "
+                f"falling back to data download"
+            )
+    else:
+        logger.debug(
+            f"{repository.name} does not support metadata extraction, "
+            f"proceeding directly with data download"
+        )
+
+    # Phase 2: Fall back to data download
+    if not keep_files:
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                logger.debug(f"Created temporary directory: {tmp}")
+                metadata = _process_remote_download(
+                    tmp=tmp, download_data=True, **_common_kwargs
+                )
+                metadata["extraction_method"] = "download"
+
+                logger.debug(f"Cleaning up temporary directory: {tmp}")
+                try:
+                    shutil.rmtree(tmp)
+                except Exception as cleanup_error:
+                    logger.warning(
+                        f"Failed to explicitly clean up {tmp}: {cleanup_error}. "
+                        f"TemporaryDirectory context manager will attempt cleanup."
+                    )
+            return metadata
+        except ValueError as e:
+            raise Exception(e)
+    else:
+        tmp = tempfile.mkdtemp(prefix="geoextent_keep_")
+        logger.info(f"Created persistent directory (will NOT be cleaned up): {tmp}")
+        try:
+            metadata = _process_remote_download(
+                tmp=tmp, download_data=True, **_common_kwargs
+            )
+            metadata["extraction_method"] = "download"
+            logger.info(f"Files kept in: {tmp}")
+            return metadata
+        except Exception as e:
+            logger.debug(f"Error occurred, cleaning up directory: {tmp}")
+            try:
+                shutil.rmtree(tmp)
+            except Exception as cleanup_error:
+                logger.warning(f"Failed to clean up directory {tmp}: {cleanup_error}")
+            raise
+
+
 def _extract_from_remote(
     remote_identifier,
     bbox=False,
@@ -1244,6 +1391,7 @@ def _extract_from_remote(
     max_download_workers=4,
     keep_files=False,
     assume_wgs84=False,
+    metadata_first=False,
 ):
     """
     Internal method to extract extent from a single remote identifier.
@@ -1286,6 +1434,33 @@ def _extract_from_remote(
                 "Using {} to extract {}".format(repository.name, remote_identifier)
             )
             supported_by_geoextent = True
+
+            # Metadata-first strategy: try metadata-only extraction, then fall back
+            if metadata_first:
+                metadata = _metadata_first_extract(
+                    repository=repository,
+                    bbox=bbox,
+                    tbox=tbox,
+                    convex_hull=convex_hull,
+                    details=details,
+                    throttle=throttle,
+                    timeout=timeout,
+                    download_data=download_data,
+                    show_progress=show_progress,
+                    recursive=recursive,
+                    include_geojsonio=include_geojsonio,
+                    max_download_size=max_download_size,
+                    max_download_method=max_download_method,
+                    max_download_method_seed=max_download_method_seed,
+                    placename=placename,
+                    placename_escape=placename_escape,
+                    download_skip_nogeo=download_skip_nogeo,
+                    download_skip_nogeo_exts=download_skip_nogeo_exts,
+                    max_download_workers=max_download_workers,
+                    keep_files=keep_files,
+                    assume_wgs84=assume_wgs84,
+                )
+                return metadata
 
             # Determine directory strategy based on keep_files setting
             if not keep_files:

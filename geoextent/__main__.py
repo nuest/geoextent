@@ -234,6 +234,13 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--metadata-first",
+        action="store_true",
+        default=False,
+        help="try metadata-only extraction first, fall back to data download if metadata yields no results (mutually exclusive with --no-download-data)",
+    )
+
+    parser.add_argument(
         "--no-progress",
         action="store_true",
         default=False,
@@ -512,6 +519,12 @@ def main():
     except ValueError as e:
         raise ValueError(e)
 
+    # Validate mutually exclusive options
+    if args["metadata_first"] and not args["download_data"]:
+        arg_parser.error(
+            "--metadata-first and --no-download-data are mutually exclusive"
+        )
+
     # Validate that at least one extraction option is enabled
     if not args["bounding_box"] and not args["time_box"]:
         arg_parser.error(
@@ -589,6 +602,7 @@ def main():
                     keep_files=args["keep_files"],
                     legacy=args["legacy"],
                     assume_wgs84=args["assume_wgs84"],
+                    metadata_first=args["metadata_first"],
                 )
         else:
             # Multiple files handling
@@ -631,6 +645,7 @@ def main():
                             keep_files=args["keep_files"],
                             legacy=args["legacy"],
                             assume_wgs84=args["assume_wgs84"],
+                            metadata_first=args["metadata_first"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output

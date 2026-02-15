@@ -5,6 +5,7 @@ from geojson_validator import validate_structure
 import geoextent.lib.helpfunctions as hf
 import subprocess
 import json
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestDryadProvider:
@@ -111,11 +112,8 @@ class TestDryadProvider:
             if "crs" in result:
                 assert result["crs"] == "4326", "CRS should be WGS84"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            # Dryad datasets can be very large and may timeout
-            pytest.skip(f"Network, timeout, or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_dryad_metadata_only_extraction(self):
         """Test Dryad metadata-only extraction (limited functionality)"""
@@ -131,10 +129,8 @@ class TestDryadProvider:
             assert result is not None
             assert result["format"] == "remote"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_dryad_multiple_url_formats(self):
         """Test Dryad with different URL formats"""
@@ -202,11 +198,8 @@ class TestDryadProvider:
             # This dataset likely won't have extractable geospatial extents
             # but the extraction should complete without errors
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            # Expected for datasets without geospatial data
-            pytest.skip(f"Expected error for non-geospatial dataset: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestDryadParameterCombinations:
@@ -252,10 +245,8 @@ class TestDryadParameterCombinations:
                     len(feature["geometry"]["coordinates"][0]) == 5
                 ), "Polygon should be closed"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network, timeout, or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_dryad_tbox_only(self):
         """Test Dryad extraction with only tbox enabled"""
@@ -269,10 +260,8 @@ class TestDryadParameterCombinations:
             assert result["format"] == "remote"
             assert "bbox" not in result
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network, timeout, or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_dryad_with_details(self):
         """Test Dryad extraction with details enabled"""
@@ -292,10 +281,8 @@ class TestDryadParameterCombinations:
             assert "details" in result
             assert isinstance(result["details"], dict)
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network, timeout, or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_dryad_download_data_parameter(self):
         """Test Dryad with download_data parameter variations"""
@@ -316,10 +303,8 @@ class TestDryadParameterCombinations:
             assert result_with_data is not None
             assert result_with_data["format"] == "remote"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network, timeout, or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestDryadEdgeCases:
@@ -375,8 +360,6 @@ class TestDryadEdgeCases:
             if result is not None:
                 assert result["format"] == "remote"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
         except Exception as e:
             # Timeout, disk space, or other errors are expected for large datasets
             error_msg = str(e).lower()
@@ -507,8 +490,8 @@ class TestDryadEdgeCases:
             pytest.fail(
                 f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
             )
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestDryadFilteringCapabilities:
@@ -541,8 +524,8 @@ class TestDryadFilteringCapabilities:
                 assert "_links" in file_info
                 assert "stash:download" in file_info["_links"]
 
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_dryad_geospatial_filtering_logic(self):
         """Test that Dryad provider filtering logic works correctly"""
@@ -603,8 +586,8 @@ class TestDryadFilteringCapabilities:
                     assert len(bbox) == 4
                     assert all(isinstance(coord, (int, float)) for coord in bbox)
 
-        except Exception as e:
-            pytest.skip(f"Network, timeout, or processing error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_dryad_download_with_size_filtering(self):
         """Test Dryad download with size filtering"""
@@ -627,8 +610,8 @@ class TestDryadFilteringCapabilities:
                 assert result is not None
                 assert result["format"] == "remote"
 
-        except Exception as e:
-            pytest.skip(f"Network, timeout, or processing error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_dryad_combined_filtering(self):
         """Test Dryad download with both geospatial and size filtering"""
@@ -652,5 +635,5 @@ class TestDryadFilteringCapabilities:
                 assert result is not None
                 assert result["format"] == "remote"
 
-        except Exception as e:
-            pytest.skip(f"Network, timeout, or processing error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")

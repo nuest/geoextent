@@ -57,6 +57,10 @@ SELECT ?itemLabel ?northLat ?southLat ?eastLon ?westLon ?coord WHERE {{
 class Wikidata(ContentProvider):
     """Content provider for Wikidata geographic entities."""
 
+    @property
+    def supports_metadata_extraction(self):
+        return True
+
     def __init__(self):
         super().__init__()
         self.name = "Wikidata"

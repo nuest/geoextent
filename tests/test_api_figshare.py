@@ -5,6 +5,7 @@ from geojson_validator import validate_structure
 import geoextent.lib.helpfunctions as hf
 import subprocess
 import json
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestFigshareProvider:
@@ -115,10 +116,8 @@ class TestFigshareProvider:
             # Figshare datasets typically don't have temporal coverage
             # but test should succeed regardless
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_figshare_actual_bounding_box_verification_raster_workshop(self):
         """Test Figshare provider with actual bounding box verification - Raster Workshop Dataset"""
@@ -170,10 +169,8 @@ class TestFigshareProvider:
             if "crs" in result:
                 assert result["crs"] == "4326", "CRS should be WGS84"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_figshare_metadata_only_extraction(self):
         """Test Figshare metadata-only extraction (limited functionality)"""
@@ -191,10 +188,8 @@ class TestFigshareProvider:
             # Figshare doesn't provide geospatial metadata directly
             # This behavior is expected and documented
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_figshare_multiple_url_formats(self):
         """Test Figshare with different URL formats"""
@@ -294,10 +289,8 @@ class TestFigshareParameterCombinations:
                     len(feature["geometry"]["coordinates"][0]) == 5
                 ), "Polygon should be closed"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_figshare_tbox_only(self):
         """Test Figshare extraction with only tbox enabled"""
@@ -311,10 +304,8 @@ class TestFigshareParameterCombinations:
             assert result["format"] == "remote"
             assert "bbox" not in result
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_figshare_with_details(self):
         """Test Figshare extraction with details enabled"""
@@ -329,10 +320,8 @@ class TestFigshareParameterCombinations:
             assert "details" in result
             assert isinstance(result["details"], dict)
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_figshare_download_data_parameter(self):
         """Test Figshare with download_data parameter variations"""
@@ -356,10 +345,8 @@ class TestFigshareParameterCombinations:
             # Both should return similar structure (Figshare downloads files regardless)
             assert ("bbox" in result_with_data) == ("bbox" in result_metadata)
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestFigshareEdgeCases:
@@ -494,5 +481,5 @@ class TestFigshareEdgeCases:
             pytest.fail(
                 f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
             )
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")

@@ -1,6 +1,7 @@
 import pytest
 import geoextent.lib.extent as geoextent
 from help_functions_test import tolerance
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestPangaeaProvider:
@@ -116,10 +117,8 @@ class TestPangaeaProvider:
                     actual_title = metadata["title"].lower()
                     assert any(word in actual_title for word in expected_title_words)
 
-            except ImportError:
-                pytest.skip("pangaeapy not available")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {dataset_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_extraction_oceanography_dataset(self):
         """Test full repository extraction with oceanography dataset (bbox + tbox)"""
@@ -179,10 +178,8 @@ class TestPangaeaProvider:
                 assert tbox[0].startswith(expected_tbox[0][:7])  # Year-month match
                 assert tbox[1].startswith(expected_tbox[1][:7])
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_extraction_drilling_dataset(self):
         """Test full repository extraction with drilling dataset (point location)"""
@@ -211,10 +208,8 @@ class TestPangaeaProvider:
                 assert len(tbox) == 2
                 assert tbox[0].startswith(expected_tbox[0][:7])  # Year-month match
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_extraction_reference_dataset(self):
         """Test repository extraction with reference dataset (may lack geo/temporal data)"""
@@ -233,10 +228,8 @@ class TestPangaeaProvider:
                 assert len(bbox) == 4
                 assert all(isinstance(coord, (int, float)) for coord in bbox)
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_url_patterns(self):
         """Test various Pangaea URL patterns are correctly validated"""
@@ -290,10 +283,8 @@ class TestPangaeaProvider:
                 assert abs(bbox[0] - expected_bbox[0]) < 5.0  # latitude tolerance
                 assert abs(bbox[1] - expected_bbox[1]) < 5.0  # longitude tolerance
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_radiosonde_datasets(self):
         """Test radiosonde datasets (point locations with temporal data)"""
@@ -323,10 +314,8 @@ class TestPangaeaProvider:
                     assert len(tbox) == 2
                     assert tbox[0].startswith(expected_tbox[0][:7])  # Year-month match
 
-            except ImportError:
-                pytest.skip("pangaeapy not available")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {dataset_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_pangaea_sediment_core_dataset(self):
         """Test sediment core dataset (geological data with special temporal handling)"""
@@ -349,10 +338,8 @@ class TestPangaeaProvider:
             # Temporal coverage might not be available for geological datasets
             # This is OK - the test should pass even without temporal data
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_all_additional_datasets_validation(self):
         """Test that all additional datasets can be validated"""
@@ -492,10 +479,8 @@ class TestPangaeaProvider:
                 assert abs(metadata_bbox[0] - local_bbox[0]) < 1.0
                 assert abs(metadata_bbox[1] - local_bbox[1]) < 1.0
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_cli_download_data_parameter(self):
         """Test that CLI accepts and processes --no-download-data parameter"""
@@ -533,10 +518,8 @@ class TestPangaeaParameterCombinations:
             assert "bbox" in result
             assert "tbox" not in result
             assert result["format"] == "remote"
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_tbox_only(self):
         """Test Pangaea repository extraction with only tbox enabled"""
@@ -548,10 +531,8 @@ class TestPangaeaParameterCombinations:
             assert "tbox" in result
             assert "bbox" not in result
             assert result["format"] == "remote"
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_both_disabled_should_fail(self):
         """Test Pangaea repository extraction with both bbox and tbox disabled should fail"""
@@ -572,10 +553,8 @@ class TestPangaeaParameterCombinations:
             assert "details" in result
             assert isinstance(result["details"], dict)
             assert result["format"] == "remote"
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_with_throttle_enabled(self):
         """Test Pangaea repository extraction with throttle enabled"""
@@ -587,10 +566,8 @@ class TestPangaeaParameterCombinations:
             )
             assert result is not None
             assert result["format"] == "remote"
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_with_timeout(self):
         """Test Pangaea repository extraction with timeout parameter"""
@@ -604,10 +581,8 @@ class TestPangaeaParameterCombinations:
             assert result["format"] == "remote"
             # timeout field should not be present if timeout wasn't reached
             assert "timeout" not in result
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_download_data_combinations(self):
         """Test Pangaea repository with different download_data parameter combinations"""
@@ -631,10 +606,8 @@ class TestPangaeaParameterCombinations:
             # Both results should have similar structure
             assert ("bbox" in result1) == ("bbox" in result2)
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_all_parameters_enabled(self):
         """Test Pangaea repository with all optional parameters enabled"""
@@ -654,10 +627,8 @@ class TestPangaeaParameterCombinations:
             assert result["format"] == "remote"
             assert "details" in result
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_pangaea_repository_multiple_datasets_with_different_parameters(self):
         """Test multiple Pangaea datasets with different parameter combinations"""
@@ -702,10 +673,8 @@ class TestPangaeaParameterCombinations:
                 else:
                     assert "details" not in result
 
-            except ImportError:
-                pytest.skip("pangaeapy not available")
-            except Exception as e:
-                pytest.skip(f"Network or API error: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
 
 class TestPangaeaEdgeCases:

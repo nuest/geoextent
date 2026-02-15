@@ -1,6 +1,7 @@
 import pytest
 import geoextent.lib.extent as geoextent
 from help_functions_test import tolerance
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestBGRProvider:
@@ -138,9 +139,7 @@ class TestBGRProvider:
             assert metadata.get("distribution_urls") is not None
             assert len(metadata["distribution_urls"]) > 0
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
+        except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
 
     def test_bgr_metadata_only_extraction(self):
@@ -177,10 +176,8 @@ class TestBGRProvider:
             if "crs" in result:
                 assert result["crs"] == "4326", "CRS should be WGS84"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_actual_bounding_box_verification(self):
         """Test BGR provider with actual bounding box verification"""
@@ -211,10 +208,8 @@ class TestBGRProvider:
             if "crs" in result:
                 assert result["crs"] == "4326", "CRS should be WGS84"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_multiple_identifier_formats(self):
         """Test BGR with different identifier formats"""
@@ -307,10 +302,8 @@ class TestBGRParameterCombinations:
             # tbox might still be present if temporal metadata is available
             # but we didn't explicitly request it
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_tbox_only(self):
         """Test BGR extraction with only tbox enabled"""
@@ -324,10 +317,8 @@ class TestBGRParameterCombinations:
             assert result["format"] == "remote"
             assert "bbox" not in result
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_with_details(self):
         """Test BGR extraction with details enabled"""
@@ -342,10 +333,8 @@ class TestBGRParameterCombinations:
             assert "details" in result
             assert isinstance(result["details"], dict)
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestBGREdgeCases:
@@ -454,10 +443,8 @@ class TestBGRIntegration:
                 assert bbox[0] <= bbox[2]  # south <= north
                 assert bbox[1] <= bbox[3]  # west <= east
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_provider_can_be_used(self):
         """Test that BGR provider is available in the content providers list"""
@@ -511,10 +498,8 @@ class TestBGRFullPortalURL:
             assert abs(bbox[2] - expected_bbox[2]) < tolerance
             assert abs(bbox[3] - expected_bbox[3]) < tolerance
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_dataset_uuid_extraction(self):
         """Test that dataset UUID (file identifier) is extracted from metadata"""
@@ -535,10 +520,8 @@ class TestBGRFullPortalURL:
             # Check that it was also stored in the instance
             assert bgr.dataset_uuid == "6f4e0e16-9218-4b5d-9f3f-ac6269293e37"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestBGRDOISupport:
@@ -603,10 +586,8 @@ class TestBGRDOISupport:
             assert abs(bbox[2] - expected_bbox[2]) < tolerance
             assert abs(bbox[3] - expected_bbox[3]) < tolerance
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_medkam_doi_extraction(self):
         """Test BGR DOI extraction with MEDKAM dataset (10.25928/MEDKAM.1)"""
@@ -631,10 +612,8 @@ class TestBGRDOISupport:
             assert abs(bbox[2] - expected_bbox[2]) < tolerance
             assert abs(bbox[3] - expected_bbox[3]) < tolerance
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_doi_resolution_method(self):
         """Test BGR DOI resolution helper method"""
@@ -651,10 +630,8 @@ class TestBGRDOISupport:
             assert "geoportal.bgr.de" in resolved_url
             assert "3e7bf95c-eaa2-46df-8df6-cfc68729a6a1" in resolved_url
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_bgr_doi_with_underscores_dots(self):
         """Test BGR DOI with special characters like underscores and dots"""

@@ -7,6 +7,7 @@ from unittest.mock import patch
 from geoextent.lib import extent
 from geoextent.__main__ import main
 import sys
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestMultipleRepositories:
@@ -304,9 +305,8 @@ class TestMultipleRepositoriesIntegration:
                 )
                 if result:
                     results[repo] = result
-            except Exception as e:
-                # Some repositories may fail, but we should handle gracefully
-                pytest.skip(f"Repository {repo} failed with {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
         # At least one should succeed
         assert len(results) >= 1

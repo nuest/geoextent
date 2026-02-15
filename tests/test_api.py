@@ -5,6 +5,7 @@ import urllib.request
 import pytest
 import geoextent.lib.extent as geoextent
 from help_functions_test import create_zip, tolerance
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 @pytest.mark.skip(reason="file format not implemented yet")
@@ -248,8 +249,8 @@ def test_png_file_extract_bbox():
 
         except (urllib.error.URLError, urllib.error.HTTPError) as e:
             pytest.skip(f"Network error downloading PNG test files: {e}")
-        except Exception as e:
-            pytest.skip(f"Error processing PNG file: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 @pytest.mark.skip(reason="file format not implemented yet")

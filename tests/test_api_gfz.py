@@ -1,6 +1,7 @@
 import pytest
 import geoextent.lib.extent as geoextent
 from help_functions_test import tolerance
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestGFZProvider:
@@ -97,9 +98,7 @@ class TestGFZProvider:
             assert "datapub.gfz-potsdam.de" in download_url
             assert "download" in download_url or download_url.endswith(".zip")
 
-        except ImportError:
-            pytest.skip("Required libraries (BeautifulSoup) not available")
-        except Exception as e:
+        except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
 
     def test_gfz_actual_bounding_box_verification(self):
@@ -144,10 +143,8 @@ class TestGFZProvider:
             if "crs" in result:
                 assert result["crs"] == "4326", "CRS should be WGS84"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_gfz_metadata_only_extraction(self):
         """Test GFZ metadata-only extraction"""
@@ -164,10 +161,8 @@ class TestGFZProvider:
 
             # GFZ may have limited metadata without file downloads
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_gfz_multiple_identifiers(self):
         """Test GFZ with different identifier formats"""
@@ -240,9 +235,7 @@ class TestGFZProvider:
             assert isinstance(download_url, str)
             assert "datapub.gfz-potsdam.de" in download_url
 
-        except ImportError:
-            pytest.skip("Required libraries (BeautifulSoup) not available")
-        except Exception as e:
+        except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
 
     def test_gfz_geothermal_dataset_geographic_bounds(self):
@@ -361,10 +354,8 @@ class TestGFZParameterCombinations:
             assert result["format"] == "remote"
             assert "tbox" not in result
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_gfz_tbox_only(self):
         """Test GFZ extraction with only tbox enabled"""
@@ -378,10 +369,8 @@ class TestGFZParameterCombinations:
             assert result["format"] == "remote"
             assert "bbox" not in result
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_gfz_with_details(self):
         """Test GFZ extraction with details enabled"""
@@ -396,10 +385,8 @@ class TestGFZParameterCombinations:
             assert "details" in result
             assert isinstance(result["details"], dict)
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestGFZEdgeCases:
@@ -501,7 +488,5 @@ class TestGFZIntegration:
                 has_spatial or has_temporal
             ), "Should extract at least spatial or temporal extent"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")

@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 import geoextent.lib.extent as extent
 from geoextent.lib.helpfunctions import format_extent_output
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestPlacenameLocalFiles:
@@ -110,9 +111,8 @@ class TestPlacenameLocalFiles:
 
             print(f"✓ {dataset_key} + {gazetteer}: {placename}")
 
-        except Exception as e:
-            # Skip test if API is unavailable or file can't be processed
-            pytest.skip(f"API test failed for {dataset_key} with {gazetteer}: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     @pytest.mark.network
     @pytest.mark.parametrize("gazetteer", ["nominatim", "photon"])
@@ -177,8 +177,8 @@ class TestPlacenameLocalFiles:
             print(f"✓ Normal: {normal_placename}")
             print(f"✓ Escaped: {escaped_placename}")
 
-        except Exception as e:
-            pytest.skip(f"Escape test failed for {gazetteer}: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     @pytest.mark.network
     @pytest.mark.parametrize("gazetteer", ["nominatim", "photon"])
@@ -223,8 +223,8 @@ class TestPlacenameLocalFiles:
 
             print(f"✓ GeoJSON placename: {placename}")
 
-        except Exception as e:
-            pytest.skip(f"GeoJSON test failed for {gazetteer}: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     @pytest.mark.network
     @pytest.mark.parametrize("dataset_key", ["muenster_geojson", "netherlands_csv"])
@@ -310,8 +310,8 @@ class TestPlacenameLocalFiles:
 
         except subprocess.TimeoutExpired:
             pytest.skip(f"CLI test timed out for {dataset_key} with {gazetteer}")
-        except Exception as e:
-            pytest.skip(f"CLI test failed for {dataset_key} with {gazetteer}: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_cli_validation_errors(self):
         """Test CLI validation for placename options."""
@@ -396,8 +396,8 @@ class TestPlacenameLocalFiles:
 
         except subprocess.TimeoutExpired:
             pytest.skip("Default gazetteer test timed out")
-        except Exception as e:
-            pytest.skip(f"Default gazetteer test failed: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     @pytest.mark.network
     def test_placename_with_convex_hull(self):
@@ -428,5 +428,5 @@ class TestPlacenameLocalFiles:
 
             print(f"✓ Convex hull placename: {placename}")
 
-        except Exception as e:
-            pytest.skip(f"Convex hull test failed: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")

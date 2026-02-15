@@ -1,6 +1,7 @@
 import pytest
 import geoextent.lib.extent as geoextent
 from help_functions_test import tolerance
+from conftest import NETWORK_SKIP_EXCEPTIONS
 from geojson_validator import validate_structure
 import subprocess
 import json
@@ -416,5 +417,5 @@ class TestPensoftProvider:
             pytest.fail(
                 f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
             )
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")

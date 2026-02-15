@@ -48,81 +48,73 @@ def get_crossref_metadata(doi: str) -> dict | None:
     Returns:
         Dictionary with metadata fields or None if retrieval fails
     """
+    from crossref_commons.retrieval import get_publication_as_json
+
     try:
-        from crossref_commons.retrieval import get_publication_as_json
-
         result = get_publication_as_json(doi)
-
-        if not result:
-            return None
-
-        # Extract relevant fields
-        metadata = {
-            "source": "CrossRef",
-            "doi": doi,
-        }
-
-        # Title
-        if "title" in result and result["title"]:
-            metadata["title"] = (
-                result["title"][0]
-                if isinstance(result["title"], list)
-                else result["title"]
-            )
-
-        # Authors
-        if "author" in result:
-            authors = []
-            for author in result["author"]:
-                name_parts = []
-                if "given" in author:
-                    name_parts.append(author["given"])
-                if "family" in author:
-                    name_parts.append(author["family"])
-                if name_parts:
-                    authors.append(" ".join(name_parts))
-            if authors:
-                metadata["authors"] = authors
-
-        # Publisher
-        if "publisher" in result:
-            metadata["publisher"] = result["publisher"]
-
-        # Publication year
-        if "published" in result and "date-parts" in result["published"]:
-            date_parts = result["published"]["date-parts"]
-            if date_parts and len(date_parts[0]) > 0:
-                metadata["publication_year"] = date_parts[0][0]
-        elif "published-print" in result and "date-parts" in result["published-print"]:
-            date_parts = result["published-print"]["date-parts"]
-            if date_parts and len(date_parts[0]) > 0:
-                metadata["publication_year"] = date_parts[0][0]
-
-        # URL
-        if "URL" in result:
-            metadata["url"] = result["URL"]
-        else:
-            metadata["url"] = f"https://doi.org/{doi}"
-
-        # License
-        if "license" in result and result["license"]:
-            licenses = []
-            for lic in result["license"]:
-                if "URL" in lic:
-                    licenses.append(lic["URL"])
-            if licenses:
-                metadata["license"] = licenses[0] if len(licenses) == 1 else licenses
-
-        return metadata
-
-    except ImportError:
-        logger.warning(
-            "crossref-commons package not installed. Install with: pip install crossref-commons"
-        )
-        return None
     except Exception as e:
         logger.debug(f"CrossRef API error for DOI {doi}: {e}")
         return None
+
+    if not result:
+        return None
+
+    # Extract relevant fields
+    metadata = {
+        "source": "CrossRef",
+        "doi": doi,
+    }
+
+    # Title
+    if "title" in result and result["title"]:
+        metadata["title"] = (
+            result["title"][0] if isinstance(result["title"], list) else result["title"]
+        )
+
+    # Authors
+    if "author" in result:
+        authors = []
+        for author in result["author"]:
+            name_parts = []
+            if "given" in author:
+                name_parts.append(author["given"])
+            if "family" in author:
+                name_parts.append(author["family"])
+            if name_parts:
+                authors.append(" ".join(name_parts))
+        if authors:
+            metadata["authors"] = authors
+
+    # Publisher
+    if "publisher" in result:
+        metadata["publisher"] = result["publisher"]
+
+    # Publication year
+    if "published" in result and "date-parts" in result["published"]:
+        date_parts = result["published"]["date-parts"]
+        if date_parts and len(date_parts[0]) > 0:
+            metadata["publication_year"] = date_parts[0][0]
+    elif "published-print" in result and "date-parts" in result["published-print"]:
+        date_parts = result["published-print"]["date-parts"]
+        if date_parts and len(date_parts[0]) > 0:
+            metadata["publication_year"] = date_parts[0][0]
+
+    # URL
+    if "URL" in result:
+        metadata["url"] = result["URL"]
+    else:
+        metadata["url"] = f"https://doi.org/{doi}"
+
+    # License
+    if "license" in result and result["license"]:
+        licenses = []
+        for lic in result["license"]:
+            if "URL" in lic:
+                licenses.append(lic["URL"])
+        if licenses:
+            metadata["license"] = licenses[0] if len(licenses) == 1 else licenses
+
+    return metadata
 
 
 def get_datacite_metadata(doi: str) -> dict | None:

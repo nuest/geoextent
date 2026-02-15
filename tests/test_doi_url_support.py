@@ -1,5 +1,6 @@
 import pytest
 import geoextent.lib.extent as geoextent
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestDOIURLSupport:
@@ -23,10 +24,8 @@ class TestDOIURLSupport:
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
                 assert result["format"] == "remote", f"Wrong format for {doi_format}"
 
-            except ImportError:
-                pytest.skip("pangaeapy not available")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {doi_format}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_zenodo_doi_url_formats(self):
         """Test that Zenodo DOIs work in all supported URL formats"""
@@ -46,8 +45,8 @@ class TestDOIURLSupport:
                 assert result is not None, f"Failed to process DOI format: {doi_format}"
                 assert result["format"] == "remote", f"Wrong format for {doi_format}"
 
-            except Exception as e:
-                pytest.skip(f"Network or API error for {doi_format}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_doi_url_validation_pangaea_provider(self):
         """Test that Pangaea provider correctly validates all DOI URL formats"""
@@ -146,8 +145,8 @@ class TestDOIURLSupport:
                     test_case["expected_pattern"] in resolved_url
                 ), f"Expected {test_case['expected_pattern']} in resolved URL {resolved_url} for input {test_case['input']}"
 
-            except Exception as e:
-                pytest.skip(f"Network error resolving {test_case['input']}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_mixed_provider_doi_handling(self):
         """Test that the system correctly routes different DOI types to appropriate providers"""
@@ -168,10 +167,8 @@ class TestDOIURLSupport:
                 assert result is not None, f"Failed to process {test_case['doi']}"
                 assert result["format"] == "remote"
 
-            except ImportError:
-                pytest.skip("Required library not available")
-            except Exception as e:
-                pytest.skip(f"Network or API error: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_invalid_doi_urls(self):
         """Test that invalid DOI URLs are properly rejected"""
@@ -221,8 +218,5 @@ class TestDOIURLSupport:
                 if result is not None:
                     assert result["format"] == "remote"
 
-            except ImportError:
-                pytest.skip("pangaeapy not available")
-            except Exception as e:
-                # Some case variations might not be supported by the DOI resolver
-                pytest.skip(f"Case variation not supported: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")

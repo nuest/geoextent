@@ -14,6 +14,36 @@ All content providers support:
 - **Download size limiting** - Control bandwidth with ``--max-download-size``
 - **File filtering** - Skip non-geospatial files with ``--download-skip-nogeo``
 - **Parallel downloads** - Speed up multi-file downloads with ``--max-download-workers``
+- **Metadata-first strategy** - Try metadata extraction first, fall back to data download with ``--metadata-first``
+
+Metadata-First Extraction
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Some providers (Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+
+1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
+2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
+
+This is especially useful when processing multiple providers in batch:
+
+.. code-block:: bash
+
+   # Senckenberg has metadata → uses metadata (fast); Zenodo has no metadata → downloads data
+   python -m geoextent -b --metadata-first 10.12761/sgn.2018.10225 10.5281/zenodo.4593540
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   result = geoextent.fromRemote(
+       '10.12761/sgn.2018.10225',
+       bbox=True, metadata_first=True
+   )
+   print(result['extraction_method'])  # 'metadata' or 'download'
+
+The result includes an ``extraction_method`` field indicating which strategy was used: ``"metadata"`` (fast, from repository metadata) or ``"download"`` (full data download and extraction).
+
+**Note:** ``--metadata-first`` and ``--no-download-data`` are mutually exclusive. Use ``--no-download-data`` if you want metadata-only extraction without any fallback.
 
 Quick Reference
 ---------------
@@ -134,6 +164,7 @@ Figshare
 
    # Download data files and extract spatial extent from their contents
    python -m geoextent -b -t https://data.4tu.nl/articles/_/12707150/1
+   python -m geoextent -b https://data.4tu.nl/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f/1
 
 **Example (Metadata Only):**
 
@@ -141,6 +172,7 @@ Figshare
 
    # Extract extent from repository metadata without downloading data files
    python -m geoextent -b --no-download-data https://data.4tu.nl/articles/_/12707150/1
+   python -m geoextent -b --no-download-data https://data.4tu.nl/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f/1
 
 **Python API Examples:**
 

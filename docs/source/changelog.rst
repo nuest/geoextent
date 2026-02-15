@@ -16,6 +16,7 @@ Unreleased
 
 - **New Features**
 
+  - Add ``--metadata-first`` CLI flag and ``metadata_first`` API parameter for smart metadata-then-download extraction strategy: tries metadata-only extraction first if the provider supports it, falls back to data download if metadata yields no results
   - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
   - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
 

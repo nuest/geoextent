@@ -1,6 +1,7 @@
 import pytest
 import geoextent.lib.extent as geoextent
 from help_functions_test import tolerance
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestOSFProvider:
@@ -142,8 +143,8 @@ class TestOSFProvider:
             assert isinstance(metadata["title"], str)
             assert len(metadata["title"]) > 0
 
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     @pytest.mark.skip(reason="Requires network access and may be slow")
     def test_osf_file_download_osfclient(self):
@@ -189,10 +190,8 @@ class TestOSFProvider:
                                 expected_file in downloaded_names
                             ), f"Missing shapefile component: {expected_file}"
 
-            except ImportError:
-                pytest.skip("osfclient not available")
-            except Exception as e:
-                pytest.skip(f"Network or OSF access error: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_osf_repository_extraction_gis_dataset(self):
         """Test geoextent extraction from OSF GIS dataset"""
@@ -218,10 +217,8 @@ class TestOSFProvider:
                     isinstance(coord, (int, float)) for coord in bbox
                 ), "All bbox coordinates should be numeric"
 
-        except ImportError:
-            pytest.skip("osfclient not available")
-        except Exception as e:
-            pytest.skip(f"Network or processing error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_repository_no_download_mode(self):
         """Test OSF repository with download_data=False"""
@@ -239,10 +236,8 @@ class TestOSFProvider:
 
             # Note: bbox may not be available in no-download mode for OSF
 
-        except ImportError:
-            pytest.skip("osfclient not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_provider_error_handling(self):
         """Test OSF provider error handling for invalid projects"""
@@ -290,10 +285,8 @@ class TestOSFParameterCombinations:
             if "bbox" in result:
                 assert "tbox" not in result or result["tbox"] is None
 
-        except ImportError:
-            pytest.skip("osfclient not available")
-        except Exception as e:
-            pytest.skip(f"Network or processing error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_repository_both_disabled_should_fail(self):
         """Test that OSF repository extraction fails when both bbox and tbox are disabled"""
@@ -319,8 +312,6 @@ class TestOSFParameterCombinations:
             assert result is not None
             assert "format" in result
 
-        except ImportError:
-            pytest.skip("osfclient not available")
         except Exception as e:
             # Timeout or network errors are acceptable for this test
             pass
@@ -480,10 +471,8 @@ class TestOSFActualBoundingBoxVerification:
             if "crs" in result:
                 assert result["crs"] == "4326", "CRS should be WGS84"
 
-        except ImportError:
-            pytest.skip("osfclient library not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_actual_bounding_box_verification_southeast_asia(self):
         """Test OSF provider with actual bounding box verification - Southeast Asia dataset"""
@@ -543,10 +532,8 @@ class TestOSFActualBoundingBoxVerification:
             if "crs" in result:
                 assert result["crs"] == "4326", "CRS should be WGS84"
 
-        except ImportError:
-            pytest.skip("osfclient library not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_all_identifier_formats_verification(self):
         """Test that all OSF identifier formats return the same bounding box"""
@@ -617,10 +604,8 @@ class TestOSFFilteringCapabilities:
                 assert isinstance(file_info["size"], int)
                 assert file_info["size"] >= 0
 
-        except ImportError:
-            pytest.skip("Required dependencies not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_geospatial_filtering_support(self):
         """Test that OSF provider now supports geospatial filtering"""
@@ -667,10 +652,8 @@ class TestOSFFilteringCapabilities:
                         has_geo_ext
                     ), f"Non-geospatial file found after filtering: {file_name}"
 
-        except ImportError:
-            pytest.skip("Required dependencies not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_download_with_geospatial_filtering(self):
         """Test OSF download with geospatial filtering enabled"""
@@ -699,10 +682,8 @@ class TestOSFFilteringCapabilities:
                     assert len(bbox) == 4
                     assert all(isinstance(coord, (int, float)) for coord in bbox)
 
-        except ImportError:
-            pytest.skip("Required dependencies not available")
-        except Exception as e:
-            pytest.skip(f"Network or processing error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_download_with_size_filtering(self):
         """Test OSF download with size filtering"""
@@ -725,10 +706,8 @@ class TestOSFFilteringCapabilities:
                 assert result is not None
                 assert result["format"] == "remote"
 
-        except ImportError:
-            pytest.skip("Required dependencies not available")
-        except Exception as e:
-            pytest.skip(f"Network or processing error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_osf_download_with_combined_filtering(self):
         """Test OSF download with both geospatial and size filtering"""
@@ -752,7 +731,5 @@ class TestOSFFilteringCapabilities:
                 assert result is not None
                 assert result["format"] == "remote"
 
-        except ImportError:
-            pytest.skip("Required dependencies not available")
-        except Exception as e:
-            pytest.skip(f"Network or processing error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")

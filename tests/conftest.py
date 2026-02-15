@@ -14,6 +14,16 @@ Usage:
 """
 
 import pytest
+import requests
+
+# Exceptions that indicate a network/connectivity issue (not a code bug).
+# Use this in tests to skip on transient network failures without hiding real errors.
+NETWORK_SKIP_EXCEPTIONS = (
+    requests.RequestException,
+    ConnectionError,
+    TimeoutError,
+    OSError,
+)
 
 # Repository provider test files that contain network-dependent tests
 _PROVIDER_FILES = {
@@ -34,10 +44,15 @@ _PROVIDER_FILES = {
     "test_api_edmond.py",
     "test_api_wikidata.py",
     "test_api_fourtu.py",
+    "test_metadata_first.py",
     "test_external_metadata.py",
     "test_remote_single.py",
     "test_remote_multi.py",
     "test_parallel_downloads.py",
+    "test_placename_real.py",
+    "test_multiple_repositories.py",
+    "test_cli_parameter_combinations.py",
+    "test_doi_url_support.py",
 }
 
 # Test name patterns that are fast (validation-only, no network)
@@ -53,6 +68,8 @@ _FAST_PATTERNS = {
     "can_be_used",
     "parse_wkt_point",
     "extract_coordinates",
+    "mutually_exclusive",
+    "supports_metadata_extraction",
 }
 
 # One representative real-network test per provider for smoke-testing.

@@ -25,6 +25,7 @@ import subprocess
 import json
 from unittest.mock import patch, MagicMock
 
+from conftest import NETWORK_SKIP_EXCEPTIONS
 from geoextent.lib.content_providers.Dataverse import Dataverse
 from geoextent.lib import extent
 
@@ -317,8 +318,8 @@ class TestDataverseProvider:
             assert "title" in metadata_dict
             assert "authors" in metadata_dict
 
-        except Exception as e:
-            pytest.skip(f"Real dataset test skipped due to API access issue: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     @pytest.mark.integration
     def test_file_listing(self, dataverse_provider):
@@ -346,8 +347,8 @@ class TestDataverseProvider:
                         or "label" in file_info
                     )
 
-        except Exception as e:
-            pytest.skip(f"Real file listing test skipped due to API access issue: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_file_download_url_generation(self, dataverse_provider):
         """Test generation of file download URLs."""
@@ -667,8 +668,8 @@ class TestDataverseProvider:
         except AssertionError as e:
             # Re-raise assertion errors to show the actual test failure
             raise e
-        except Exception as e:
-            pytest.skip(f"CLI integration test skipped due to error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     @pytest.mark.integration
     def test_dataverse_python_api_integration(self):
@@ -725,8 +726,8 @@ class TestDataverseProvider:
                 )
             else:
                 pytest.fail(f"Python API test failed with ValueError: {e}")
-        except Exception as e:
-            pytest.skip(f"Python API integration test skipped due to error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     @pytest.mark.integration
     def test_dataverse_integration_comparison(self):
@@ -777,8 +778,8 @@ class TestDataverseProvider:
                         cli_output["crs"] == api_result["crs"]
                     ), "CRS should match between CLI and API"
 
-        except Exception as e:
-            pytest.skip(f"Integration comparison test skipped due to error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 if __name__ == "__main__":

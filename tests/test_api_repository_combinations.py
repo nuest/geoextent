@@ -1,5 +1,6 @@
 import pytest
 import geoextent.lib.extent as geoextent
+from conftest import NETWORK_SKIP_EXCEPTIONS
 import tempfile
 import os
 
@@ -34,10 +35,8 @@ class TestRepositoryParameterCombinations:
                 assert "tbox" not in result
                 # bbox might or might not be present depending on data content
 
-            except ImportError:
-                pytest.skip(f"Required library not available for {provider_name}")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {provider_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error for {provider_name}: {e}")
 
     def test_repository_tbox_only_all_providers(self):
         """Test repository extraction with only tbox enabled for all providers"""
@@ -51,10 +50,8 @@ class TestRepositoryParameterCombinations:
                 assert "bbox" not in result
                 # tbox might or might not be present depending on data content
 
-            except ImportError:
-                pytest.skip(f"Required library not available for {provider_name}")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {provider_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error for {provider_name}: {e}")
 
     def test_repository_both_extraction_options_all_providers(self):
         """Test repository extraction with both bbox and tbox enabled for all providers"""
@@ -66,10 +63,8 @@ class TestRepositoryParameterCombinations:
                 assert result is not None
                 assert result["format"] == "remote"
 
-            except ImportError:
-                pytest.skip(f"Required library not available for {provider_name}")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {provider_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error for {provider_name}: {e}")
 
     def test_repository_both_disabled_should_fail(self):
         """Test repository extraction with both bbox and tbox disabled should fail"""
@@ -97,10 +92,8 @@ class TestRepositoryParameterCombinations:
                 assert result_without_details is not None
                 assert "details" not in result_without_details
 
-            except ImportError:
-                pytest.skip(f"Required library not available for {provider_name}")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {provider_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error for {provider_name}: {e}")
 
     def test_repository_with_throttle_parameter(self):
         """Test repository extraction with throttle parameter"""
@@ -121,10 +114,8 @@ class TestRepositoryParameterCombinations:
                 # Both should return similar structure
                 assert result_throttled["format"] == result_normal["format"]
 
-            except ImportError:
-                pytest.skip(f"Required library not available for {provider_name}")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {provider_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error for {provider_name}: {e}")
 
     def test_repository_with_timeout_parameter(self):
         """Test repository extraction with timeout parameter"""
@@ -138,10 +129,8 @@ class TestRepositoryParameterCombinations:
                 # timeout field should not be present if timeout wasn't reached
                 assert "timeout" not in result
 
-            except ImportError:
-                pytest.skip(f"Required library not available for {provider_name}")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {provider_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error for {provider_name}: {e}")
 
     def test_repository_download_data_parameter_pangaea_only(self):
         """Test repository extraction with download_data parameter (Pangaea specific)"""
@@ -166,10 +155,8 @@ class TestRepositoryParameterCombinations:
             # Both should have same format
             assert result_metadata["format"] == result_local["format"] == "remote"
 
-        except ImportError:
-            pytest.skip("pangaeapy not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_repository_all_parameters_enabled(self):
         """Test repository extraction with all parameters enabled"""
@@ -193,10 +180,8 @@ class TestRepositoryParameterCombinations:
                 assert result["format"] == "remote"
                 assert "details" in result
 
-            except ImportError:
-                pytest.skip(f"Required library not available for {provider_name}")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {provider_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error for {provider_name}: {e}")
 
 
 class TestRepositoryURLvsDoiHandling:
@@ -230,10 +215,8 @@ class TestRepositoryURLvsDoiHandling:
                 assert ("bbox" in result_doi) == ("bbox" in result_url)
                 assert ("tbox" in result_doi) == ("tbox" in result_url)
 
-            except ImportError:
-                pytest.skip(f"Required library not available for {provider_name}")
-            except Exception as e:
-                pytest.skip(f"Network or API error for {provider_name}: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error for {provider_name}: {e}")
 
 
 class TestRepositoryErrorHandling:
@@ -286,8 +269,6 @@ class TestRepositoryErrorHandling:
                 if "timeout" in result:
                     assert result["timeout"] == 0.001
 
-        except ImportError:
-            pytest.skip("Required library not available")
         except Exception as e:
             # Timeout or network error is expected
             assert (
@@ -371,11 +352,8 @@ class TestRepositorySpecialCases:
                 result = geoextent.fromRemote(url, bbox=True)
                 if result is not None:
                     assert result["format"] == "remote"
-            except ImportError:
-                pytest.skip("Required library not available")
-            except Exception as e:
-                # Redirect handling might fail, which is acceptable
-                pytest.skip(f"Redirect handling error: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_repository_with_whitespace_handling(self):
         """Test repository with whitespace in DOI/URL strings"""
@@ -395,8 +373,5 @@ class TestRepositorySpecialCases:
                 # Should handle whitespace gracefully after stripping
                 if result is not None:
                     assert result["format"] == "remote"
-            except ImportError:
-                pytest.skip("Required library not available")
-            except Exception as e:
-                # Whitespace handling might fail
-                pytest.skip(f"Whitespace handling error: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")

@@ -278,6 +278,18 @@ Key external dependencies:
 - pyproj for coordinate transformations
 - patool for archive extraction
 - requests for repository data downloading
+- pangaeapy for PANGAEA data access
+- crossref-commons for DOI metadata retrieval
+- osfclient for OSF data access
+
+**All packages listed in `setup.cfg` / `pyproject.toml` `install_requires` are required dependencies.** Do not wrap their imports in `try/except ImportError` — if they are missing, the installation is broken and should fail loudly. Only use `try/except ImportError` for genuinely optional dependencies that enable extra functionality (none exist currently).
+
+### Test Exception Handling
+
+- **Never use broad `except Exception: pytest.skip(...)`** in tests — this silently hides real bugs.
+- Use `except NETWORK_SKIP_EXCEPTIONS` (defined in `conftest.py`) for network-dependent tests that should be skipped on transient network failures: `(requests.RequestException, ConnectionError, TimeoutError, OSError)`.
+- Only catch exceptions that are expected and specific. If a test fails due to a code bug, it should fail loudly, not be silently skipped.
+- Periodically audit tests for overly broad exception catches that may mask regressions.
 
 ## File Structure
 

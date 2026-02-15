@@ -387,18 +387,14 @@ class GFZ(DoiProvider):
         total_size = int(response.headers.get("content-length", 0))
 
         if show_progress and total_size > 0:
-            try:
-                from tqdm import tqdm
+            from tqdm import tqdm
 
-                progress_bar = tqdm(
-                    total=total_size,
-                    unit="B",
-                    unit_scale=True,
-                    desc=os.path.basename(file_path),
-                )
-            except ImportError:
-                progress_bar = None
-                logger.debug("tqdm not available, downloading without progress bar")
+            progress_bar = tqdm(
+                total=total_size,
+                unit="B",
+                unit_scale=True,
+                desc=os.path.basename(file_path),
+            )
         else:
             progress_bar = None
 

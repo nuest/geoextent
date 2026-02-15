@@ -30,6 +30,10 @@ class CKANProvider(DoiProvider):
     - Set self.name for logging purposes
     """
 
+    @property
+    def supports_metadata_extraction(self):
+        return True
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

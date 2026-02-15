@@ -1,6 +1,7 @@
 import pytest
 import geoextent.lib.extent as geoextent
 from help_functions_test import tolerance
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestSenckenbergProvider:
@@ -117,10 +118,8 @@ class TestSenckenbergProvider:
                     assert (
                         provider.dataset_id is not None
                     ), f"No dataset ID for {description}"
-            except Exception as e:
-                # DOI resolution might fail in test environment
-                # That's acceptable - we're testing the validation logic
-                pytest.skip(f"DOI resolution not available in test environment: {e}")
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error: {e}")
 
     def test_senckenberg_metadata_retrieval(self):
         """Test metadata retrieval from Senckenberg CKAN API"""

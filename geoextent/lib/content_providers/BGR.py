@@ -43,6 +43,10 @@ class BGR(DoiProvider):
     - Bare UUID: {uuid} (either catalog record UUID or dataset UUID)
     """
 
+    @property
+    def supports_metadata_extraction(self):
+        return True
+
     def __init__(self):
         super().__init__()
         self.host = {

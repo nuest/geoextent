@@ -5,6 +5,7 @@ from geojson_validator import validate_structure
 import geoextent.lib.helpfunctions as hf
 import subprocess
 import json
+from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 class TestZenodoProvider:
@@ -144,10 +145,8 @@ class TestZenodoProvider:
                 assert tbox[0].startswith(expected_tbox[0][:7])  # Year-month match
                 assert tbox[1].startswith(expected_tbox[1][:7])
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_zenodo_metadata_only_extraction(self):
         """Test Zenodo metadata-only extraction (limited functionality)"""
@@ -164,10 +163,8 @@ class TestZenodoProvider:
             # For Zenodo, metadata-only may still extract bounding box from downloaded files
             # since Zenodo doesn't provide geospatial metadata directly
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_zenodo_multiple_identifiers(self):
         """Test Zenodo with different identifier formats"""
@@ -230,10 +227,8 @@ class TestZenodoParameterCombinations:
             assert result["format"] == "remote"
             assert "tbox" not in result
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_zenodo_tbox_only(self):
         """Test Zenodo extraction with only tbox enabled"""
@@ -247,10 +242,8 @@ class TestZenodoParameterCombinations:
             assert result["format"] == "remote"
             assert "bbox" not in result
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_zenodo_with_details(self):
         """Test Zenodo extraction with details enabled"""
@@ -265,10 +258,8 @@ class TestZenodoParameterCombinations:
             assert "details" in result
             assert isinstance(result["details"], dict)
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestZenodoEdgeCases:
@@ -376,8 +367,8 @@ class TestZenodoEdgeCases:
             pytest.fail(
                 f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
             )
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
 
 class TestZenodoZIPFileHandling:
@@ -436,10 +427,8 @@ class TestZenodoZIPFileHandling:
             validation_errors = validate_structure(geojson_output)
             assert not validation_errors, f"Invalid GeoJSON: {validation_errors}"
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_zenodo_zip_with_nested_archives(self):
         """Test that nested ZIP files within the main ZIP are also extracted
@@ -470,10 +459,8 @@ class TestZenodoZIPFileHandling:
                 # Should have processed multiple files from the ZIP
                 assert len(result["details"]) > 0
 
-        except ImportError:
-            pytest.skip("Required libraries not available")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
 
     def test_zenodo_zip_cli_output(self):
         """Test Zenodo ZIP file handling via CLI"""
@@ -518,5 +505,5 @@ class TestZenodoZIPFileHandling:
             pytest.skip("CLI test timeout (network issues)")
         except json.JSONDecodeError as e:
             pytest.fail(f"Failed to parse JSON: {e}\nOutput: {result.stdout}")
-        except Exception as e:
-            pytest.skip(f"Network or API error: {e}")
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")

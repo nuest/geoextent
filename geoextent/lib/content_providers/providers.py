@@ -14,6 +14,11 @@ from threading import Lock
 
 
 class ContentProvider:
+    @property
+    def supports_metadata_extraction(self):
+        """Whether this provider can extract spatial/temporal extent from repository metadata alone."""
+        return False
+
     def __init__(self):
         self.log = logging.getLogger("geoextent")
 
@@ -337,38 +342,33 @@ class DoiProvider(ContentProvider):
 
         # Progress tracking
         if show_progress:
-            try:
-                from tqdm import tqdm
+            from tqdm import tqdm
 
-                total_bytes = sum(task[2] for task in download_tasks)
-                progress_bar = tqdm(
-                    total=total_bytes,
-                    desc="Downloading files",
-                    unit="B",
-                    unit_scale=True,
+            total_bytes = sum(task[2] for task in download_tasks)
+            progress_bar = tqdm(
+                total=total_bytes,
+                desc="Downloading files",
+                unit="B",
+                unit_scale=True,
+            )
+
+            completed_count = 0
+
+            def progress_callback(task, result):
+                nonlocal completed_count
+                if result["success"]:
+                    progress_bar.update(result["bytes_downloaded"])
+                completed_count += 1
+                progress_bar.set_postfix(
+                    {
+                        "files": f"{completed_count}/{len(download_tasks)}",
+                    }
                 )
 
-                completed_count = 0
-
-                def progress_callback(task, result):
-                    nonlocal completed_count
-                    if result["success"]:
-                        progress_bar.update(result["bytes_downloaded"])
-                    completed_count += 1
-                    progress_bar.set_postfix(
-                        {
-                            "files": f"{completed_count}/{len(download_tasks)}",
-                        }
-                    )
-
-                results = self.parallel_manager.download_files_parallel(
-                    download_tasks, progress_callback
-                )
-                progress_bar.close()
-
-            except ImportError:
-                self.log.warning("tqdm not available, downloading without progress bar")
-                results = self.parallel_manager.download_files_parallel(download_tasks)
+            results = self.parallel_manager.download_files_parallel(
+                download_tasks, progress_callback
+            )
+            progress_bar.close()
         else:
             results = self.parallel_manager.download_files_parallel(download_tasks)
 
