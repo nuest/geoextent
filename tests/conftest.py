@@ -44,6 +44,7 @@ _PROVIDER_FILES = {
     "test_api_edmond.py",
     "test_api_wikidata.py",
     "test_api_fourtu.py",
+    "test_api_radar.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
     "test_remote_single.py",
@@ -92,6 +93,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_edmond_metadata_only_extraction",
     "test_wikidata_metadata_only_extraction",
     "test_fourtu_metadata_only_extraction",
+    "test_radar_metadata_only_extraction",
 }
 
 

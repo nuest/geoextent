@@ -20,6 +20,7 @@ from . import Senckenberg
 from . import MendeleyData
 from . import Wikidata
 from . import FourTU
+from . import RADAR
 
 __all__ = [
     "providers",
@@ -37,4 +38,5 @@ __all__ = [
     "MendeleyData",
     "Wikidata",
     "FourTU",
+    "RADAR",
 ]

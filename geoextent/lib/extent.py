@@ -20,6 +20,7 @@ from .content_providers import BGR
 from .content_providers import MendeleyData
 from .content_providers import Wikidata
 from .content_providers import FourTU
+from .content_providers import RADAR
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -1411,6 +1412,7 @@ def _extract_from_remote(
 
     content_providers = [
         Wikidata.Wikidata,  # Wikidata first: Q-numbers won't match DOI providers
+        RADAR.RADAR,  # Before Dryad: matches DOI prefix without network
         Dryad.Dryad,
         FourTU.FourTU,  # Before Figshare: 4TU uses Figshare-compatible API
         Figshare.Figshare,

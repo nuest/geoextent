@@ -119,6 +119,7 @@ class readable_file_or_dir(argparse.Action):
             Pangaea,
             OSF,
             GFZ,
+            RADAR,
             Pensoft,
             Opara,
             Dataverse,
@@ -132,6 +133,7 @@ class readable_file_or_dir(argparse.Action):
         # Test against all content providers
         content_providers = [
             Wikidata.Wikidata,
+            RADAR.RADAR,  # Before Dryad: matches DOI prefix without network
             Dryad.Dryad,
             FourTU.FourTU,
             Figshare.Figshare,
