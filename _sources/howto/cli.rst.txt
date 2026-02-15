@@ -143,6 +143,13 @@ Extract from GFZ Data Services
 
    geoextent -b -t 10.5880/GFZ.4.8.2023.004
 
+Extract from RADAR
+^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t 10.35097/tvn5vujqfvf99f32
+
 Extract from 4TU.ResearchData
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 16 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 17 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -82,6 +82,8 @@ Quick Reference
 | Mendeley Data     | 10.17632            | 10.17632/ybx6zp2rfp.1                 |
 +-------------------+---------------------+----------------------------------------+
 | Wikidata          | Q-numbers / URLs    | Q64                                    |
++-------------------+---------------------+----------------------------------------+
+| RADAR             | 10.35097            | 10.35097/tvn5vujqfvf99f32              |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -606,6 +608,35 @@ Wikidata
 - Supports multiple Wikidata items in a single call, returning a merged bounding box
 - When only P625 point coordinates are available, the bounding box is computed from all available points
 - For entities with a single P625 point, a zero-extent bounding box (point) is returned
+
+RADAR
+^^^^^
+
+**Description:** Cross-disciplinary research data repository operated by FIZ Karlsruhe for archiving and publishing German research data. Assigns DOIs via DataCite and delivers all datasets as ``.tar`` archives.
+
+**Website:** https://www.radar-service.eu/
+
+**DOI Prefix:** ``10.35097``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.35097/tvn5vujqfvf99f32``
+- DOI URL: ``https://doi.org/10.35097/tvn5vujqfvf99f32``
+- RADAR URL: ``https://www.radar-service.eu/radar/en/dataset/tvn5vujqfvf99f32``
+- KIT URL: ``https://radar.kit.edu/radar/en/dataset/tvn5vujqfvf99f32``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b -t 10.35097/tvn5vujqfvf99f32
+
+**Special Notes:**
+
+- All datasets are delivered as a single ``.tar`` archive (no individual file downloads)
+- Backend API provides file listing before download for size estimation and geospatial file detection
+- Supports download size limiting and geospatial file filtering
+- Multiple hosting domains: ``www.radar-service.eu`` and ``radar.kit.edu``
 
 Usage Examples
 --------------
