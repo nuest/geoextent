@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Content Providers &#8212; geoextent 0.1.dev1+gb28758a43 documentation</title>
+    <title>Content Providers &#8212; geoextent 0.1.dev1+ge3e7585b3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=7c9ff158"></script>
+    <script src="_static/documentation_options.js?v=3eaca91c"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -46,7 +46,7 @@
             
   <section id="content-providers">
 <h1>Content Providers<a class="headerlink" href="#content-providers" title="Link to this heading">¶</a></h1>
-<p>Geoextent supports extracting geospatial data from 15 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
+<p>Geoextent supports extracting geospatial data from 16 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
 <p>All content providers support:</p>
@@ -57,15 +57,38 @@
 <li><p><strong>Download size limiting</strong> - Control bandwidth with <code class="docutils literal notranslate"><span class="pre">--max-download-size</span></code></p></li>
 <li><p><strong>File filtering</strong> - Skip non-geospatial files with <code class="docutils literal notranslate"><span class="pre">--download-skip-nogeo</span></code></p></li>
 <li><p><strong>Parallel downloads</strong> - Speed up multi-file downloads with <code class="docutils literal notranslate"><span class="pre">--max-download-workers</span></code></p></li>
+<li><p><strong>Metadata-first strategy</strong> - Try metadata extraction first, fall back to data download with <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code></p></li>
 </ul>
+<section id="metadata-first-extraction">
+<h3>Metadata-First Extraction<a class="headerlink" href="#metadata-first-extraction" title="Link to this heading">¶</a></h3>
+<p>Some providers (Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> flag leverages this for a smart two-phase strategy:</p>
+<ol class="arabic simple">
+<li><p><strong>Phase 1 (metadata):</strong> If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).</p></li>
+<li><p><strong>Phase 2 (fallback):</strong> If metadata didn’t yield the requested extents, or if the provider doesn’t support metadata, fall back to downloading and processing data files.</p></li>
+</ol>
+<p>This is especially useful when processing multiple providers in batch:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Senckenberg has metadata → uses metadata (fast); Zenodo has no metadata → downloads data</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--metadata-first<span class="w"> </span><span class="m">10</span>.12761/sgn.2018.10225<span class="w"> </span><span class="m">10</span>.5281/zenodo.4593540
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.12761/sgn.2018.10225&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">metadata_first</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;extraction_method&#39;</span><span class="p">])</span>  <span class="c1"># &#39;metadata&#39; or &#39;download&#39;</span>
+</pre></div>
+</div>
+<p>The result includes an <code class="docutils literal notranslate"><span class="pre">extraction_method</span></code> field indicating which strategy was used: <code class="docutils literal notranslate"><span class="pre">&quot;metadata&quot;</span></code> (fast, from repository metadata) or <code class="docutils literal notranslate"><span class="pre">&quot;download&quot;</span></code> (full data download and extraction).</p>
+<p><strong>Note:</strong> <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> and <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> are mutually exclusive. Use <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> if you want metadata-only extraction without any fallback.</p>
+</section>
 </section>
 <section id="quick-reference">
 <h2>Quick Reference<a class="headerlink" href="#quick-reference" title="Link to this heading">¶</a></h2>
 </section>
 <section id="provider-details">
 <h2>Provider Details<a class="headerlink" href="#provider-details" title="Link to this heading">¶</a></h2>
-<section id="zenodo">
-<h3>Zenodo<a class="headerlink" href="#zenodo" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Free and open digital archive built by CERN and OpenAIRE for sharing research output in any format. Supports all research disciplines with unlimited storage and preservation guarantees.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://zenodo.org/">https://zenodo.org/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.5281/zenodo</span></code></p>
@@ -85,9 +108,6 @@
 <li><p>Parallel downloads supported</p></li>
 <li><p>Handles both individual files and complete record archives</p></li>
 </ul>
-</section>
-<section id="figshare">
-<h3>Figshare<a class="headerlink" href="#figshare" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Online open access repository for preserving and sharing research outputs with DOI assignment and altmetrics. Provides 20GB free private space and unlimited public sharing.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://figshare.com/">https://figshare.com/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.6084/m9.figshare</span></code></p>
@@ -107,9 +127,52 @@
 <li><p>API-based file metadata retrieval</p></li>
 <li><p>Supports private and public datasets (public only accessible)</p></li>
 </ul>
-</section>
-<section id="dryad">
-<h3>Dryad<a class="headerlink" href="#dryad" title="Link to this heading">¶</a></h3>
+<p><strong>Description:</strong> Research data repository of the four Dutch Universities of Technology (TU Delft, TU Eindhoven, University of Twente, Wageningen University &amp; Research). Based on the open-source Djehuty platform with a Figshare-compatible API. Supports both metadata-only and full data download extraction.</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://data.4tu.nl/">https://data.4tu.nl/</a></p>
+<p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.4121</span></code></p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>DOI (legacy): <code class="docutils literal notranslate"><span class="pre">10.4121/uuid:8ce9d22a-9aa4-41ea-9299-f44efa9c8b75</span></code></p></li>
+<li><p>DOI (new-style): <code class="docutils literal notranslate"><span class="pre">10.4121/19361018.v2</span></code></p></li>
+<li><p>DOI URL: <code class="docutils literal notranslate"><span class="pre">https://doi.org/10.4121/uuid:8ce9d22a-9aa4-41ea-9299-f44efa9c8b75</span></code></p></li>
+<li><p>Dataset URL (new): <code class="docutils literal notranslate"><span class="pre">https://data.4tu.nl/datasets/61e28011-f96d-4b01-900e-15145b77ee59/2</span></code></p></li>
+<li><p>Article URL (legacy): <code class="docutils literal notranslate"><span class="pre">https://data.4tu.nl/articles/_/12707150/1</span></code></p></li>
+</ul>
+<p><strong>Example (Data Download):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download data files and extract spatial extent from their contents</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>https://data.4tu.nl/articles/_/12707150/1
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://data.4tu.nl/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f/1
+</pre></div>
+</div>
+<p><strong>Example (Metadata Only):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract extent from repository metadata without downloading data files</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>https://data.4tu.nl/articles/_/12707150/1
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>https://data.4tu.nl/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f/1
+</pre></div>
+</div>
+<p><strong>Python API Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Data download mode: downloads files and extracts extent from file contents</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://data.4tu.nl/articles/_/12707150/1&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Metadata-only mode: uses repository metadata (no file download)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://data.4tu.nl/articles/_/12707150/1&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p>Uses a Figshare-compatible API (Djehuty platform) but with its own domain and DOI prefix</p></li>
+<li><p>Handles both new-style UUID identifiers and legacy numeric article IDs</p></li>
+<li><p>Supports <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> for metadata-only extraction (limited spatial information from repository metadata)</p></li>
+<li><p>Full support for download size limiting (<code class="docutils literal notranslate"><span class="pre">--max-download-size</span></code>), geospatial file filtering (<code class="docutils literal notranslate"><span class="pre">--download-skip-nogeo</span></code>), and parallel downloads (<code class="docutils literal notranslate"><span class="pre">--max-download-workers</span></code>)</p></li>
+</ul>
 <p><strong>Description:</strong> Nonprofit curated repository specializing in data underlying scientific publications with CC0 licensing. Focuses on data reusability and long-term preservation with Merritt Repository.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://datadryad.org/">https://datadryad.org/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.5061/dryad</span></code></p>
@@ -129,9 +192,6 @@
 <li><p>Full filtering and size limiting support</p></li>
 <li><p>Handles nested ZIP files efficiently</p></li>
 </ul>
-</section>
-<section id="pangaea">
-<h3>PANGAEA<a class="headerlink" href="#pangaea" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Digital data library and publisher for earth system science with over 375,000 georeferenced datasets. Specialized in geosciences, environmental, and climate research with extensive metadata.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://www.pangaea.de/">https://www.pangaea.de/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.1594/PANGAEA</span></code></p>
@@ -151,9 +211,6 @@
 <li><p>Supports <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> for metadata-only extraction</p></li>
 <li><p>Specialized in Earth science datasets</p></li>
 </ul>
-</section>
-<section id="osf-open-science-framework">
-<h3>OSF (Open Science Framework)<a class="headerlink" href="#osf-open-science-framework" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Free open-source project management tool by Center for Open Science for collaborative research workflows. Supports data storage, version control, and research lifecycle management.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://osf.io/">https://osf.io/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.17605/OSF.IO</span></code></p>
@@ -174,9 +231,6 @@
 <li><p>Handles project storage and individual components</p></li>
 <li><p>Supports file versioning</p></li>
 </ul>
-</section>
-<section id="dataverse">
-<h3>Dataverse<a class="headerlink" href="#dataverse" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Open-source web application from Harvard University for sharing and preserving research data across disciplines. Supports institutional repositories with customizable metadata schemas.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://dataverse.org/">https://dataverse.org/</a></p>
 <p><strong>DOI Prefix:</strong> Varies by Dataverse instance</p>
@@ -248,9 +302,6 @@
 <li><p>Handles complex dataset structures</p></li>
 <li><p>API-based metadata and file retrieval</p></li>
 </ul>
-</section>
-<section id="ioerdata">
-<h3>ioerDATA<a class="headerlink" href="#ioerdata" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Research data repository of the Leibniz Institute of Ecological Urban and Regional Development (IOER), hosted on Dataverse. Specializes in urban and regional development, land use monitoring, and spatial analysis data for Germany and Europe.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://data.fdz.ioer.de/">https://data.fdz.ioer.de/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.71830</span></code></p>
@@ -271,9 +322,6 @@
 <li><p>Specializes in German urban/regional development and land use data</p></li>
 <li><p>Uses the same Dataverse API as all other Dataverse instances</p></li>
 </ul>
-</section>
-<section id="heidata">
-<h3>heiDATA<a class="headerlink" href="#heidata" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Research data repository of Heidelberg University, hosted on Dataverse. Part of the NFDI4Earth initiative. Provides access to research data across multiple disciplines, with a focus on geosciences, environmental science, and digital humanities.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://heidata.uni-heidelberg.de/">https://heidata.uni-heidelberg.de/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.11588/DATA</span></code></p>
@@ -294,9 +342,6 @@
 <li><p>Supports both open access and restricted datasets</p></li>
 <li><p>Uses the same Dataverse API as all other Dataverse instances</p></li>
 </ul>
-</section>
-<section id="edmond">
-<h3>Edmond<a class="headerlink" href="#edmond" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Research data repository of the Max Planck Society, hosted on Dataverse. Provides open access to research data from Max Planck Institutes across all scientific disciplines, including earth sciences, chemistry, and biogeochemistry.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://edmond.mpg.de/">https://edmond.mpg.de/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.17617</span></code></p>
@@ -316,9 +361,6 @@
 <li><p>Hosts data from Max Planck Institutes worldwide</p></li>
 <li><p>Uses the same Dataverse API as all other Dataverse instances</p></li>
 </ul>
-</section>
-<section id="gfz-data-services">
-<h3>GFZ Data Services<a class="headerlink" href="#gfz-data-services" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Curated repository for geosciences domain hosted at GFZ German Research Centre in Potsdam. Specialized in Earth observation, geophysics, and geoscience research data.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://dataservices.gfz-potsdam.de/">https://dataservices.gfz-potsdam.de/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.5880/GFZ</span></code></p>
@@ -338,9 +380,6 @@
 <li><p>Comprehensive metadata for spatial datasets</p></li>
 <li><p>Long-term preservation guarantees</p></li>
 </ul>
-</section>
-<section id="pensoft">
-<h3>Pensoft<a class="headerlink" href="#pensoft" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Scholarly publisher from Bulgaria specializing in biodiversity with 60+ open access journals. Integrates data publishing with manuscript publication for transparent research.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://pensoft.net/">https://pensoft.net/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.3897</span></code></p>
@@ -359,9 +398,6 @@
 <li><p>Links data directly to publications</p></li>
 <li><p>Handles occurrence data and species distributions</p></li>
 </ul>
-</section>
-<section id="tu-dresden-opara">
-<h3>TU Dresden Opara<a class="headerlink" href="#tu-dresden-opara" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Open Access Repository and Archive for research data of Saxon universities with 10-year archiving guarantee. Supports DSpace 7.x with comprehensive metadata management.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://opara.zih.tu-dresden.de/">https://opara.zih.tu-dresden.de/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.25532/OPARA</span></code></p>
@@ -384,9 +420,6 @@
 <li><p>Supports multiple shapefiles in single archive</p></li>
 <li><p>Size filtering and geospatial file filtering fully supported</p></li>
 </ul>
-</section>
-<section id="senckenberg">
-<h3>Senckenberg<a class="headerlink" href="#senckenberg" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> CKAN-based data portal for Senckenberg Biodiversity and Climate Research Centre providing access to biodiversity, climate, and geoscience research data. <strong>Primarily a metadata repository</strong> with rich geospatial and temporal metadata but limited/restricted data files.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://dataportal.senckenberg.de/">https://dataportal.senckenberg.de/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.12761/sgn</span></code></p>
@@ -415,9 +448,6 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>Metadata extraction is fast and does not require downloading data files</p></li>
 <li><p>Full filtering and size limiting capabilities available when data files exist</p></li>
 </ul>
-</section>
-<section id="mendeley-data">
-<h3>Mendeley Data<a class="headerlink" href="#mendeley-data" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Elsevier-hosted generalist research data repository and part of the NIH Generalist Repository Ecosystem Initiative (GREI). Supports sharing, discovering, and citing research data across all disciplines with DOI assignment.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://data.mendeley.com/">https://data.mendeley.com/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.17632</span></code></p>
@@ -438,9 +468,6 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>Full support for download size limiting and geospatial file filtering</p></li>
 <li><p>Parallel downloads supported</p></li>
 </ul>
-</section>
-<section id="wikidata">
-<h3>Wikidata<a class="headerlink" href="#wikidata" title="Link to this heading">¶</a></h3>
 <p><strong>Description:</strong> Free, collaborative, multilingual knowledge base operated by the Wikimedia Foundation. Contains structured geographic data for millions of entities including countries, cities, parks, rivers, and other geographic features. Geoextent extracts bounding boxes from Wikidata’s coordinate properties via the SPARQL endpoint.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://www.wikidata.org/">https://www.wikidata.org/</a></p>
 <p><strong>Identifier Format:</strong> Q-numbers (e.g., <code class="docutils literal notranslate"><span class="pre">Q64</span></code>) or Wikidata URLs</p>
@@ -475,18 +502,12 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>For entities with a single P625 point, a zero-extent bounding box (point) is returned</p></li>
 </ul>
 </section>
-</section>
 <section id="usage-examples">
 <h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Link to this heading">¶</a></h2>
-<section id="single-provider">
-<h3>Single Provider<a class="headerlink" href="#single-provider" title="Link to this heading">¶</a></h3>
 <p>Extract from a Zenodo dataset:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
 </pre></div>
 </div>
-</section>
-<section id="multiple-providers">
-<h3>Multiple Providers<a class="headerlink" href="#multiple-providers" title="Link to this heading">¶</a></h3>
 <p>Mix resources from different providers:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> \
     <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span> \
@@ -495,9 +516,6 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 </pre></div>
 </div>
 <p>Returns a merged bounding box covering all resources.</p>
-</section>
-<section id="with-download-control">
-<h3>With Download Control<a class="headerlink" href="#with-download-control" title="Link to this heading">¶</a></h3>
 <p>Limit download size and skip non-geospatial files:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> \
     <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">size</span> <span class="mi">100</span><span class="n">MB</span> \
@@ -506,7 +524,6 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
     <span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.7080016</span>
 </pre></div>
 </div>
-</section>
 </section>
 <section id="provider-selection">
 <h2>Provider Selection<a class="headerlink" href="#provider-selection" title="Link to this heading">¶</a></h2>
