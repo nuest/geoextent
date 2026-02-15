@@ -49,6 +49,16 @@ class Dataverse(DoiProvider):
     from Dataverse installations using the standard Dataverse API.
     """
 
+    doi_prefixes = (
+        "10.7910/DVN",
+        "10.34894/",
+        "10.18710/",
+        "10.5064/",
+        "10.71830/",
+        "10.11588/DATA",
+        "10.17617/",
+    )
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

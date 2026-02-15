@@ -16,6 +16,8 @@ class GFZ(DoiProvider):
     Parses HTML pages to extract download URLs and metadata.
     """
 
+    doi_prefixes = ("10.5880/GFZ",)
+
     def __init__(self):
         super().__init__()
         self.host = {

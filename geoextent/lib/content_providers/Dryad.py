@@ -7,6 +7,8 @@ from ..extent import *
 
 
 class Dryad(DoiProvider):
+    doi_prefixes = ("10.5061/dryad",)
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

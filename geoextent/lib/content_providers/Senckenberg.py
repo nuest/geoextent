@@ -18,6 +18,7 @@ from .. import helpfunctions as hf
 
 
 class Senckenberg(CKANProvider):
+    doi_prefixes = ("10.12761/sgn",)
     """
     Content provider for Senckenberg Biodiversity and Climate Research Centre.
 

@@ -5,6 +5,8 @@ from .. import helpfunctions as hf
 
 
 class Figshare(DoiProvider):
+    doi_prefixes = ("10.6084/m9.figshare",)
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

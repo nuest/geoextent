@@ -9,7 +9,9 @@ import zipfile
 from .lib import extent
 from .lib import helpfunctions as hf
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(
+    level=logging.WARNING, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+)
 logger = logging.getLogger("geoextent")
 
 from setuptools_scm import get_version
@@ -111,48 +113,12 @@ class readable_file_or_dir(argparse.Action):
 
     def _is_supported_repository(self, candidate):
         """Check if the candidate is supported by any content provider"""
-        # Import content providers
-        from .lib.content_providers import (
-            Dryad,
-            Figshare,
-            Zenodo,
-            Pangaea,
-            OSF,
-            GFZ,
-            RADAR,
-            Pensoft,
-            Opara,
-            Dataverse,
-            Senckenberg,
-            BGR,
-            MendeleyData,
-            Wikidata,
-            FourTU,
-        )
+        from .lib.content_providers.providers import find_provider
+        from .lib.extent import _get_content_providers
 
-        # Test against all content providers
-        content_providers = [
-            Wikidata.Wikidata,
-            RADAR.RADAR,  # Before Dryad: matches DOI prefix without network
-            Dryad.Dryad,
-            FourTU.FourTU,
-            Figshare.Figshare,
-            Zenodo.Zenodo,
-            Pangaea.Pangaea,
-            OSF.OSF,
-            GFZ.GFZ,
-            Pensoft.Pensoft,
-            Opara.Opara,
-            Dataverse.Dataverse,
-            Senckenberg.Senckenberg,
-            BGR.BGR,
-            MendeleyData.MendeleyData,
-        ]
-
-        for provider_class in content_providers:
-            provider = provider_class()
-            if provider.validate_provider(candidate):
-                return True
+        provider = find_provider(candidate, _get_content_providers())
+        if provider is not None:
+            return True
 
         # Also check legacy DOI regex pattern for backward compatibility
         if hf.doi_regexp.match(candidate) is not None:

@@ -11,6 +11,7 @@ logger = logging.getLogger("geoextent")
 
 
 class BGR(DoiProvider):
+    doi_prefixes = ("10.25928/",)
     """Content provider for BGR Geoportal (Federal Institute for Geosciences and Natural Resources)
 
     Supports BGR identifiers, URLs, and DOIs. Uses CSW (Catalog Service for the Web) API

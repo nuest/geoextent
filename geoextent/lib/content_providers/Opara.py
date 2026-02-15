@@ -7,6 +7,8 @@ from .. import helpfunctions as hf
 
 
 class Opara(DoiProvider):
+    doi_prefixes = ("10.25532/OPARA",)
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

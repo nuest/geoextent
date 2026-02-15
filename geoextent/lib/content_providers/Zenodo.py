@@ -5,6 +5,8 @@ from ..extent import *
 
 
 class Zenodo(DoiProvider):
+    doi_prefixes = ("10.5281/zenodo",)
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

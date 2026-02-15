@@ -8,6 +8,8 @@ from .. import helpfunctions as hf
 
 
 class OSF(DoiProvider):
+    doi_prefixes = ("10.17605/OSF.IO",)
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

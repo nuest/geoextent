@@ -9,6 +9,7 @@ from ..extent import *
 
 
 class Pensoft(DoiProvider):
+    doi_prefixes = ("10.3897/",)
     """
     Content provider for Pensoft journals (e.g., Biodiversity Data Journal).
 

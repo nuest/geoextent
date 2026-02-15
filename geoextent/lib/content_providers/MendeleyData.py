@@ -5,6 +5,8 @@ from .. import helpfunctions as hf
 
 
 class MendeleyData(DoiProvider):
+    doi_prefixes = ("10.17632/",)
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

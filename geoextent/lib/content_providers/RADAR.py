@@ -21,6 +21,7 @@ class RADAR(DoiProvider):
     - Backend API for file metadata before download
     """
 
+    doi_prefixes = ("10.35097/",)
     RADAR_BASE = "https://www.radar-service.eu"
 
     def __init__(self):

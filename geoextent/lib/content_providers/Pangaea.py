@@ -8,6 +8,8 @@ from .. import helpfunctions as hf
 
 
 class Pangaea(DoiProvider):
+    doi_prefixes = ("10.1594/PANGAEA",)
+
     @property
     def supports_metadata_extraction(self):
         return True

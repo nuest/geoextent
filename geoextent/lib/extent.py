@@ -31,6 +31,27 @@ logger = logging.getLogger("geoextent")
 handle_modules = {"CSV": handleCSV, "raster": handleRaster, "vector": handleVector}
 
 
+def _get_content_providers():
+    """Return the ordered list of content provider classes."""
+    return [
+        Wikidata.Wikidata,  # Wikidata first: Q-numbers won't match DOI providers
+        Dryad.Dryad,
+        FourTU.FourTU,  # Before Figshare: 4TU uses Figshare-compatible API
+        Figshare.Figshare,
+        Zenodo.Zenodo,
+        Pangaea.Pangaea,
+        OSF.OSF,
+        Dataverse.Dataverse,
+        GFZ.GFZ,
+        RADAR.RADAR,
+        Pensoft.Pensoft,
+        BGR.BGR,  # BGR before Opara because both accept UUIDs
+        Opara.Opara,
+        Senckenberg.Senckenberg,
+        MendeleyData.MendeleyData,
+    ]
+
+
 def _swap_coordinate_order(metadata):
     """Swap coordinate order from internal [lon, lat] to EPSG:4326 native [lat, lon].
 
@@ -1410,115 +1431,50 @@ def _extract_from_remote(
         )
         raise Exception("No extraction options enabled!")
 
-    content_providers = [
-        Wikidata.Wikidata,  # Wikidata first: Q-numbers won't match DOI providers
-        RADAR.RADAR,  # Before Dryad: matches DOI prefix without network
-        Dryad.Dryad,
-        FourTU.FourTU,  # Before Figshare: 4TU uses Figshare-compatible API
-        Figshare.Figshare,
-        Zenodo.Zenodo,
-        Pangaea.Pangaea,
-        OSF.OSF,
-        Dataverse.Dataverse,
-        GFZ.GFZ,
-        Pensoft.Pensoft,
-        BGR.BGR,  # BGR before Opara because both accept UUIDs
-        Opara.Opara,
-        Senckenberg.Senckenberg,
-        MendeleyData.MendeleyData,
-    ]
+    from .content_providers.providers import find_provider
 
-    supported_by_geoextent = False
-    for provider_class in content_providers:
-        repository = provider_class()
-        if repository.validate_provider(reference=remote_identifier):
-            logger.debug(
-                "Using {} to extract {}".format(repository.name, remote_identifier)
+    repository = find_provider(remote_identifier, _get_content_providers())
+    supported_by_geoextent = repository is not None
+
+    if supported_by_geoextent:
+        logger.debug(
+            "Using {} to extract {}".format(repository.name, remote_identifier)
+        )
+
+        # Metadata-first strategy: try metadata-only extraction, then fall back
+        if metadata_first:
+            metadata = _metadata_first_extract(
+                repository=repository,
+                bbox=bbox,
+                tbox=tbox,
+                convex_hull=convex_hull,
+                details=details,
+                throttle=throttle,
+                timeout=timeout,
+                download_data=download_data,
+                show_progress=show_progress,
+                recursive=recursive,
+                include_geojsonio=include_geojsonio,
+                max_download_size=max_download_size,
+                max_download_method=max_download_method,
+                max_download_method_seed=max_download_method_seed,
+                placename=placename,
+                placename_escape=placename_escape,
+                download_skip_nogeo=download_skip_nogeo,
+                download_skip_nogeo_exts=download_skip_nogeo_exts,
+                max_download_workers=max_download_workers,
+                keep_files=keep_files,
+                assume_wgs84=assume_wgs84,
             )
-            supported_by_geoextent = True
+            return metadata
 
-            # Metadata-first strategy: try metadata-only extraction, then fall back
-            if metadata_first:
-                metadata = _metadata_first_extract(
-                    repository=repository,
-                    bbox=bbox,
-                    tbox=tbox,
-                    convex_hull=convex_hull,
-                    details=details,
-                    throttle=throttle,
-                    timeout=timeout,
-                    download_data=download_data,
-                    show_progress=show_progress,
-                    recursive=recursive,
-                    include_geojsonio=include_geojsonio,
-                    max_download_size=max_download_size,
-                    max_download_method=max_download_method,
-                    max_download_method_seed=max_download_method_seed,
-                    placename=placename,
-                    placename_escape=placename_escape,
-                    download_skip_nogeo=download_skip_nogeo,
-                    download_skip_nogeo_exts=download_skip_nogeo_exts,
-                    max_download_workers=max_download_workers,
-                    keep_files=keep_files,
-                    assume_wgs84=assume_wgs84,
-                )
-                return metadata
+        # Determine directory strategy based on keep_files setting
+        if not keep_files:
+            # Use context manager for automatic cleanup
+            try:
+                with tempfile.TemporaryDirectory() as tmp:
+                    logger.debug(f"Created temporary directory: {tmp}")
 
-            # Determine directory strategy based on keep_files setting
-            if not keep_files:
-                # Use context manager for automatic cleanup
-                try:
-                    with tempfile.TemporaryDirectory() as tmp:
-                        logger.debug(f"Created temporary directory: {tmp}")
-
-                        # Process the download and extraction (shared logic)
-                        metadata = _process_remote_download(
-                            repository=repository,
-                            tmp=tmp,
-                            throttle=throttle,
-                            download_data=download_data,
-                            show_progress=show_progress,
-                            max_download_size=max_download_size,
-                            max_download_method=max_download_method,
-                            max_download_method_seed=max_download_method_seed,
-                            download_skip_nogeo=download_skip_nogeo,
-                            download_skip_nogeo_exts=download_skip_nogeo_exts,
-                            max_download_workers=max_download_workers,
-                            bbox=bbox,
-                            tbox=tbox,
-                            convex_hull=convex_hull,
-                            details=details,
-                            timeout=timeout,
-                            recursive=recursive,
-                            include_geojsonio=include_geojsonio,
-                            placename=placename,
-                            placename_escape=placename_escape,
-                            assume_wgs84=assume_wgs84,
-                        )
-
-                        # Explicitly clean up temporary directory
-                        logger.debug(f"Cleaning up temporary directory: {tmp}")
-                        try:
-                            shutil.rmtree(tmp)
-                            logger.debug(
-                                f"Successfully removed temporary directory: {tmp}"
-                            )
-                        except Exception as cleanup_error:
-                            logger.warning(
-                                f"Failed to explicitly clean up {tmp}: {cleanup_error}. "
-                                f"TemporaryDirectory context manager will attempt cleanup."
-                            )
-                    return metadata
-                except ValueError as e:
-                    raise Exception(e)
-            else:
-                # Create persistent directory for keep_files mode
-                tmp = tempfile.mkdtemp(prefix="geoextent_keep_")
-                logger.info(
-                    f"Created persistent directory (will NOT be cleaned up): {tmp}"
-                )
-
-                try:
                     # Process the download and extraction (shared logic)
                     metadata = _process_remote_download(
                         repository=repository,
@@ -1541,26 +1497,68 @@ def _extract_from_remote(
                         include_geojsonio=include_geojsonio,
                         placename=placename,
                         placename_escape=placename_escape,
+                        assume_wgs84=assume_wgs84,
                     )
 
-                    logger.info(f"Files kept in: {tmp}")
-                    return metadata
-                except Exception as e:
-                    # Even with keep_files, clean up on error
-                    logger.debug(f"Error occurred, cleaning up directory: {tmp}")
+                    # Explicitly clean up temporary directory
+                    logger.debug(f"Cleaning up temporary directory: {tmp}")
                     try:
                         shutil.rmtree(tmp)
-                        logger.debug(
-                            f"Successfully cleaned up directory after error: {tmp}"
-                        )
+                        logger.debug(f"Successfully removed temporary directory: {tmp}")
                     except Exception as cleanup_error:
                         logger.warning(
-                            f"Failed to clean up directory {tmp}: {cleanup_error}"
+                            f"Failed to explicitly clean up {tmp}: {cleanup_error}. "
+                            f"TemporaryDirectory context manager will attempt cleanup."
                         )
-                    raise
+                return metadata
+            except ValueError as e:
+                raise Exception(e)
+        else:
+            # Create persistent directory for keep_files mode
+            tmp = tempfile.mkdtemp(prefix="geoextent_keep_")
+            logger.info(f"Created persistent directory (will NOT be cleaned up): {tmp}")
 
-    # Only show error if no provider could handle the identifier
-    if not supported_by_geoextent:
+            try:
+                # Process the download and extraction (shared logic)
+                metadata = _process_remote_download(
+                    repository=repository,
+                    tmp=tmp,
+                    throttle=throttle,
+                    download_data=download_data,
+                    show_progress=show_progress,
+                    max_download_size=max_download_size,
+                    max_download_method=max_download_method,
+                    max_download_method_seed=max_download_method_seed,
+                    download_skip_nogeo=download_skip_nogeo,
+                    download_skip_nogeo_exts=download_skip_nogeo_exts,
+                    max_download_workers=max_download_workers,
+                    bbox=bbox,
+                    tbox=tbox,
+                    convex_hull=convex_hull,
+                    details=details,
+                    timeout=timeout,
+                    recursive=recursive,
+                    include_geojsonio=include_geojsonio,
+                    placename=placename,
+                    placename_escape=placename_escape,
+                )
+
+                logger.info(f"Files kept in: {tmp}")
+                return metadata
+            except Exception as e:
+                # Even with keep_files, clean up on error
+                logger.debug(f"Error occurred, cleaning up directory: {tmp}")
+                try:
+                    shutil.rmtree(tmp)
+                    logger.debug(
+                        f"Successfully cleaned up directory after error: {tmp}"
+                    )
+                except Exception as cleanup_error:
+                    logger.warning(
+                        f"Failed to clean up directory {tmp}: {cleanup_error}"
+                    )
+                raise
+    else:
         logger.error(
             "Geoextent can not handle this repository identifier {}"
             "\n Check for typos or if the repository exists. ".format(remote_identifier)

@@ -13,6 +13,69 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Lock
 
 
+def find_provider(reference, content_providers):
+    """Two-phase provider selection: fast DOI prefix match, then full validation.
+
+    Phase 1 checks each provider's ``doi_prefixes`` class attribute against the
+    reference string.  This is a pure string comparison — no network calls —
+    so it is instant even when the target service is unreachable.
+
+    Phase 2 falls back to calling ``validate_provider()`` on every provider,
+    which may trigger DOI resolution via doi.org.  Exceptions (e.g. from an
+    unreachable host) are caught and logged so that the next provider is tried.
+
+    Returns:
+        A provider instance whose ``validate_provider()`` returned True, or None.
+    """
+    # Phase 1 — fast offline DOI prefix matching
+    for provider_class in content_providers:
+        prefixes = getattr(provider_class, "doi_prefixes", ())
+        if prefixes and any(p in reference for p in prefixes):
+            provider = provider_class()
+            try:
+                if provider.validate_provider(reference):
+                    logger.debug(
+                        "Provider %s matched %s via DOI prefix (fast path)",
+                        provider_class.__name__,
+                        reference,
+                    )
+                    return provider
+            except Exception:
+                logger.debug(
+                    "Provider %s DOI prefix matched but validate_provider "
+                    "raised an exception, continuing",
+                    provider_class.__name__,
+                )
+            # Prefix matched this provider; no other provider should share it.
+            break
+
+    # Phase 2 — full validation (may involve network calls)
+    for provider_class in content_providers:
+        provider = provider_class()
+        try:
+            if provider.validate_provider(reference):
+                logger.debug(
+                    "Provider %s matched %s (full validation)",
+                    provider_class.__name__,
+                    reference,
+                )
+                return provider
+            else:
+                logger.debug(
+                    "Provider %s did not match %s",
+                    provider_class.__name__,
+                    reference,
+                )
+        except Exception:
+            logger.debug(
+                "Provider %s raised an exception during validation, skipping",
+                provider_class.__name__,
+            )
+            continue
+
+    return None
+
+
 class ContentProvider:
     @property
     def supports_metadata_extraction(self):
@@ -24,6 +87,10 @@ class ContentProvider:
 
 
 class DoiProvider(ContentProvider):
+    # Known DOI prefixes for this provider.  Used for fast offline matching
+    # during provider selection — avoids slow DOI resolution via doi.org when
+    # the target service is unreachable.  Override in subclasses.
+    doi_prefixes = ()
 
     def __init__(self):
         super().__init__()  # Initialize parent class (includes logging)
@@ -468,8 +535,13 @@ class DoiProvider(ContentProvider):
             try:
                 resp = self._request("https://doi.org/{}".format(doi))
                 resp.raise_for_status()
-
             except HTTPError:
+                return doi
+            except Exception:
+                # Network errors (ConnectionError, Timeout, etc.) during DOI
+                # resolution — return the raw DOI so callers can still attempt
+                # offline matching (prefix, hostname) without crashing.
+                logger.debug("DOI resolution failed for %s, returning raw DOI", doi)
                 return doi
 
             return resp.url
