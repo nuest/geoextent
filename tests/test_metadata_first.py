@@ -73,11 +73,11 @@ class TestMetadataFirstValidation:
         assert provider.supports_metadata_extraction is False
 
     def test_supports_metadata_extraction_figshare(self):
-        """Figshare does NOT support metadata extraction."""
+        """Figshare supports metadata extraction (published_date, custom_fields)."""
         from geoextent.lib.content_providers.Figshare import Figshare
 
         provider = Figshare()
-        assert provider.supports_metadata_extraction is False
+        assert provider.supports_metadata_extraction is True
 
     def test_supports_metadata_extraction_fourtu(self):
         """4TU supports metadata extraction (geolocation via custom_fields)."""

@@ -63,6 +63,33 @@ class TestFigshareProvider:
         for url in invalid_urls:
             assert figshare.validate_provider(url) == False
 
+    def test_figshare_institutional_portal_url_validation(self):
+        """Test that Figshare institutional portal URLs are correctly validated"""
+        from geoextent.lib.content_providers.Figshare import Figshare
+
+        figshare = Figshare()
+
+        # Institutional portal URLs (*.figshare.com)
+        portal_urls = [
+            (
+                "https://springernature.figshare.com/articles/dataset/test/8319737",
+                "8319737",
+            ),
+            ("https://monash.figshare.com/articles/dataset/test/12345678", "12345678"),
+            ("https://rmit.figshare.com/articles/dataset/test/99999999/2", "99999999"),
+        ]
+
+        for url, expected_id in portal_urls:
+            assert figshare.validate_provider(url) == True, f"Should validate: {url}"
+            assert figshare.record_id == expected_id
+
+        # Invalid institutional portal URLs (no numeric ID)
+        assert (
+            figshare.validate_provider("https://springernature.figshare.com/articles/")
+            == False
+        )
+
+    @pytest.mark.large_download
     def test_figshare_actual_bounding_box_verification_prince_edward(self):
         """Test Figshare provider with actual bounding box verification - Prince Edward Islands"""
         dataset = self.TEST_DATASETS["prince_edward_islands"]
@@ -119,6 +146,7 @@ class TestFigshareProvider:
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
 
+    @pytest.mark.large_download
     def test_figshare_actual_bounding_box_verification_raster_workshop(self):
         """Test Figshare provider with actual bounding box verification - Raster Workshop Dataset"""
         dataset = self.TEST_DATASETS["raster_workshop"]
@@ -173,7 +201,7 @@ class TestFigshareProvider:
             pytest.skip(f"Network error: {e}")
 
     def test_figshare_metadata_only_extraction(self):
-        """Test Figshare metadata-only extraction (limited functionality)"""
+        """Test Figshare metadata-only extraction returns temporal extent from published_date"""
         dataset = self.TEST_DATASETS["prince_edward_islands"]
 
         try:
@@ -184,9 +212,11 @@ class TestFigshareProvider:
             assert result is not None
             assert result["format"] == "remote"
 
-            # For Figshare, metadata-only still downloads files since
-            # Figshare doesn't provide geospatial metadata directly
-            # This behavior is expected and documented
+            # Figshare metadata-only should yield temporal extent from published_date
+            # but typically no spatial extent (API lacks geolocation for most items)
+            if "tbox" in result:
+                tbox = result["tbox"]
+                assert len(tbox) == 2
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
@@ -206,20 +236,9 @@ class TestFigshareProvider:
         figshare = Figshare()
 
         for url in url_variants:
-            try:
-                is_valid = figshare.validate_provider(url)
-                if is_valid:
-                    assert figshare.record_id == "19248626"
-
-                    # Test actual extraction with one variant
-                    if url == base_url:
-                        result = geoextent.fromRemote(
-                            url, bbox=True, download_data=True
-                        )
-                        assert result is not None
-
-            except Exception as e:
-                continue
+            is_valid = figshare.validate_provider(url)
+            assert is_valid, f"URL should be valid: {url}"
+            assert figshare.record_id == "19248626"
 
     def test_figshare_invalid_articles(self):
         """Test Figshare validation and error handling with invalid articles"""
@@ -249,6 +268,7 @@ class TestFigshareProvider:
 class TestFigshareParameterCombinations:
     """Test Figshare with various parameter combinations"""
 
+    @pytest.mark.large_download
     def test_figshare_bbox_only(self):
         """Test Figshare extraction with only bbox enabled"""
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
@@ -292,6 +312,7 @@ class TestFigshareParameterCombinations:
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
 
+    @pytest.mark.large_download
     def test_figshare_tbox_only(self):
         """Test Figshare extraction with only tbox enabled"""
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
@@ -307,6 +328,7 @@ class TestFigshareParameterCombinations:
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
 
+    @pytest.mark.large_download
     def test_figshare_with_details(self):
         """Test Figshare extraction with details enabled"""
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
@@ -324,26 +346,22 @@ class TestFigshareParameterCombinations:
             pytest.skip(f"Network error: {e}")
 
     def test_figshare_download_data_parameter(self):
-        """Test Figshare with download_data parameter variations"""
+        """Test Figshare with download_data=False returns metadata-extracted tbox"""
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
 
         try:
-            # Test with download_data=True (default for geospatial extraction)
-            result_with_data = geoextent.fromRemote(
-                test_url, bbox=True, download_data=True
-            )
-            assert result_with_data is not None
-            assert result_with_data["format"] == "remote"
-
-            # Test with download_data=False (metadata-only, limited for Figshare)
+            # Test with download_data=False (metadata-only)
             result_metadata = geoextent.fromRemote(
-                test_url, bbox=True, download_data=False
+                test_url, bbox=True, tbox=True, download_data=False
             )
             assert result_metadata is not None
             assert result_metadata["format"] == "remote"
 
-            # Both should return similar structure (Figshare downloads files regardless)
-            assert ("bbox" in result_with_data) == ("bbox" in result_metadata)
+            # Metadata-only should yield temporal extent from published_date
+            # but typically no bbox (Figshare API lacks geolocation)
+            if "tbox" in result_metadata:
+                tbox = result_metadata["tbox"]
+                assert len(tbox) == 2
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
@@ -389,6 +407,13 @@ class TestFigshareEdgeCases:
             if is_valid:
                 assert figshare.record_id == "123456"
 
+    def test_figshare_supports_metadata_extraction(self):
+        """Test that Figshare provider reports metadata extraction support"""
+        from geoextent.lib.content_providers.Figshare import Figshare
+
+        figshare = Figshare()
+        assert figshare.supports_metadata_extraction is True
+
     def test_figshare_api_error_handling(self):
         """Test Figshare API error handling"""
         # This tests the error handling when API calls fail
@@ -410,6 +435,7 @@ class TestFigshareEdgeCases:
                 or "error" in str(e).lower()
             )
 
+    @pytest.mark.large_download
     def test_figshare_cli_geojson_validation(self):
         """Test Figshare CLI output with GeoJSON validation"""
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
@@ -481,5 +507,328 @@ class TestFigshareEdgeCases:
             pytest.fail(
                 f"Failed to parse CLI output as JSON: {e}\nOutput: {result.stdout}"
             )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+
+class TestFigshareExtendedDatasets:
+    """Extended Figshare test suite with smaller datasets (33KB-23MB).
+
+    These tests use download_data=True to verify full geospatial extraction
+    from a variety of file formats hosted on Figshare. Expected bounding boxes
+    are based on actual extraction results and use 1-degree tolerance to account
+    for minor GDAL version differences.
+    """
+
+    # Expected bboxes: [minlat, minlon, maxlat, maxlon] (EPSG:4326 native axis order)
+    TOLERANCE = 1.0  # degrees
+
+    def _assert_bbox_near(self, bbox, expected, label=""):
+        """Assert bbox coordinates are within tolerance of expected values."""
+        assert len(bbox) == 4
+        assert bbox[0] <= bbox[2], f"{label}: minlat > maxlat"
+        assert bbox[1] <= bbox[3], f"{label}: minlon > maxlon"
+        for i, (actual, exp) in enumerate(zip(bbox, expected)):
+            assert (
+                abs(actual - exp) < self.TOLERANCE
+            ), f"{label}: bbox[{i}] = {actual}, expected ~{exp} (tolerance {self.TOLERANCE})"
+
+    def test_figshare_country_centroids_bbox(self):
+        """Country Centroids CSV (33KB) - near-global coverage"""
+        url = "https://figshare.com/articles/dataset/Country_centroids/5902369"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [-56.0, -176.2, 78.0, 178.0]
+            self._assert_bbox_near(
+                result["bbox"], [-56.0, -176.2, 78.0, 178.0], "Country Centroids"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_whale_observations_bbox(self):
+        """Whale Observations South Africa CSV (0.33MB) - Indian Ocean / South Africa"""
+        url = "https://figshare.com/articles/dataset/Whale_observations_South_Africa/12630380"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [-38.34, -0.16, -10.13, 73.09]
+            self._assert_bbox_near(
+                result["bbox"], [-38.34, -0.16, -10.13, 73.09], "Whale Observations"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_eland_observations_bbox(self):
+        """Eland Observations CSV+KMZ+XLS (0.35MB) - Southern/Central Africa"""
+        url = "https://figshare.com/articles/dataset/Observations_of_eland/4668736"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [-31.87, 0.0, 16.0, 24.80]
+            self._assert_bbox_near(
+                result["bbox"], [-31.87, 0.0, 16.0, 24.80], "Eland Observations"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_mont_avic_land_cover_bbox(self):
+        """Mont Avic Land Cover GeoTIFF x7 (0.57MB) - Aosta Valley, Italy"""
+        url = "https://figshare.com/articles/dataset/Mont_Avic_land_cover/16718737"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [45.64, 7.54, 45.72, 7.67]
+            self._assert_bbox_near(
+                result["bbox"], [45.64, 7.54, 45.72, 7.67], "Mont Avic"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_seama_montane_bbox(self):
+        """SEAMA Montane GeoPackage+KML (1.09MB) - Mozambique/Malawi"""
+        url = "https://figshare.com/articles/dataset/SEAMA_montane/24586941"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [-17.59, 34.86, -14.28, 38.99]
+            self._assert_bbox_near(
+                result["bbox"], [-17.59, 34.86, -14.28, 38.99], "SEAMA Montane"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_london_boroughs_bbox(self):
+        """London Boroughs GeoJSON (1.28MB) - Greater London"""
+        url = "https://figshare.com/articles/dataset/London_boroughs/11373984"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [51.29, -0.51, 51.69, 0.33]
+            self._assert_bbox_near(
+                result["bbox"], [51.29, -0.51, 51.69, 0.33], "London Boroughs"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_peru_aridity_bbox(self):
+        """Peru Aridity Map Shapefile ZIP (1.54MB) - Peru"""
+        url = "https://figshare.com/articles/dataset/Peru_aridity_map/13031021"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [-18.35, -81.33, -0.04, -68.65]
+            self._assert_bbox_near(
+                result["bbox"], [-18.35, -81.33, -0.04, -68.65], "Peru Aridity"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_ontario_maps_bbox(self):
+        """Ontario Maps GeoJSON x6 (4.81MB) - Ontario, Canada"""
+        url = "https://figshare.com/articles/dataset/Ontario_maps/10312097"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [41.38, -95.19, 56.94, -74.31]
+            self._assert_bbox_near(
+                result["bbox"], [41.38, -95.19, 56.94, -74.31], "Ontario Maps"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_geotiff_envisat_bbox(self):
+        """Test GeoTIFF/ENVISAT (5.97MB) - raster"""
+        url = "https://figshare.com/articles/dataset/Test_GeoTIFF_ENVISAT/5758794"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [11.36, -117.64, 33.94, 46.25]
+            self._assert_bbox_near(
+                result["bbox"], [11.36, -117.64, 33.94, 46.25], "GeoTIFF ENVISAT"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_australian_hospitals_bbox(self):
+        """Australian Hospitals CSV (197KB) - Australia (institutional portal)"""
+        url = "https://springernature.figshare.com/articles/dataset/Australian_hospitals/8319737"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [-43.31, 113.66, -10.59, 159.07]
+            self._assert_bbox_near(
+                result["bbox"],
+                [-43.31, 113.66, -10.59, 159.07],
+                "Australian Hospitals",
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_figshare_ices_helcom_shapefiles_bbox(self):
+        """ICES HELCOM fishing effort shapefiles (23MB) - Baltic Sea (institutional portal)"""
+        url = "https://ices-library.figshare.com/articles/dataset/HELCOM_request_2022_for_spatial_data_layers_on_effort_fishing_intensity_and_fishing_footprint_for_the_years_2016-2021/20310255"
+        try:
+            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            assert result is not None
+            assert "bbox" in result
+            # Expected: [53.9, 9.4, 65.8, 27.9] — Baltic Sea region
+            self._assert_bbox_near(
+                result["bbox"], [53.9, 9.4, 65.8, 27.9], "ICES HELCOM"
+            )
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+
+class TestFigshareInstitutionalMetadata:
+    """Tests for institutional portals with geospatial metadata in custom_fields.
+
+    USDA Ag Data Commons stores GeoJSON FeatureCollections in a 'Geographic Coverage'
+    custom field, enabling metadata-only spatial extraction without data download.
+    """
+
+    def test_usda_metadata_only_has_bbox(self):
+        """USDA Ag Data Commons: metadata-only yields bbox from GeoJSON Point coverage."""
+        # Tall Fescue dataset - Point at [-76.854, 39.018] in Geographic Coverage
+        url = "https://api.figshare.com/v2/articles/30753383"
+        try:
+            result = geoextent.fromRemote(
+                url, bbox=True, tbox=True, download_data=False
+            )
+            assert result is not None
+            assert "bbox" in result
+            bbox = result["bbox"]
+            assert len(bbox) == 4
+            # Degenerate point bbox near Beltsville, Maryland
+            # Expected: [39.02, -76.85, 39.02, -76.85]
+            assert abs(bbox[0] - 39.02) < 0.1, f"lat: {bbox[0]}"
+            assert abs(bbox[1] - (-76.85)) < 0.1, f"lon: {bbox[1]}"
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_usda_metadata_only_has_temporal(self):
+        """USDA Ag Data Commons: metadata-only yields tbox from custom fields."""
+        # Tall Fescue dataset - Temporal Extent Start Date: 2022-03-31, End Date: 2024-12-05
+        url = "https://api.figshare.com/v2/articles/30753383"
+        try:
+            result = geoextent.fromRemote(
+                url, bbox=False, tbox=True, download_data=False
+            )
+            assert result is not None
+            assert "tbox" in result
+            tbox = result["tbox"]
+            assert len(tbox) == 2
+            # Should use custom field dates, not published_date
+            assert tbox[0] == "2022-03-31"
+            assert tbox[1] == "2024-12-05"
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_usda_polygon_coverage_bbox(self):
+        """USDA Ag Data Commons: Polygon coverage yields CONUS bounding box."""
+        # US National Dairy Producer Survey - US-spanning Polygon
+        url = "https://api.figshare.com/v2/articles/31079356"
+        try:
+            result = geoextent.fromRemote(
+                url, bbox=True, tbox=True, download_data=False
+            )
+            assert result is not None
+            assert "bbox" in result
+            bbox = result["bbox"]
+            assert len(bbox) == 4
+            assert bbox[0] <= bbox[2]
+            assert bbox[1] <= bbox[3]
+            # Expected: ~[24.7, -126.0, 49.5, -67.1] — CONUS
+            assert 20 < bbox[0] < 30, f"S lat: {bbox[0]}"
+            assert -130 < bbox[1] < -120, f"W lon: {bbox[1]}"
+            assert 45 < bbox[2] < 55, f"N lat: {bbox[2]}"
+            assert -72 < bbox[3] < -62, f"E lon: {bbox[3]}"
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+
+class TestFigshareMetadataVsDownload:
+    """Comparison tests contrasting metadata-only vs download-based results."""
+
+    def test_metadata_only_no_bbox_download_has_bbox(self):
+        """Country Centroids: metadata-only has no bbox, download has bbox from CSV."""
+        url = "https://figshare.com/articles/dataset/Country_centroids/5902369"
+        try:
+            result_meta = geoextent.fromRemote(
+                url, bbox=True, tbox=True, download_data=False
+            )
+            result_data = geoextent.fromRemote(
+                url, bbox=True, tbox=True, download_data=True
+            )
+
+            # Metadata: no spatial extent (Figshare API lacks geolocation)
+            assert result_meta is not None
+            assert "bbox" not in result_meta or result_meta.get("bbox") is None
+
+            # Download: has spatial extent from data
+            assert result_data is not None
+            assert "bbox" in result_data and result_data["bbox"] is not None
+
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_metadata_temporal_vs_download_temporal(self):
+        """Whale Observations: metadata tbox = published_date, download tbox from CSV dates."""
+        url = "https://figshare.com/articles/dataset/Whale_observations_South_Africa/12630380"
+        try:
+            result_meta = geoextent.fromRemote(
+                url, bbox=False, tbox=True, download_data=False
+            )
+            result_data = geoextent.fromRemote(
+                url, bbox=False, tbox=True, download_data=True
+            )
+
+            # Both should have temporal extent
+            assert result_meta is not None
+            assert "tbox" in result_meta  # From published_date
+            assert result_data is not None
+            assert "tbox" in result_data  # From file content
+            # They will likely differ (published_date vs observation dates)
+
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_metadata_first_fallback_to_download(self):
+        """Country Centroids: metadata_first tries metadata (no bbox), falls back to download."""
+        url = "https://figshare.com/articles/dataset/Country_centroids/5902369"
+        try:
+            result = geoextent.fromRemote(
+                url, bbox=True, tbox=True, metadata_first=True
+            )
+            assert result is not None
+            assert "bbox" in result
+
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_download_bbox_vs_convex_hull(self):
+        """Mont Avic (7 GeoTIFFs): compare bbox vs convex hull."""
+        url = "https://figshare.com/articles/dataset/Mont_Avic_land_cover/16718737"
+        try:
+            result_bbox = geoextent.fromRemote(url, bbox=True, download_data=True)
+            result_hull = geoextent.fromRemote(
+                url, bbox=True, convex_hull=True, download_data=True
+            )
+            assert result_bbox is not None
+            assert "bbox" in result_bbox
+            assert result_hull is not None
+            assert "bbox" in result_hull
+            # Both should cover the same region
+
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")

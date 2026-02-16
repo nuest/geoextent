@@ -23,6 +23,10 @@ class Figshare(DoiProvider):
         self.name = "Figshare"
         self.throttle = False
 
+    @property
+    def supports_metadata_extraction(self):
+        return True
+
     def validate_provider(self, reference):
         import re
 
@@ -46,8 +50,20 @@ class Figshare(DoiProvider):
             else:
                 # Reject incomplete URLs (no valid record ID found)
                 return False
-        else:
-            return False
+
+        # Fallback: match *.figshare.com institutional portals
+        # (e.g. springernature.figshare.com, monash.figshare.com)
+        from urllib.parse import urlparse
+
+        parsed_url = urlparse(url)
+        if parsed_url.hostname and parsed_url.hostname.endswith("figshare.com"):
+            figshare_pattern = re.compile(r"/(\d+)(?:/\d+)?/?$")
+            match = figshare_pattern.search(url)
+            if match:
+                self.record_id = match.group(1)
+                return True
+
+        return False
 
     def _get_metadata(self):
 
@@ -62,7 +78,6 @@ class Figshare(DoiProvider):
                 self.record = resp.json()
                 return self.record
             except Exception as e:
-                print("DEBUG:", e)
                 m = (
                     "The Figshare item : https://figshare.com/articles/"
                     + self.record_id
@@ -97,6 +112,233 @@ class Figshare(DoiProvider):
             # TODO: files can be empty
         return file_list
 
+    def _parse_geolocation(self, metadata):
+        """Parse geolocation from Figshare API metadata.
+
+        Sources (in priority order):
+        1. custom_fields with 'Geolocation Latitude'/'Geolocation Longitude'
+           (used by institutional portals like 4TU, springernature)
+        2. Top-level latitude/longitude fields (rarely populated on core figshare.com)
+
+        Returns: dict with 'lat', 'lon' (any may be None)
+        """
+        lat = lon = None
+
+        # Try custom_fields first (institutional portals)
+        custom_fields = metadata.get("custom_fields", [])
+        for field in custom_fields:
+            name = field.get("name", "")
+            value = field.get("value", "")
+            if name == "Geolocation Latitude":
+                try:
+                    lat = float(value)
+                except (ValueError, TypeError):
+                    pass
+            elif name == "Geolocation Longitude":
+                try:
+                    lon = float(value)
+                except (ValueError, TypeError):
+                    pass
+
+        # Fallback to top-level latitude/longitude
+        if lat is None and metadata.get("latitude") is not None:
+            try:
+                lat = float(metadata["latitude"])
+            except (ValueError, TypeError):
+                pass
+        if lon is None and metadata.get("longitude") is not None:
+            try:
+                lon = float(metadata["longitude"])
+            except (ValueError, TypeError):
+                pass
+
+        return {"lat": lat, "lon": lon}
+
+    def _parse_geo_coverage(self, metadata):
+        """Parse 'Geographic Coverage' custom field containing GeoJSON.
+
+        Used by USDA Ag Data Commons and similar institutional portals that store
+        GeoJSON FeatureCollections in a custom_fields entry.
+
+        Returns: dict (GeoJSON FeatureCollection) or None
+        """
+        import json
+
+        custom_fields = metadata.get("custom_fields", [])
+        for field in custom_fields:
+            name = field.get("name", "")
+            value = field.get("value", "")
+            if name == "Geographic Coverage" and value:
+                try:
+                    geojson = json.loads(value) if isinstance(value, str) else value
+                    if isinstance(geojson, dict) and geojson.get("type") in (
+                        "FeatureCollection",
+                        "Feature",
+                        "Point",
+                        "Polygon",
+                        "MultiPolygon",
+                        "MultiPoint",
+                        "LineString",
+                        "MultiLineString",
+                    ):
+                        return geojson
+                except (json.JSONDecodeError, TypeError):
+                    pass
+        return None
+
+    def _parse_temporal(self, metadata):
+        """Parse temporal extent from Figshare metadata.
+
+        Sources (in priority order):
+        1. custom_fields 'Temporal Extent Start Date'/'Temporal Extent End Date'
+           (used by USDA Ag Data Commons)
+        2. published_date (always available)
+
+        Returns (start, end) tuple or None.
+        """
+        start = end = None
+
+        # Try custom_fields first (USDA Ag Data Commons)
+        custom_fields = metadata.get("custom_fields", [])
+        for field in custom_fields:
+            name = field.get("name", "")
+            value = field.get("value", "")
+            if name == "Temporal Extent Start Date" and value:
+                start = value[:10]
+            elif name == "Temporal Extent End Date" and value:
+                end = value[:10]
+
+        if start or end:
+            return (start or end, end or start)
+
+        # Fallback to published_date
+        published_date = metadata.get("published_date")
+        if not published_date:
+            return None
+
+        # published_date is ISO 8601, e.g. "2022-03-28T06:15:38Z"
+        date_str = published_date[:10]
+        return (date_str, date_str)
+
+    def _write_metadata_geojson(self, folder, metadata):
+        """Write GeoJSON from Figshare metadata.
+
+        Priority:
+        1. 'Geographic Coverage' custom field with full GeoJSON (USDA Ag Data Commons)
+        2. Point geometry from lat/lon fields
+        3. Null geometry with temporal-only properties
+
+        Returns: path to created file, or None if no extractable metadata.
+        """
+        import json
+        import os
+
+        geo_coverage = self._parse_geo_coverage(metadata)
+        geo = self._parse_geolocation(metadata)
+        temporal = self._parse_temporal(metadata)
+
+        properties = {
+            "source": "Figshare metadata",
+            "dataset_id": self.record_id,
+            "title": metadata.get("title", ""),
+        }
+
+        if temporal:
+            properties["start_time"] = temporal[0]
+            properties["end_time"] = temporal[1]
+
+        # Priority 1: Use full GeoJSON coverage if available
+        if geo_coverage is not None:
+            # Wrap raw geometries in a FeatureCollection
+            if geo_coverage.get("type") == "FeatureCollection":
+                geojson_data = geo_coverage
+                # Inject temporal properties into all features
+                for feature in geojson_data.get("features", []):
+                    if temporal:
+                        if feature.get("properties") is None:
+                            feature["properties"] = {}
+                        feature["properties"]["start_time"] = temporal[0]
+                        feature["properties"]["end_time"] = temporal[1]
+            elif geo_coverage.get("type") == "Feature":
+                if temporal:
+                    if geo_coverage.get("properties") is None:
+                        geo_coverage["properties"] = {}
+                    geo_coverage["properties"]["start_time"] = temporal[0]
+                    geo_coverage["properties"]["end_time"] = temporal[1]
+                geojson_data = {
+                    "type": "FeatureCollection",
+                    "features": [geo_coverage],
+                }
+            else:
+                # Raw geometry type
+                geojson_data = {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "geometry": geo_coverage,
+                            "properties": properties,
+                        }
+                    ],
+                }
+        else:
+            # Priority 2: Point from lat/lon, or null geometry
+            if geo["lat"] is not None and geo["lon"] is not None:
+                geometry = {
+                    "type": "Point",
+                    "coordinates": [geo["lon"], geo["lat"]],
+                }
+            else:
+                geometry = None
+
+            if geometry is None and temporal is None:
+                self.log.debug(
+                    f"Figshare item {self.record_id}: no geolocation or temporal coverage in metadata"
+                )
+                return None
+
+            geojson_data = {
+                "type": "FeatureCollection",
+                "features": [
+                    {
+                        "type": "Feature",
+                        "geometry": geometry,
+                        "properties": properties,
+                    }
+                ],
+            }
+
+        geojson_file = os.path.join(folder, f"figshare_{self.record_id}.geojson")
+        with open(geojson_file, "w") as f:
+            json.dump(geojson_data, f, indent=2)
+
+        parts = []
+        if geo_coverage is not None:
+            parts.append("geographic coverage from GeoJSON")
+        elif geo["lat"] is not None:
+            parts.append(f"lat={geo['lat']}, lon={geo['lon']}")
+        if temporal:
+            parts.append(f"time={temporal[0]} to {temporal[1]}")
+        self.log.info(
+            f"Created GeoJSON metadata file for Figshare item {self.record_id} ({', '.join(parts)})"
+        )
+        return geojson_file
+
+    def _download_metadata_only(self, folder):
+        """Extract metadata from Figshare API (no data download)."""
+        try:
+            metadata = self._get_metadata()
+        except Exception as e:
+            self.log.warning(f"Failed to fetch Figshare metadata: {e}")
+            return
+
+        result = self._write_metadata_geojson(folder, metadata)
+        if result is None:
+            self.log.warning(
+                f"Figshare item {self.record_id} has no geolocation or temporal "
+                "coverage in metadata. Consider using download_data=True."
+            )
+
     def download(
         self,
         folder,
@@ -117,11 +359,7 @@ class Figshare(DoiProvider):
 
         self.throttle = throttle
         if not download_data:
-            self.log.warning(
-                "Figshare provider does not have geospatial metadata. "
-                "Using download_data=False may result in limited or no spatial extent information. "
-                "Consider using download_data=True to download actual data files for better geospatial extraction."
-            )
+            self._download_metadata_only(folder)
             return
 
         self.log.debug("Downloading Figshare item id: {} ".format(self.record_id))

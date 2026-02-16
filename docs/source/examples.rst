@@ -442,7 +442,17 @@ Zenodo:
 Figshare:
 ::
 
-   python -m geoextent -b https://doi.org/10.6084/m9.figshare.12345678
+   python -m geoextent -b https://figshare.com/articles/dataset/London_boroughs/11373984
+
+Figshare (institutional portal - ICES Library):
+::
+
+   python -m geoextent -b https://ices-library.figshare.com/articles/dataset/HELCOM_request_2022_for_spatial_data_layers_on_effort_fishing_intensity_and_fishing_footprint_for_the_years_2016-2021/20310255
+
+Figshare (metadata-only - USDA Ag Data Commons with geospatial coverage):
+::
+
+   python -m geoextent -b --no-download-data https://api.figshare.com/v2/articles/30753383
 
 Dryad:
 ::

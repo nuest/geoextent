@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -121,7 +121,7 @@ Zenodo
 Figshare
 ^^^^^^^^
 
-**Description:** Online open access repository for preserving and sharing research outputs with DOI assignment and altmetrics. Provides 20GB free private space and unlimited public sharing.
+**Description:** Online open access repository for preserving and sharing research outputs with DOI assignment and altmetrics. Provides 20GB free private space and unlimited public sharing. Figshare also powers many institutional research data portals.
 
 **Website:** https://figshare.com/
 
@@ -132,18 +132,63 @@ Figshare
 - DOI: ``10.6084/m9.figshare.12345678``
 - DOI URL: ``https://doi.org/10.6084/m9.figshare.12345678``
 - Figshare URL: ``https://figshare.com/articles/dataset/title/12345678``
+- Institutional portal URL: ``https://springernature.figshare.com/articles/dataset/title/12345678``
+- Institutional portal URL: ``https://ices-library.figshare.com/articles/dataset/title/12345678``
+- API URL: ``https://api.figshare.com/v2/articles/12345678``
 
-**Example:**
+**Example (Data Download):**
 
 .. code-block:: bash
 
-   python -m geoextent -b 10.6084/m9.figshare.12345678
+   # Download data files and extract spatial extent from their contents
+   python -m geoextent -b -t https://figshare.com/articles/dataset/London_boroughs/11373984
+
+   # Institutional portal (ICES Library - shapefiles archive)
+   python -m geoextent -b https://ices-library.figshare.com/articles/dataset/HELCOM_request_2022_for_spatial_data_layers_on_effort_fishing_intensity_and_fishing_footprint_for_the_years_2016-2021/20310255
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # Extract temporal extent from repository metadata without downloading data files
+   python -m geoextent -b -t --no-download-data https://figshare.com/articles/dataset/Country_centroids/5902369
+
+   # USDA Ag Data Commons - has geospatial metadata (GeoJSON in custom fields)
+   python -m geoextent -b --no-download-data https://api.figshare.com/v2/articles/30753383
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Data download mode: downloads files and extracts extent from file contents
+   result = geoextent.fromRemote(
+       'https://figshare.com/articles/dataset/London_boroughs/11373984',
+       bbox=True, tbox=True, download_data=True
+   )
+
+   # Metadata-only mode: uses published_date for temporal extent
+   result = geoextent.fromRemote(
+       'https://figshare.com/articles/dataset/Country_centroids/5902369',
+       bbox=True, tbox=True, download_data=False
+   )
+
+   # Metadata-first strategy: tries metadata first, falls back to data download
+   result = geoextent.fromRemote(
+       'https://figshare.com/articles/dataset/Country_centroids/5902369',
+       bbox=True, tbox=True, metadata_first=True
+   )
 
 **Special Notes:**
 
 - Full support for size limiting and file filtering
 - API-based file metadata retrieval
 - Supports private and public datasets (public only accessible)
+- Supports ``--no-download-data`` for metadata-only extraction (temporal extent from ``published_date``; spatial extent available when portals provide geolocation metadata)
+- Supports ``--metadata-first`` strategy for smart metadata-then-download extraction
+- Recognizes institutional portal URLs (``*.figshare.com``), e.g. ``springernature.figshare.com``, ``ices-library.figshare.com``
+- Some institutional portals (e.g. USDA Ag Data Commons) provide rich geospatial metadata including GeoJSON coverage polygons in ``custom_fields``
 
 4TU.ResearchData
 ^^^^^^^^^^^^^^^^

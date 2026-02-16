@@ -183,7 +183,11 @@
       "WebFetch(domain:dataoneorg.github.io)",
       "WebFetch(domain:indexer-documentation.readthedocs.io)",
       "WebFetch(domain:nceas.github.io)",
-      "WebFetch(domain:cfconventions.org)"
+      "WebFetch(domain:cfconventions.org)",
+      "WebFetch(domain:api.figshare.com)",
+      "WebFetch(domain:support.figshare.com)",
+      "WebFetch(domain:info.figshare.com)",
+      "WebFetch(domain:docs.figshare.com)"
     ],
     "deny": [],
     "ask": []
