@@ -7,6 +7,7 @@ This package contains modules for extracting data from various research reposito
 # Import all content providers
 from . import providers
 from . import Zenodo
+from . import InvenioRDM
 from . import Figshare
 from . import Dryad
 from . import Pangaea
@@ -26,6 +27,7 @@ from . import ArcticDataCenter
 __all__ = [
     "providers",
     "Zenodo",
+    "InvenioRDM",
     "Figshare",
     "Dryad",
     "Pangaea",

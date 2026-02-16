@@ -235,7 +235,8 @@ The project follows a modular handler-based architecture:
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):
-   - Support for extracting data from repositories (Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ, Pensoft, Opara, Senckenberg)
+   - Support for extracting data from repositories (Zenodo, InvenioRDM instances, Figshare, 4TU.ResearchData, Dryad, PANGAEA, OSF, Dataverse, GFZ, Pensoft, Opara, Senckenberg, BGR, Mendeley Data, Wikidata, RADAR, Arctic Data Center)
+   - ``InvenioRDM`` base provider supporting CaltechDATA, TU Wien, Frei-Data, GEO Knowledge Hub, TU Graz, Materials Cloud Archive, FDAT, DataPLANT ARChive, KTH, Prism, NYU Ultraviolet
    - Includes abstract ``CKANProvider`` base class for CKAN-based repositories (used by Senckenberg)
 
 ### Handler Selection
@@ -283,6 +284,17 @@ Key external dependencies:
 - osfclient for OSF data access
 
 **All packages listed in `setup.cfg` / `pyproject.toml` `install_requires` are required dependencies.** Do not wrap their imports in `try/except ImportError` — if they are missing, the installation is broken and should fail loudly. Only use `try/except ImportError` for genuinely optional dependencies that enable extra functionality (none exist currently).
+
+### Adding New Content Providers or File Formats
+
+When adding a new content provider or file format handler, it must be registered in **all** of the following places:
+
+1. **`geoextent/lib/content_providers/__init__.py`** — import the module and add to `__all__`
+2. **`geoextent/lib/extent.py`** — add to `_get_content_providers()` list (ordering matters for provider priority)
+3. **`geoextent/lib/features.py`** — add entry in `_get_content_provider_info()` AND in the `validate_remote_identifier()` provider list
+4. **`tests/conftest.py`** — add the test file to `_PROVIDER_FILES` and a sample test to `_PROVIDER_SAMPLE_TESTS`
+5. **`docs/source/changelog.rst`** — add changelog entry under "Unreleased"
+6. **`CLAUDE.md`** — update the content providers list in the Architecture Overview section
 
 ### Test Exception Handling
 

@@ -9,6 +9,7 @@ import tempfile
 from .content_providers import Dryad
 from .content_providers import Figshare
 from .content_providers import Zenodo
+from .content_providers import InvenioRDM
 from .content_providers import Pangaea
 from .content_providers import OSF
 from .content_providers import Dataverse
@@ -40,6 +41,7 @@ def _get_content_providers():
         FourTU.FourTU,  # Before Figshare: 4TU uses Figshare-compatible API
         Figshare.Figshare,
         Zenodo.Zenodo,
+        InvenioRDM.InvenioRDM,  # After Zenodo: catches other InvenioRDM instances
         Pangaea.Pangaea,
         OSF.OSF,
         Dataverse.Dataverse,

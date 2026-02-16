@@ -66,11 +66,11 @@ class TestMetadataFirstValidation:
         assert provider.supports_metadata_extraction is True
 
     def test_supports_metadata_extraction_zenodo(self):
-        """Zenodo does NOT support metadata extraction."""
+        """Zenodo supports metadata extraction (InvenioRDM metadata.locations + metadata.dates)."""
         from geoextent.lib.content_providers.Zenodo import Zenodo
 
         provider = Zenodo()
-        assert provider.supports_metadata_extraction is False
+        assert provider.supports_metadata_extraction is True
 
     def test_supports_metadata_extraction_figshare(self):
         """Figshare supports metadata extraction (published_date, custom_fields)."""

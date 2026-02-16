@@ -187,7 +187,12 @@
       "WebFetch(domain:api.figshare.com)",
       "WebFetch(domain:support.figshare.com)",
       "WebFetch(domain:info.figshare.com)",
-      "WebFetch(domain:docs.figshare.com)"
+      "WebFetch(domain:docs.figshare.com)",
+      "WebFetch(domain:zenodo.org)",
+      "WebFetch(domain:gkhub.earthobservations.org)",
+      "WebFetch(domain:data.caltech.edu)",
+      "WebFetch(domain:inveniordm.docs.cern.ch)",
+      "WebFetch(domain:fdat.uni-tuebingen.de)"
     ],
     "deny": [],
     "ask": []
