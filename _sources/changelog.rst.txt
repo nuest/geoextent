@@ -14,10 +14,12 @@ Unreleased
   - Add Wikidata as content provider for extracting geographic extents from Wikidata items via SPARQL (:issue:`83`)
   - Add 4TU.ResearchData as content provider with support for both data download and metadata-only extraction (:issue:`92`)
   - Add RADAR (FIZ Karlsruhe) as content provider for cross-disciplinary German research data (:issue:`87`)
+  - Add NSF Arctic Data Center as content provider with metadata-only and data download support (:issue:`90`)
 
 - **New Features**
 
   - Add ``--metadata-first`` CLI flag and ``metadata_first`` API parameter for smart metadata-then-download extraction strategy: tries metadata-only extraction first if the provider supports it, falls back to data download if metadata yields no results
+  - Extract temporal extent from raster files: NetCDF CF time dimensions, GeoTIFF ``TIFFTAG_DATETIME``, ACDD ``time_coverage_start/end`` global attributes, and band-level ``ACQUISITIONDATETIME`` (IMAGERY domain) (:issue:`22`)
   - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
   - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
 

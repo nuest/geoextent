@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g77cafc2c9 documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gc2441cce5 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=52189dbc"></script>
+    <script src="../_static/documentation_options.js?v=8a9397d6"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -493,7 +493,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 131.85task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 149.44task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -557,7 +557,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 23.70task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 26.41task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -573,7 +573,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 13.35item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 14.15item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -600,7 +600,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 118.52task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 110.33task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -616,7 +616,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 21.43item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 22.04item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -670,6 +670,18 @@ Supported data repositories:
 </pre></div>
 </div>
 </section>
+<section id="extract-from-arctic-data-center">
+<h3>Extract from Arctic Data Center<a class="headerlink" href="#extract-from-arctic-data-center" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="mf">10.18739</span><span class="o">/</span><span class="n">A2Z892H2J</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-arctic-data-center-metadata-only">
+<h3>Extract from Arctic Data Center (metadata only)<a class="headerlink" href="#extract-from-arctic-data-center-metadata-only" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">data</span> <span class="mf">10.18739</span><span class="o">/</span><span class="n">A2Z892H2J</span>
+</pre></div>
+</div>
+</section>
 <section id="extract-from-4tu-researchdata">
 <h3>Extract from 4TU.ResearchData<a class="headerlink" href="#extract-from-4tu-researchdata" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">data</span><span class="mf">.4</span><span class="n">tu</span><span class="o">.</span><span class="n">nl</span><span class="o">/</span><span class="n">articles</span><span class="o">/</span><span class="n">_</span><span class="o">/</span><span class="mi">12707150</span><span class="o">/</span><span class="mi">1</span>
@@ -693,6 +705,28 @@ Supported data repositories:
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">convex</span><span class="o">-</span><span class="n">hull</span> <span class="o">--</span><span class="n">metadata</span><span class="o">-</span><span class="n">first</span> <span class="n">Q64</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">data</span><span class="mf">.4</span><span class="n">tu</span><span class="o">.</span><span class="n">nl</span><span class="o">/</span><span class="n">datasets</span><span class="o">/</span><span class="mi">3035126</span><span class="n">d</span><span class="o">-</span><span class="n">ee51</span><span class="o">-</span><span class="mi">4</span><span class="n">dbd</span><span class="o">-</span><span class="n">a187</span><span class="o">-</span><span class="mi">5</span><span class="n">f6b0be85e9f</span><span class="o">/</span><span class="mi">1</span> <span class="mf">10.12761</span><span class="o">/</span><span class="n">sgn</span><span class="mf">.2018.10225</span>
 </pre></div>
 </div>
+</section>
+<section id="comparing-extraction-modes-metadata-download-and-convex-hull">
+<h3>Comparing extraction modes: metadata, download, and convex hull<a class="headerlink" href="#comparing-extraction-modes-metadata-download-and-convex-hull" title="Link to this heading">¶</a></h3>
+<p>The following three calls on an <a class="reference external" href="https://arcticdata.io/">Arctic Data Center</a> dataset of ice wedge thermokarst polygons at Point Lay, Alaska illustrate how <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> and <code class="docutils literal notranslate"><span class="pre">--convex-hull</span></code> affect the output geometry.</p>
+<p><strong>1. Metadata-only extraction</strong> (<code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code>): Uses the bounding box stored in the repository metadata — fast, no file downloads. The bbox is slightly larger because it comes from the dataset-level metadata rather than the actual geometries:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">data</span> <span class="mf">10.18739</span><span class="o">/</span><span class="n">A2Z892H2J</span>
+</pre></div>
+</div>
+<p>Output bbox: <code class="docutils literal notranslate"><span class="pre">[-163.049,</span> <span class="pre">69.721,</span> <span class="pre">-162.935,</span> <span class="pre">69.760]</span></code> with tbox <code class="docutils literal notranslate"><span class="pre">[1949-01-01,</span> <span class="pre">2020-01-01]</span></code>.
+<a class="reference external" href="https://geojson.io/#data=data:application/json,%7B%22type%22%3A%20%22FeatureCollection%22%2C%20%22features%22%3A%20%5B%7B%22type%22%3A%20%22Feature%22%2C%20%22geometry%22%3A%20%7B%22type%22%3A%20%22Polygon%22%2C%20%22coordinates%22%3A%20%5B%5B%5B-163.04877%2C%2069.721436%5D%2C%20%5B-162.93472%2C%2069.721436%5D%2C%20%5B-162.93472%2C%2069.760124%5D%2C%20%5B-163.04877%2C%2069.760124%5D%2C%20%5B-163.04877%2C%2069.721436%5D%5D%5D%7D%2C%20%22properties%22%3A%20%7B%22tbox%22%3A%20%5B%221949-01-01%22%2C%20%222020-01-01%22%5D%7D%7D%5D%7D">View on geojson.io</a></p>
+<p><strong>2. Full download extraction</strong> (default): Downloads the 2 GeoJSON files (1.6 MB) and computes the merged bounding box from the actual feature geometries — tighter than metadata:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="mf">10.18739</span><span class="o">/</span><span class="n">A2Z892H2J</span>
+</pre></div>
+</div>
+<p>Output bbox: <code class="docutils literal notranslate"><span class="pre">[-163.027,</span> <span class="pre">69.723,</span> <span class="pre">-162.931,</span> <span class="pre">69.751]</span></code>.
+<a class="reference external" href="https://geojson.io/#data=data:application/json,%7B%22type%22%3A%20%22FeatureCollection%22%2C%20%22features%22%3A%20%5B%7B%22type%22%3A%20%22Feature%22%2C%20%22geometry%22%3A%20%7B%22type%22%3A%20%22Polygon%22%2C%20%22coordinates%22%3A%20%5B%5B%5B-163.02738054677604%2C%2069.72281732635359%5D%2C%20%5B-162.93103114652428%2C%2069.72281732635359%5D%2C%20%5B-162.93103114652428%2C%2069.75146586193965%5D%2C%20%5B-163.02738054677604%2C%2069.75146586193965%5D%2C%20%5B-163.02738054677604%2C%2069.72281732635359%5D%5D%5D%7D%2C%20%22properties%22%3A%20%7B%7D%7D%5D%7D">View on geojson.io</a></p>
+<p><strong>3. Convex hull extraction</strong> (<code class="docutils literal notranslate"><span class="pre">--convex-hull</span></code>): Downloads the same files but computes a convex hull around all feature vertices instead of an axis-aligned bounding box — most precise representation of the data footprint:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">convex</span><span class="o">-</span><span class="n">hull</span> <span class="mf">10.18739</span><span class="o">/</span><span class="n">A2Z892H2J</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://geojson.io/#data=data:application/json,%7B%22type%22%3A%20%22FeatureCollection%22%2C%20%22features%22%3A%20%5B%7B%22type%22%3A%20%22Feature%22%2C%20%22geometry%22%3A%20%7B%22type%22%3A%20%22Polygon%22%2C%20%22coordinates%22%3A%20%5B%5B%5B-162.9354945417586%2C%2069.72283808540368%5D%2C%20%5B-162.93557496284427%2C%2069.7228390285746%5D%2C%20%5B-163.0194325297929%2C%2069.72838204531571%5D%2C%20%5B-163.02030700560616%2C%2069.72850357636389%5D%2C%20%5B-163.0214176193676%2C%2069.72868360497586%5D%2C%20%5B-163.02435253222512%2C%2069.72916334627877%5D%2C%20%5B-163.02450952668033%2C%2069.72920699391047%5D%2C%20%5B-163.02482091488488%2C%2069.72932218370318%5D%2C%20%5B-163.0250142330283%2C%2069.72940812452067%5D%2C%20%5B-163.02572128008003%2C%2069.73003038428426%5D%2C%20%5B-163.0258328544103%2C%2069.73012936964642%5D%2C%20%5B-163.02635311487705%2C%2069.73059594956999%5D%2C%20%5B-163.02657237555903%2C%2069.73083576188635%5D%2C%20%5B-163.0266437299001%2C%2069.7309342959129%5D%2C%20%5B-163.02670988409136%2C%2069.7310886198561%5D%2C%20%5B-163.0267007826062%2C%2069.73118625225948%5D%2C%20%5B-163.02664885167755%2C%2069.73131132883259%5D%2C%20%5B-163.02660212132923%2C%2069.73138061544832%5D%2C%20%5B-163.02330823108616%2C%2069.73603492940758%5D%2C%20%5B-163.02160167895758%2C%2069.73834743619085%5D%2C%20%5B-163.01288307826624%2C%2069.74796693841913%5D%2C%20%5B-163.00909952064822%2C%2069.7509500736801%5D%2C%20%5B-163.00906358200902%2C%2069.75097811658188%5D%2C%20%5B-163.00688215603128%2C%2069.7510636751487%5D%2C%20%5B-162.95969874108445%2C%2069.75072411709584%5D%2C%20%5B-162.95965847693193%2C%2069.75072365094097%5D%2C%20%5B-162.95941823800084%2C%2069.75070690693762%5D%2C%20%5B-162.93367084453843%2C%2069.72337519437507%5D%2C%20%5B-162.93367356637467%2C%2069.72334730097528%5D%2C%20%5B-162.93417515224687%2C%2069.72315771059625%5D%2C%20%5B-162.93421672390681%2C%2069.72314423578342%5D%2C%20%5B-162.93442322101038%2C%2069.7230908082779%5D%2C%20%5B-162.93495956459498%2C%2069.72295747430567%5D%2C%20%5B-162.93528940963182%2C%2069.72287756746046%5D%2C%20%5B-162.9354945417586%2C%2069.72283808540368%5D%5D%5D%7D%2C%20%22properties%22%3A%20%7B%7D%7D%5D%7D">View on geojson.io</a></p>
+<p>The three modes yield progressively tighter representations: metadata bbox &gt; download bbox &gt; convex hull. Use <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> for speed when approximate extents suffice, or <code class="docutils literal notranslate"><span class="pre">--convex-hull</span></code> for the most faithful footprint of the actual data.</p>
 <p>The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: <a class="reference internal" href="../supportedformats/index_supportedformats.html"><span class="doc">Supported file formats</span></a>) inside the repository. The resulting coordinate reference system  <code class="docutils literal notranslate"><span class="pre">CRS</span></code> of the combined bbox is always in the <a class="reference external" href="https://epsg.io/4326">EPSG: 4326</a> system.</p>
 <p>For comprehensive examples including all supported repositories and advanced features, see <a class="reference internal" href="../examples.html"><span class="doc">Examples</span></a>.</p>
 </section>
@@ -746,7 +780,7 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 130.41task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 95.67task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -756,13 +790,13 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">                                                                                                                  </pre>
+<pre class="stderr literal-block">                                                                                                                 </pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 59.28item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 49.58item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">

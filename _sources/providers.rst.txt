@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 17 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 18 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -84,6 +84,8 @@ Quick Reference
 | Wikidata          | Q-numbers / URLs    | Q64                                    |
 +-------------------+---------------------+----------------------------------------+
 | RADAR             | 10.35097            | 10.35097/tvn5vujqfvf99f32              |
++-------------------+---------------------+----------------------------------------+
+| Arctic Data Center| 10.18739            | 10.18739/A2Z892H2J                     |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -637,6 +639,35 @@ RADAR
 - Backend API provides file listing before download for size estimation and geospatial file detection
 - Supports download size limiting and geospatial file filtering
 - Multiple hosting domains: ``www.radar-service.eu`` and ``radar.kit.edu``
+
+Arctic Data Center
+^^^^^^^^^^^^^^^^^^
+
+**Description:** The primary data and software repository for NSF-funded Arctic research, operated by the National Center for Ecological Analysis and Synthesis (NCEAS). Built on DataONE/Metacat infrastructure with rich structured geospatial and temporal metadata in its Solr index.
+
+**Website:** https://arcticdata.io/
+
+**DOI Prefix:** ``10.18739``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.18739/A2Z892H2J``
+- DOI URL: ``https://doi.org/10.18739/A2Z892H2J``
+- Catalog URL: ``https://arcticdata.io/catalog/view/doi%3A10.18739%2FA2Z892H2J``
+- URN UUID: ``urn:uuid:054b4c9a-8be1-4d28-8724-5e2beb0ce4e6``
+
+**Example:**
+
+.. code-block:: bash
+
+   python -m geoextent -b -t 10.18739/A2Z892H2J
+
+**Special Notes:**
+
+- Supports metadata-only extraction (every dataset has bounding coordinates and temporal coverage in its Solr index)
+- Supports both DOI and URN UUID identifiers
+- Individual file downloads via DataONE object endpoint
+- Parallel downloads supported
 
 Usage Examples
 --------------

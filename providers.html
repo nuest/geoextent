@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Content Providers &#8212; geoextent 0.1.dev1+g77cafc2c9 documentation</title>
+    <title>Content Providers &#8212; geoextent 0.1.dev1+gc2441cce5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=52189dbc"></script>
+    <script src="_static/documentation_options.js?v=8a9397d6"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -46,7 +46,7 @@
             
   <section id="content-providers">
 <h1>Content Providers<a class="headerlink" href="#content-providers" title="Link to this heading">¶</a></h1>
-<p>Geoextent supports extracting geospatial data from 17 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
+<p>Geoextent supports extracting geospatial data from 18 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
 <p>All content providers support:</p>
@@ -61,7 +61,7 @@
 </ul>
 <section id="metadata-first-extraction">
 <h3>Metadata-First Extraction<a class="headerlink" href="#metadata-first-extraction" title="Link to this heading">¶</a></h3>
-<p>Some providers (Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> flag leverages this for a smart two-phase strategy:</p>
+<p>Some providers (Arctic Data Center, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> flag leverages this for a smart two-phase strategy:</p>
 <ol class="arabic simple">
 <li><p><strong>Phase 1 (metadata):</strong> If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).</p></li>
 <li><p><strong>Phase 2 (fallback):</strong> If metadata didn’t yield the requested extents, or if the provider doesn’t support metadata, fall back to downloading and processing data files.</p></li>
@@ -521,6 +521,27 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>Backend API provides file listing before download for size estimation and geospatial file detection</p></li>
 <li><p>Supports download size limiting and geospatial file filtering</p></li>
 <li><p>Multiple hosting domains: <code class="docutils literal notranslate"><span class="pre">www.radar-service.eu</span></code> and <code class="docutils literal notranslate"><span class="pre">radar.kit.edu</span></code></p></li>
+</ul>
+<p><strong>Description:</strong> The primary data and software repository for NSF-funded Arctic research, operated by the National Center for Ecological Analysis and Synthesis (NCEAS). Built on DataONE/Metacat infrastructure with rich structured geospatial and temporal metadata in its Solr index.</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://arcticdata.io/">https://arcticdata.io/</a></p>
+<p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.18739</span></code></p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>DOI: <code class="docutils literal notranslate"><span class="pre">10.18739/A2Z892H2J</span></code></p></li>
+<li><p>DOI URL: <code class="docutils literal notranslate"><span class="pre">https://doi.org/10.18739/A2Z892H2J</span></code></p></li>
+<li><p>Catalog URL: <code class="docutils literal notranslate"><span class="pre">https://arcticdata.io/catalog/view/doi%3A10.18739%2FA2Z892H2J</span></code></p></li>
+<li><p>URN UUID: <code class="docutils literal notranslate"><span class="pre">urn:uuid:054b4c9a-8be1-4d28-8724-5e2beb0ce4e6</span></code></p></li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span><span class="m">10</span>.18739/A2Z892H2J
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p>Supports metadata-only extraction (every dataset has bounding coordinates and temporal coverage in its Solr index)</p></li>
+<li><p>Supports both DOI and URN UUID identifiers</p></li>
+<li><p>Individual file downloads via DataONE object endpoint</p></li>
+<li><p>Parallel downloads supported</p></li>
 </ul>
 </section>
 <section id="usage-examples">

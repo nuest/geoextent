@@ -3,6 +3,87 @@ Core Features
 
 This page covers fundamental geoextent capabilities used in everyday workflows.
 
+Raster Temporal Extent Extraction
+----------------------------------
+
+geoextent can extract temporal extents from raster files using several metadata sources.
+When multiple sources are present, the first successful result wins.
+
+Fallback Chain
+^^^^^^^^^^^^^^
+
+The metadata sources are tried in the following order:
+
+1. **NetCDF CF time dimension** — checked on subdatasets first, then the main dataset
+2. **ACDD global attributes** — ``time_coverage_start`` / ``time_coverage_end``
+3. **GeoTIFF TIFFTAG_DATETIME** — standard TIFF date/time tag
+4. **Band-level ACQUISITIONDATETIME** — IMAGERY metadata domain
+
+If none of the sources yield a valid date, the temporal extent is ``None`` (absent from the result)
+while spatial extent extraction proceeds independently.
+
+Supported Metadata Fields
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 15 25 30
+
+   * - Field
+     - Domain
+     - Format
+     - Specification
+   * - ``TIFFTAG_DATETIME``
+     - default (dataset)
+     - ``YYYY:MM:DD HH:MM:SS``
+     - `TIFF Tag DateTime (Tag 306) <https://www.awaresystems.be/imaging/tiff/tifftags/datetime.html>`_
+   * - ``ACQUISITIONDATETIME``
+     - IMAGERY (band)
+     - ISO 8601 (e.g. ``2024-07-04T14:30:00Z``)
+     - `GDAL Raster Data Model — IMAGERY domain <https://gdal.org/en/stable/user/raster_data_model.html#imagery-domain>`_
+   * - ``time#units`` + ``NETCDF_DIM_time_VALUES``
+     - default (dataset/subdataset)
+     - CF convention (e.g. ``days since 2015-01-01``)
+     - `CF Conventions §4.4 — Time Coordinate <https://cfconventions.org/Data/cf-conventions/cf-conventions-1.11/cf-conventions.html#time-coordinate>`_
+   * - ``NC_GLOBAL#time_coverage_start/end``
+     - default (dataset)
+     - ISO 8601
+     - `ACDD 1.3 — time_coverage_start <https://wiki.esipfed.org/Attribute_Convention_for_Data_Discovery_1-3#time_coverage_start>`_
+
+Examples
+^^^^^^^^
+
+**GeoTIFF with TIFFTAG_DATETIME:**
+
+.. code-block:: python
+
+   from geoextent.lib import extent
+
+   result = extent.fromFile("satellite_image.tif", tbox=True)
+   # result["tbox"] == ["2019-03-21", "2019-03-21"]
+
+**NetCDF with CF time dimension:**
+
+.. code-block:: python
+
+   result = extent.fromFile("climate_model.nc", tbox=True)
+   # result["tbox"] == ["2015-01-01", "2016-01-01"]
+
+**NetCDF with ACDD global attributes:**
+
+.. code-block:: python
+
+   result = extent.fromFile("ocean_temp.nc", tbox=True)
+   # result["tbox"] == ["2018-04-01", "2018-09-30"]
+
+CLI usage::
+
+   # Extract temporal extent from a GeoTIFF
+   python -m geoextent -t satellite_image.tif
+
+   # Extract both spatial and temporal extent
+   python -m geoextent -b -t climate_model.nc
+
 Multiple Remote Resource Extraction
 ------------------------------------
 
