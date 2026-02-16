@@ -325,6 +325,7 @@ def fromDirectory(
     placename_escape: bool = False,
     legacy: bool = False,
     assume_wgs84: bool = False,
+    time_format: str | None = None,
     _internal: bool = False,
 ):
     """Extracts geoextent from a directory/archive
@@ -433,6 +434,7 @@ def fromDirectory(
                     include_geojsonio=include_geojsonio,
                     placename=placename,
                     placename_escape=placename_escape,
+                    time_format=time_format,
                     _internal=True,
                 )
             else:
@@ -456,6 +458,7 @@ def fromDirectory(
                         placename=placename,
                         placename_escape=placename_escape,
                         assume_wgs84=assume_wgs84,
+                        time_format=time_format,
                         _internal=True,
                     )
                     metadata_directory[str(filename)] = metadata_file
@@ -474,6 +477,7 @@ def fromDirectory(
                         placename=placename,
                         placename_escape=placename_escape,
                         assume_wgs84=assume_wgs84,
+                        time_format=time_format,
                         _internal=True,
                     )
                 else:
@@ -491,6 +495,7 @@ def fromDirectory(
                     placename=placename,
                     placename_escape=placename_escape,
                     assume_wgs84=assume_wgs84,
+                    time_format=time_format,
                     _internal=True,
                 )
                 metadata_directory[str(filename)] = metadata_file
@@ -573,7 +578,7 @@ def fromDirectory(
             )
 
     if tbox:
-        tbox_ext = hf.tbox_merge(metadata_directory, path)
+        tbox_ext = hf.tbox_merge(metadata_directory, path, time_format=time_format)
         if tbox_ext is not None:
             metadata["tbox"] = tbox_ext
         else:
@@ -656,6 +661,7 @@ def fromFile(
     placename_escape=False,
     legacy=False,
     assume_wgs84=False,
+    time_format=None,
     _internal=False,
 ):
     """Extracts geoextent from a file
@@ -763,14 +769,16 @@ def fromFile(
                     if tbox:
                         if usedModule.get_handler_name() == "handleCSV":
                             extract_tbox = usedModule.getTemporalExtent(
-                                filepath, num_sample
+                                filepath, num_sample, time_format=time_format
                             )
                         else:
                             if num_sample is not None:
                                 logger.warning(
                                     "num_sample parameter is ignored, only applies to CSV files"
                                 )
-                            extract_tbox = usedModule.getTemporalExtent(filepath)
+                            extract_tbox = usedModule.getTemporalExtent(
+                                filepath, time_format=time_format
+                            )
                         if extract_tbox is not None:
                             metadata["tbox"] = extract_tbox
                 except Exception as e:
@@ -907,6 +915,7 @@ def fromRemote(
     legacy: bool = False,
     assume_wgs84: bool = False,
     metadata_first: bool = False,
+    time_format: str | None = None,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -1056,6 +1065,7 @@ def fromRemote(
                 keep_files=keep_files,
                 assume_wgs84=assume_wgs84,
                 metadata_first=metadata_first,
+                time_format=time_format,
             )
             if resource_output is not None:
                 resource_output["format"] = "remote"
@@ -1080,7 +1090,9 @@ def fromRemote(
 
     # Merge temporal extents if tbox is requested
     if tbox:
-        merged_tbox = hf.tbox_merge(output["details"], "remote")
+        merged_tbox = hf.tbox_merge(
+            output["details"], "remote", time_format=time_format
+        )
         if merged_tbox:
             output["tbox"] = merged_tbox
 
@@ -1174,6 +1186,7 @@ def _process_remote_download(
     placename,
     placename_escape,
     assume_wgs84=False,
+    time_format=None,
 ):
     """
     Shared logic for processing remote downloads and extracting metadata.
@@ -1252,6 +1265,7 @@ def _process_remote_download(
         placename=placename,
         placename_escape=placename_escape,
         assume_wgs84=assume_wgs84,
+        time_format=time_format,
         _internal=True,
     )
 
@@ -1280,6 +1294,7 @@ def _metadata_first_extract(
     max_download_workers,
     keep_files,
     assume_wgs84,
+    time_format=None,
 ):
     """Try metadata-only extraction first, fall back to data download if needed.
 
@@ -1311,6 +1326,7 @@ def _metadata_first_extract(
         placename=placename,
         placename_escape=placename_escape,
         assume_wgs84=assume_wgs84,
+        time_format=time_format,
     )
 
     # Phase 1: Try metadata-only extraction if the provider supports it
@@ -1416,6 +1432,7 @@ def _extract_from_remote(
     keep_files=False,
     assume_wgs84=False,
     metadata_first=False,
+    time_format=None,
 ):
     """
     Internal method to extract extent from a single remote identifier.
@@ -1467,6 +1484,7 @@ def _extract_from_remote(
                 max_download_workers=max_download_workers,
                 keep_files=keep_files,
                 assume_wgs84=assume_wgs84,
+                time_format=time_format,
             )
             return metadata
 
@@ -1500,6 +1518,7 @@ def _extract_from_remote(
                         placename=placename,
                         placename_escape=placename_escape,
                         assume_wgs84=assume_wgs84,
+                        time_format=time_format,
                     )
 
                     # Explicitly clean up temporary directory
@@ -1543,6 +1562,7 @@ def _extract_from_remote(
                     include_geojsonio=include_geojsonio,
                     placename=placename,
                     placename_escape=placename_escape,
+                    time_format=time_format,
                 )
 
                 logger.info(f"Files kept in: {tmp}")

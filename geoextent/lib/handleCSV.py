@@ -683,7 +683,7 @@ def getConvexHull(filepath):
     return None
 
 
-def getTemporalExtent(filepath, num_sample):
+def getTemporalExtent(filepath, num_sample, time_format=None):
     """extract time extent from csv string \n
     input "filePath": type string, file path to csv File \n
     returns temporal extent of the file: type list, length = 2, both entries have the type str, temporalExtent[0] <= temporalExtent[1]
@@ -707,9 +707,9 @@ def getTemporalExtent(filepath, num_sample):
             parsed_time = hf.date_parser(all_temporal_extent, num_sample=num_sample)
 
             if parsed_time is not None:
-                # Min and max into ISO8601 format ('%Y-%m-%d')
-                tbox.append(min(parsed_time).strftime("%Y-%m-%d"))
-                tbox.append(max(parsed_time).strftime("%Y-%m-%d"))
+                out_fmt = hf.resolve_time_format(time_format)
+                tbox.append(min(parsed_time).strftime(out_fmt))
+                tbox.append(max(parsed_time).strftime(out_fmt))
             else:
                 raise Exception(
                     "The csv file from "

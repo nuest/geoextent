@@ -107,7 +107,7 @@ def checkFileSupported(filepath):
     return False
 
 
-def getTemporalExtent(filepath):
+def getTemporalExtent(filepath, time_format=None):
     """extracts temporal extent of the vector file \n
     input "path": type string, file path to vector file
     """
@@ -190,9 +190,10 @@ def getTemporalExtent(filepath):
         )
         return None
     else:
+        out_fmt = hf.resolve_time_format(time_format)
         tbox = [
-            min(datetime_list).strftime(hf.output_time_format),
-            max(datetime_list).strftime(hf.output_time_format),
+            min(datetime_list).strftime(out_fmt),
+            max(datetime_list).strftime(out_fmt),
         ]
 
     return tbox

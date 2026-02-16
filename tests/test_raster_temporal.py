@@ -55,6 +55,14 @@ class TestGeoTIFFTemporalExtent:
         result = geoextent.fromFile("tests/testdata/tif/tif_acq_invalid.tif", tbox=True)
         assert "tbox" not in result
 
+    def test_tifftag_datetime_iso8601(self):
+        result = geoextent.fromFile(
+            "tests/testdata/tif/tif_tifftag_datetime.tif",
+            tbox=True,
+            time_format="iso8601",
+        )
+        assert result["tbox"] == ["2019-03-21T08:15:00Z", "2019-03-21T08:15:00Z"]
+
     def test_tifftag_bbox_and_tbox(self):
         result = geoextent.fromFile(
             "tests/testdata/tif/tif_tifftag_datetime.tif", bbox=True, tbox=True

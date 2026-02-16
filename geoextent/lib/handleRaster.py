@@ -174,7 +174,7 @@ def getBoundingBox(filepath, assume_wgs84=False):
     return spatialExtent
 
 
-def _parse_netcdf_time(ds):
+def _parse_netcdf_time(ds, time_format=None):
     """Extract temporal extent from NetCDF CF time dimension metadata.
 
     Reads ``time#units`` (e.g. "hours since 1900-01-01 00:00:0.0") and
@@ -254,10 +254,11 @@ def _parse_netcdf_time(ds):
     min_date = ref_date + timedelta(**{td_unit: min_offset})
     max_date = ref_date + timedelta(**{td_unit: max_offset})
 
-    return [min_date.strftime("%Y-%m-%d"), max_date.strftime("%Y-%m-%d")]
+    out_fmt = hf.resolve_time_format(time_format)
+    return [min_date.strftime(out_fmt), max_date.strftime(out_fmt)]
 
 
-def _parse_acdd_time(ds):
+def _parse_acdd_time(ds, time_format=None):
     """Extract temporal extent from ACDD global attributes.
 
     Reads ``NC_GLOBAL#time_coverage_start`` and ``NC_GLOBAL#time_coverage_end``
@@ -289,19 +290,20 @@ def _parse_acdd_time(ds):
     start_dt = _try_parse(start_str)
     end_dt = _try_parse(end_str)
 
+    out_fmt = hf.resolve_time_format(time_format)
     if start_dt and end_dt:
-        return [start_dt.strftime("%Y-%m-%d"), end_dt.strftime("%Y-%m-%d")]
+        return [start_dt.strftime(out_fmt), end_dt.strftime(out_fmt)]
     elif start_dt:
-        date_str = start_dt.strftime("%Y-%m-%d")
+        date_str = start_dt.strftime(out_fmt)
         return [date_str, date_str]
     elif end_dt:
-        date_str = end_dt.strftime("%Y-%m-%d")
+        date_str = end_dt.strftime(out_fmt)
         return [date_str, date_str]
 
     return None
 
 
-def _parse_imagery_acquisition_time(ds):
+def _parse_imagery_acquisition_time(ds, time_format=None):
     """Extract temporal extent from band-level IMAGERY domain metadata.
 
     Reads ``ACQUISITIONDATETIME`` from each band's IMAGERY metadata domain.
@@ -329,12 +331,13 @@ def _parse_imagery_acquisition_time(ds):
     if not dates:
         return None
 
+    out_fmt = hf.resolve_time_format(time_format)
     min_date = min(dates)
     max_date = max(dates)
-    return [min_date.strftime("%Y-%m-%d"), max_date.strftime("%Y-%m-%d")]
+    return [min_date.strftime(out_fmt), max_date.strftime(out_fmt)]
 
 
-def getTemporalExtent(filepath):
+def getTemporalExtent(filepath, time_format=None):
     """Extract temporal extent from raster files.
 
     Tries metadata sources in this order, returning the first non-None result:
@@ -357,17 +360,17 @@ def getTemporalExtent(filepath):
         if subdatasets:
             subds = gdal.Open(subdatasets[0][0])
             if subds is not None:
-                result = _parse_netcdf_time(subds)
+                result = _parse_netcdf_time(subds, time_format)
                 if result:
                     return result
 
     # Try NetCDF time on the main dataset
-    result = _parse_netcdf_time(ds)
+    result = _parse_netcdf_time(ds, time_format)
     if result:
         return result
 
     # Try ACDD global attributes
-    result = _parse_acdd_time(ds)
+    result = _parse_acdd_time(ds, time_format)
     if result:
         return result
 
@@ -376,13 +379,14 @@ def getTemporalExtent(filepath):
     if tifftag and tifftag.strip():
         try:
             dt = datetime.strptime(tifftag.strip(), "%Y:%m:%d %H:%M:%S")
-            date_str = dt.strftime("%Y-%m-%d")
+            out_fmt = hf.resolve_time_format(time_format)
+            date_str = dt.strftime(out_fmt)
             return [date_str, date_str]
         except ValueError:
             logger.debug("Cannot parse TIFFTAG_DATETIME: {}".format(tifftag))
 
     # Try band-level ACQUISITIONDATETIME (IMAGERY domain)
-    result = _parse_imagery_acquisition_time(ds)
+    result = _parse_imagery_acquisition_time(ds, time_format)
     if result:
         return result
 

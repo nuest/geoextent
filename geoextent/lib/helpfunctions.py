@@ -26,7 +26,64 @@ ogr.UseExceptions()
 osr.UseExceptions()
 
 
-output_time_format = "%Y-%m-%d"
+#: Default strftime format for temporal extent output.
+#:
+#: Used when no ``time_format`` parameter is provided (i.e. ``time_format=None``).
+#: Produces date-only strings like ``"2019-03-21"``.
+#:
+#: Users can override this per-call via the ``time_format`` parameter on
+#: ``fromFile()``, ``fromDirectory()``, ``fromRemote()``, or the ``--time-format``
+#: CLI flag.  Accepted values: a preset name (``"date"``, ``"iso8601"``), or any
+#: Python strftime format string containing ``%`` (e.g. ``"%Y-%m-%dT%H:%M:%SZ"``).
+#:
+#: See also: :data:`TIME_FORMAT_PRESETS`, :func:`resolve_time_format`.
+DEFAULT_TIME_FORMAT = "%Y-%m-%d"
+
+# Backward-compatible alias — older internal code references ``output_time_format``.
+output_time_format = DEFAULT_TIME_FORMAT
+
+#: Named presets recognised by :func:`resolve_time_format` and the ``--time-format``
+#: CLI flag.  Keys are short human-friendly names; values are strftime format strings.
+TIME_FORMAT_PRESETS = {
+    "date": "%Y-%m-%d",
+    "iso8601": "%Y-%m-%dT%H:%M:%SZ",
+}
+
+
+def resolve_time_format(time_format):
+    """Resolve a time format specification to a strftime format string.
+
+    Args:
+        time_format: None (use default), a preset name ("date", "iso8601"),
+                     or a strftime format string containing '%'.
+
+    Returns:
+        A valid strftime format string.
+
+    Raises:
+        ValueError: If time_format is not a recognized preset or valid strftime string.
+    """
+    if time_format is None:
+        return DEFAULT_TIME_FORMAT
+
+    if time_format in TIME_FORMAT_PRESETS:
+        return TIME_FORMAT_PRESETS[time_format]
+
+    if "%" in time_format:
+        # Validate by attempting to format a test date
+        try:
+            datetime.datetime(2000, 1, 1).strftime(time_format)
+        except (ValueError, TypeError) as e:
+            raise ValueError("Invalid strftime format '{}': {}".format(time_format, e))
+        return time_format
+
+    raise ValueError(
+        "Unknown time format '{}'. Use a preset ({}) or a strftime string containing '%'.".format(
+            time_format, ", ".join(sorted(TIME_FORMAT_PRESETS.keys()))
+        )
+    )
+
+
 PREFERRED_SAMPLE_SIZE = 30
 WGS84_EPSG_ID = 4326
 logger = logging.getLogger("geoextent")
@@ -784,11 +841,12 @@ def convex_hull_merge(metadata, origin):
     return metadata_merge
 
 
-def tbox_merge(metadata, path):
+def tbox_merge(metadata, path, time_format=None):
     """
     Function purpose: Merge time boxes
     metadata: metadata with geoextent extraction from multiple files (dict)
     path: path of directory being merged
+    time_format: output time format (None for default, preset name, or strftime string)
     Output: Merged tbox
     """
     boxes = []
@@ -811,10 +869,34 @@ def tbox_merge(metadata, path):
         return None
 
     else:
-        for i in range(0, len(boxes)):
-            boxes[i] = datetime.datetime.strptime(boxes[i], output_time_format)
-        min_date = min(boxes).strftime(output_time_format)
-        max_date = max(boxes).strftime(output_time_format)
+        # Parse date strings flexibly (they may be in different formats)
+        _parse_formats = [
+            "%Y-%m-%dT%H:%M:%SZ",
+            "%Y-%m-%dT%H:%M:%S",
+            "%Y-%m-%d",
+        ]
+        parsed_boxes = []
+        for date_str in boxes:
+            parsed = None
+            for fmt in _parse_formats:
+                try:
+                    parsed = datetime.datetime.strptime(date_str, fmt)
+                    break
+                except ValueError:
+                    continue
+            if parsed is None:
+                logger.warning(
+                    "Cannot parse date '{}' in tbox_merge, skipping".format(date_str)
+                )
+                continue
+            parsed_boxes.append(parsed)
+
+        if not parsed_boxes:
+            return None
+
+        out_fmt = resolve_time_format(time_format)
+        min_date = min(parsed_boxes).strftime(out_fmt)
+        max_date = max(parsed_boxes).strftime(out_fmt)
         logger.debug(
             "Folder {} contains {} files out of {} with identifiable temporal extent".format(
                 path, int(num_time_files), num_files

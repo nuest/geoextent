@@ -187,6 +187,15 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--time-format",
+        default=None,
+        metavar="FORMAT",
+        help="output format for temporal extents. Presets: 'date' (%%Y-%%m-%%d, default), "
+        "'iso8601' (%%Y-%%m-%%dT%%H:%%M:%%SZ). "
+        "Also accepts strftime format strings (e.g. '%%Y/%%m/%%d %%H:%%M').",
+    )
+
+    parser.add_argument(
         "--convex-hull",
         action="store_true",
         default=False,
@@ -493,6 +502,13 @@ def main():
             "--metadata-first and --no-download-data are mutually exclusive"
         )
 
+    # Validate time format early
+    if args["time_format"] is not None:
+        try:
+            hf.resolve_time_format(args["time_format"])
+        except ValueError as e:
+            arg_parser.error(str(e))
+
     # Validate that at least one extraction option is enabled
     if not args["bounding_box"] and not args["time_box"]:
         arg_parser.error(
@@ -531,6 +547,7 @@ def main():
                     placename_escape=args["placename_escape"],
                     legacy=args["legacy"],
                     assume_wgs84=args["assume_wgs84"],
+                    time_format=args["time_format"],
                 )
             elif is_directory or is_zipfile:
                 output = extent.fromDirectory(
@@ -545,6 +562,7 @@ def main():
                     placename_escape=args["placename_escape"],
                     legacy=args["legacy"],
                     assume_wgs84=args["assume_wgs84"],
+                    time_format=args["time_format"],
                 )
             elif is_url or is_doi or is_repository:
                 output = extent.fromRemote(
@@ -571,6 +589,7 @@ def main():
                     legacy=args["legacy"],
                     assume_wgs84=args["assume_wgs84"],
                     metadata_first=args["metadata_first"],
+                    time_format=args["time_format"],
                 )
         else:
             # Multiple files handling
@@ -614,6 +633,7 @@ def main():
                             legacy=args["legacy"],
                             assume_wgs84=args["assume_wgs84"],
                             metadata_first=args["metadata_first"],
+                            time_format=args["time_format"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output
@@ -631,6 +651,7 @@ def main():
                             placename_escape=args["placename_escape"],
                             legacy=args["legacy"],
                             assume_wgs84=args["assume_wgs84"],
+                            time_format=args["time_format"],
                         )
                         if file_output is not None:
                             output["details"][file_path] = file_output
@@ -648,6 +669,7 @@ def main():
                             placename_escape=args["placename_escape"],
                             legacy=args["legacy"],
                             assume_wgs84=args["assume_wgs84"],
+                            time_format=args["time_format"],
                         )
                         if dir_output is not None:
                             output["details"][file_path] = dir_output
@@ -677,7 +699,9 @@ def main():
 
             # Merge temporal extents if tbox is requested
             if args["time_box"]:
-                tbox_merge = hf.tbox_merge(output["details"], "multiple_files")
+                tbox_merge = hf.tbox_merge(
+                    output["details"], "multiple_files", time_format=args["time_format"]
+                )
                 if tbox_merge is not None:
                     output["tbox"] = tbox_merge
 
