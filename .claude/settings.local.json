@@ -177,7 +177,12 @@
       "WebFetch(domain:doi.org)",
       "WebFetch(domain:djehuty.4tu.nl)",
       "Bash(# Check the Figshare v2 API reference URL pattern to see how it differs curl -s ''https://data.4tu.nl/v2/articles?page_size=2'' | python3 -m json.tool)",
-      "Bash(# Test the v3 datasets endpoint curl -s ''https://data.4tu.nl/v3/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f'' | python3 -m json.tool)"
+      "Bash(# Test the v3 datasets endpoint curl -s ''https://data.4tu.nl/v3/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f'' | python3 -m json.tool)",
+      "WebFetch(domain:arcticdata.io)",
+      "WebFetch(domain:purl.dataone.org)",
+      "WebFetch(domain:dataoneorg.github.io)",
+      "WebFetch(domain:indexer-documentation.readthedocs.io)",
+      "WebFetch(domain:nceas.github.io)"
     ],
     "deny": [],
     "ask": []

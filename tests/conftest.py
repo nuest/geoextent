@@ -45,6 +45,7 @@ _PROVIDER_FILES = {
     "test_api_wikidata.py",
     "test_api_fourtu.py",
     "test_api_radar.py",
+    "test_api_arctic_data_center.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
     "test_remote_single.py",
@@ -94,6 +95,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_wikidata_metadata_only_extraction",
     "test_fourtu_metadata_only_extraction",
     "test_radar_metadata_only_extraction",
+    "test_adc_metadata_only_extraction",
 }
 
 

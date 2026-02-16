@@ -21,6 +21,7 @@ from . import MendeleyData
 from . import Wikidata
 from . import FourTU
 from . import RADAR
+from . import ArcticDataCenter
 
 __all__ = [
     "providers",
@@ -39,4 +40,5 @@ __all__ = [
     "Wikidata",
     "FourTU",
     "RADAR",
+    "ArcticDataCenter",
 ]

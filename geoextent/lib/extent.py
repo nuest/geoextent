@@ -21,6 +21,7 @@ from .content_providers import MendeleyData
 from .content_providers import Wikidata
 from .content_providers import FourTU
 from .content_providers import RADAR
+from .content_providers import ArcticDataCenter
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -44,6 +45,7 @@ def _get_content_providers():
         Dataverse.Dataverse,
         GFZ.GFZ,
         RADAR.RADAR,
+        ArcticDataCenter.ArcticDataCenter,
         Pensoft.Pensoft,
         BGR.BGR,  # BGR before Opara because both accept UUIDs
         Opara.Opara,

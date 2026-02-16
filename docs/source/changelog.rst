@@ -14,6 +14,7 @@ Unreleased
   - Add Wikidata as content provider for extracting geographic extents from Wikidata items via SPARQL (:issue:`83`)
   - Add 4TU.ResearchData as content provider with support for both data download and metadata-only extraction (:issue:`92`)
   - Add RADAR (FIZ Karlsruhe) as content provider for cross-disciplinary German research data (:issue:`87`)
+  - Add NSF Arctic Data Center as content provider with metadata-only and data download support (:issue:`90`)
 
 - **New Features**
 

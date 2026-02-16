@@ -9,7 +9,7 @@ Python library for extracting geospatial and temporal extents from files and dir
 
 - Extract spatial extents (bounding boxes, convex hulls) and temporal extents
 - Support for 10+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf, Esri File Geodatabase) plus world files
-- Direct integration with [17 research repositories](https://nuest.github.io/geoextent/providers.html) (Zenodo, PANGAEA, OSF, Figshare, 4TU.ResearchData, Dryad, GFZ, RADAR, Dataverse [Harvard, DataverseNL, DataverseNO, UNC, UVA, Recherche Data Gouv, ioerDATA, heiDATA, Edmond], Pensoft, TU Dresden Opara, Senckenberg, BGR, Mendeley Data) and [Wikidata](https://www.wikidata.org/)
+- Direct integration with [18 research repositories](https://nuest.github.io/geoextent/providers.html) (Zenodo, PANGAEA, OSF, Figshare, 4TU.ResearchData, Dryad, GFZ, RADAR, Arctic Data Center, Dataverse [Harvard, DataverseNL, DataverseNO, UNC, UVA, Recherche Data Gouv, ioerDATA, heiDATA, Edmond], Pensoft, TU Dresden Opara, Senckenberg, BGR, Mendeley Data) and [Wikidata](https://www.wikidata.org/)
 - Process single files, directories, or multiple repositories in one call
 - Command-line interface and Python API
 - Export as GeoJSON, WKT, or WKB
