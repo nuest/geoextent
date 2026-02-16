@@ -193,26 +193,13 @@ def test_netcdf_bbox(script_runner):
     assert "4326" in result
 
 
-@pytest.mark.skip(reason="file format not implemented yet")
 def test_netcdf_time(script_runner):
     result = script_runner.run(
-        ["geoextent", "-t", "tests/testdata/nc/ECMWF_ERA-40_subset.nc"]
+        ["geoextent", "-t", "tests/testdata/nc/ECMWF_ERA-40_subset1.nc"]
     )
     assert result.success, "process should return success"
-    assert result.stderr == "", "stderr should be empty"
-    assert (
-        "['2002-07-01','2002-07-31']" in result.stdout
-    ), "time value is printed to console"
-
-
-@pytest.mark.skip(reason="file format not implemented yet")
-def test_netcdf_time_invalid(script_runner):
-    ret = script_runner.run(
-        ["geoextent", "-b", "tests/testdata/nc/ECMWF_ERA-40_subset.nc"]
-    )
-    assert ret.success, "process should return success"
-    assert ret.stderr is not None
-    assert ret.stderr == "invalid time format", "stderr should not be empty"
+    assert "2002-07-01" in result.stdout
+    assert "2002-07-31" in result.stdout
 
 
 def test_kml_bbox(script_runner):

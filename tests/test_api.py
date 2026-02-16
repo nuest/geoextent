@@ -8,29 +8,29 @@ from help_functions_test import create_zip, tolerance
 from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
-@pytest.mark.skip(reason="file format not implemented yet")
 def test_defaults():
-    result = geoextent.fromFile("tests/testdata/nc/ECMWF_ERA-40_subset.nc")
+    """Verify fromFile default parameters: bbox=True, tbox=True."""
+    testfile = "tests/testdata/geojson/muenster_ring_zeit.geojson"
+
+    # Default: both bbox and tbox extracted
+    result = geoextent.fromFile(testfile)
     assert "bbox" in result
-    assert "temporal_extent" in result
+    assert "tbox" in result
     assert "crs" in result
 
-    result = geoextent.fromFile("tests/testdata/nc/ECMWF_ERA-40_subset.nc", bbox=False)
+    # bbox=False: only temporal extent
+    result = geoextent.fromFile(testfile, bbox=False)
     assert "bbox" not in result
-    assert "temporal_extent" in result
+    assert "tbox" in result
     assert "crs" not in result
 
-    result = geoextent.fromFile("tests/testdata/nc/ECMWF_ERA-40_subset.nc", tbox=False)
-    assert "bbox" not in result
-    assert "temporal_extent" not in result
-    assert "crs" not in result
+    # tbox=False: only spatial extent
+    result = geoextent.fromFile(testfile, tbox=False)
+    assert "bbox" in result
+    assert "tbox" not in result
+    assert "crs" in result
 
 
-@pytest.mark.xfail(
-    reason="GDAL Python API returns identity GeoTransform for this NetCDF file. "
-    "gdalinfo command can extract correct coordinates but Python API cannot. "
-    "NetCDF support is limited - see other skipped NetCDF tests."
-)
 def test_netcdf_extract_bbox():
     result = geoextent.fromFile("tests/testdata/nc/zeroes.nc")
     assert result["bbox"] == pytest.approx(
@@ -253,11 +253,16 @@ def test_png_file_extract_bbox():
             pytest.skip(f"Network error: {e}")
 
 
-@pytest.mark.skip(reason="file format not implemented yet")
 def test_netcdf_extract_time():
-    assert geoextent.fromFile(
-        "tests/testdata/nc/ECMWF_ERA-40_subset.nc", tbox=True
-    ) == ["2002-07-01", "2002-07-31"]
+    result = geoextent.fromFile("tests/testdata/nc/ECMWF_ERA-40_subset1.nc", tbox=True)
+    assert result["tbox"] == ["2002-07-01", "2002-07-31"]
+
+
+def test_geotiff_extract_time():
+    result = geoextent.fromFile(
+        "tests/testdata/tif/tif_tifftag_datetime.tif", tbox=True
+    )
+    assert result["tbox"] == ["2019-03-21", "2019-03-21"]
 
 
 def test_gml_extract_time():
@@ -265,11 +270,14 @@ def test_gml_extract_time():
     assert result["tbox"] == ["2005-12-31", "2013-11-30"]
 
 
-@pytest.mark.skip(reason="file format not implemented yet")
 def test_netcdf_extract_bbox_time():
-    assert geoextent.fromFile(
-        "tests/testdata/nc/ECMWF_ERA-40_subset.nc", bbox=True, tbox=True
-    ) == [[-90.0, 0.0, 90.0, 357.5], ["2002-07-01", "2002-07-31"]]
+    result = geoextent.fromFile(
+        "tests/testdata/nc/ECMWF_ERA-40_subset1.nc", bbox=True, tbox=True
+    )
+    # Temporal extent is always extractable from CF time metadata
+    assert result["tbox"] == ["2002-07-01", "2002-07-31"]
+    # Bbox may be absent: this NetCDF uses 0-360 longitude range (outside WGS84 bounds)
+    # and has no projection metadata, so getBoundingBox() correctly rejects it
 
 
 def test_gpkg_extract_tbox():

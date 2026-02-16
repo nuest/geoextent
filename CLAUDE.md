@@ -230,7 +230,7 @@ The project follows a modular handler-based architecture:
 
 2. **Format Handlers** (in `geoextent/lib/`):
    - `handleCSV.py` - CSV file processing with coordinate detection
-   - `handleRaster.py` - Raster data (GeoTIFF, world files) processing using GDAL
+   - `handleRaster.py` - Raster data (GeoTIFF, world files) processing using GDAL. Temporal extraction supports: NetCDF CF time dimensions, ACDD `time_coverage_start/end`, GeoTIFF `TIFFTAG_DATETIME`, and band-level `ACQUISITIONDATETIME` (IMAGERY domain)
    - `handleVector.py` - Vector data (Shapefile, GeoJSON) processing using OGR
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 

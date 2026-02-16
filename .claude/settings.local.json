@@ -182,7 +182,8 @@
       "WebFetch(domain:purl.dataone.org)",
       "WebFetch(domain:dataoneorg.github.io)",
       "WebFetch(domain:indexer-documentation.readthedocs.io)",
-      "WebFetch(domain:nceas.github.io)"
+      "WebFetch(domain:nceas.github.io)",
+      "WebFetch(domain:cfconventions.org)"
     ],
     "deny": [],
     "ask": []

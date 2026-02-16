@@ -1,3 +1,7 @@
+import math
+import re
+from datetime import datetime, timedelta
+
 import osgeo
 from osgeo import gdal
 from osgeo import osr
@@ -33,6 +37,13 @@ def checkFileSupported(filepath):
     if file.RasterCount > 0:
         logger.debug("File {} is supported by handleRaster module".format(filepath))
         return True
+    elif file.GetSubDatasets():
+        logger.debug(
+            "File {} is supported by handleRaster module (has subdatasets)".format(
+                filepath
+            )
+        )
+        return True
     else:
         logger.debug("File {} is NOT supported by handleRaster module".format(filepath))
         return False
@@ -50,6 +61,14 @@ def getBoundingBox(filepath, assume_wgs84=False):
     gdal.UseExceptions()
 
     geotiffContent = gdal.Open(filepath)
+
+    # Handle files with subdatasets (e.g., NetCDF) — open first subdataset
+    if geotiffContent.RasterCount == 0:
+        subdatasets = geotiffContent.GetSubDatasets()
+        if subdatasets:
+            geotiffContent = gdal.Open(subdatasets[0][0])
+        else:
+            return None
 
     # get the existing coordinate system
     projection_ref = geotiffContent.GetProjectionRef()
@@ -155,10 +174,217 @@ def getBoundingBox(filepath, assume_wgs84=False):
     return spatialExtent
 
 
-def getTemporalExtent(filepath):
-    """extracts temporal extent of the geotiff \n
-    input "filepath": type string, file path to geotiff file \n
-    returns None as There is no time value for GeoTIFF files
+def _parse_netcdf_time(ds):
+    """Extract temporal extent from NetCDF CF time dimension metadata.
+
+    Reads ``time#units`` (e.g. "hours since 1900-01-01 00:00:0.0") and
+    ``NETCDF_DIM_time_VALUES`` from dataset metadata and computes min/max dates.
+
+    Returns [min_date_str, max_date_str] or None.
     """
-    logger.debug("{} There is no time value for raster files".format(filepath))
+    metadata = ds.GetMetadata()
+
+    time_units = metadata.get("time#units")
+    time_values_str = metadata.get("NETCDF_DIM_time_VALUES")
+
+    if not time_units or not time_values_str:
+        return None
+
+    # Parse "unit since reference_date" from time#units
+    match = re.match(
+        r"(hours|days|minutes|seconds)\s+since\s+(.+)",
+        time_units.strip(),
+    )
+    if not match:
+        logger.debug("Cannot parse time#units: {}".format(time_units))
+        return None
+
+    unit = match.group(1)
+    ref_date_str = match.group(2).strip()
+
+    # Parse reference date — try common CF formats
+    ref_date = None
+    for fmt in (
+        "%Y-%m-%d %H:%M:%S.%f",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %H:%M:%S.0",
+        "%Y-%m-%d",
+    ):
+        try:
+            ref_date = datetime.strptime(ref_date_str, fmt)
+            break
+        except ValueError:
+            continue
+    # Handle trailing ".0" that strptime may not match directly
+    if ref_date is None:
+        cleaned = re.sub(r"\.0+$", "", ref_date_str)
+        try:
+            ref_date = datetime.strptime(cleaned, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            pass
+    if ref_date is None:
+        logger.debug("Cannot parse reference date: {}".format(ref_date_str))
+        return None
+
+    # Parse time values from "{val1,val2,...}" format
+    values_str = time_values_str.strip().strip("{}")
+    try:
+        time_offsets = [float(v) for v in values_str.split(",")]
+    except ValueError:
+        logger.debug("Cannot parse NETCDF_DIM_time_VALUES: {}".format(time_values_str))
+        return None
+
+    # Filter out NaN values
+    time_offsets = [v for v in time_offsets if not math.isnan(v)]
+
+    if not time_offsets:
+        return None
+
+    min_offset = min(time_offsets)
+    max_offset = max(time_offsets)
+
+    # Convert offsets to timedelta
+    unit_map = {
+        "hours": "hours",
+        "days": "days",
+        "minutes": "minutes",
+        "seconds": "seconds",
+    }
+    td_unit = unit_map[unit]
+    min_date = ref_date + timedelta(**{td_unit: min_offset})
+    max_date = ref_date + timedelta(**{td_unit: max_offset})
+
+    return [min_date.strftime("%Y-%m-%d"), max_date.strftime("%Y-%m-%d")]
+
+
+def _parse_acdd_time(ds):
+    """Extract temporal extent from ACDD global attributes.
+
+    Reads ``NC_GLOBAL#time_coverage_start`` and ``NC_GLOBAL#time_coverage_end``
+    from dataset metadata (Attribute Convention for Data Discovery).
+
+    Returns [min_date_str, max_date_str] or None.
+    """
+    metadata = ds.GetMetadata()
+
+    start_str = metadata.get("NC_GLOBAL#time_coverage_start")
+    end_str = metadata.get("NC_GLOBAL#time_coverage_end")
+
+    if not start_str and not end_str:
+        return None
+
+    formats = ["%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"]
+
+    def _try_parse(s):
+        if not s:
+            return None
+        for fmt in formats:
+            try:
+                return datetime.strptime(s.strip(), fmt)
+            except ValueError:
+                continue
+        logger.debug("Cannot parse ACDD time_coverage value: {}".format(s))
+        return None
+
+    start_dt = _try_parse(start_str)
+    end_dt = _try_parse(end_str)
+
+    if start_dt and end_dt:
+        return [start_dt.strftime("%Y-%m-%d"), end_dt.strftime("%Y-%m-%d")]
+    elif start_dt:
+        date_str = start_dt.strftime("%Y-%m-%d")
+        return [date_str, date_str]
+    elif end_dt:
+        date_str = end_dt.strftime("%Y-%m-%d")
+        return [date_str, date_str]
+
+    return None
+
+
+def _parse_imagery_acquisition_time(ds):
+    """Extract temporal extent from band-level IMAGERY domain metadata.
+
+    Reads ``ACQUISITIONDATETIME`` from each band's IMAGERY metadata domain.
+
+    Returns [min_date_str, max_date_str] or None.
+    """
+    formats = ["%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d"]
+    dates = []
+
+    for i in range(1, ds.RasterCount + 1):
+        band = ds.GetRasterBand(i)
+        imagery_md = band.GetMetadata("IMAGERY")
+        acq_str = imagery_md.get("ACQUISITIONDATETIME")
+        if not acq_str:
+            continue
+        for fmt in formats:
+            try:
+                dates.append(datetime.strptime(acq_str.strip(), fmt))
+                break
+            except ValueError:
+                continue
+        else:
+            logger.debug("Cannot parse ACQUISITIONDATETIME: {}".format(acq_str))
+
+    if not dates:
+        return None
+
+    min_date = min(dates)
+    max_date = max(dates)
+    return [min_date.strftime("%Y-%m-%d"), max_date.strftime("%Y-%m-%d")]
+
+
+def getTemporalExtent(filepath):
+    """Extract temporal extent from raster files.
+
+    Tries metadata sources in this order, returning the first non-None result:
+
+    1. NetCDF CF time dimension (subdataset, then main dataset)
+    2. ACDD global attributes (``NC_GLOBAL#time_coverage_start/end``)
+    3. GeoTIFF ``TIFFTAG_DATETIME``
+    4. Band-level ``ACQUISITIONDATETIME`` (IMAGERY domain)
+
+    Returns [min_date_str, max_date_str] or None.
+    """
+    gdal.UseExceptions()
+    ds = gdal.Open(filepath)
+    if ds is None:
+        return None
+
+    # Handle files with subdatasets (e.g., NetCDF)
+    if ds.RasterCount == 0:
+        subdatasets = ds.GetSubDatasets()
+        if subdatasets:
+            subds = gdal.Open(subdatasets[0][0])
+            if subds is not None:
+                result = _parse_netcdf_time(subds)
+                if result:
+                    return result
+
+    # Try NetCDF time on the main dataset
+    result = _parse_netcdf_time(ds)
+    if result:
+        return result
+
+    # Try ACDD global attributes
+    result = _parse_acdd_time(ds)
+    if result:
+        return result
+
+    # Try GeoTIFF TIFFTAG_DATETIME
+    tifftag = ds.GetMetadataItem("TIFFTAG_DATETIME")
+    if tifftag and tifftag.strip():
+        try:
+            dt = datetime.strptime(tifftag.strip(), "%Y:%m:%d %H:%M:%S")
+            date_str = dt.strftime("%Y-%m-%d")
+            return [date_str, date_str]
+        except ValueError:
+            logger.debug("Cannot parse TIFFTAG_DATETIME: {}".format(tifftag))
+
+    # Try band-level ACQUISITIONDATETIME (IMAGERY domain)
+    result = _parse_imagery_acquisition_time(ds)
+    if result:
+        return result
+
+    logger.debug("{}: No temporal metadata found in raster file".format(filepath))
     return None

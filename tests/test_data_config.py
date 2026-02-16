@@ -8,7 +8,7 @@ TEST_DATA = {
     # NetCDF files
     "netcdf": {
         "zeroes": "tests/testdata/nc/zeroes.nc",
-        "ecmwf_era40": "tests/testdata/nc/ECMWF_ERA-40_subset.nc",
+        "ecmwf_era40": "tests/testdata/nc/ECMWF_ERA-40_subset1.nc",
         "nc_gpkg": "tests/testdata/nc/nc.gpkg",
     },
     # KML files
