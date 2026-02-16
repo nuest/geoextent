@@ -84,6 +84,70 @@ CLI usage::
    # Extract both spatial and temporal extent
    python -m geoextent -b -t climate_model.nc
 
+Temporal Extent Output Format
+------------------------------
+
+By default, temporal extents are formatted as date-only strings (``YYYY-MM-DD``).
+The ``--time-format`` CLI option and ``time_format`` API parameter let you choose
+a different output precision or format.
+
+Presets
+^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 15 25 30
+
+   * - Preset
+     - Format string
+     - Example output
+   * - ``date`` (default)
+     - ``%Y-%m-%d``
+     - ``2019-03-21``
+   * - ``iso8601``
+     - ``%Y-%m-%dT%H:%M:%SZ``
+     - ``2019-03-21T08:15:00Z``
+
+You can also pass any valid Python `strftime format string
+<https://docs.python.org/3/library/datetime.html#format-codes>`_ directly
+(detected by the presence of ``%``).
+
+When the source data only has date-level precision, time components default to
+midnight (``00:00:00``).
+
+Python API Examples
+^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+   from geoextent.lib import extent
+
+   # Default (date only)
+   result = extent.fromFile("image.tif", tbox=True)
+   # result["tbox"] == ["2019-03-21", "2019-03-21"]
+
+   # ISO 8601 with full time
+   result = extent.fromFile("image.tif", tbox=True, time_format="iso8601")
+   # result["tbox"] == ["2019-03-21T08:15:00Z", "2019-03-21T08:15:00Z"]
+
+   # Custom strftime format
+   result = extent.fromFile("image.tif", tbox=True, time_format="%d.%m.%Y %H:%M")
+   # result["tbox"] == ["21.03.2019 08:15", "21.03.2019 08:15"]
+
+CLI Examples
+^^^^^^^^^^^^
+
+::
+
+   # ISO 8601
+   python -m geoextent -t --time-format iso8601 satellite_image.tif
+
+   # Custom format
+   python -m geoextent -t --time-format "%Y/%m/%d %H:%M" satellite_image.tif
+
+See also `RFC 3339 <https://www.rfc-editor.org/rfc/rfc3339>`_ for the ISO 8601
+profile commonly used on the web.
+
 Multiple Remote Resource Extraction
 ------------------------------------
 

@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Content Providers &#8212; geoextent 0.1.dev1+gc2441cce5 documentation</title>
+    <title>Content Providers &#8212; geoextent 0.1.dev1+g5a129060c documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=8a9397d6"></script>
+    <script src="_static/documentation_options.js?v=47c3dc45"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -61,7 +61,7 @@
 </ul>
 <section id="metadata-first-extraction">
 <h3>Metadata-First Extraction<a class="headerlink" href="#metadata-first-extraction" title="Link to this heading">¶</a></h3>
-<p>Some providers (Arctic Data Center, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> flag leverages this for a smart two-phase strategy:</p>
+<p>Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> flag leverages this for a smart two-phase strategy:</p>
 <ol class="arabic simple">
 <li><p><strong>Phase 1 (metadata):</strong> If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).</p></li>
 <li><p><strong>Phase 2 (fallback):</strong> If metadata didn’t yield the requested extents, or if the provider doesn’t support metadata, fall back to downloading and processing data files.</p></li>
@@ -108,7 +108,7 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>Parallel downloads supported</p></li>
 <li><p>Handles both individual files and complete record archives</p></li>
 </ul>
-<p><strong>Description:</strong> Online open access repository for preserving and sharing research outputs with DOI assignment and altmetrics. Provides 20GB free private space and unlimited public sharing.</p>
+<p><strong>Description:</strong> Online open access repository for preserving and sharing research outputs with DOI assignment and altmetrics. Provides 20GB free private space and unlimited public sharing. Figshare also powers many institutional research data portals.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://figshare.com/">https://figshare.com/</a></p>
 <p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.6084/m9.figshare</span></code></p>
 <p><strong>Supported Identifier Formats:</strong></p>
@@ -116,9 +116,46 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>DOI: <code class="docutils literal notranslate"><span class="pre">10.6084/m9.figshare.12345678</span></code></p></li>
 <li><p>DOI URL: <code class="docutils literal notranslate"><span class="pre">https://doi.org/10.6084/m9.figshare.12345678</span></code></p></li>
 <li><p>Figshare URL: <code class="docutils literal notranslate"><span class="pre">https://figshare.com/articles/dataset/title/12345678</span></code></p></li>
+<li><p>Institutional portal URL: <code class="docutils literal notranslate"><span class="pre">https://springernature.figshare.com/articles/dataset/title/12345678</span></code></p></li>
+<li><p>Institutional portal URL: <code class="docutils literal notranslate"><span class="pre">https://ices-library.figshare.com/articles/dataset/title/12345678</span></code></p></li>
+<li><p>API URL: <code class="docutils literal notranslate"><span class="pre">https://api.figshare.com/v2/articles/12345678</span></code></p></li>
 </ul>
-<p><strong>Example:</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span><span class="m">10</span>.6084/m9.figshare.12345678
+<p><strong>Example (Data Download):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download data files and extract spatial extent from their contents</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>https://figshare.com/articles/dataset/London_boroughs/11373984
+
+<span class="c1"># Institutional portal (ICES Library - shapefiles archive)</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://ices-library.figshare.com/articles/dataset/HELCOM_request_2022_for_spatial_data_layers_on_effort_fishing_intensity_and_fishing_footprint_for_the_years_2016-2021/20310255
+</pre></div>
+</div>
+<p><strong>Example (Metadata Only):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract temporal extent from repository metadata without downloading data files</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--no-download-data<span class="w"> </span>https://figshare.com/articles/dataset/Country_centroids/5902369
+
+<span class="c1"># USDA Ag Data Commons - has geospatial metadata (GeoJSON in custom fields)</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>https://api.figshare.com/v2/articles/30753383
+</pre></div>
+</div>
+<p><strong>Python API Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Data download mode: downloads files and extracts extent from file contents</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://figshare.com/articles/dataset/London_boroughs/11373984&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Metadata-only mode: uses published_date for temporal extent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://figshare.com/articles/dataset/Country_centroids/5902369&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># Metadata-first strategy: tries metadata first, falls back to data download</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://figshare.com/articles/dataset/Country_centroids/5902369&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">metadata_first</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Special Notes:</strong></p>
@@ -126,6 +163,10 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>Full support for size limiting and file filtering</p></li>
 <li><p>API-based file metadata retrieval</p></li>
 <li><p>Supports private and public datasets (public only accessible)</p></li>
+<li><p>Supports <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> for metadata-only extraction (temporal extent from <code class="docutils literal notranslate"><span class="pre">published_date</span></code>; spatial extent available when portals provide geolocation metadata)</p></li>
+<li><p>Supports <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> strategy for smart metadata-then-download extraction</p></li>
+<li><p>Recognizes institutional portal URLs (<code class="docutils literal notranslate"><span class="pre">*.figshare.com</span></code>), e.g. <code class="docutils literal notranslate"><span class="pre">springernature.figshare.com</span></code>, <code class="docutils literal notranslate"><span class="pre">ices-library.figshare.com</span></code></p></li>
+<li><p>Some institutional portals (e.g. USDA Ag Data Commons) provide rich geospatial metadata including GeoJSON coverage polygons in <code class="docutils literal notranslate"><span class="pre">custom_fields</span></code></p></li>
 </ul>
 <p><strong>Description:</strong> Research data repository of the four Dutch Universities of Technology (TU Delft, TU Eindhoven, University of Twente, Wageningen University &amp; Research). Based on the open-source Djehuty platform with a Figshare-compatible API. Supports both metadata-only and full data download extraction.</p>
 <p><strong>Website:</strong> <a class="reference external" href="https://data.4tu.nl/">https://data.4tu.nl/</a></p>
