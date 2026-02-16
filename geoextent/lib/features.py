@@ -91,7 +91,7 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
             "time_columns": handleCSV.search.get("time", []),
         },
         "file_extensions": [".csv"],
-        "notes": "Automatically detects coordinate columns using pattern matching",
+        "notes": "Automatically detects coordinate columns using pattern matching. Uses GDAL CSV driver with open options for column detection.",
     }
     handlers.append(csv_info)
 
@@ -99,7 +99,7 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     vector_info = {
         "handler": handleVector.get_handler_name(),
         "display_name": handleVector.get_handler_display_name(),
-        "description": "Vector geospatial formats (Shapefile, GeoJSON, GeoPackage, etc.)",
+        "description": "Vector geospatial formats (Shapefile, GeoJSON, GeoPackage, Esri File Geodatabase, etc.)",
         "capabilities": {
             "bounding_box": True,
             "temporal_extent": True,
@@ -114,13 +114,14 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
             ".geojson",
             ".json",  # GeoJSON
             ".gpkg",  # GeoPackage
+            ".gdb",  # Esri File Geodatabase
             ".gpx",  # GPX
             ".kml",
             ".kmz",  # KML
             ".gml",  # GML
             ".fgb",  # FlatGeobuf
         ],
-        "notes": "Uses GDAL/OGR for vector format support",
+        "notes": "Uses GDAL/OGR for vector format support. Esri File Geodatabase (.gdb) via OpenFileGDB driver.",
     }
     handlers.append(vector_info)
 
@@ -128,10 +129,10 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     raster_info = {
         "handler": handleRaster.get_handler_name(),
         "display_name": handleRaster.get_handler_display_name(),
-        "description": "Raster geospatial formats (GeoTIFF, NetCDF, etc.)",
+        "description": "Raster geospatial formats (GeoTIFF, NetCDF, world files, etc.)",
         "capabilities": {
             "bounding_box": True,
-            "temporal_extent": False,
+            "temporal_extent": True,
             "convex_hull": False,
         },
         "file_extensions": [
@@ -141,8 +142,16 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
             ".nc",
             ".netcdf",  # NetCDF
             ".asc",  # ASCII Grid
+            ".wld",
+            ".jgw",
+            ".pgw",
+            ".pngw",
+            ".tfw",
+            ".tifw",
+            ".bpw",
+            ".gfw",  # World files
         ],
-        "notes": "Uses GDAL for raster format support",
+        "notes": "Uses GDAL for raster format support. Temporal extraction from NetCDF CF time dimensions, ACDD time_coverage attributes, GeoTIFF TIFFTAG_DATETIME, and band-level ACQUISITIONDATETIME. World file support for images without embedded georeferencing.",
     }
     handlers.append(raster_info)
 
@@ -161,6 +170,7 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
     """
     from .content_providers import (
         Zenodo,
+        InvenioRDM,
         Figshare,
         Dryad,
         Pangaea,
@@ -171,6 +181,11 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
         Opara,
         Senckenberg,
         BGR,
+        MendeleyData,
+        Wikidata,
+        FourTU,
+        RADAR,
+        ArcticDataCenter,
     )
 
     providers = []
@@ -420,6 +435,153 @@ def _get_content_provider_info() -> List[Dict[str, Any]]:
     }
     providers.append(bgr_info)
 
+    # InvenioRDM (generic base provider for multiple instances)
+    from .content_providers.InvenioRDM import INVENIORDM_INSTANCES
+
+    inveniordm_instance = InvenioRDM.InvenioRDM()
+    # Build instance list from registry (excluding Zenodo, which has its own entry)
+    inveniordm_instances = []
+    for host_key, config in INVENIORDM_INSTANCES.items():
+        if host_key == "zenodo.org":
+            continue
+        inveniordm_instances.append(
+            {
+                "name": config["name"],
+                "hostnames": config["hostnames"],
+                "api": config["api"],
+                "doi_prefixes": list(config["doi_prefixes"]),
+            }
+        )
+    inveniordm_info = {
+        "name": "InvenioRDM",
+        "description": "Generic provider for InvenioRDM-based research data repositories. Supports multiple institutional instances sharing the same platform and REST API.",
+        "website": "https://inveniosoftware.org/products/rdm/",
+        "instances": inveniordm_instances,
+        "supported_identifiers": [
+            "https://{instance}/records/{record_id}",
+            "https://doi.org/{doi_prefix}/{record_id}",
+            "{doi_prefix}/{record_id}",
+        ],
+        "doi_prefixes": list(inveniordm_instance.doi_prefixes),
+        "examples": [
+            "10.22002/D1.1705",
+            "https://data.caltech.edu/records/0ca1t-hzt77",
+            "10.48436/jpzv9-c8w75",
+        ],
+        "notes": "Handles S3 redirect downloads (Zenodo), S3 signed URL responses (CaltechDATA, Frei-Data), and direct binary downloads (TU Wien). Supports metadata-only extraction via metadata.locations and metadata.dates.",
+    }
+    providers.append(inveniordm_info)
+
+    # Mendeley Data
+    mendeley_instance = MendeleyData.MendeleyData()
+    mendeley_info = {
+        "name": mendeley_instance.name,
+        "description": "Mendeley Data is a free and secure cloud-based data repository by Elsevier where researchers can store, share, and publish research data. It assigns DOIs to all published datasets and supports any file format.",
+        "website": "https://data.mendeley.com/",
+        "url_patterns": mendeley_instance.host.get("hostname", []),
+        "api_endpoint": mendeley_instance.host.get("api", ""),
+        "supported_identifiers": [
+            "https://data.mendeley.com/datasets/{dataset_id}",
+            "https://doi.org/10.17632/{dataset_id}",
+            "10.17632/{dataset_id}",
+        ],
+        "doi_prefix": "10.17632",
+        "examples": [
+            "https://data.mendeley.com/datasets/example123",
+            "10.17632/example123",
+        ],
+    }
+    providers.append(mendeley_info)
+
+    # Wikidata
+    wikidata_instance = Wikidata.Wikidata()
+    wikidata_info = {
+        "name": wikidata_instance.name,
+        "description": "Wikidata is a free and open knowledge base that provides structured data to Wikipedia and other Wikimedia projects. Geographic extents are extracted via SPARQL queries for coordinate location (P625) and other geographic properties.",
+        "website": "https://www.wikidata.org/",
+        "url_patterns": [
+            "https://www.wikidata.org/wiki/{qid}",
+        ],
+        "api_endpoint": "https://query.wikidata.org/sparql",
+        "supported_identifiers": [
+            "https://www.wikidata.org/wiki/{qid}",
+            "{qid}",
+        ],
+        "examples": [
+            "Q64",
+            "Q1731",
+            "https://www.wikidata.org/wiki/Q64",
+        ],
+        "notes": "Accepts Wikidata Q-identifiers (e.g. Q64 for Berlin). Extracts coordinates via SPARQL. Supports metadata-only extraction.",
+    }
+    providers.append(wikidata_info)
+
+    # 4TU.ResearchData
+    fourtu_instance = FourTU.FourTU()
+    fourtu_info = {
+        "name": fourtu_instance.name,
+        "description": "4TU.ResearchData is a Dutch national data repository for science, engineering, and design. Hosted by the 4TU Federation of Dutch technical universities, it assigns DOIs and provides long-term data archiving.",
+        "website": "https://data.4tu.nl/",
+        "url_patterns": fourtu_instance.host.get("hostname", []),
+        "api_endpoint": fourtu_instance.host.get("api", ""),
+        "supported_identifiers": [
+            "https://data.4tu.nl/datasets/{uuid}/{version}",
+            "https://data.4tu.nl/articles/{article_id}",
+            "https://doi.org/10.4121/{dataset_id}",
+            "10.4121/{dataset_id}",
+        ],
+        "doi_prefix": "10.4121",
+        "examples": [
+            "https://data.4tu.nl/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f/1",
+            "10.4121/3035126d-ee51-4dbd-a187-5f6b0be85e9f",
+        ],
+        "notes": "Supports metadata-only extraction (geolocation from custom_fields, temporal from published_date). Based on Figshare platform.",
+    }
+    providers.append(fourtu_info)
+
+    # RADAR
+    radar_instance = RADAR.RADAR()
+    radar_info = {
+        "name": radar_instance.name,
+        "description": "RADAR (Research Data Repository) is a cross-disciplinary research data repository operated by FIZ Karlsruhe. It provides DOI assignment and long-term archiving for German research institutions.",
+        "website": "https://www.radar-service.eu/",
+        "url_patterns": [
+            f"https://{h}/" for h in radar_instance.host.get("hostname", [])
+        ],
+        "supported_identifiers": [
+            "https://www.radar-service.eu/radar/en/dataset/{doi}",
+            "https://doi.org/10.35097/{id}",
+            "10.35097/{id}",
+        ],
+        "doi_prefix": "10.35097",
+        "examples": [
+            "10.35097/1871",
+        ],
+    }
+    providers.append(radar_info)
+
+    # Arctic Data Center
+    adc_instance = ArcticDataCenter.ArcticDataCenter()
+    adc_info = {
+        "name": adc_instance.name,
+        "description": "NSF Arctic Data Center is the primary repository for NSF-funded Arctic research data. It provides long-term data archiving and supports ISO 19115 metadata with rich geospatial coverage information.",
+        "website": "https://arcticdata.io/",
+        "url_patterns": [
+            f"https://{h}/" for h in adc_instance.host.get("hostname", [])
+        ],
+        "supported_identifiers": [
+            "https://arcticdata.io/catalog/view/{doi}",
+            "https://doi.org/10.18739/{id}",
+            "10.18739/{id}",
+        ],
+        "doi_prefix": "10.18739",
+        "examples": [
+            "10.18739/A2KW57K57",
+        ],
+        "notes": "Supports metadata-only extraction via DataONE Solr API (geospatial coverage from ISO 19115 metadata).",
+    }
+    providers.append(adc_info)
+
     return providers
 
 
@@ -441,6 +603,7 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
     """
     from .content_providers import (
         Zenodo,
+        InvenioRDM,
         Figshare,
         Dryad,
         Pangaea,
@@ -451,13 +614,20 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
         Opara,
         Senckenberg,
         BGR,
+        MendeleyData,
+        Wikidata,
+        FourTU,
+        RADAR,
+        ArcticDataCenter,
     )
 
     # Try each provider in order
     provider_classes = [
         Dryad.Dryad,
         Figshare.Figshare,
+        FourTU.FourTU,
         Zenodo.Zenodo,
+        InvenioRDM.InvenioRDM,
         Pangaea.Pangaea,
         OSF.OSF,
         Dataverse.Dataverse,
@@ -466,6 +636,10 @@ def validate_remote_identifier(identifier: str) -> Dict[str, Any]:
         BGR.BGR,  # BGR before Opara because both accept UUIDs
         Opara.Opara,
         Senckenberg.Senckenberg,
+        MendeleyData.MendeleyData,
+        Wikidata.Wikidata,
+        RADAR.RADAR,
+        ArcticDataCenter.ArcticDataCenter,
     ]
 
     for provider_class in provider_classes:

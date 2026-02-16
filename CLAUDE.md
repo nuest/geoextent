@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 geoextent is a Python library for extracting geospatial extent (bounding boxes and temporal extents) from files and directories containing geospatial data. It supports multiple formats including GeoJSON, CSV, Shapefile, and GeoTIFF files.
 
+**Repository:** The main development repository is [nuest/geoextent](https://github.com/nuest/geoextent) (`origin` remote). The [o2r-project/geoextent](https://github.com/o2r-project/geoextent) fork is the deprecated project repository. Current issues are tracked at `nuest/geoextent`, undless specific issued are referenced from the earlier version.
+
 ## API Stability
 
 This project is currently in version 0.x, which means:
