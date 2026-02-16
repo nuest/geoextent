@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g5a129060c documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g7d25747df documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=47c3dc45"></script>
+    <script src="../_static/documentation_options.js?v=d8aca6b9"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -394,8 +394,8 @@ geoextent -b --placename --placename-service photon --placename-escape https://d
 
 Supported formats:
 - CSV (comma-separated values) (.csv)
-- Vector data (.shp, .shx, .dbf, .prj, .geojson, .json, .gpkg, .gpx, .kml, .kmz, .gml, .fgb)
-- Raster data (.tif, .tiff, .geotiff, .nc, .netcdf, .asc)
+- Vector data (.shp, .shx, .dbf, .prj, .geojson, .json, .gpkg, .gdb, .gpx, .kml, .kmz, .gml, .fgb)
+- Raster data (.tif, .tiff, .geotiff, .nc, .netcdf, .asc, .wld, .jgw, .pgw, .pngw, .tfw, .tifw, .bpw, .gfw)
 
 Supported data repositories:
 - Zenodo (zenodo.org)
@@ -409,6 +409,12 @@ Supported data repositories:
 - Opara (opara.zih.tu-dresden.de)
 - Senckenberg (dataportal.senckenberg.de)
 - BGR (geoportal.bgr.de)
+- InvenioRDM (inveniosoftware.org/products/rdm)
+- Mendeley Data (data.mendeley.com)
+- Wikidata (wikidata.org)
+- 4TU.ResearchData (data.4tu.nl)
+- RADAR (radar-service.eu)
+- Arctic Data Center (arcticdata.io)
 
 </pre></div>
 </div>
@@ -503,7 +509,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 127.54task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 169.37task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -567,7 +573,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 26.43task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 22.66task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -583,7 +589,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 14.19item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 13.04item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -610,7 +616,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 101.13task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 116.96task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -626,7 +632,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 21.81item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 20.88item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -790,7 +796,7 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 106.53task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 120.37task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -806,7 +812,7 @@ or time box (tbox).</p>
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 53.84item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 60.18item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">

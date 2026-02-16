@@ -7,6 +7,7 @@ Unreleased
 
 - **New Content Providers**
 
+  - Generalise Zenodo provider into InvenioRDM base provider supporting CaltechDATA, TU Wien, Frei-Data, GEO Knowledge Hub, TU Graz, Materials Cloud Archive, FDAT, DataPLANT ARChive, KTH, Prism, and NYU Ultraviolet (:issue:`81`)
   - Add Mendeley Data as content provider (:issue:`58`)
   - Add ioerDATA (Leibniz IOER) Dataverse instance support (:issue:`85`)
   - Add heiDATA (Heidelberg University) Dataverse instance support (:issue:`94`)
@@ -18,6 +19,7 @@ Unreleased
 
 - **New Features**
 
+  - Add metadata-only extraction for InvenioRDM instances (``metadata.locations`` GeoJSON, ``metadata.dates``)
   - Implement metadata-only extraction for Figshare provider (``download_data=False`` / ``--no-data-download``), supporting ``--metadata-first`` strategy (:issue:`68`)
   - Expand Figshare provider to support institutional portal URLs (``*.figshare.com``, e.g. ``springernature.figshare.com``, ``monash.figshare.com``)
   - Add ``--time-format`` CLI option and ``time_format`` API parameter for configurable temporal extent output format: date-only (default), ISO 8601, or custom strftime strings (:issue:`39`)

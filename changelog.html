@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; geoextent 0.1.dev1+g5a129060c documentation</title>
+    <title>Changelog &#8212; geoextent 0.1.dev1+g7d25747df documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=47c3dc45"></script>
+    <script src="_static/documentation_options.js?v=d8aca6b9"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -53,6 +53,7 @@
 <ul class="simple">
 <li><p><strong>New Content Providers</strong></p>
 <ul>
+<li><p>Generalise Zenodo provider into InvenioRDM base provider supporting CaltechDATA, TU Wien, Frei-Data, GEO Knowledge Hub, TU Graz, Materials Cloud Archive, FDAT, DataPLANT ARChive, KTH, Prism, and NYU Ultraviolet (<a class="reference external" href="https://github.com/nuest/geoextent/issues/81">#81</a>)</p></li>
 <li><p>Add Mendeley Data as content provider (<a class="reference external" href="https://github.com/nuest/geoextent/issues/58">#58</a>)</p></li>
 <li><p>Add ioerDATA (Leibniz IOER) Dataverse instance support (<a class="reference external" href="https://github.com/nuest/geoextent/issues/85">#85</a>)</p></li>
 <li><p>Add heiDATA (Heidelberg University) Dataverse instance support (<a class="reference external" href="https://github.com/nuest/geoextent/issues/94">#94</a>)</p></li>
@@ -65,6 +66,7 @@
 </li>
 <li><p><strong>New Features</strong></p>
 <ul>
+<li><p>Add metadata-only extraction for InvenioRDM instances (<code class="docutils literal notranslate"><span class="pre">metadata.locations</span></code> GeoJSON, <code class="docutils literal notranslate"><span class="pre">metadata.dates</span></code>)</p></li>
 <li><p>Implement metadata-only extraction for Figshare provider (<code class="docutils literal notranslate"><span class="pre">download_data=False</span></code> / <code class="docutils literal notranslate"><span class="pre">--no-data-download</span></code>), supporting <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> strategy (<a class="reference external" href="https://github.com/nuest/geoextent/issues/68">#68</a>)</p></li>
 <li><p>Expand Figshare provider to support institutional portal URLs (<code class="docutils literal notranslate"><span class="pre">*.figshare.com</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">springernature.figshare.com</span></code>, <code class="docutils literal notranslate"><span class="pre">monash.figshare.com</span></code>)</p></li>
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">--time-format</span></code> CLI option and <code class="docutils literal notranslate"><span class="pre">time_format</span></code> API parameter for configurable temporal extent output format: date-only (default), ISO 8601, or custom strftime strings (<a class="reference external" href="https://github.com/nuest/geoextent/issues/39">#39</a>)</p></li>
