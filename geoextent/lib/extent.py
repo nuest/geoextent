@@ -26,6 +26,7 @@ from .content_providers import ArcticDataCenter
 from .content_providers import DEIMSSDR
 from .content_providers import BAW
 from .content_providers import MDIDE
+from .content_providers import HALODB
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -59,6 +60,7 @@ def _get_content_providers():
         Senckenberg.Senckenberg,
         MendeleyData.MendeleyData,
         DEIMSSDR.DEIMSSDR,
+        HALODB.HALODB,
     ]
 
 
@@ -125,7 +127,22 @@ def compute_bbox_wgs84(module, path, assume_wgs84=False):
         return None
 
     try:
-        if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
+        if "crs_wkt" in spatial_extent_origin:
+            # CRS defined by WKT (e.g. from PRJ sidecar where EPSG identification failed)
+            logger.debug("Transforming bbox from WKT CRS to WGS84 for {}".format(path))
+            spatial_extent = {
+                "bbox": hf.transformingArrayIntoWGS84FromWkt(
+                    spatial_extent_origin["crs_wkt"],
+                    spatial_extent_origin["bbox"],
+                ),
+                "crs": str(hf.WGS84_EPSG_ID),
+            }
+            logger.debug(
+                "WKT transformation complete, bbox in WGS84: {}".format(
+                    spatial_extent["bbox"]
+                )
+            )
+        elif spatial_extent_origin.get("crs") == str(hf.WGS84_EPSG_ID):
             # Data claims to be in WGS84 - check for clearly projected coordinates
             bbox = spatial_extent_origin["bbox"]
             if any(abs(c) > 360 for c in bbox):
@@ -205,7 +222,47 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
         return None
 
     try:
-        if spatial_extent_origin["crs"] == str(hf.WGS84_EPSG_ID):
+        if "crs_wkt" in spatial_extent_origin:
+            # CRS defined by WKT (e.g. from PRJ sidecar where EPSG identification failed)
+            crs_wkt = spatial_extent_origin["crs_wkt"]
+            logger.debug(
+                "Transforming convex hull from WKT CRS to WGS84 for {}".format(path)
+            )
+            spatial_extent = {
+                "bbox": hf.transformingArrayIntoWGS84FromWkt(
+                    crs_wkt, spatial_extent_origin["bbox"]
+                ),
+                "crs": str(hf.WGS84_EPSG_ID),
+            }
+
+            # Transform convex hull coordinates if they exist
+            if (
+                "convex_hull_coords" in spatial_extent_origin
+                and spatial_extent_origin["convex_hull_coords"]
+            ):
+                transformed_coords = []
+                for coord in spatial_extent_origin["convex_hull_coords"]:
+                    transformed_point = hf.transformingArrayIntoWGS84FromWkt(
+                        crs_wkt,
+                        [coord[0], coord[1], coord[0], coord[1]],
+                    )
+                    transformed_coords.append(
+                        [transformed_point[0], transformed_point[1]]
+                    )
+                spatial_extent["convex_hull_coords"] = transformed_coords
+
+            if "convex_hull" in spatial_extent_origin:
+                spatial_extent["convex_hull"] = spatial_extent_origin["convex_hull"]
+                spatial_extent["convex_hull_geom"] = spatial_extent_origin[
+                    "convex_hull"
+                ]
+
+            logger.debug(
+                "WKT transformation complete, convex hull bbox in WGS84: {}".format(
+                    spatial_extent["bbox"]
+                )
+            )
+        elif spatial_extent_origin.get("crs") == str(hf.WGS84_EPSG_ID):
             # Data claims to be in WGS84 - check for clearly projected coordinates
             bbox = spatial_extent_origin["bbox"]
             # For convex hull, bbox may be a list of coordinate pairs — extract the envelope

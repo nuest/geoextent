@@ -26,6 +26,7 @@ from . import ArcticDataCenter
 from . import DEIMSSDR
 from . import BAW
 from . import MDIDE
+from . import HALODB
 
 __all__ = [
     "providers",
@@ -49,4 +50,5 @@ __all__ = [
     "DEIMSSDR",
     "BAW",
     "MDIDE",
+    "HALODB",
 ]

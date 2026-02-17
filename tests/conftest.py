@@ -51,6 +51,7 @@ _PROVIDER_FILES = {
     "test_api_baw.py",
     "test_api_mdide.py",
     "test_api_b2share.py",
+    "test_api_halodb.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -110,6 +111,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_baw_metadata_only_extraction",
     "test_mdide_metadata_only_extraction",
     "test_b2share_tainan_extraction",
+    "test_halodb_metadata_only_extraction",
 }
 
 
