@@ -1,9 +1,29 @@
-bash_kernel
-jupyterlab
-shapely==1.7.1
-pandas==1.1.2
-geopandas==0.8.1
-numpy==1.19.5
-requests==2.24.0
-matplotlib==3.3.2
-folium==0.11.0
+# geoextent showcase notebooks
+# Install: pip install -r requirements.txt
+
+# Notebook environment
+jupyterlab>=4.0
+
+# geoextent (install from local checkout or PyPI)
+# pip install -e ..   # for local development
+# geoextent         # for PyPI release
+
+# SPARQL queries to NFDI4Earth Knowledge Hub
+SPARQLWrapper>=2.0
+
+# Data handling
+pandas>=2.0
+numpy>=1.24
+requests>=2.28
+
+# Visualisation
+matplotlib>=3.7
+folium>=0.15
+branca>=0.7
+
+# Geospatial (used by EarthCube 2021 notebook)
+shapely>=2.0
+geopandas>=0.14
+
+# Display utilities (included with jupyterlab, listed for clarity)
+IPython>=8.0
