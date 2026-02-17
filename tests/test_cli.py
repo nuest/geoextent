@@ -177,10 +177,6 @@ def test_print_supported_formats(script_runner):
     ), "list of supported formats is printed to console"
 
 
-@pytest.mark.xfail(
-    reason="GDAL Python API returns identity GeoTransform for this NetCDF file on some versions. "
-    "Result depends on GDAL version - see test_netcdf_extract_bbox in test_api.py."
-)
 def test_netcdf_bbox(script_runner):
     ret = script_runner.run(["geoextent", "-b", "tests/testdata/nc/zeroes.nc"])
     assert ret.success, "process should return success"
