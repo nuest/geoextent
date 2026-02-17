@@ -220,6 +220,21 @@ Use ``--metadata-first`` to try metadata-only extraction first, falling back to 
    geoextent -b --metadata-first 10.12761/sgn.2018.10225
    geoextent -b --metadata-first Q64
 
+Extract from GEO Knowledge Hub (automatic metadata fallback)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Some providers (e.g., GEO Knowledge Hub packages) have data files disabled. Geoextent automatically falls back to metadata-only extraction when this happens:
+
+::
+
+   geoextent -b https://gkhub.earthobservations.org/packages/msaw9-hzd25
+
+To disable the automatic fallback, use ``--no-metadata-fallback``:
+
+::
+
+   geoextent -b --no-metadata-fallback https://gkhub.earthobservations.org/packages/msaw9-hzd25
+
 Extract from three German regional datasets with a convex hull — Wikidata (Berlin), 4TU (Dresden), and Senckenberg all use fast metadata extraction, producing a compact convex hull over central Germany:
 
 ::

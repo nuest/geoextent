@@ -917,6 +917,7 @@ def fromRemote(
     legacy: bool = False,
     assume_wgs84: bool = False,
     metadata_first: bool = False,
+    metadata_fallback: bool = True,
     time_format: str | None = None,
 ):
     """
@@ -974,6 +975,10 @@ def fromRemote(
     metadata_first : bool, optional
         Try metadata-only extraction first, fall back to data download if metadata
         yields no results. Mutually exclusive with download_data=False. (default: False)
+    metadata_fallback : bool, optional
+        Automatically fall back to metadata-only extraction when data download yields
+        no files and the provider supports metadata extraction. Disable with
+        ``metadata_fallback=False`` or ``--no-metadata-fallback``. (default: True)
 
     Returns
     -------
@@ -1067,6 +1072,7 @@ def fromRemote(
                 keep_files=keep_files,
                 assume_wgs84=assume_wgs84,
                 metadata_first=metadata_first,
+                metadata_fallback=metadata_fallback,
                 time_format=time_format,
             )
             if resource_output is not None:
@@ -1188,6 +1194,7 @@ def _process_remote_download(
     placename,
     placename_escape,
     assume_wgs84=False,
+    metadata_fallback=True,
     time_format=None,
 ):
     """
@@ -1196,11 +1203,15 @@ def _process_remote_download(
     This function handles:
     - Parsing and validating download size limits
     - Downloading files from the repository
+    - Automatic metadata fallback when download yields no files
     - Extracting metadata from downloaded files
 
     Args:
         repository: Content provider instance
         tmp: Temporary directory path for downloads
+        metadata_fallback: If True and download_data is True, automatically fall back
+            to metadata-only extraction when download yields no files and the provider
+            supports metadata extraction. (default True)
         (other parameters as documented in _extract_from_remote)
 
     Returns:
@@ -1239,6 +1250,8 @@ def _process_remote_download(
                 f"Parsed download size limit: {max_download_size} = {max_size_bytes:,} bytes"
             )
 
+    _used_metadata_fallback = False
+
     # Download files from repository
     repository.download(
         tmp,
@@ -1252,6 +1265,33 @@ def _process_remote_download(
         download_skip_nogeo_exts=download_skip_nogeo_exts,
         max_download_workers=max_download_workers,
     )
+
+    # Automatic metadata fallback: if data download yielded no files and the
+    # provider supports metadata extraction, re-download with metadata only.
+    if (
+        download_data
+        and metadata_fallback
+        and repository.supports_metadata_extraction
+        and not os.listdir(tmp)
+    ):
+        logger.info(
+            "No data files found after download. Falling back to metadata-only "
+            "extraction from %s. Use --no-metadata-fallback to disable.",
+            repository.name,
+        )
+        repository.download(
+            tmp,
+            throttle,
+            False,  # download_data=False
+            show_progress,
+            max_size_bytes=max_size_bytes,
+            max_download_method=max_download_method,
+            max_download_method_seed=max_download_method_seed,
+            download_skip_nogeo=download_skip_nogeo,
+            download_skip_nogeo_exts=download_skip_nogeo_exts,
+            max_download_workers=max_download_workers,
+        )
+        _used_metadata_fallback = True
 
     # Extract metadata from downloaded files
     metadata = fromDirectory(
@@ -1270,6 +1310,9 @@ def _process_remote_download(
         time_format=time_format,
         _internal=True,
     )
+
+    if _used_metadata_fallback:
+        metadata["extraction_method"] = "metadata_fallback"
 
     return metadata
 
@@ -1328,6 +1371,7 @@ def _metadata_first_extract(
         placename=placename,
         placename_escape=placename_escape,
         assume_wgs84=assume_wgs84,
+        metadata_fallback=False,  # metadata_first has its own two-phase strategy
         time_format=time_format,
     )
 
@@ -1434,6 +1478,7 @@ def _extract_from_remote(
     keep_files=False,
     assume_wgs84=False,
     metadata_first=False,
+    metadata_fallback=True,
     time_format=None,
 ):
     """
@@ -1520,6 +1565,7 @@ def _extract_from_remote(
                         placename=placename,
                         placename_escape=placename_escape,
                         assume_wgs84=assume_wgs84,
+                        metadata_fallback=metadata_fallback,
                         time_format=time_format,
                     )
 
@@ -1564,6 +1610,7 @@ def _extract_from_remote(
                     include_geojsonio=include_geojsonio,
                     placename=placename,
                     placename_escape=placename_escape,
+                    metadata_fallback=metadata_fallback,
                     time_format=time_format,
                 )
 

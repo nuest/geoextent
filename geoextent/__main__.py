@@ -133,7 +133,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-metadata-fallback] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -215,6 +215,14 @@ def get_arg_parser():
         action="store_true",
         default=False,
         help="try metadata-only extraction first, fall back to data download if metadata yields no results (mutually exclusive with --no-download-data)",
+    )
+
+    parser.add_argument(
+        "--no-metadata-fallback",
+        action="store_false",
+        dest="metadata_fallback",
+        default=True,
+        help="disable automatic metadata fallback when data download yields no files (by default, geoextent falls back to metadata-only extraction if data files are unavailable and the provider supports metadata)",
     )
 
     parser.add_argument(
@@ -589,6 +597,7 @@ def main():
                     legacy=args["legacy"],
                     assume_wgs84=args["assume_wgs84"],
                     metadata_first=args["metadata_first"],
+                    metadata_fallback=args["metadata_fallback"],
                     time_format=args["time_format"],
                 )
         else:
@@ -633,6 +642,7 @@ def main():
                             legacy=args["legacy"],
                             assume_wgs84=args["assume_wgs84"],
                             metadata_first=args["metadata_first"],
+                            metadata_fallback=args["metadata_fallback"],
                             time_format=args["time_format"],
                         )
                         if repo_output is not None:
