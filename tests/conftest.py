@@ -47,6 +47,7 @@ _PROVIDER_FILES = {
     "test_api_radar.py",
     "test_api_arctic_data_center.py",
     "test_api_inveniordm.py",
+    "test_api_deimssdr.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -74,6 +75,8 @@ _FAST_PATTERNS = {
     "extract_coordinates",
     "mutually_exclusive",
     "supports_metadata_extraction",
+    "extract_external_references",
+    "no_online_distribution",
 }
 
 # One representative real-network test per provider for smoke-testing.
@@ -100,6 +103,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_adc_metadata_only_extraction",
     "test_inveniordm_metadata_only_extraction",
     "test_gkhub_package_metadata_fallback",
+    "test_deimssdr_dataset_metadata_only_extraction",
 }
 
 

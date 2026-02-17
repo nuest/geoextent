@@ -210,6 +210,29 @@ Extract from 4TU.ResearchData (metadata only)
 
    geoextent -b --no-download-data https://data.4tu.nl/articles/_/12707150/1
 
+Extract from DEIMS-SDR (dataset)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2
+
+Extract from DEIMS-SDR (site)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b https://deims.org/8eda49e9-1f4e-4f3e-b58e-e0bb25dc32a6
+
+Extract from DEIMS-SDR without following external references
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, DEIMS-SDR datasets that reference external repositories (e.g., Zenodo, PANGAEA) are followed for actual data extent extraction. Use ``--no-follow`` to disable this and use DEIMS metadata only:
+
+::
+
+   geoextent -b -t --no-follow https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2
+
 Smart metadata-first extraction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

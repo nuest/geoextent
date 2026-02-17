@@ -1276,6 +1276,10 @@ def create_extraction_metadata(inputs, version, output_data=None):
 
         metadata["statistics"] = stats
 
+    # Surface follow chain info if present
+    if output_data and isinstance(output_data, dict) and "followed" in output_data:
+        metadata["followed"] = output_data["followed"]
+
     return metadata
 
 

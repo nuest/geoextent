@@ -226,6 +226,16 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--no-follow",
+        action="store_false",
+        dest="follow",
+        default=True,
+        help="disable following external DOIs/URLs to other providers "
+        "(e.g., DEIMS-SDR datasets referencing Zenodo). By default, "
+        "geoextent follows these references to extract actual data extents.",
+    )
+
+    parser.add_argument(
         "--no-progress",
         action="store_true",
         default=False,
@@ -599,6 +609,7 @@ def main():
                     metadata_first=args["metadata_first"],
                     metadata_fallback=args["metadata_fallback"],
                     time_format=args["time_format"],
+                    follow=args["follow"],
                 )
         else:
             # Multiple files handling
@@ -644,6 +655,7 @@ def main():
                             metadata_first=args["metadata_first"],
                             metadata_fallback=args["metadata_fallback"],
                             time_format=args["time_format"],
+                            follow=args["follow"],
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output

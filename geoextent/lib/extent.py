@@ -23,6 +23,7 @@ from .content_providers import Wikidata
 from .content_providers import FourTU
 from .content_providers import RADAR
 from .content_providers import ArcticDataCenter
+from .content_providers import DEIMSSDR
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -53,6 +54,7 @@ def _get_content_providers():
         Opara.Opara,
         Senckenberg.Senckenberg,
         MendeleyData.MendeleyData,
+        DEIMSSDR.DEIMSSDR,
     ]
 
 
@@ -919,6 +921,7 @@ def fromRemote(
     metadata_first: bool = False,
     metadata_fallback: bool = True,
     time_format: str | None = None,
+    follow: bool = True,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -979,6 +982,10 @@ def fromRemote(
         Automatically fall back to metadata-only extraction when data download yields
         no files and the provider supports metadata extraction. Disable with
         ``metadata_fallback=False`` or ``--no-metadata-fallback``. (default: True)
+    follow : bool, optional
+        Follow external DOIs/URLs to other providers (e.g., DEIMS-SDR datasets
+        referencing Zenodo). Disable with ``follow=False`` or ``--no-follow``.
+        (default: True)
 
     Returns
     -------
@@ -1074,6 +1081,7 @@ def fromRemote(
                 metadata_first=metadata_first,
                 metadata_fallback=metadata_fallback,
                 time_format=time_format,
+                follow=follow,
             )
             if resource_output is not None:
                 resource_output["format"] = "remote"
@@ -1196,6 +1204,7 @@ def _process_remote_download(
     assume_wgs84=False,
     metadata_fallback=True,
     time_format=None,
+    follow=True,
 ):
     """
     Shared logic for processing remote downloads and extracting metadata.
@@ -1252,6 +1261,11 @@ def _process_remote_download(
 
     _used_metadata_fallback = False
 
+    # Only pass follow to providers that support it (duck typing)
+    _follow_kwargs = {}
+    if hasattr(repository, "_try_follow_reference"):
+        _follow_kwargs["follow"] = follow
+
     # Download files from repository
     repository.download(
         tmp,
@@ -1264,6 +1278,7 @@ def _process_remote_download(
         download_skip_nogeo=download_skip_nogeo,
         download_skip_nogeo_exts=download_skip_nogeo_exts,
         max_download_workers=max_download_workers,
+        **_follow_kwargs,
     )
 
     # Automatic metadata fallback: if data download yielded no files and the
@@ -1279,6 +1294,11 @@ def _process_remote_download(
             "extraction from %s. Use --no-metadata-fallback to disable.",
             repository.name,
         )
+        # Metadata fallback: follow=False since download_data=False
+        _fallback_follow_kwargs = {}
+        if hasattr(repository, "_try_follow_reference"):
+            _fallback_follow_kwargs["follow"] = False
+
         repository.download(
             tmp,
             throttle,
@@ -1290,6 +1310,7 @@ def _process_remote_download(
             download_skip_nogeo=download_skip_nogeo,
             download_skip_nogeo_exts=download_skip_nogeo_exts,
             max_download_workers=max_download_workers,
+            **_fallback_follow_kwargs,
         )
         _used_metadata_fallback = True
 
@@ -1313,6 +1334,10 @@ def _process_remote_download(
 
     if _used_metadata_fallback:
         metadata["extraction_method"] = "metadata_fallback"
+
+    # Surface follow info from providers that support it
+    if hasattr(repository, "_follow_info") and repository._follow_info:
+        metadata["followed"] = repository._follow_info
 
     return metadata
 
@@ -1340,6 +1365,7 @@ def _metadata_first_extract(
     keep_files,
     assume_wgs84,
     time_format=None,
+    follow=True,
 ):
     """Try metadata-only extraction first, fall back to data download if needed.
 
@@ -1373,6 +1399,7 @@ def _metadata_first_extract(
         assume_wgs84=assume_wgs84,
         metadata_fallback=False,  # metadata_first has its own two-phase strategy
         time_format=time_format,
+        follow=follow,
     )
 
     # Phase 1: Try metadata-only extraction if the provider supports it
@@ -1480,6 +1507,7 @@ def _extract_from_remote(
     metadata_first=False,
     metadata_fallback=True,
     time_format=None,
+    follow=True,
 ):
     """
     Internal method to extract extent from a single remote identifier.
@@ -1532,6 +1560,7 @@ def _extract_from_remote(
                 keep_files=keep_files,
                 assume_wgs84=assume_wgs84,
                 time_format=time_format,
+                follow=follow,
             )
             return metadata
 
@@ -1567,6 +1596,7 @@ def _extract_from_remote(
                         assume_wgs84=assume_wgs84,
                         metadata_fallback=metadata_fallback,
                         time_format=time_format,
+                        follow=follow,
                     )
 
                     # Explicitly clean up temporary directory
@@ -1612,6 +1642,7 @@ def _extract_from_remote(
                     placename_escape=placename_escape,
                     metadata_fallback=metadata_fallback,
                     time_format=time_format,
+                    follow=follow,
                 )
 
                 logger.info(f"Files kept in: {tmp}")

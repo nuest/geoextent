@@ -23,6 +23,7 @@ from . import Wikidata
 from . import FourTU
 from . import RADAR
 from . import ArcticDataCenter
+from . import DEIMSSDR
 
 __all__ = [
     "providers",
@@ -43,4 +44,5 @@ __all__ = [
     "FourTU",
     "RADAR",
     "ArcticDataCenter",
+    "DEIMSSDR",
 ]

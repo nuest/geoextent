@@ -106,6 +106,23 @@ Multiple URL variants are supported:
 
 This example dataset contains glacier calving front locations with ZIP files containing nested directories and multiple shapefiles.
 
+DEIMS-SDR Example
+^^^^^^^^^^^^^^^^^^
+
+Extract extent from a DEIMS-SDR ecological research dataset (metadata-only):
+
+::
+
+   python -m geoextent -b -t https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2
+
+Extract spatial extent from a DEIMS-SDR research site:
+
+::
+
+   python -m geoextent -b https://deims.org/8eda49e9-1f4e-4f3e-b58e-e0bb25dc32a6
+
+DEIMS-SDR is a metadata-only provider. It extracts geospatial boundaries (POINT, POLYGON, MULTIPOLYGON) and temporal ranges from the DEIMS-SDR REST API for long-term ecological research sites and datasets.
+
 Advanced Features
 -----------------
 
