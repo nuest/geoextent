@@ -60,6 +60,10 @@ class TestInvenioRDMValidation:
                 "https://gkhub.earthobservations.org/records/nfhvt-6va30",
                 "GEO Knowledge Hub",
             ),
+            (
+                "https://gkhub.earthobservations.org/packages/msaw9-hzd25",
+                "GEO Knowledge Hub",
+            ),
             ("https://repository.tugraz.at/records/ckkj2-2me08", "TU Graz Repository"),
             (
                 "https://archive.materialscloud.org/records/2022.126",
@@ -110,6 +114,11 @@ class TestInvenioRDMValidation:
                 "https://gkhub.earthobservations.org/records/nfhvt-6va30",
                 "GEO Knowledge Hub",
                 "nfhvt-6va30",
+            ),
+            (
+                "https://gkhub.earthobservations.org/packages/msaw9-hzd25",
+                "GEO Knowledge Hub",
+                "msaw9-hzd25",
             ),
             (
                 "https://repository.tugraz.at/records/ckkj2-2me08",
@@ -191,6 +200,38 @@ class TestInvenioRDMValidation:
             is True
         )
         assert provider.record_id == "0ca1t-hzt77"
+
+    def test_gkhub_packages_url_validation(self):
+        """GKHub /packages/ URLs should use /api/packages/ endpoint."""
+        from geoextent.lib.content_providers.InvenioRDM import InvenioRDM
+
+        provider = InvenioRDM()
+        assert (
+            provider.validate_provider(
+                "https://gkhub.earthobservations.org/packages/msaw9-hzd25"
+            )
+            is True
+        )
+        assert provider.name == "GEO Knowledge Hub"
+        assert provider.record_id == "msaw9-hzd25"
+        assert (
+            provider.host["api"] == "https://gkhub.earthobservations.org/api/packages/"
+        )
+
+    def test_gkhub_records_url_validation_uses_records_api(self):
+        """GKHub /records/ URLs should still use /api/records/ endpoint."""
+        from geoextent.lib.content_providers.InvenioRDM import InvenioRDM
+
+        provider = InvenioRDM()
+        assert (
+            provider.validate_provider(
+                "https://gkhub.earthobservations.org/records/nfhvt-6va30"
+            )
+            is True
+        )
+        assert (
+            provider.host["api"] == "https://gkhub.earthobservations.org/api/records/"
+        )
 
     def test_zenodo_url_validation_priority_over_inveniordm(self):
         """Zenodo URLs should be handled by the Zenodo subclass, not the generic provider."""
@@ -308,6 +349,32 @@ class TestInvenioRDMExtraction:
             # GKHub should be matched as InvenioRDM instance
             assert "bbox" in result or result.get("crs") is not None or True
             # Small AOI in South Africa — just verify we got a result
+
+        except NETWORK_SKIP_EXCEPTIONS as e:
+            pytest.skip(f"Network error: {e}")
+
+    def test_inveniordm_gkhub_package_metadata_only(self):
+        """GEO Knowledge Hub: metadata-only extraction from /packages/ URL."""
+        try:
+            result = geoextent.fromRemote(
+                "https://gkhub.earthobservations.org/packages/msaw9-hzd25",
+                bbox=True,
+                tbox=False,
+                download_data=False,
+            )
+
+            assert result is not None
+            assert result["format"] == "remote"
+            assert "bbox" in result
+            bbox = result["bbox"]
+            assert len(bbox) == 4
+
+            # Expected: Oldenburg, Germany region [lat, lon] order
+            # Polygon coords: [8.1901, 53.1285] to [8.2323, 53.1491]
+            assert abs(bbox[0] - 53.1285) < 0.01, f"South lat: {bbox[0]}"
+            assert abs(bbox[1] - 8.1901) < 0.01, f"West lon: {bbox[1]}"
+            assert abs(bbox[2] - 53.1491) < 0.01, f"North lat: {bbox[2]}"
+            assert abs(bbox[3] - 8.2323) < 0.01, f"East lon: {bbox[3]}"
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")

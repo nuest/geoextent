@@ -47,7 +47,10 @@ INVENIORDM_INSTANCES = {
         "api": "https://gkhub.earthobservations.org/api/records/",
         "doi_prefixes": ("10.60566",),
         "name": "GEO Knowledge Hub",
-        "hostnames": ["https://gkhub.earthobservations.org/records/"],
+        "hostnames": [
+            "https://gkhub.earthobservations.org/records/",
+            "https://gkhub.earthobservations.org/packages/",
+        ],
     },
     "repository.tugraz.at": {
         "api": "https://repository.tugraz.at/api/records/",
@@ -172,13 +175,13 @@ class InvenioRDM(DoiProvider):
     def _find_instance(self, url):
         """Match a resolved URL against all known InvenioRDM hostnames.
 
-        Returns the instance config dict or None.
+        Returns (instance_config, matched_hostname_prefix) or (None, None).
         """
         for _key, config in INVENIORDM_INSTANCES.items():
             for hostname_prefix in config["hostnames"]:
                 if url.startswith(hostname_prefix):
-                    return config
-        return None
+                    return config, hostname_prefix
+        return None, None
 
     def validate_provider(self, reference):
         """Match reference against all known InvenioRDM instances.
@@ -191,7 +194,7 @@ class InvenioRDM(DoiProvider):
         self.reference = reference
         url = self.get_url
 
-        config = self._find_instance(url)
+        config, matched_prefix = self._find_instance(url)
         if config is not None:
             # Extract record ID from URL
             clean_url = url.rstrip("/")
@@ -199,9 +202,17 @@ class InvenioRDM(DoiProvider):
 
             if _RECORD_ID_PATTERN.match(record_id):
                 self._instance_config = config
+
+                # Derive API URL from matched prefix.
+                # GKHub /packages/ URLs need /api/packages/ instead of /api/records/.
+                api_url = config["api"]
+                if "/packages/" in matched_prefix:
+                    base = matched_prefix.split("/packages/")[0]
+                    api_url = base + "/api/packages/"
+
                 self.host = {
                     "hostname": config["hostnames"],
-                    "api": config["api"],
+                    "api": api_url,
                 }
                 self.name = config["name"]
                 self.record_id = record_id
