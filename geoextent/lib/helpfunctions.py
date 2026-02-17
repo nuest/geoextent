@@ -232,6 +232,69 @@ def transformingArrayIntoWGS84(crs, pointArray):
         ]
 
 
+def transformingIntoWGS84FromWkt(crs_wkt, coordinate):
+    """
+    Transform coordinates from a WKT-defined CRS to WGS84 (EPSG:4326).
+
+    Used when AutoIdentifyEPSG() fails but a WKT definition is available
+    (e.g. from a PRJ sidecar file).
+
+    Args:
+        crs_wkt: Source CRS as OGC WKT string
+        coordinate: [x, y] coordinate pair in source CRS
+
+    Returns:
+        [longitude, latitude] in WGS84 (EPSG:4326)
+    """
+    source = osr.SpatialReference()
+    source.ImportFromWkt(crs_wkt)
+    source.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+
+    target = osr.SpatialReference()
+    target.ImportFromEPSG(WGS84_EPSG_ID)
+    target.SetAxisMappingStrategy(osr.OAMS_TRADITIONAL_GIS_ORDER)
+
+    transform = osr.CoordinateTransformation(source, target)
+
+    point = ogr.Geometry(ogr.wkbPoint)
+    point.AddPoint(float(coordinate[0]), float(coordinate[1]))
+    point = point.ExportToWkt()
+    point = ogr.CreateGeometryFromWkt(point)
+
+    point.Transform(transform)
+
+    return [point.GetX(), point.GetY()]
+
+
+def transformingArrayIntoWGS84FromWkt(crs_wkt, pointArray):
+    """
+    Transform an array of coordinates from a WKT-defined CRS to WGS84 (EPSG:4326).
+
+    Args:
+        crs_wkt: Source CRS as OGC WKT string
+        pointArray: Array of coordinate pairs or bbox [minx, miny, maxx, maxy]
+
+    Returns:
+        Transformed array in WGS84
+    """
+    array = []
+    # vector_rep
+    if type(pointArray[0]) == list:
+        for x in pointArray:
+            array.append(transformingIntoWGS84FromWkt(crs_wkt, x))
+        return array
+    # bbox
+    elif len(pointArray) == 4:
+        bbox = [[pointArray[0], pointArray[1]], [pointArray[2], pointArray[3]]]
+        transf_bbox = transformingArrayIntoWGS84FromWkt(crs_wkt, bbox)
+        return [
+            transf_bbox[0][0],
+            transf_bbox[0][1],
+            transf_bbox[1][0],
+            transf_bbox[1][1],
+        ]
+
+
 def validate_bbox_wgs84(bbox):
     """
     Function purpose: Validate if bbox is correct for WGS84

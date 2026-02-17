@@ -1,0 +1,8 @@
+#dataset: GeoCSV 2.0
+#delimiter: |
+#field_unit: unitless | unitless | unitless | unitless | degrees_north | degrees_east | meters | meters | degrees | degrees | unitless | factor | hertz | unitless | hertz | ISO_8601 | ISO_8601
+#field_type: string | string | string | string | float | float | float | float | float | float | string | float | float | string | float | datetime | datetime
+Network|Station|Location|Channel|Latitude|Longitude|Elevation|Depth|Azimuth|Dip|SensorDescription|Scale|ScaleFreq|ScaleUnits|SampleRate|StartTime|EndTime
+IU|ADK|00|BHZ|51.8823|-176.6842|129.0|1.0|0.0|-90.0|Velocity Sensor|1.98475E9|0.02|m/s|40.0|2021-10-21T00:00:00.0000|
+IU|AFI|00|BHZ|-13.90853|-171.78265|705.0|1.0|0.0|-90.0|Velocity Sensor|3.32861E9|0.02|m/s|40.0|2023-12-14T00:00:00.0000|
+IU|ANMO|00|BHZ|34.94591|-106.4572|1632.7|188.0|0.0|-90.0|Streckeisen STS-6A VBB Seismometer|1.98475E9|0.02|m/s|40.0|2018-07-09T20:45:00.0000|

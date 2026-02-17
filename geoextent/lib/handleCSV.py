@@ -2,7 +2,8 @@ import csv
 import logging
 import os
 import re
-from osgeo import gdal, ogr
+import tempfile
+from osgeo import gdal, ogr, osr
 from . import helpfunctions as hf
 
 logger = logging.getLogger("geoextent")
@@ -11,8 +12,8 @@ logger = logging.getLogger("geoextent")
 # These are comma-separated lists used with X_POSSIBLE_NAMES, Y_POSSIBLE_NAMES,
 # and GEOM_POSSIBLE_NAMES to let GDAL auto-detect coordinate/geometry columns.
 # See https://gdal.org/drivers/vector/csv.html
-_GDAL_X_NAMES = "Longitude,Long,Lon,Lng,X,Easting"
-_GDAL_Y_NAMES = "Latitude,Lat,Y,Northing"
+_GDAL_X_NAMES = "Longitude,Long,Lon,Lng,X,Easting,CoordX"
+_GDAL_Y_NAMES = "Latitude,Lat,Y,Northing,CoordY"
 _GDAL_GEOM_NAMES = "geometry,geom,the_geom,wkt,WKT,wkb,WKB,coordinates,coords"
 
 search = {
@@ -49,6 +50,57 @@ search = {
 }
 
 
+def _strip_geocsv_headers(filepath):
+    """Strip EarthScope GeoCSV ``#``-prefixed header lines from a CSV file.
+
+    EarthScope GeoCSV uses ``#``-prefixed metadata lines at the start of the
+    file (e.g. ``# dataset: GeoCSV 2.0``, ``# delimiter: ,``).  Neither GDAL's
+    CSV driver nor Python's ``csv`` module recognises these comment lines, so
+    they must be removed before the file can be parsed.
+
+    Returns ``(effective_path, metadata)`` where *effective_path* is either the
+    original *filepath* (when no ``#`` lines are found) or a temporary file with
+    the headers stripped.  *metadata* is a dict of parsed key/value pairs from
+    the header lines.  The caller must delete the temp file when
+    ``effective_path != filepath``.
+    """
+    try:
+        with open(filepath, "r") as f:
+            first_line = f.readline()
+            if not first_line.startswith("#"):
+                return filepath, {}
+
+            # Re-read from the start to collect metadata and data lines
+            f.seek(0)
+            metadata = {}
+            data_lines = []
+            for line in f:
+                if line.startswith("#"):
+                    content = line[1:].strip()
+                    if ":" in content:
+                        key, _, value = content.partition(":")
+                        metadata[key.strip()] = value.strip()
+                else:
+                    data_lines.append(line)
+
+        if not data_lines:
+            return filepath, {}
+
+        suffix = os.path.splitext(filepath)[1] or ".csv"
+        fd, temp_path = tempfile.mkstemp(suffix=suffix)
+        with os.fdopen(fd, "w") as f:
+            f.writelines(data_lines)
+
+        logger.debug(
+            "Stripped {} GeoCSV header lines from {}, metadata: {}".format(
+                len(metadata), filepath, metadata
+            )
+        )
+        return temp_path, metadata
+    except (OSError, UnicodeDecodeError):
+        return filepath, {}
+
+
 def get_handler_name():
     return "handleCSV"
 
@@ -74,6 +126,18 @@ def checkFileSupported(filepath):
         logger.debug(f"File {filepath} has extension {extension}, skipping CSV handler")
         return False
 
+    # Strip EarthScope GeoCSV #-header lines so GDAL and csv.reader can parse
+    _original_path = filepath
+    filepath, _meta = _strip_geocsv_headers(filepath)
+    try:
+        return _checkFileSupported_impl(filepath)
+    finally:
+        if filepath != _original_path:
+            os.unlink(filepath)
+
+
+def _checkFileSupported_impl(filepath):
+    """Internal implementation of checkFileSupported (after GeoCSV preprocessing)."""
     try:
         # Force CSV driver to avoid GDAL treating coordinate data as gridded dataset
         file = gdal.OpenEx(filepath, allowed_drivers=["CSV"])
@@ -182,6 +246,7 @@ def _extract_bbox_via_gdal(filepath):
         ]  # [minlon, minlat, maxlon, maxlat]
 
         crs = "4326"
+        crs_wkt = None
         srs = layer.GetSpatialRef()
         if srs:
             try:
@@ -192,13 +257,43 @@ def _extract_bbox_via_gdal(filepath):
             except Exception:
                 pass
 
+            # If EPSG identification failed, try WKT definition (e.g. from PRJ sidecar)
+            if crs == "4326":
+                try:
+                    wkt = srs.ExportToWkt()
+                    if wkt:
+                        # Check if the WKT actually represents WGS84
+                        test_srs = osr.SpatialReference()
+                        test_srs.ImportFromEPSG(4326)
+                        if not srs.IsSame(test_srs):
+                            crs_wkt = wkt
+                            crs = None
+                            logger.debug(
+                                "PRJ sidecar provides non-WGS84 CRS via WKT for {}".format(
+                                    filepath
+                                )
+                            )
+                except Exception:
+                    pass
+
         ds = None
-        logger.debug(
-            "GDAL CSV driver extracted bbox {} with CRS {} from {}".format(
-                bbox, crs, filepath
+
+        result = {"bbox": bbox}
+        if crs_wkt:
+            result["crs_wkt"] = crs_wkt
+            logger.debug(
+                "GDAL CSV driver extracted bbox {} with WKT CRS from {}".format(
+                    bbox, filepath
+                )
             )
-        )
-        return {"bbox": bbox, "crs": crs}
+        else:
+            result["crs"] = crs
+            logger.debug(
+                "GDAL CSV driver extracted bbox {} with CRS {} from {}".format(
+                    bbox, crs, filepath
+                )
+            )
+        return result
     except Exception as e:
         logger.debug(
             "GDAL CSV open options extraction failed for {}: {}".format(filepath, e)
@@ -378,6 +473,19 @@ def getBoundingBox(filePath, chunk_size=50000):
     input "filepath": type string, file path to csv file \n
     returns spatialExtent: type list, length = 4 , type = float, schema = [min(longs), min(lats), max(longs), max(lats)]
     """
+
+    # Strip EarthScope GeoCSV #-header lines
+    _original_path = filePath
+    filePath, _meta = _strip_geocsv_headers(filePath)
+    try:
+        return _getBoundingBox_impl(filePath, chunk_size)
+    finally:
+        if filePath != _original_path:
+            os.unlink(filePath)
+
+
+def _getBoundingBox_impl(filePath, chunk_size=50000):
+    """Internal implementation of getBoundingBox (after GeoCSV preprocessing)."""
 
     # 1. Try GDAL CSV driver with open options (handles CSVT sidecars, GDAL column
     #    name conventions like X/Y/Easting/Northing, and GEOM_POSSIBLE_NAMES for WKT)
@@ -595,6 +703,18 @@ def getConvexHull(filepath):
     Returns dict with 'bbox', 'crs', 'convex_hull_coords', 'convex_hull' keys,
     or None if convex hull cannot be computed.
     """
+    # Strip EarthScope GeoCSV #-header lines
+    _original_path = filepath
+    filepath, _meta = _strip_geocsv_headers(filepath)
+    try:
+        return _getConvexHull_impl(filepath)
+    finally:
+        if filepath != _original_path:
+            os.unlink(filepath)
+
+
+def _getConvexHull_impl(filepath):
+    """Internal implementation of getConvexHull (after GeoCSV preprocessing)."""
     # 1. Try GDAL CSV driver with open options
     ds, layer = _open_csv_via_gdal(filepath)
     if ds is not None:
@@ -646,6 +766,7 @@ def getConvexHull(filepath):
                 ]
 
             crs = "4326"
+            crs_wkt = None
             srs = layer.GetSpatialRef()
             if srs:
                 try:
@@ -656,18 +777,40 @@ def getConvexHull(filepath):
                 except Exception:
                     pass
 
+                # If EPSG identification failed, try WKT definition (e.g. from PRJ sidecar)
+                if crs == "4326":
+                    try:
+                        wkt = srs.ExportToWkt()
+                        if wkt:
+                            test_srs = osr.SpatialReference()
+                            test_srs.ImportFromEPSG(4326)
+                            if not srs.IsSame(test_srs):
+                                crs_wkt = wkt
+                                crs = None
+                                logger.debug(
+                                    "PRJ sidecar provides non-WGS84 CRS via WKT for {}".format(
+                                        filepath
+                                    )
+                                )
+                    except Exception:
+                        pass
+
             ds = None
             logger.debug(
                 "GDAL CSV driver extracted convex hull with {} coords from {}".format(
                     len(convex_hull_coords), filepath
                 )
             )
-            return {
+            result = {
                 "bbox": bbox,
-                "crs": crs,
                 "convex_hull_coords": convex_hull_coords,
                 "convex_hull": True,
             }
+            if crs_wkt:
+                result["crs_wkt"] = crs_wkt
+            else:
+                result["crs"] = crs
+            return result
         except Exception as e:
             logger.debug(
                 "GDAL CSV convex hull extraction failed for {}: {}".format(filepath, e)
@@ -688,6 +831,19 @@ def getTemporalExtent(filepath, num_sample, time_format=None):
     input "filePath": type string, file path to csv File \n
     returns temporal extent of the file: type list, length = 2, both entries have the type str, temporalExtent[0] <= temporalExtent[1]
     """
+
+    # Strip EarthScope GeoCSV #-header lines
+    _original_path = filepath
+    filepath, _meta = _strip_geocsv_headers(filepath)
+    try:
+        return _getTemporalExtent_impl(filepath, num_sample, time_format)
+    finally:
+        if filepath != _original_path:
+            os.unlink(filepath)
+
+
+def _getTemporalExtent_impl(filepath, num_sample, time_format=None):
+    """Internal implementation of getTemporalExtent (after GeoCSV preprocessing)."""
 
     with open(filepath) as csv_file:
         delimiter = hf.getDelimiter(csv_file)

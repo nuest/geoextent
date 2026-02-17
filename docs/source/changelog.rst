@@ -20,6 +20,7 @@ Unreleased
   - Add BAW (Bundesanstalt für Wasserbau) Datenrepository as content provider with CSW 2.0.2 metadata extraction via OWSLib, supporting DOIs (``10.48437/*``), landing page URLs, and bare UUIDs (:issue:`89`)
   - Add B2SHARE (EUDAT) as InvenioRDM instance, supporting DOIs (``10.23728/b2share.*``), record URLs, and old-style hex DOIs (:issue:`16`)
   - Add MDI-DE (Marine Daten-Infrastruktur Deutschland) as content provider with CSW 2.0.2 metadata extraction via OWSLib, WFS-based data download, and direct file download; supports NOKIS landing page URLs and bare UUIDs (:issue:`86`)
+  - Add HALO DB (DLR) as metadata-only content provider for the HALO research aircraft database, extracting flight track geometry from the GeoJSON search API and temporal extent from dataset HTML pages (:issue:`88`)
 
 - **New Features**
 
@@ -48,6 +49,7 @@ Unreleased
 
   - Fix and enable skipped multi-input CLI tests, add convex hull geometry tests for 2–5 file inputs, and add documentation for multiple input processing
   - Use GDAL CSV driver open options for coordinate column detection, supporting GDAL column naming conventions (``X``/``Y``, ``Easting``/``Northing``) and CSVT sidecar files (:issue:`53`)
+  - Add GeoCSV format support: recognise ``CoordX``/``CoordY`` column names (giswiki.ch GeoCSV spec), ``.prj`` sidecar files for CRS information, WKT polygon geometry columns, and EarthScope GeoCSV ``#``-prefixed metadata header lines (:issue:`52`)
   - Move content provider metadata into provider classes (``provider_info()`` classmethod), eliminating duplication in ``features.py``
   - Verify bare UUIDs against BGR CSW catalog and Opara DSpace API before accepting, preventing misrouting between providers
   - Correct 4TU.ResearchData platform description: uses Djehuty, not Figshare

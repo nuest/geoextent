@@ -192,7 +192,16 @@
       "WebFetch(domain:gkhub.earthobservations.org)",
       "WebFetch(domain:data.caltech.edu)",
       "WebFetch(domain:inveniordm.docs.cern.ch)",
-      "WebFetch(domain:fdat.uni-tuebingen.de)"
+      "WebFetch(domain:fdat.uni-tuebingen.de)",
+      "WebFetch(domain:knowledgehub.nfdi4earth.de)",
+      "WebFetch(domain:onestop4all.nfdi4earth.de)",
+      "WebFetch(domain:sparql.knowledgehub.nfdi4earth.de)",
+      "WebFetch(domain:nfdi4earth.de)",
+      "WebFetch(domain:git.rwth-aachen.de)",
+      "WebFetch(domain:nokis.mdi-de-dienste.org)",
+      "Bash(.venv/bin/python3:*)",
+      "Bash(.venv/bin/pip install:*)",
+      "Bash(.venv/bin/jupyter nbconvert:*)"
     ],
     "deny": [],
     "ask": []

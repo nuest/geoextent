@@ -61,6 +61,15 @@ TEST_DATA = {
         "cities_nl_easting_northing": "tests/testdata/csv/cities_NL_easting_northing.csv",
         "cities_nl_the_geom": "tests/testdata/csv/cities_NL_the_geom.csv",
         "cities_nl_csvt": "tests/testdata/csv/cities_NL_csvt.csv",
+        # GeoCSV variants (issue #52)
+        "geocsv_semicolon": "tests/testdata/csv/cities_NL_geocsv_semicolon.csv",
+        "geocsv_prj": "tests/testdata/csv/cities_NL_geocsv_prj.csv",
+        "geocsv_earthscope": "tests/testdata/csv/cities_NL_geocsv_earthscope.csv",
+        "geocsv_wkt_polygons": "tests/testdata/csv/cities_NL_geocsv_wkt_polygons.csv",
+        "geocsv_earthscope_wkt": "tests/testdata/csv/cities_NL_geocsv_earthscope_wkt.csv",
+        "earthscope_stations": "tests/testdata/csv/earthscope_stations.csv",
+        # PRJ sidecar with projected CRS (issue #52, step 6)
+        "rd_new_prj": "tests/testdata/csv/cities_NL_rd_new.csv",
     },
     # Folders
     "folders": {
@@ -151,6 +160,45 @@ EXPECTED_RESULTS = {
         },
         "time_mixed": {
             "tbox": ["2017-04-09", "2018-01-31"],
+        },
+        # GeoCSV variants (issue #52) — same cities_NL point data
+        "geocsv_semicolon": {
+            "bbox": [51.434444, 4.3175, 53.217222, 6.574722],
+            "crs": "4326",
+            "tbox": ["2017-08-01", "2019-09-30"],
+        },
+        "geocsv_prj": {
+            "bbox": [51.434444, 4.3175, 53.217222, 6.574722],
+            "crs": "4326",
+            "tbox": ["2017-08-01", "2019-09-30"],
+        },
+        "geocsv_earthscope": {
+            "bbox": [51.434444, 4.3175, 53.217222, 6.574722],
+            "crs": "4326",
+            "tbox": ["2017-08-01", "2019-09-30"],
+        },
+        # WKT polygon data — bounding box of polygons
+        "geocsv_wkt_polygons": {
+            "bbox": [51.42, 4.31, 53.23, 6.58],
+            "crs": "4326",
+            "tbox": ["2017-08-01", "2019-09-30"],
+        },
+        "geocsv_earthscope_wkt": {
+            "bbox": [51.42, 4.31, 53.23, 6.58],
+            "crs": "4326",
+        },
+        # PRJ sidecar with projected CRS (EPSG:28992 RD New, issue #52 step 6)
+        # Coordinates are transformed from RD New, so they differ slightly from
+        # the original WGS84 cities_NL values due to double transformation
+        "rd_new_prj": {
+            "bbox": [51.4297, 4.3329, 53.2172, 6.5747],
+            "crs": "4326",
+            "tbox": ["2017-08-01", "2019-09-30"],
+        },
+        # Real EarthScope FDSNWS station data (3 stations: ADK, AFI, ANMO)
+        "earthscope_stations": {
+            "bbox": [-13.90853, -176.6842, 51.8823, -106.4572],
+            "crs": "4326",
         },
     },
     # Folder expected results

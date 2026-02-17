@@ -474,6 +474,212 @@ class TestCSVConvexHull:
         )
 
 
+class TestGeoCSV:
+    """Test GeoCSV format variants (issue #52)
+
+    Covers:
+    - giswiki.ch/OST GeoCSV: semicolon delimiter, CoordX/CoordY, CSVT+PRJ sidecars
+    - EarthScope GeoCSV: #-prefixed metadata header lines
+    - WKT polygon geometries in CSV
+    """
+
+    def test_geocsv_semicolon_coordxy(self):
+        """Test semicolon-delimited GeoCSV with CoordX/CoordY columns"""
+        result = extract_bbox_and_tbox(get_test_file("csv", "geocsv_semicolon"))
+        assert_bbox_and_tbox_result(
+            result,
+            get_expected_bbox("csv", "geocsv_semicolon"),
+            get_expected_tbox("csv", "geocsv_semicolon"),
+        )
+
+    def test_geocsv_coordxy_via_gdal(self):
+        """Test that CoordX/CoordY columns are detected by GDAL open options"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        result = handleCSV._extract_bbox_via_gdal(
+            get_test_file("csv", "geocsv_semicolon")
+        )
+        assert result is not None, "GDAL should detect CoordX/CoordY columns"
+        assert "bbox" in result
+        assert "crs" in result
+
+    def test_geocsv_prj_sidecar(self):
+        """Test GeoCSV with CSVT and PRJ sidecar files"""
+        result = extract_bbox_and_tbox(get_test_file("csv", "geocsv_prj"))
+        assert_bbox_and_tbox_result(
+            result,
+            get_expected_bbox("csv", "geocsv_prj"),
+            get_expected_tbox("csv", "geocsv_prj"),
+        )
+
+    def test_geocsv_prj_crs_detection(self):
+        """Test that PRJ sidecar file provides CRS information"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        result = handleCSV._extract_bbox_via_gdal(get_test_file("csv", "geocsv_prj"))
+        assert result is not None
+        # PRJ file specifies WGS84
+        assert result["crs"] == "4326"
+
+    def test_geocsv_earthscope_headers(self):
+        """Test EarthScope GeoCSV with #-prefixed metadata header lines"""
+        result = extract_bbox_and_tbox(get_test_file("csv", "geocsv_earthscope"))
+        assert_bbox_and_tbox_result(
+            result,
+            get_expected_bbox("csv", "geocsv_earthscope"),
+            get_expected_tbox("csv", "geocsv_earthscope"),
+        )
+
+    def test_geocsv_earthscope_file_supported(self):
+        """Test that EarthScope GeoCSV files are recognized as supported CSV"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        assert handleCSV.checkFileSupported(
+            get_test_file("csv", "geocsv_earthscope")
+        ), "EarthScope GeoCSV should be recognized as CSV"
+
+    def test_geocsv_earthscope_header_stripping(self):
+        """Test that _strip_geocsv_headers correctly parses EarthScope metadata"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        path, meta = handleCSV._strip_geocsv_headers(
+            get_test_file("csv", "geocsv_earthscope")
+        )
+        try:
+            assert path != get_test_file(
+                "csv", "geocsv_earthscope"
+            ), "Should create temp file"
+            assert "dataset" in meta, "Should parse 'dataset' header"
+            assert "GeoCSV 2.0" in meta["dataset"]
+            assert "delimiter" in meta, "Should parse 'delimiter' header"
+        finally:
+            import os
+
+            if path != get_test_file("csv", "geocsv_earthscope"):
+                os.unlink(path)
+
+    def test_geocsv_wkt_polygons_bbox(self):
+        """Test bbox extraction from CSV with WKT polygon geometries"""
+        result = extract_bbox_only(get_test_file("csv", "geocsv_wkt_polygons"))
+        assert_bbox_result(
+            result,
+            get_expected_bbox("csv", "geocsv_wkt_polygons"),
+        )
+
+    def test_geocsv_wkt_polygons_tbox(self):
+        """Test temporal extraction from CSV with WKT polygon geometries"""
+        result = extract_bbox_and_tbox(get_test_file("csv", "geocsv_wkt_polygons"))
+        assert_bbox_and_tbox_result(
+            result,
+            get_expected_bbox("csv", "geocsv_wkt_polygons"),
+            get_expected_tbox("csv", "geocsv_wkt_polygons"),
+        )
+
+    def test_geocsv_wkt_polygons_convex_hull(self):
+        """Test convex hull extraction from CSV with WKT polygon geometries"""
+        import geoextent.lib.extent as geoextent
+
+        result = geoextent.fromFile(
+            get_test_file("csv", "geocsv_wkt_polygons"),
+            bbox=True,
+            tbox=False,
+            convex_hull=True,
+        )
+        assert result is not None
+        assert "bbox" in result
+        assert result.get("convex_hull") is True
+        bbox = result["bbox"]
+        assert isinstance(bbox, list)
+        assert len(bbox) >= 3  # At least 3 points for a polygon
+        assert isinstance(bbox[0], list)  # Each element is a coordinate pair
+
+    def test_geocsv_earthscope_wkt_combined(self):
+        """Test EarthScope GeoCSV with #-headers AND WKT polygon geometries"""
+        result = extract_bbox_only(get_test_file("csv", "geocsv_earthscope_wkt"))
+        assert_bbox_result(
+            result,
+            get_expected_bbox("csv", "geocsv_earthscope_wkt"),
+        )
+
+    def test_earthscope_real_world_data(self):
+        """Test real-world EarthScope FDSNWS station data in GeoCSV 2.0 format.
+
+        Uses authentic data from service.earthscope.org with pipe delimiter,
+        #-prefixed headers, and Latitude/Longitude columns.
+        Source: https://service.earthscope.org/fdsnws/station/1/query?format=geocsv
+        """
+        result = extract_bbox_only(get_test_file("csv", "earthscope_stations"))
+        assert_bbox_result(
+            result,
+            get_expected_bbox("csv", "earthscope_stations"),
+        )
+
+    def test_earthscope_pipe_delimiter_detected(self):
+        """Test that pipe delimiter is correctly detected after header stripping"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        path, meta = handleCSV._strip_geocsv_headers(
+            get_test_file("csv", "earthscope_stations")
+        )
+        try:
+            assert "delimiter" in meta
+            assert meta["delimiter"] == "|"
+        finally:
+            import os
+
+            if path != get_test_file("csv", "earthscope_stations"):
+                os.unlink(path)
+
+    def test_normal_csv_not_affected_by_geocsv_preprocessing(self):
+        """Test that normal CSV files pass through GeoCSV preprocessing unchanged"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        path, meta = handleCSV._strip_geocsv_headers(get_test_file("csv", "cities_nl"))
+        assert path == get_test_file(
+            "csv", "cities_nl"
+        ), "Normal CSV should not be modified"
+        assert meta == {}, "Normal CSV should have no GeoCSV metadata"
+
+    def test_prj_sidecar_projected_crs(self):
+        """Test CSV with PRJ sidecar in projected CRS (EPSG:28992 RD New).
+
+        Verifies that when AutoIdentifyEPSG() fails but WKT is available,
+        the WKT-based CRS transformation correctly converts coordinates to WGS84.
+        """
+        result = extract_bbox_and_tbox(get_test_file("csv", "rd_new_prj"))
+        assert_bbox_and_tbox_result(
+            result,
+            get_expected_bbox("csv", "rd_new_prj"),
+            get_expected_tbox("csv", "rd_new_prj"),
+        )
+
+    def test_prj_sidecar_projected_crs_wkt_detection(self):
+        """Test that _extract_bbox_via_gdal returns crs_wkt for projected PRJ sidecar"""
+        import geoextent.lib.handleCSV as handleCSV
+
+        result = handleCSV._extract_bbox_via_gdal(get_test_file("csv", "rd_new_prj"))
+        assert result is not None
+        assert (
+            "crs_wkt" in result
+        ), "Projected CRS should return crs_wkt when AutoIdentifyEPSG fails"
+        assert "crs" not in result, "Should not have crs key when crs_wkt is used"
+        assert "PROJCS" in result["crs_wkt"], "WKT should describe a projected CRS"
+
+    def test_prj_sidecar_projected_crs_convex_hull(self):
+        """Test convex hull extraction with projected PRJ sidecar CRS transformation"""
+        import geoextent.lib.extent as geoextent
+
+        result = geoextent.fromFile(
+            get_test_file("csv", "rd_new_prj"),
+            bbox=True,
+            tbox=False,
+            convex_hull=True,
+        )
+        assert result is not None
+        assert "bbox" in result
+        assert result["crs"] == "4326", "Output should be in WGS84"
+
+
 class TestCSVEdgeCases:
     """Test CSV edge cases and error conditions"""
 
