@@ -56,11 +56,20 @@ Different CSV delimiters (``;``, ``,``) are automatically detected.
 
 **GDAL-based column detection** (preferred): geoextent first tries to open CSV files using the `GDAL CSV driver <https://gdal.org/drivers/vector/csv.html>`_ with open options for automatic coordinate column detection. The following column names are recognised:
 
-- Longitude/X: ``Longitude``, ``Long``, ``Lon``, ``Lng``, ``X``, ``Easting``
-- Latitude/Y: ``Latitude``, ``Lat``, ``Y``, ``Northing``
+- Longitude/X: ``Longitude``, ``Long``, ``Lon``, ``Lng``, ``X``, ``Easting``, ``CoordX``
+- Latitude/Y: ``Latitude``, ``Lat``, ``Y``, ``Northing``, ``CoordY``
 - Geometry (WKT/WKB): ``geometry``, ``geom``, ``the_geom``, ``wkt``, ``WKT``, ``wkb``, ``WKB``, ``coordinates``, ``coords``
 
 **CSVT sidecar files**: If a ``.csvt`` file is present alongside the CSV, GDAL uses it to determine column types. Supported geometric type declarations include ``CoordX``, ``CoordY``, ``Point(X)``, ``Point(Y)``, and ``WKT``. See the `GDAL CSV driver documentation <https://gdal.org/drivers/vector/csv.html>`_ for details.
+
+**PRJ sidecar files**: A ``.prj`` file alongside the CSV provides CRS information in OGC WKT format. When absent, WGS84 (EPSG:4326) is assumed.
+
+**GeoCSV support**: geoextent recognises two GeoCSV dialects:
+
+- `giswiki.ch/OST GeoCSV <https://www.giswiki.ch/GeoCSV>`_: Semicolon-delimited CSV with ``CoordX``/``CoordY`` coordinate columns, optional ``.csvt`` and ``.prj`` sidecar files.
+- `EarthScope GeoCSV <https://github.com/EarthScope/GeoCSV>`_: Uses ``#``-prefixed metadata header lines (e.g. ``# dataset: GeoCSV 2.0``, ``# delimiter: ,``). These comment lines are automatically stripped before parsing.
+
+**WKT geometry columns**: CSV files with a column containing Well-Known Text geometry strings (e.g. ``POINT``, ``POLYGON``, ``MULTIPOLYGON``) are supported via both GDAL auto-detection and manual WKT parsing.
 
 **Regex fallback**: If GDAL cannot detect coordinate columns, geoextent falls back to `Regular expressions <https://docs.python.org/3/library/re.html>`_-based column name matching:
 
