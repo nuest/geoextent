@@ -108,6 +108,38 @@ Extract both bounding box and time interval from a folder or zipfile
 
 The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: :doc:`../supportedformats/index_supportedformats`) inside the folder or zipfile. The resulting coordinate reference system  ``CRS`` of the combined bbox is always in the `EPSG: 4326 <https://epsg.io/4326>`_ system.
 
+Multiple Inputs
+---------------
+
+Geoextent supports processing multiple files and/or directories in a single command. Results are merged into a single spatial and temporal extent.
+
+Extract merged bounding box from multiple files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b file1.geojson file2.csv file3.gpkg
+
+Extract merged extent from files and directories
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t tests/testdata/geojson/muenster_ring_zeit.geojson tests/testdata/folders/folder_two_files
+
+Extract convex hull from multiple files
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b --convex-hull tests/testdata/geojson/muenster_ring_zeit.geojson tests/testdata/folders/folder_two_files/districtes.geojson tests/testdata/csv/cities_NL.csv
+
+Use ``--details`` to see per-file results alongside the merged extent:
+
+::
+
+   geoextent -b -t --details tests/testdata/geojson/muenster_ring_zeit.geojson tests/testdata/csv/cities_NL.csv
+
 
 Remote Repositories
 -------------------

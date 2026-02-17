@@ -67,39 +67,6 @@ class TestCustomCRSHandling:
         assert result["format"] == "gpkg"
 
 
-class TestCustomCRSIntegration:
-    """Integration tests for custom CRS with remote repositories"""
-
-    @pytest.mark.skipif(True, reason="Slow integration test - run manually when needed")
-    def test_zenodo_record_with_custom_crs(self):
-        """Test extraction from Zenodo record with custom CRS
-
-        Test data source:
-        - Record: https://zenodo.org/records/13993331
-        - DOI: https://doi.org/10.5281/zenodo.13993330 (concept DOI, redirects to latest version)
-        - License: CC-BY-4.0
-        - Contents: Shapefile and GeoPackage with 100 features covering all of Ireland
-        - CRS: Irish Grid projection with Modified Airy spheroid (custom datum)
-
-        Expected behavior: Should successfully extract bbox for entire dataset
-        by using WKT-based transformation to WGS84.
-        """
-        result = geoextent.fromRemote(
-            "https://doi.org/10.5281/zenodo.13993330", bbox=True
-        )
-        assert "bbox" in result
-        # Full dataset bbox (all 100 features covering Ireland)
-        assert result["bbox"] == pytest.approx(
-            [
-                51.39984398859542,
-                -10.882492070935063,
-                55.42100543100021,
-                -5.387863070918008,
-            ],
-            abs=tolerance,
-        )
-
-
 class TestWKTTransformation:
     """Test WKT-based coordinate transformation"""
 

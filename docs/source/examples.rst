@@ -279,6 +279,24 @@ Process specific files together:
 
    python -m geoextent -b -t tests/testdata/shapefile/muenster_ring.shp tests/testdata/csv/cities_NL.csv
 
+Mix files and directories:
+
+::
+
+   python -m geoextent -b -t tests/testdata/geojson/muenster_ring_zeit.geojson tests/testdata/folders/folder_two_files
+
+Use ``--details`` for per-file breakdown:
+
+::
+
+   python -m geoextent -b -t --details tests/testdata/geojson/muenster_ring_zeit.geojson tests/testdata/csv/cities_NL.csv tests/testdata/geopackage/nc.gpkg
+
+Convex hull from multiple files:
+
+::
+
+   python -m geoextent -b --convex-hull tests/testdata/geojson/muenster_ring_zeit.geojson tests/testdata/folders/folder_two_files/districtes.geojson tests/testdata/csv/cities_NL.csv
+
 Combined Examples
 -----------------
 

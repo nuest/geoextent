@@ -313,7 +313,6 @@ def test_gml_time(script_runner):
     ), "time value is printed to console"
 
 
-@pytest.mark.skip(reason="multiple input directories not implemented yet")
 def test_gml_only_one_time_feature_valid(script_runner):
     ret = script_runner.run(
         [
@@ -322,9 +321,10 @@ def test_gml_only_one_time_feature_valid(script_runner):
             "tests/testdata/gml/mypolygon_px6_error_time_one_feature.gml",
         ]
     )
-    assert ret.stdout
+    assert ret.success, "process should return success"
+    assert '"tbox"' in ret.stdout, "tbox key is printed to console"
     assert (
-        "'tbox': ['2012-04-15', '2012-04-15']" in ret.stdout
+        '["2012-04-15", "2012-04-15"]' in ret.stdout
     ), "time value is printed to console"
 
 
@@ -349,30 +349,28 @@ def test_shp_tbox(script_runner):
     assert '["2021-01-01", "2021-01-01"]' in ret.stdout
 
 
-@pytest.mark.skip(reason="multiple input files not implemented yet")
 def test_multiple_files(script_runner):
     ret = script_runner.run(
         [
-            "python",
             "geoextent",
             "-b",
-            "tests/testdata/shapefile/Abgrabungen_Kreis_Kleve_Shape.shp",
-            "tests/testdata/geojson/ausgleichsflaechen_moers.geojson",
+            "tests/testdata/geojson/muenster_ring_zeit.geojson",
+            "tests/testdata/folders/folder_two_files/districtes.geojson",
         ]
     )
     assert ret.success, "process should return success"
-    assert ret.stderr == "", "stderr should be empty"
-    assert (
-        "[7.6016807556152335, 51.94881477206191, 7.647256851196289, 51.974624029877454]"
-        in ret.stdout
-    ), "bboxes and time values of all files inside folder, are printed to console"
-    assert (
-        "[6.574722, 51.434444, 4.3175, 53.217222]" in ret.stdout
-    ), "bboxes and time values of all files inside folder, are printed to console"
-    assert (
-        "[292063.81225905, 5618144.09259115, 302531.3161606, 5631223.82854667]"
-        in ret.stdout
-    ), "bboxes and time values of all files inside folder, are printed to console"
+    result = json.loads(ret.stdout)
+    assert result["type"] == "FeatureCollection"
+    assert result["geoextent_extraction"]["format"] == "multiple_files"
+    assert result["geoextent_extraction"]["crs"] == "4326"
+    # Merged bbox should cover Münster (Germany) and Barcelona (Spain)
+    coords = result["features"][0]["geometry"]["coordinates"][0]
+    xs = [c[0] for c in coords]
+    ys = [c[1] for c in coords]
+    bbox = [min(xs), min(ys), max(xs), max(ys)]
+    assert bbox == pytest.approx(
+        [2.052333, 41.317038, 7.647256, 51.974624], abs=tolerance
+    )
 
 
 def test_folder(script_runner):
@@ -409,23 +407,28 @@ def test_zipfile(script_runner):
         assert "4326" in result
 
 
-@pytest.mark.skip(reason="multiple input directories not implemented yet")
 def test_multiple_folders(script_runner):
     ret = script_runner.run(
         [
-            "python",
             "geoextent",
             "-b",
-            "tests/testdata/shapefile",
-            "tests/testdata/geojson",
-            "tests/testdata/nc",
+            "tests/testdata/folders/folder_two_files",
+            "tests/testdata/folders/folder_one_file",
         ]
     )
     assert ret.success, "process should return success"
-    assert ret.stderr == "", "stderr should be empty"
-    assert (
-        "full bbox" in ret.stdout
-    ), "joined bboxes of all files inside folder are printed to console"
+    result = json.loads(ret.stdout)
+    assert result["type"] == "FeatureCollection"
+    assert result["geoextent_extraction"]["format"] == "multiple_files"
+    assert result["geoextent_extraction"]["crs"] == "4326"
+    # Merged bbox should cover both folders (Münster + Barcelona)
+    coords = result["features"][0]["geometry"]["coordinates"][0]
+    xs = [c[0] for c in coords]
+    ys = [c[1] for c in coords]
+    bbox = [min(xs), min(ys), max(xs), max(ys)]
+    assert bbox == pytest.approx(
+        [2.052333, 41.317038, 7.647256, 51.974624], abs=tolerance
+    )
 
 
 def test_zenodo_valid_link_repository(script_runner):

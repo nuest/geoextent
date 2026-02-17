@@ -40,6 +40,7 @@ Unreleased
 
 - **Improvements**
 
+  - Fix and enable skipped multi-input CLI tests, add convex hull geometry tests for 2–5 file inputs, and add documentation for multiple input processing
   - Use GDAL CSV driver open options for coordinate column detection, supporting GDAL column naming conventions (``X``/``Y``, ``Easting``/``Northing``) and CSVT sidecar files (:issue:`53`)
   - Move content provider metadata into provider classes (``provider_info()`` classmethod), eliminating duplication in ``features.py``
   - Verify bare UUIDs against BGR CSW catalog and Opara DSpace API before accepting, preventing misrouting between providers

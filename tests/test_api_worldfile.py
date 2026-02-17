@@ -62,38 +62,22 @@ class TestWorldFileSupport:
         assert "geoextent_handler" in result
         assert result["geoextent_handler"] == "handleRaster"
 
+    def test_tif_with_tfw_world_file(self):
+        """Test TIFF with .tfw world file
 
-class TestWorldFileIntegration:
-    """Integration tests with remote repositories"""
-
-    @pytest.mark.skipif(True, reason="Slow integration test - run manually when needed")
-    def test_zenodo_record_with_png_world_files(self):
-        """Test extraction from Zenodo record with PNG and world files
-
-        Test record: https://zenodo.org/record/820562
-        Contains PNG images with .pngw world files
+        Synthetic 4x3 grayscale TIFF with a .tfw world file placing it over
+        a small area near Berlin (52.5N, 13.4E).  Verifies that GDAL picks
+        up the .tfw and geoextent correctly assumes WGS84 when no CRS is
+        embedded.
         """
-        result = geoextent.fromRemote("10.5281/zenodo.820562", bbox=True)
-        assert "bbox" in result
-        assert result["bbox"] == pytest.approx(
-            [
-                25.558346194400002,
-                96.21146318274846,
-                25.632931128800003,
-                96.35495081696702,
-            ],
-            abs=tolerance,
+        result = geoextent.fromFile(
+            "tests/testdata/worldfile/test_with_world.tif", bbox=True
         )
-
-    @pytest.mark.skipif(True, reason="Slow integration test - run manually when needed")
-    def test_zenodo_record_with_tif_world_files(self):
-        """Test extraction from Zenodo record with TIFF and world files
-
-        Test record: https://zenodo.org/records/7196949
-        Contains TIFF images with .tfw world files
-        """
-        result = geoextent.fromRemote("https://zenodo.org/records/7196949", bbox=True)
         assert "bbox" in result
+        assert "crs" in result
+        assert result["crs"] == "4326"
+        assert result["geoextent_handler"] == "handleRaster"
         assert result["bbox"] == pytest.approx(
-            [-180.0, -60.0, 180.0, 60.0], abs=tolerance
+            [52.4995, 13.3995, 52.5025, 13.4035],
+            abs=tolerance,
         )

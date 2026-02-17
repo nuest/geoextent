@@ -37,6 +37,9 @@ geoextent -b -t tests/testdata/geojson/muenster_ring_zeit.geojson
 # Extract from research repository
 python -m geoextent -b -t https://doi.org/10.5281/zenodo.4593540
 
+# Extract merged bbox from multiple local files
+geoextent -b -t tests/testdata/geojson/muenster_ring_zeit.geojson tests/testdata/csv/cities_NL.csv
+
 # Extract from multiple repositories (returns merged geometry)
 python -m geoextent -b 10.5281/zenodo.123 10.25532/OPARA-456
 
