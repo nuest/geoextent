@@ -13,7 +13,6 @@ import numpy as np
 from osgeo import gdal, osr
 import netCDF4
 
-
 TIF_DIR = "tests/testdata/tif"
 NC_DIR = "tests/testdata/nc"
 
