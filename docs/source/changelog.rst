@@ -19,6 +19,7 @@ Unreleased
   - Add DEIMS-SDR (Dynamic Ecological Information Management System) as metadata-only content provider for long-term ecological research sites and datasets, with support for dataset and site URLs, WKT geometry parsing (POINT, POLYGON, MULTIPOLYGON), and temporal ranges (:issue:`101`)
   - Add BAW (Bundesanstalt für Wasserbau) Datenrepository as content provider with CSW 2.0.2 metadata extraction via OWSLib, supporting DOIs (``10.48437/*``), landing page URLs, and bare UUIDs (:issue:`89`)
   - Add B2SHARE (EUDAT) as InvenioRDM instance, supporting DOIs (``10.23728/b2share.*``), record URLs, and old-style hex DOIs (:issue:`16`)
+  - Add MDI-DE (Marine Daten-Infrastruktur Deutschland) as content provider with CSW 2.0.2 metadata extraction via OWSLib, WFS-based data download, and direct file download; supports NOKIS landing page URLs and bare UUIDs (:issue:`86`)
 
 - **New Features**
 

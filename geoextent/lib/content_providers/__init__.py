@@ -25,6 +25,7 @@ from . import RADAR
 from . import ArcticDataCenter
 from . import DEIMSSDR
 from . import BAW
+from . import MDIDE
 
 __all__ = [
     "providers",
@@ -47,4 +48,5 @@ __all__ = [
     "ArcticDataCenter",
     "DEIMSSDR",
     "BAW",
+    "MDIDE",
 ]

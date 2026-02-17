@@ -9,7 +9,7 @@ Python library for extracting geospatial and temporal extents from files and dir
 
 - Extract spatial extents (bounding boxes, convex hulls) and temporal extents
 - Support for 10+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf, Esri File Geodatabase) plus world files
-- Direct integration with [20 research repositories](https://nuest.github.io/geoextent/providers.html) ([Zenodo](https://zenodo.org/), [PANGAEA](https://www.pangaea.de/), [OSF](https://osf.io/), [Figshare](https://figshare.com/), [4TU.ResearchData](https://data.4tu.nl/), [Dryad](https://datadryad.org/), [GFZ](https://dataservices.gfz-potsdam.de/), [RADAR](https://www.radar-service.eu/), [Arctic Data Center](https://arcticdata.io/), [B2SHARE](https://b2share.eudat.eu/), [Dataverse](https://dataverse.org/) [[Harvard](https://dataverse.harvard.edu/), [DataverseNL](https://dataverse.nl/), [DataverseNO](https://dataverse.no/), [UNC](https://dataverse.unc.edu/), [UVA](https://data.library.virginia.edu/), [Recherche Data Gouv](https://recherche.data.gouv.fr/), [ioerDATA](https://data.fdz.ioer.de/), [heiDATA](https://heidata.uni-heidelberg.de/), [Edmond](https://edmond.mpg.de/)], [Pensoft](https://pensoft.net/), [TU Dresden Opara](https://opara.zih.tu-dresden.de/), [Senckenberg](https://dataportal.senckenberg.de/), [BGR](https://geoportal.bgr.de/), [BAW](https://datenrepository.baw.de/), [Mendeley Data](https://data.mendeley.com/)) and [Wikidata](https://www.wikidata.org/)
+- Direct integration with [21 research repositories](https://nuest.github.io/geoextent/providers.html) ([Zenodo](https://zenodo.org/), [PANGAEA](https://www.pangaea.de/), [OSF](https://osf.io/), [Figshare](https://figshare.com/), [4TU.ResearchData](https://data.4tu.nl/), [Dryad](https://datadryad.org/), [GFZ](https://dataservices.gfz-potsdam.de/), [RADAR](https://www.radar-service.eu/), [Arctic Data Center](https://arcticdata.io/), [B2SHARE](https://b2share.eudat.eu/), [MDI-DE](https://www.mdi-de.org/), [Dataverse](https://dataverse.org/) [[Harvard](https://dataverse.harvard.edu/), [DataverseNL](https://dataverse.nl/), [DataverseNO](https://dataverse.no/), [UNC](https://dataverse.unc.edu/), [UVA](https://data.library.virginia.edu/), [Recherche Data Gouv](https://recherche.data.gouv.fr/), [ioerDATA](https://data.fdz.ioer.de/), [heiDATA](https://heidata.uni-heidelberg.de/), [Edmond](https://edmond.mpg.de/)], [Pensoft](https://pensoft.net/), [TU Dresden Opara](https://opara.zih.tu-dresden.de/), [Senckenberg](https://dataportal.senckenberg.de/), [BGR](https://geoportal.bgr.de/), [BAW](https://datenrepository.baw.de/), [Mendeley Data](https://data.mendeley.com/)) and [Wikidata](https://www.wikidata.org/)
 - Process single files, directories, or multiple repositories in one call
 - Command-line interface and Python API
 - Export as GeoJSON, WKT, or WKB
@@ -73,7 +73,7 @@ See the [API documentation](https://nuest.github.io/geoextent/howto/api.html) an
 ## What Can I Do With geoextent?
 
 - **Extract Spatial Extents** - Get bounding boxes or convex hulls from geospatial files
-- **Process Research Data** - Extract extents from Zenodo, Figshare, Dryad, PANGAEA, OSF, BGR, BAW, and more
+- **Process Research Data** - Extract extents from Zenodo, Figshare, Dryad, PANGAEA, OSF, BGR, BAW, MDI-DE, and more
 - **Batch Processing** - Process directories or multiple repositories in one call
 - **Add Location Context** - Automatic placename lookup for your data
 - **Flexible Output** - Export as GeoJSON, WKT, or WKB for use in other tools
@@ -115,6 +115,22 @@ pre-commit install
 ```
 
 See the [development guide](https://nuest.github.io/geoextent/development.html) for detailed instructions.
+
+## Showcase Notebooks
+
+Interactive Jupyter notebooks demonstrating geoextent are available in the [`showcase/`](showcase/) directory:
+
+- **[NFDI4Earth Knowledge Hub × geoextent](showcase/nfdi4earth_geoextent_showcase.ipynb)** — Queries the [NFDI4Earth Knowledge Hub](https://knowledgehub.nfdi4earth.de/) SPARQL endpoint to map NFDI4Earth-labelled and harvested repositories to geoextent providers, analyses dataset spatial/temporal metadata coverage, and demonstrates live extraction with `geoextent.fromRemote()`.
+- **[Exploring Research Data Repositories with geoextent](showcase/SG_01_Exploring_Research_Data_Repositories_with_geoextent.ipynb)** — EarthCube 2021 case study analysing Zenodo records.
+
+To run the notebooks:
+
+```bash
+cd showcase
+pip install -r requirements.txt
+pip install -e ..  # install geoextent from local checkout
+jupyter lab
+```
 
 ## Contributing
 

@@ -144,7 +144,7 @@ Use ``--details`` to see per-file results alongside the merged extent:
 Remote Repositories
 -------------------
 
-Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, DEIMS-SDR, Dataverse, and Pensoft.
+Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, DEIMS-SDR, Dataverse, and Pensoft.
 
 Extract from Zenodo
 ^^^^^^^^^^^^^^^^^^^
@@ -251,6 +251,27 @@ Extract from B2SHARE (Hainich GPP, with 20MB size limit)
 ::
 
    geoextent -b -t --max-download-size 20MB 10.23728/b2share.26jnj-a4x24
+
+Extract from MDI-DE (metadata only)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t --no-download-data https://nokis.mdi-de-dienste.org/trefferanzeige?docuuid=00100e9d-7838-4563-9dd7-2570b0d932cb
+
+Extract from MDI-DE (direct download)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t https://nokis.mdi-de-dienste.org/trefferanzeige?docuuid=00100e9d-7838-4563-9dd7-2570b0d932cb
+
+Extract from MDI-DE (WFS download, bare UUID)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t c7d748c9-e12f-4038-a556-b1698eb4033e
 
 Extract from DEIMS-SDR (dataset)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
