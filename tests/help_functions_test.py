@@ -133,6 +133,51 @@ def test_geojsonio_url_format_independence():
     assert "data=" in fragment, "URL should contain data parameter"
 
 
+def test_geojsonio_url_includes_inputs():
+    """Test that geojsonio URL includes original input identifiers in Feature properties"""
+    import geoextent.lib.helpfunctions as hf
+    import json
+    import urllib.parse
+
+    extent_output = {"bbox": [40.7128, -74.0059, 40.7589, -73.9352], "crs": "4326"}
+
+    # Single input — should be a one-element list
+    url = hf.generate_geojsonio_url(
+        extent_output, inputs=["tests/testdata/geojson/muenster_ring_zeit.geojson"]
+    )
+    assert url is not None
+    fragment = urllib.parse.urlparse(url).fragment
+    geojson_str = urllib.parse.unquote(fragment.split("data=data:application/json,")[1])
+    geojson_data = json.loads(geojson_str)
+    props = geojson_data["features"][0]["properties"]
+    assert "inputs" in props, "Feature properties should contain 'inputs'"
+    assert props["inputs"] == ["tests/testdata/geojson/muenster_ring_zeit.geojson"]
+
+    # Multiple inputs
+    url = hf.generate_geojsonio_url(
+        extent_output,
+        inputs=["10.5281/zenodo.820562", "https://doi.org/10.1594/PANGAEA.734969"],
+    )
+    assert url is not None
+    fragment = urllib.parse.urlparse(url).fragment
+    geojson_str = urllib.parse.unquote(fragment.split("data=data:application/json,")[1])
+    geojson_data = json.loads(geojson_str)
+    props = geojson_data["features"][0]["properties"]
+    assert props["inputs"] == [
+        "10.5281/zenodo.820562",
+        "https://doi.org/10.1594/PANGAEA.734969",
+    ]
+
+    # No inputs — should not have 'inputs' key
+    url = hf.generate_geojsonio_url(extent_output)
+    assert url is not None
+    fragment = urllib.parse.urlparse(url).fragment
+    geojson_str = urllib.parse.unquote(fragment.split("data=data:application/json,")[1])
+    geojson_data = json.loads(geojson_str)
+    props = geojson_data["features"][0]["properties"]
+    assert "inputs" not in props, "No 'inputs' when inputs parameter is not provided"
+
+
 # Enhanced assertion helpers to reduce repetition
 def assert_bbox_result(result, expected_bbox, expected_crs="4326"):
     """Assert that a result contains valid bbox data"""

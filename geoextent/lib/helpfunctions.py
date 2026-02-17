@@ -1934,7 +1934,7 @@ def filter_files_by_size(
     return selected_files, total_size, skipped_items
 
 
-def generate_geojsonio_url(extent_output, native_order=False):
+def generate_geojsonio_url(extent_output, native_order=False, inputs=None):
     """
     Generate a geojson.io URL for the spatial extent
     Always uses GeoJSON format with [lon, lat] coordinates per RFC 7946
@@ -1942,6 +1942,7 @@ def generate_geojsonio_url(extent_output, native_order=False):
     Args:
         extent_output: Dict containing the geoextent output with bbox data
         native_order: If True, input is in EPSG:4326 native [lat, lon] order
+        inputs: Optional list of original input identifiers (files, URLs, DOIs)
 
     Returns:
         String containing the geojson.io URL, or None if no spatial extent available
@@ -1960,6 +1961,11 @@ def generate_geojsonio_url(extent_output, native_order=False):
     # The format_extent_output function will return a FeatureCollection for GeoJSON format
     if geojson_output and geojson_output.get("type") == "FeatureCollection":
         try:
+            # Inject original input identifiers into Feature properties
+            if inputs and geojson_output.get("features"):
+                feature = geojson_output["features"][0]
+                feature["properties"]["inputs"] = inputs
+
             # Generate URL using geojsonio
             geojson_string = json.dumps(geojson_output)
             url = geojsonio.make_url(geojson_string)
@@ -1997,13 +2003,17 @@ def generate_geojsonio_url(extent_output, native_order=False):
 
     try:
         # Create a feature with the geometry
+        properties = {
+            "name": "Geoextent Spatial Extent",
+            "description": f"{'Convex Hull' if is_convex_hull else 'Bounding Box'} extracted by geoextent",
+        }
+        if inputs:
+            properties["inputs"] = inputs
+
         feature = {
             "type": "Feature",
             "geometry": geojson_geom,
-            "properties": {
-                "name": "Geoextent Spatial Extent",
-                "description": f"{'Convex Hull' if is_convex_hull else 'Bounding Box'} extracted by geoextent",
-            },
+            "properties": properties,
         }
 
         # Create a feature collection

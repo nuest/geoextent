@@ -757,7 +757,9 @@ def main():
         geojsonio_url = None
         native_order = not args["legacy"]
         if (args["geojsonio"] or args["browse"]) and output and "bbox" in output:
-            geojsonio_url = hf.generate_geojsonio_url(output, native_order=native_order)
+            geojsonio_url = hf.generate_geojsonio_url(
+                output, native_order=native_order, inputs=files
+            )
 
         # Apply output format conversion
         output = hf.format_extent_output(
