@@ -237,9 +237,10 @@ The project follows a modular handler-based architecture:
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):
-   - Support for extracting data from repositories (Zenodo, InvenioRDM instances, Figshare, 4TU.ResearchData (uses Djehuty platform with Figshare-compatible API, not Figshare itself), Dryad, PANGAEA, OSF, Dataverse, GFZ, Pensoft, Opara, Senckenberg, BGR, Mendeley Data, Wikidata, RADAR, Arctic Data Center, DEIMS-SDR (follows external DOIs/URLs to supported providers by default; disable with ``--no-follow``))
-   - ``InvenioRDM`` base provider supporting CaltechDATA, TU Wien, Frei-Data, GEO Knowledge Hub, TU Graz, Materials Cloud Archive, FDAT, DataPLANT ARChive, KTH, Prism, NYU Ultraviolet
+   - Support for extracting data from repositories (Zenodo, InvenioRDM instances, Figshare, 4TU.ResearchData (uses Djehuty platform with Figshare-compatible API, not Figshare itself), Dryad, PANGAEA, OSF, Dataverse, GFZ, Pensoft, Opara, Senckenberg, BGR, BAW, Mendeley Data, Wikidata, RADAR, Arctic Data Center, DEIMS-SDR (follows external DOIs/URLs to supported providers by default; disable with ``--no-follow``))
+   - ``InvenioRDM`` base provider supporting CaltechDATA, TU Wien, Frei-Data, GEO Knowledge Hub, TU Graz, Materials Cloud Archive, FDAT, DataPLANT ARChive, KTH, Prism, NYU Ultraviolet, B2SHARE (EUDAT)
    - Includes abstract ``CKANProvider`` base class for CKAN-based repositories (used by Senckenberg)
+   - BGR and BAW both use CSW 2.0.2 with ISO 19115/19139 metadata; BAW uses OWSLib for CSW access
 
 ### Handler Selection
 

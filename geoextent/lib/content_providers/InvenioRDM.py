@@ -94,6 +94,15 @@ INVENIORDM_INSTANCES = {
         "name": "NYU Ultraviolet",
         "hostnames": ["https://ultraviolet.library.nyu.edu/records/"],
     },
+    "b2share.eudat.eu": {
+        "api": "https://b2share.eudat.eu/api/records/",
+        "doi_prefixes": ("10.23728/b2share",),
+        "name": "B2SHARE",
+        "hostnames": [
+            "https://b2share.eudat.eu/records/",
+            "https://b2share.eudat.eu/doi/",
+        ],
+    },
 }
 
 # Record ID pattern: numeric (Zenodo legacy), alphanumeric slug (InvenioRDM),
@@ -156,6 +165,7 @@ class InvenioRDM(DoiProvider):
         "10.71775",  # KTH Data Repository
         "10.18131",  # Prism
         "10.58153",  # NYU Ultraviolet
+        "10.23728/b2share",  # B2SHARE
     )
 
     def __init__(self):

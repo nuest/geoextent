@@ -144,7 +144,7 @@ Use ``--details`` to see per-file results alongside the merged extent:
 Remote Repositories
 -------------------
 
-Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, BAW, DEIMS-SDR, Dataverse, and Pensoft.
+Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, DEIMS-SDR, Dataverse, and Pensoft.
 
 Extract from Zenodo
 ^^^^^^^^^^^^^^^^^^^
@@ -230,6 +230,27 @@ Extract from BAW-Datenrepository (DOI, sedimentology dataset)
 ::
 
    geoextent -b -t --no-data-download 10.48437/929835b7fca4
+
+Extract from B2SHARE (Place Names in Tainan, 647KB)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t https://b2share.eudat.eu/records/a096d-k2g86
+
+Extract from B2SHARE (Migda Soil Moisture, GeoPackage)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t 10.23728/b2share.3d918bf3c1f94c3d8d8e29958ed763a9
+
+Extract from B2SHARE (Hainich GPP, with 20MB size limit)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t --max-download-size 20MB 10.23728/b2share.26jnj-a4x24
 
 Extract from DEIMS-SDR (dataset)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

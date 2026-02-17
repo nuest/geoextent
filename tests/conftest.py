@@ -49,6 +49,7 @@ _PROVIDER_FILES = {
     "test_api_inveniordm.py",
     "test_api_deimssdr.py",
     "test_api_baw.py",
+    "test_api_b2share.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -106,6 +107,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_gkhub_package_metadata_fallback",
     "test_deimssdr_dataset_metadata_only_extraction",
     "test_baw_metadata_only_extraction",
+    "test_b2share_tainan_extraction",
 }
 
 
