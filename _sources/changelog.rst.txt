@@ -28,6 +28,10 @@ Unreleased
   - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
   - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
 
+- **Breaking Changes**
+
+  - Drop support for bare numeric Zenodo record IDs (e.g., ``820562``); use DOI (``10.5281/zenodo.820562``) or URL (``https://zenodo.org/records/820562``) instead
+
 - **Bug Fixes**
 
   - Skip raster files with pixel-based coordinates (outside WGS84 bounds) instead of merging them into geographic extents
@@ -36,7 +40,11 @@ Unreleased
 
 - **Improvements**
 
+  - Fix and enable skipped multi-input CLI tests, add convex hull geometry tests for 2–5 file inputs, and add documentation for multiple input processing
   - Use GDAL CSV driver open options for coordinate column detection, supporting GDAL column naming conventions (``X``/``Y``, ``Easting``/``Northing``) and CSVT sidecar files (:issue:`53`)
+  - Move content provider metadata into provider classes (``provider_info()`` classmethod), eliminating duplication in ``features.py``
+  - Verify bare UUIDs against BGR CSW catalog and Opara DSpace API before accepting, preventing misrouting between providers
+  - Correct 4TU.ResearchData platform description: uses Djehuty, not Figshare
   - Automatically skip restricted files in Dataverse downloads
 
 0.12.0
