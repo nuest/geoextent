@@ -22,6 +22,23 @@ class Pensoft(DoiProvider):
     - Direct article URLs: https://bdj.pensoft.net/article/1068/
     """
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Pensoft",
+            "description": "Pensoft Publishers is a scholarly publisher based in Sofia, Bulgaria, specializing in biodiversity and environmental science with over 60 peer-reviewed open access journals. All articles are published under Creative Commons licenses and include semantic enrichments and hyperlinks to facilitate data findability and interoperability.",
+            "website": "https://pensoft.net/",
+            "supported_identifiers": [
+                "https://doi.org/10.3897/{journal}.{article_id}",
+                "10.3897/{journal}.{article_id}",
+            ],
+            "doi_prefix": "10.3897",
+            "examples": [
+                "https://doi.org/10.3897/BDJ.2.e1068",
+                "https://doi.org/10.3897/BDJ.13.e159973",
+            ],
+        }
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

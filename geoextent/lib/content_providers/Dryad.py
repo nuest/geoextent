@@ -9,6 +9,23 @@ from ..extent import *
 class Dryad(DoiProvider):
     doi_prefixes = ("10.5061/dryad",)
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Dryad",
+            "description": "Dryad is a nonprofit curated general-purpose repository that makes research data discoverable, freely reusable, and citable with DOIs. It specializes in data underlying scientific publications and accepts data in any file format from any field of research under Creative Commons Zero waiver.",
+            "website": "https://datadryad.org/",
+            "supported_identifiers": [
+                "https://datadryad.org/stash/dataset/doi:{doi}",
+                "https://doi.org/10.5061/dryad.{id}",
+                "10.5061/dryad.{id}",
+            ],
+            "doi_prefix": "10.5061/dryad",
+            "examples": [
+                "https://datadryad.org/stash/dataset/doi:10.5061/dryad.0k6djhb7x"
+            ],
+        }
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

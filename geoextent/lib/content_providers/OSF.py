@@ -10,6 +10,25 @@ from .. import helpfunctions as hf
 class OSF(DoiProvider):
     doi_prefixes = ("10.17605/OSF.IO",)
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "OSF",
+            "description": "The Open Science Framework (OSF) is a free and open-source project management tool developed by the Center for Open Science that facilitates open collaboration in science research. It enables researchers to manage, store, and share documents, datasets, and other research materials throughout the project lifecycle with version control and integration capabilities.",
+            "website": "https://osf.io/",
+            "supported_identifiers": [
+                "https://osf.io/{project_id}/",
+                "https://doi.org/10.17605/OSF.IO/{project_id}",
+                "10.17605/OSF.IO/{project_id}",
+                "OSF.IO/{project_id}",
+            ],
+            "doi_prefix": "10.17605/OSF.IO",
+            "examples": [
+                "https://doi.org/10.17605/OSF.IO/4XE6Z",
+                "https://osf.io/4xe6z/",
+            ],
+        }
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

@@ -18,6 +18,21 @@ class GFZ(DoiProvider):
 
     doi_prefixes = ("10.5880/GFZ",)
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "GFZ",
+            "description": "GFZ Data Services is a curated research data repository for the geosciences domain, hosted at the GFZ German Research Centre for Geosciences in Potsdam. It has assigned DOIs to geoscientific datasets since 2004 and provides comprehensive consultation by domain scientists and IT specialists following FAIR principles.",
+            "website": "https://dataservices.gfz-potsdam.de/",
+            "supported_identifiers": [
+                "https://dataservices.gfz-potsdam.de/panmetaworks/showshort.php?id={doi}",
+                "https://doi.org/10.5880/GFZ.{id}",
+                "10.5880/GFZ.{id}",
+            ],
+            "doi_prefix": "10.5880/GFZ",
+            "examples": ["10.5880/GFZ.4.8.2023.004"],
+        }
+
     def __init__(self):
         super().__init__()
         self.host = {

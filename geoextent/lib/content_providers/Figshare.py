@@ -7,6 +7,21 @@ from .. import helpfunctions as hf
 class Figshare(DoiProvider):
     doi_prefixes = ("10.6084/m9.figshare",)
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Figshare",
+            "description": "Figshare is an online open access repository where researchers can preserve and share their research outputs including figures, datasets, images, and videos. It allows researchers to publish files in any format with assigned DOIs and tracks download statistics for altmetrics.",
+            "website": "https://figshare.com/",
+            "supported_identifiers": [
+                "https://figshare.com/articles/{article_id}",
+                "https://doi.org/10.6084/m9.figshare.{article_id}",
+                "10.6084/m9.figshare.{article_id}",
+            ],
+            "doi_prefix": "10.6084/m9.figshare",
+            "examples": ["https://doi.org/10.6084/m9.figshare.12345678"],
+        }
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

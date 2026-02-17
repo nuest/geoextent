@@ -24,6 +24,25 @@ class ArcticDataCenter(DoiProvider):
     """
 
     doi_prefixes = ("10.18739/",)
+
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Arctic Data Center",
+            "description": "NSF Arctic Data Center is the primary repository for NSF-funded Arctic research data. It provides long-term data archiving and supports ISO 19115 metadata with rich geospatial coverage information.",
+            "website": "https://arcticdata.io/",
+            "supported_identifiers": [
+                "https://arcticdata.io/catalog/view/{doi}",
+                "https://doi.org/10.18739/{id}",
+                "10.18739/{id}",
+            ],
+            "doi_prefix": "10.18739",
+            "examples": [
+                "10.18739/A2KW57K57",
+            ],
+            "notes": "Supports metadata-only extraction via DataONE Solr API (geospatial coverage from ISO 19115 metadata).",
+        }
+
     API_BASE = "https://arcticdata.io/metacat/d1/mn/v2"
 
     def __init__(self):

@@ -57,6 +57,24 @@ SELECT ?itemLabel ?northLat ?southLat ?eastLon ?westLon ?coord WHERE {{
 class Wikidata(ContentProvider):
     """Content provider for Wikidata geographic entities."""
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Wikidata",
+            "description": "Wikidata is a free and open knowledge base that provides structured data to Wikipedia and other Wikimedia projects. Geographic extents are extracted via SPARQL queries for coordinate location (P625) and other geographic properties.",
+            "website": "https://www.wikidata.org/",
+            "supported_identifiers": [
+                "https://www.wikidata.org/wiki/{qid}",
+                "{qid}",
+            ],
+            "examples": [
+                "Q64",
+                "Q1731",
+                "https://www.wikidata.org/wiki/Q64",
+            ],
+            "notes": "Accepts Wikidata Q-identifiers (e.g. Q64 for Berlin). Extracts coordinates via SPARQL. Supports metadata-only extraction.",
+        }
+
     @property
     def supports_metadata_extraction(self):
         return True

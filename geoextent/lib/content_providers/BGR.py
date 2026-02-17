@@ -12,6 +12,30 @@ logger = logging.getLogger("geoextent")
 
 class BGR(DoiProvider):
     doi_prefixes = ("10.25928/",)
+
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "BGR",
+            "description": "BGR (Federal Institute for Geosciences and Natural Resources) is the German geoscientific research center providing data and advice on geoscience topics. The BGR Geoportal offers access to geological, geophysical, and hydrogeological datasets with metadata following GeoDCAT-AP and INSPIRE standards.",
+            "website": "https://geoportal.bgr.de/",
+            "supported_identifiers": [
+                "https://geoportal.bgr.de/mapapps/resources/apps/geoportal/index.html?lang=en#/datasets/portal/{uuid}",
+                "https://geoportal.bgr.de/smartfindersdi-csw/api?...&Id={uuid}",
+                "https://doi.org/10.25928/{id}",
+                "10.25928/{id}",
+                "{uuid}",
+            ],
+            "doi_prefix": "10.25928",
+            "examples": [
+                "10.25928/HK1000",
+                "https://doi.org/10.25928/MEDKAM.1",
+                "https://geoportal.bgr.de/mapapps/resources/apps/geoportal/index.html?lang=en#/datasets/portal/b73b55f1-14ec-4b7c-aa59-49b997ce7bbd",
+                "d764e73b-27e4-4aaa-b187-b6141c115eb4",
+            ],
+            "notes": "Supports DOIs, full portal URLs, CSW URLs, and bare UUIDs (verified against CSW catalog). Uses CSW 2.0.2 API with ISO 19115/19139 metadata.",
+        }
+
     """Content provider for BGR Geoportal (Federal Institute for Geosciences and Natural Resources)
 
     Supports BGR identifiers, URLs, and DOIs. Uses CSW (Catalog Service for the Web) API
@@ -190,14 +214,30 @@ class BGR(DoiProvider):
                     )
                     return True
 
-        # If it's not a URL but could be a direct UUID
-        # Try as catalog record UUID first, then as dataset UUID if that fails
+        # If it's not a URL but could be a direct UUID — verify against CSW
         if re.match(r"^" + uuid_pattern + r"$", reference, re.IGNORECASE):
-            self.catalog_record_uuid = reference
-            logger.debug(
-                f"Accepted bare UUID as catalog record UUID: {self.catalog_record_uuid}"
-            )
-            return True
+            try:
+                resp = self._request(
+                    self.csw_base_url,
+                    params={
+                        "service": "CSW",
+                        "version": "2.0.2",
+                        "request": "GetRecordById",
+                        "Id": reference,
+                        "outputSchema": "http://www.isotc211.org/2005/gmd",
+                        "ElementSetName": "brief",
+                    },
+                )
+                if resp.status_code == 200 and reference.lower() in resp.text.lower():
+                    self.catalog_record_uuid = reference
+                    logger.debug(
+                        "Verified bare UUID against BGR CSW: %s",
+                        self.catalog_record_uuid,
+                    )
+                    return True
+            except Exception:
+                logger.debug("BGR CSW lookup failed for UUID %s", reference)
+            return False
 
         return False
 

@@ -38,7 +38,7 @@ def _get_content_providers():
     return [
         Wikidata.Wikidata,  # Wikidata first: Q-numbers won't match DOI providers
         Dryad.Dryad,
-        FourTU.FourTU,  # Before Figshare: 4TU uses Figshare-compatible API
+        FourTU.FourTU,  # Before Figshare: 4TU uses Djehuty with Figshare-compatible API
         Figshare.Figshare,
         Zenodo.Zenodo,
         InvenioRDM.InvenioRDM,  # After Zenodo: catches other InvenioRDM instances

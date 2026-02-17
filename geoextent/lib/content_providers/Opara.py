@@ -9,6 +9,28 @@ from .. import helpfunctions as hf
 class Opara(DoiProvider):
     doi_prefixes = ("10.25532/OPARA",)
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Opara",
+            "description": "OPARA is the Open Access Repository and Archive for research data of Saxon universities, jointly operated by TU Dresden and TU Bergakademie Freiberg. It offers free archiving for at least ten years and open access publishing of research data with DOI assignment, running on DSpace 7.x platform.",
+            "website": "https://opara.zih.tu-dresden.de/",
+            "supported_identifiers": [
+                "https://opara.zih.tu-dresden.de/items/{uuid}",
+                "https://opara.zih.tu-dresden.de/handle/{handle}",
+                "https://doi.org/10.25532/OPARA-{id}",
+                "10.25532/OPARA-{id}",
+                "{uuid}",
+            ],
+            "doi_prefix": "10.25532/OPARA",
+            "examples": [
+                "https://opara.zih.tu-dresden.de/items/4cdf08d6-2738-4c9e-9d27-345a0647ff7c",
+                "https://opara.zih.tu-dresden.de/handle/123456789/821",
+                "10.25532/OPARA-581",
+            ],
+            "notes": "TU Dresden institutional repository using DSpace 7.x",
+        }
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")
@@ -87,10 +109,18 @@ class Opara(DoiProvider):
                 self.log.debug(f"Failed to resolve handle {handle}: {e}")
                 return False
 
-        # Check for direct UUID (36 character hyphenated format)
+        # Check for direct UUID (36 character hyphenated format) — verify against API
         if re.match(r"^[a-f0-9-]{36}$", reference, re.IGNORECASE):
-            self.item_uuid = reference.lower()
-            return True
+            try:
+                resp = self.session.get(
+                    f"{self.host['api']}core/items/{reference.lower()}"
+                )
+                if resp.status_code == 200:
+                    self.item_uuid = reference.lower()
+                    return True
+            except Exception:
+                self.log.debug("Opara API check failed for UUID %s", reference)
+            return False
 
         return False
 

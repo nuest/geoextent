@@ -49,6 +49,25 @@ class Dataverse(DoiProvider):
     from Dataverse installations using the standard Dataverse API.
     """
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Dataverse",
+            "description": "Dataverse is an open-source web application for sharing, preserving, citing, exploring, and analyzing research data developed at Harvard University's Institute for Quantitative Social Science. The Harvard Dataverse Repository is one of the largest repositories of open research data in the world with thousands of datasets across all disciplines.",
+            "website": "https://dataverse.org/",
+            "supported_identifiers": [
+                "https://{instance}/dataset.xhtml?persistentId=doi:{doi}",
+                "https://doi.org/{doi}",
+                "doi:{doi}",
+                "{doi}",
+            ],
+            "doi_prefix": "10.7910/DVN (Harvard), varies by instance",
+            "examples": [
+                "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/12345"
+            ],
+            "notes": "Supports multiple Dataverse instances",
+        }
+
     doi_prefixes = (
         "10.7910/DVN",
         "10.34894/",

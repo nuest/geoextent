@@ -26,6 +26,29 @@ class Senckenberg(CKANProvider):
     climate, and geoscience research data.
     """
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Senckenberg",
+            "description": "Senckenberg Biodiversity and Climate Research Centre operates a CKAN-based data portal providing access to biodiversity, climate, and geoscience research datasets. Supports both open access and metadata-only restricted datasets with rich taxonomic and temporal coverage metadata.",
+            "website": "https://dataportal.senckenberg.de/",
+            "supported_identifiers": [
+                "https://dataportal.senckenberg.de/dataset/{dataset_id}",
+                "https://dataportal.senckenberg.de/dataset/{dataset_id}.jsonld",
+                "https://doi.org/10.12761/sgn.{year}.{id}",
+                "10.12761/sgn.{year}.{id}",
+                "{dataset_id}",
+            ],
+            "doi_prefix": "10.12761/sgn",
+            "examples": [
+                "https://doi.org/10.12761/sgn.2018.10268",
+                "https://dataportal.senckenberg.de/dataset/as-sahabi-1",
+                "10.12761/sgn.2018.10225",
+                "as-sahabi-1",
+            ],
+            "notes": "CKAN-based repository. Metadata-only mode (--no-download-data) recommended for most datasets.",
+        }
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

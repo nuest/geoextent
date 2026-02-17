@@ -237,7 +237,7 @@ The project follows a modular handler-based architecture:
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):
-   - Support for extracting data from repositories (Zenodo, InvenioRDM instances, Figshare, 4TU.ResearchData, Dryad, PANGAEA, OSF, Dataverse, GFZ, Pensoft, Opara, Senckenberg, BGR, Mendeley Data, Wikidata, RADAR, Arctic Data Center)
+   - Support for extracting data from repositories (Zenodo, InvenioRDM instances, Figshare, 4TU.ResearchData (uses Djehuty platform with Figshare-compatible API, not Figshare itself), Dryad, PANGAEA, OSF, Dataverse, GFZ, Pensoft, Opara, Senckenberg, BGR, Mendeley Data, Wikidata, RADAR, Arctic Data Center)
    - ``InvenioRDM`` base provider supporting CaltechDATA, TU Wien, Frei-Data, GEO Knowledge Hub, TU Graz, Materials Cloud Archive, FDAT, DataPLANT ARChive, KTH, Prism, NYU Ultraviolet
    - Includes abstract ``CKANProvider`` base class for CKAN-based repositories (used by Senckenberg)
 
@@ -293,7 +293,7 @@ When adding a new content provider or file format handler, it must be registered
 
 1. **`geoextent/lib/content_providers/__init__.py`** — import the module and add to `__all__`
 2. **`geoextent/lib/extent.py`** — add to `_get_content_providers()` list (ordering matters for provider priority)
-3. **`geoextent/lib/features.py`** — add entry in `_get_content_provider_info()` AND in the `validate_remote_identifier()` provider list
+3. **Provider class** — add `provider_info()` classmethod (features.py reads it automatically)
 4. **`tests/conftest.py`** — add the test file to `_PROVIDER_FILES` and a sample test to `_PROVIDER_SAMPLE_TESTS`
 5. **`docs/source/changelog.rst`** — add changelog entry under "Unreleased"
 6. **`CLAUDE.md`** — update the content providers list in the Architecture Overview section

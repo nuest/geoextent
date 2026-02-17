@@ -7,6 +7,26 @@ from .. import helpfunctions as hf
 class FourTU(DoiProvider):
     doi_prefixes = ("10.4121/",)
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "4TU.ResearchData",
+            "description": "4TU.ResearchData is a Dutch national data repository for science, engineering, and design. Hosted by the 4TU Federation of Dutch technical universities, it assigns DOIs and provides long-term data archiving.",
+            "website": "https://data.4tu.nl/",
+            "supported_identifiers": [
+                "https://data.4tu.nl/datasets/{uuid}/{version}",
+                "https://data.4tu.nl/articles/{article_id}",
+                "https://doi.org/10.4121/{dataset_id}",
+                "10.4121/{dataset_id}",
+            ],
+            "doi_prefix": "10.4121",
+            "examples": [
+                "https://data.4tu.nl/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f/1",
+                "10.4121/3035126d-ee51-4dbd-a187-5f6b0be85e9f",
+            ],
+            "notes": "Supports metadata-only extraction (geolocation from custom_fields, temporal from published_date). Uses Djehuty platform (https://djehuty.4tu.nl) with Figshare-compatible v2 API.",
+        }
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

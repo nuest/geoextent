@@ -22,6 +22,24 @@ class RADAR(DoiProvider):
     """
 
     doi_prefixes = ("10.35097/",)
+
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "RADAR",
+            "description": "RADAR (Research Data Repository) is a cross-disciplinary research data repository operated by FIZ Karlsruhe. It provides DOI assignment and long-term archiving for German research institutions.",
+            "website": "https://www.radar-service.eu/",
+            "supported_identifiers": [
+                "https://www.radar-service.eu/radar/en/dataset/{doi}",
+                "https://doi.org/10.35097/{id}",
+                "10.35097/{id}",
+            ],
+            "doi_prefix": "10.35097",
+            "examples": [
+                "10.35097/1871",
+            ],
+        }
+
     RADAR_BASE = "https://www.radar-service.eu"
 
     def __init__(self):

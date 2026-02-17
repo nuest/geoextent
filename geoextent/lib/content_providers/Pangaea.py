@@ -10,6 +10,28 @@ from .. import helpfunctions as hf
 class Pangaea(DoiProvider):
     doi_prefixes = ("10.1594/PANGAEA",)
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Pangaea",
+            "description": "PANGAEA is a digital data library and publisher for earth system science, hosted by the Alfred Wegener Institute and MARUM in Germany. It archives and publishes georeferenced data from earth system research with DOI assignment and holds around 375,000 datasets comprising over 13 billion data items.",
+            "website": "https://www.pangaea.de/",
+            "supported_identifiers": [
+                "https://doi.pangaea.de/10.1594/PANGAEA.{dataset_id}",
+                "https://doi.org/10.1594/PANGAEA.{dataset_id}",
+                "10.1594/PANGAEA.{dataset_id}",
+            ],
+            "doi_prefix": "10.1594/PANGAEA",
+            "examples": [
+                "https://doi.org/10.1594/PANGAEA.734969",
+                "https://doi.pangaea.de/10.1594/PANGAEA.858767",
+                "https://doi.org/10.1594/PANGAEA.913496",
+                "https://doi.org/10.1594/PANGAEA.858767",
+                "https://doi.org/10.1594/PANGAEA.890863",
+                "https://doi.org/10.1594/PANGAEA.872701",
+            ],
+        }
+
     @property
     def supports_metadata_extraction(self):
         return True

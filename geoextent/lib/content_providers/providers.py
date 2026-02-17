@@ -77,6 +77,11 @@ def find_provider(reference, content_providers):
 
 
 class ContentProvider:
+    @classmethod
+    def provider_info(cls):
+        """Return metadata dict for --list-features. Override in subclasses."""
+        return None
+
     @property
     def supports_metadata_extraction(self):
         """Whether this provider can extract spatial/temporal extent from repository metadata alone."""

@@ -7,6 +7,24 @@ from .. import helpfunctions as hf
 class MendeleyData(DoiProvider):
     doi_prefixes = ("10.17632/",)
 
+    @classmethod
+    def provider_info(cls):
+        return {
+            "name": "Mendeley Data",
+            "description": "Mendeley Data is a free and secure cloud-based data repository by Elsevier where researchers can store, share, and publish research data. It assigns DOIs to all published datasets and supports any file format.",
+            "website": "https://data.mendeley.com/",
+            "supported_identifiers": [
+                "https://data.mendeley.com/datasets/{dataset_id}",
+                "https://doi.org/10.17632/{dataset_id}",
+                "10.17632/{dataset_id}",
+            ],
+            "doi_prefix": "10.17632",
+            "examples": [
+                "https://data.mendeley.com/datasets/example123",
+                "10.17632/example123",
+            ],
+        }
+
     def __init__(self):
         super().__init__()
         self.log = logging.getLogger("geoextent")

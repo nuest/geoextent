@@ -106,6 +106,40 @@ class InvenioRDM(DoiProvider):
     all other InvenioRDM instances (CaltechDATA, TU Wien, Frei-Data, etc.).
     """
 
+    @classmethod
+    def provider_info(cls):
+        # Build instance list from registry (excluding Zenodo, which has its own entry)
+        instances = []
+        for host_key, config in INVENIORDM_INSTANCES.items():
+            if host_key == "zenodo.org":
+                continue
+            instances.append(
+                {
+                    "name": config["name"],
+                    "hostnames": config["hostnames"],
+                    "api": config["api"],
+                    "doi_prefixes": list(config["doi_prefixes"]),
+                }
+            )
+        return {
+            "name": "InvenioRDM",
+            "description": "Generic provider for InvenioRDM-based research data repositories. Supports multiple institutional instances sharing the same platform and REST API.",
+            "website": "https://inveniosoftware.org/products/rdm/",
+            "instances": instances,
+            "supported_identifiers": [
+                "https://{instance}/records/{record_id}",
+                "https://doi.org/{doi_prefix}/{record_id}",
+                "{doi_prefix}/{record_id}",
+            ],
+            "doi_prefixes": list(cls.doi_prefixes),
+            "examples": [
+                "10.22002/D1.1705",
+                "https://data.caltech.edu/records/0ca1t-hzt77",
+                "10.48436/jpzv9-c8w75",
+            ],
+            "notes": "Handles S3 redirect downloads (Zenodo), S3 signed URL responses (CaltechDATA, Frei-Data), and direct binary downloads (TU Wien). Supports metadata-only extraction via metadata.locations and metadata.dates.",
+        }
+
     # DOI prefixes for non-Zenodo InvenioRDM instances (Phase 1 fast matching)
     doi_prefixes = (
         "10.22002",  # CaltechDATA
