@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gc85ab6e45 documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gc624bb398 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=342e03c1"></script>
+    <script src="../_static/documentation_options.js?v=5cfb49c5"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -53,7 +53,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">geoextent</span></code> can be called on the command line with this command :</p>
 <section id="id1">
 <h3><a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]</span>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-metadata-fallback] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]</span>
 </pre></div>
 </div>
 <dl class="std option">
@@ -138,6 +138,18 @@
 <dt class="sig sig-object std" id="cmdoption-metadata-first">
 <span class="sig-name descname"><span class="pre">--metadata-first</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-metadata-first" title="Link to this definition">¶</a></dt>
 <dd><p>try metadata-only extraction first, fall back to data download if metadata yields no results (mutually exclusive with –no-download-data)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-metadata-fallback">
+<span class="sig-name descname"><span class="pre">--no-metadata-fallback</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-metadata-fallback" title="Link to this definition">¶</a></dt>
+<dd><p>disable automatic metadata fallback when data download yields no files (by default, geoextent falls back to metadata-only extraction if data files are unavailable and the provider supports metadata)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-follow">
+<span class="sig-name descname"><span class="pre">--no-follow</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-follow" title="Link to this definition">¶</a></dt>
+<dd><p>disable following external DOIs/URLs to other providers (e.g., DEIMS-SDR datasets referencing Zenodo). By default, geoextent follows these references to extract actual data extents.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -286,7 +298,7 @@
 geoextent is a Python library for extracting geospatial and temporal extents of a file
  or a directory of multiple geospatial data formats.
 
-usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]
+usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-metadata-fallback] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]
 
 positional arguments:
   files                 input file, directory, DOI, or repository URL
@@ -316,6 +328,15 @@ options:
   --metadata-first      try metadata-only extraction first, fall back to data
                         download if metadata yields no results (mutually
                         exclusive with --no-download-data)
+  --no-metadata-fallback
+                        disable automatic metadata fallback when data download
+                        yields no files (by default, geoextent falls back to
+                        metadata-only extraction if data files are unavailable
+                        and the provider supports metadata)
+  --no-follow           disable following external DOIs/URLs to other
+                        providers (e.g., DEIMS-SDR datasets referencing
+                        Zenodo). By default, geoextent follows these
+                        references to extract actual data extents.
   --no-progress         disable progress bars during download and extraction
   --quiet               suppress all console messages including warnings and
                         progress bars
@@ -412,9 +433,11 @@ Supported data repositories:
 - Arctic Data Center (arcticdata.io)
 - Pensoft (pensoft.net)
 - BGR (geoportal.bgr.de)
+- BAW (datenrepository.baw.de)
 - Opara (opara.zih.tu-dresden.de)
 - Senckenberg (dataportal.senckenberg.de)
 - Mendeley Data (data.mendeley.com)
+- DEIMS-SDR (deims.org)
 
 </pre></div>
 </div>
@@ -509,7 +532,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 134.98task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 147.66task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -573,7 +596,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 21.20task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 25.73task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -589,7 +612,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 12.00item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 13.90item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -616,7 +639,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 102.81task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 106.02task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -632,10 +655,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 19.23item/s, Processing muenster_ring_zeit.geojson]</pre>
-</div>
-<div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 19.12item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 21.83item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -683,7 +703,7 @@ Supported data repositories:
 </section>
 <section id="remote-repositories">
 <h2>Remote Repositories<a class="headerlink" href="#remote-repositories" title="Link to this heading">¶</a></h2>
-<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, Dataverse, and Pensoft.</p>
+<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, DEIMS-SDR, Dataverse, and Pensoft.</p>
 <section id="extract-from-zenodo">
 <h3>Extract from Zenodo<a class="headerlink" href="#extract-from-zenodo" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
@@ -739,11 +759,77 @@ Supported data repositories:
 </pre></div>
 </div>
 </section>
+<section id="extract-from-baw-datenrepository-landing-page-url">
+<h3>Extract from BAW-Datenrepository (landing page URL)<a class="headerlink" href="#extract-from-baw-datenrepository-landing-page-url" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>geoextent -b -t --no-data-download https://datenrepository.baw.de/trefferanzeige?docuuid=40936F66-3DD8-43D0-99AE-7CA5EF2E1287
+</pre></div>
+</div>
+</section>
+<section id="extract-from-baw-datenrepository-doi-small-measurement-site">
+<h3>Extract from BAW-Datenrepository (DOI, small measurement site)<a class="headerlink" href="#extract-from-baw-datenrepository-doi-small-measurement-site" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">download</span> <span class="mf">10.48437</span><span class="o">/</span><span class="mf">02.2023</span><span class="o">.</span><span class="n">K</span><span class="mf">.0601.0001</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-baw-datenrepository-doi-sedimentology-dataset">
+<h3>Extract from BAW-Datenrepository (DOI, sedimentology dataset)<a class="headerlink" href="#extract-from-baw-datenrepository-doi-sedimentology-dataset" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">download</span> <span class="mf">10.48437</span><span class="o">/</span><span class="mi">929835</span><span class="n">b7fca4</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-b2share-place-names-in-tainan-647kb">
+<h3>Extract from B2SHARE (Place Names in Tainan, 647KB)<a class="headerlink" href="#extract-from-b2share-place-names-in-tainan-647kb" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">b2share</span><span class="o">.</span><span class="n">eudat</span><span class="o">.</span><span class="n">eu</span><span class="o">/</span><span class="n">records</span><span class="o">/</span><span class="n">a096d</span><span class="o">-</span><span class="n">k2g86</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-b2share-migda-soil-moisture-geopackage">
+<h3>Extract from B2SHARE (Migda Soil Moisture, GeoPackage)<a class="headerlink" href="#extract-from-b2share-migda-soil-moisture-geopackage" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="mf">10.23728</span><span class="o">/</span><span class="n">b2share</span><span class="mf">.3</span><span class="n">d918bf3c1f94c3d8d8e29958ed763a9</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-b2share-hainich-gpp-with-20mb-size-limit">
+<h3>Extract from B2SHARE (Hainich GPP, with 20MB size limit)<a class="headerlink" href="#extract-from-b2share-hainich-gpp-with-20mb-size-limit" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">size</span> <span class="mi">20</span><span class="n">MB</span> <span class="mf">10.23728</span><span class="o">/</span><span class="n">b2share</span><span class="mf">.26</span><span class="n">jnj</span><span class="o">-</span><span class="n">a4x24</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-deims-sdr-dataset">
+<h3>Extract from DEIMS-SDR (dataset)<a class="headerlink" href="#extract-from-deims-sdr-dataset" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">deims</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="mi">3</span><span class="n">d87da8b</span><span class="o">-</span><span class="mi">2</span><span class="n">b07</span><span class="o">-</span><span class="mi">41</span><span class="n">c7</span><span class="o">-</span><span class="n">bf05</span><span class="o">-</span><span class="mi">417832</span><span class="n">de4fa2</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-deims-sdr-site">
+<h3>Extract from DEIMS-SDR (site)<a class="headerlink" href="#extract-from-deims-sdr-site" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">deims</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mi">8</span><span class="n">eda49e9</span><span class="o">-</span><span class="mi">1</span><span class="n">f4e</span><span class="o">-</span><span class="mi">4</span><span class="n">f3e</span><span class="o">-</span><span class="n">b58e</span><span class="o">-</span><span class="n">e0bb25dc32a6</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-deims-sdr-without-following-external-references">
+<h3>Extract from DEIMS-SDR without following external references<a class="headerlink" href="#extract-from-deims-sdr-without-following-external-references" title="Link to this heading">¶</a></h3>
+<p>By default, DEIMS-SDR datasets that reference external repositories (e.g., Zenodo, PANGAEA) are followed for actual data extent extraction. Use <code class="docutils literal notranslate"><span class="pre">--no-follow</span></code> to disable this and use DEIMS metadata only:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">follow</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">deims</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="mi">3</span><span class="n">d87da8b</span><span class="o">-</span><span class="mi">2</span><span class="n">b07</span><span class="o">-</span><span class="mi">41</span><span class="n">c7</span><span class="o">-</span><span class="n">bf05</span><span class="o">-</span><span class="mi">417832</span><span class="n">de4fa2</span>
+</pre></div>
+</div>
+</section>
 <section id="smart-metadata-first-extraction">
 <h3>Smart metadata-first extraction<a class="headerlink" href="#smart-metadata-first-extraction" title="Link to this heading">¶</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> to try metadata-only extraction first, falling back to data download if the provider has no metadata or the metadata didn’t yield results. This is useful for batch extractions across multiple providers:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">metadata</span><span class="o">-</span><span class="n">first</span> <span class="mf">10.12761</span><span class="o">/</span><span class="n">sgn</span><span class="mf">.2018.10225</span>
 <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">metadata</span><span class="o">-</span><span class="n">first</span> <span class="n">Q64</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-geo-knowledge-hub-automatic-metadata-fallback">
+<h3>Extract from GEO Knowledge Hub (automatic metadata fallback)<a class="headerlink" href="#extract-from-geo-knowledge-hub-automatic-metadata-fallback" title="Link to this heading">¶</a></h3>
+<p>Some providers (e.g., GEO Knowledge Hub packages) have data files disabled. Geoextent automatically falls back to metadata-only extraction when this happens:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gkhub</span><span class="o">.</span><span class="n">earthobservations</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">packages</span><span class="o">/</span><span class="n">msaw9</span><span class="o">-</span><span class="n">hzd25</span>
+</pre></div>
+</div>
+<p>To disable the automatic fallback, use <code class="docutils literal notranslate"><span class="pre">--no-metadata-fallback</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">metadata</span><span class="o">-</span><span class="n">fallback</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">gkhub</span><span class="o">.</span><span class="n">earthobservations</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">packages</span><span class="o">/</span><span class="n">msaw9</span><span class="o">-</span><span class="n">hzd25</span>
 </pre></div>
 </div>
 <p>Extract from three German regional datasets with a convex hull — Wikidata (Berlin), 4TU (Dresden), and Senckenberg all use fast metadata extraction, producing a compact convex hull over central Germany:</p>
@@ -825,7 +911,7 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 100.57task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 112.53task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -841,7 +927,7 @@ or time box (tbox).</p>
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 48.38item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 53.26item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">

@@ -45,6 +45,36 @@ The result includes an ``extraction_method`` field indicating which strategy was
 
 **Note:** ``--metadata-first`` and ``--no-download-data`` are mutually exclusive. Use ``--no-download-data`` if you want metadata-only extraction without any fallback.
 
+Automatic Metadata Fallback
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When downloading data files from a provider, some repositories may have files disabled or unavailable (e.g., GEO Knowledge Hub packages with ``"files": {"enabled": false}``). In these cases, the download succeeds but yields an empty folder, and no spatial extent can be extracted.
+
+By default, geoextent automatically detects this situation and falls back to metadata-only extraction if the provider supports it. This happens transparently without any user action required.
+
+.. code-block:: bash
+
+   # GKHub package with files disabled -- automatically uses metadata fallback
+   python -m geoextent -b https://gkhub.earthobservations.org/packages/msaw9-hzd25
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   result = geoextent.fromRemote(
+       'https://gkhub.earthobservations.org/packages/msaw9-hzd25',
+       bbox=True
+   )
+   print(result['extraction_method'])  # 'metadata_fallback'
+
+The result includes ``extraction_method: "metadata_fallback"`` to indicate that the automatic fallback was used.
+
+To disable this behavior, use ``--no-metadata-fallback`` on the CLI or ``metadata_fallback=False`` in the Python API:
+
+.. code-block:: bash
+
+   python -m geoextent -b --no-metadata-fallback https://gkhub.earthobservations.org/packages/msaw9-hzd25
+
 Quick Reference
 ---------------
 
