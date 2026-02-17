@@ -48,7 +48,8 @@ dependencies = [
     "python-dotenv",
     "humanfriendly",
     "crossref-commons",
-    "datacite"
+    "datacite",
+    "owslib"
 ]
 
 [project.optional-dependencies]

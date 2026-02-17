@@ -9,7 +9,7 @@ Python library for extracting geospatial and temporal extents from files and dir
 
 - Extract spatial extents (bounding boxes, convex hulls) and temporal extents
 - Support for 10+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf, Esri File Geodatabase) plus world files
-- Direct integration with [18 research repositories](https://nuest.github.io/geoextent/providers.html) (Zenodo, PANGAEA, OSF, Figshare, 4TU.ResearchData, Dryad, GFZ, RADAR, Arctic Data Center, Dataverse [Harvard, DataverseNL, DataverseNO, UNC, UVA, Recherche Data Gouv, ioerDATA, heiDATA, Edmond], Pensoft, TU Dresden Opara, Senckenberg, BGR, Mendeley Data) and [Wikidata](https://www.wikidata.org/)
+- Direct integration with [19 research repositories](https://nuest.github.io/geoextent/providers.html) (Zenodo, PANGAEA, OSF, Figshare, 4TU.ResearchData, Dryad, GFZ, RADAR, Arctic Data Center, Dataverse [Harvard, DataverseNL, DataverseNO, UNC, UVA, Recherche Data Gouv, ioerDATA, heiDATA, Edmond], Pensoft, TU Dresden Opara, Senckenberg, BGR, BAW, Mendeley Data) and [Wikidata](https://www.wikidata.org/)
 - Process single files, directories, or multiple repositories in one call
 - Command-line interface and Python API
 - Export as GeoJSON, WKT, or WKB
@@ -73,7 +73,7 @@ See the [API documentation](https://nuest.github.io/geoextent/howto/api.html) an
 ## What Can I Do With geoextent?
 
 - **Extract Spatial Extents** - Get bounding boxes or convex hulls from geospatial files
-- **Process Research Data** - Extract extents from Zenodo, Figshare, Dryad, PANGAEA, OSF, BGR, and more
+- **Process Research Data** - Extract extents from Zenodo, Figshare, Dryad, PANGAEA, OSF, BGR, BAW, and more
 - **Batch Processing** - Process directories or multiple repositories in one call
 - **Add Location Context** - Automatic placename lookup for your data
 - **Flexible Output** - Export as GeoJSON, WKT, or WKB for use in other tools

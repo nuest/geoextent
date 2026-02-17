@@ -17,6 +17,7 @@ Unreleased
   - Add RADAR (FIZ Karlsruhe) as content provider for cross-disciplinary German research data (:issue:`87`)
   - Add NSF Arctic Data Center as content provider with metadata-only and data download support (:issue:`90`)
   - Add DEIMS-SDR (Dynamic Ecological Information Management System) as metadata-only content provider for long-term ecological research sites and datasets, with support for dataset and site URLs, WKT geometry parsing (POINT, POLYGON, MULTIPOLYGON), and temporal ranges (:issue:`101`)
+  - Add BAW (Bundesanstalt für Wasserbau) Datenrepository as content provider with CSW 2.0.2 metadata extraction via OWSLib, supporting DOIs (``10.48437/*``), landing page URLs, and bare UUIDs (:issue:`89`)
 
 - **New Features**
 

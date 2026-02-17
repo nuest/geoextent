@@ -24,6 +24,7 @@ from . import FourTU
 from . import RADAR
 from . import ArcticDataCenter
 from . import DEIMSSDR
+from . import BAW
 
 __all__ = [
     "providers",
@@ -45,4 +46,5 @@ __all__ = [
     "RADAR",
     "ArcticDataCenter",
     "DEIMSSDR",
+    "BAW",
 ]

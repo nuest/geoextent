@@ -24,6 +24,7 @@ from .content_providers import FourTU
 from .content_providers import RADAR
 from .content_providers import ArcticDataCenter
 from .content_providers import DEIMSSDR
+from .content_providers import BAW
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -51,6 +52,7 @@ def _get_content_providers():
         ArcticDataCenter.ArcticDataCenter,
         Pensoft.Pensoft,
         BGR.BGR,  # BGR before Opara because both accept UUIDs
+        BAW.BAW,  # BAW after BGR: similar CSW-based provider
         Opara.Opara,
         Senckenberg.Senckenberg,
         MendeleyData.MendeleyData,

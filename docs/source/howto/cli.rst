@@ -144,7 +144,7 @@ Use ``--details`` to see per-file results alongside the merged extent:
 Remote Repositories
 -------------------
 
-Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, Dataverse, and Pensoft.
+Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, BAW, DEIMS-SDR, Dataverse, and Pensoft.
 
 Extract from Zenodo
 ^^^^^^^^^^^^^^^^^^^
@@ -209,6 +209,27 @@ Extract from 4TU.ResearchData (metadata only)
 ::
 
    geoextent -b --no-download-data https://data.4tu.nl/articles/_/12707150/1
+
+Extract from BAW-Datenrepository (landing page URL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t --no-data-download https://datenrepository.baw.de/trefferanzeige?docuuid=40936F66-3DD8-43D0-99AE-7CA5EF2E1287
+
+Extract from BAW-Datenrepository (DOI, small measurement site)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t --no-data-download 10.48437/02.2023.K.0601.0001
+
+Extract from BAW-Datenrepository (DOI, sedimentology dataset)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t --no-data-download 10.48437/929835b7fca4
 
 Extract from DEIMS-SDR (dataset)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
