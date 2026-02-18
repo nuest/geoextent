@@ -144,7 +144,7 @@ Use ``--details`` to see per-file results alongside the merged extent:
 Remote Repositories
 -------------------
 
-Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, DEIMS-SDR, Dataverse, and Pensoft.
+Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, DEIMS-SDR, GBIF, Dataverse, and Pensoft.
 
 Extract from Zenodo
 ^^^^^^^^^^^^^^^^^^^
@@ -287,6 +287,34 @@ Extract from DEIMS-SDR (site)
 
    geoextent -b https://deims.org/8eda49e9-1f4e-4f3e-b58e-e0bb25dc32a6
 
+Extract from GBIF (metadata only, by DOI)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t --no-download-data 10.15468/6bleia
+
+Extract from GBIF (metadata only, by dataset URL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b --no-download-data https://www.gbif.org/dataset/378651d7-c235-4205-a617-2939d6faa434
+
+Extract from GBIF (DwC-A data download)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t 10.15468/6bleia
+
+Extract from GBIF with geojson.io preview
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b --geojsonio --no-download-data 10.15472/lavgys
+
 Extract from DEIMS-SDR without following external references
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -326,6 +354,53 @@ Extract from three German regional datasets with a convex hull — Wikidata (Ber
 ::
 
    geoextent -b --convex-hull --metadata-first Q64 https://data.4tu.nl/datasets/3035126d-ee51-4dbd-a187-5f6b0be85e9f/1 10.12761/sgn.2018.10225
+
+Download size limits
+^^^^^^^^^^^^^^^^^^^^^
+
+Use ``--max-download-size`` to cap how much data geoextent will download from a repository. The value accepts human-friendly size strings (parsed by `filesizelib <https://pypi.org/project/filesizelib/>`_):
+
+===================  ==========================
+Format               Meaning
+===================  ==========================
+``100MB``            100 megabytes (decimal)
+``2GB``              2 gigabytes (decimal)
+``500KB``            500 kilobytes (decimal)
+``10MiB``            10 mebibytes (binary)
+``0.5GiB``           0.5 gibibytes (binary)
+``1.5TB``            1.5 terabytes (decimal)
+===================  ==========================
+
+When the limit is exceeded, geoextent selects a subset of files using the ``--max-download-method`` strategy (default: ``ordered``).
+
+::
+
+   # Download at most 20 MB of data
+   geoextent -b -t --max-download-size 20MB 10.23728/b2share.26jnj-a4x24
+
+   # Limit GBIF DwC-A download to 500 MB
+   geoextent -b -t --max-download-size 500MB 10.15468/6bleia
+
+   # Use binary units
+   geoextent -b --max-download-size 0.5GiB 10.5281/zenodo.4593540
+
+For GBIF datasets, Darwin Core Archive (DwC-A) downloads have an additional built-in soft limit of 1 GB. When a DwC-A archive exceeds this limit (or the ``--max-download-size`` value, whichever is smaller), the CLI prompts interactively::
+
+   GBIF: the download is approximately 2,345.6 MB (limit is 1,024 MB).
+   Proceed with download? [y/N]
+
+Answering ``y`` retries with the actual size as the new limit. In non-interactive contexts (scripts, CI pipelines), geoextent exits with an error. To avoid the prompt entirely, use ``--no-download-data`` for metadata-only extraction or set a sufficiently large ``--max-download-size``.
+
+You can trigger this prompt intentionally by setting a very small limit. For example, the `NCBI Taxonomy <https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c>`_ backbone (~82 MB DwC-A) will always exceed a 1 KB limit:
+
+.. code-block:: console
+
+   $ geoextent -b --max-download-size 1KB 10.15468/rhydar
+
+   GBIF: the download is approximately 78.2 MB (limit is 0 MB).
+   Proceed with download? [y/N] N
+
+Answering ``N`` (or pressing Enter) cancels the download and produces no output.
 
 Comparing extraction modes: metadata, download, and convex hull
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

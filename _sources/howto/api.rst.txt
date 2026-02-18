@@ -125,7 +125,7 @@ Output:
 Remote repositories
 -------------------
 
-**Geoextent** supports queries for multiple research data repositories including Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ Data Services, Pensoft, and TU Dresden Opara.
+**Geoextent** supports queries for multiple research data repositories including Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ Data Services, Pensoft, GBIF, Arctic Data Center, and TU Dresden Opara.
 
 Geoextent downloads files from the repository and extracts the temporal or geographical extent. The function supports both single identifiers (string) and multiple identifiers (list).
 
@@ -177,3 +177,51 @@ Extract from multiple repositories in a single call:
 The function returns a **merged bounding box** covering all resources (similar to directory extraction), plus extraction metadata with success/failure tracking. Individual resource details are available in the ``details`` field for diagnostics.
 
 See :doc:`../features` for detailed documentation on multiple resource extraction features and return structure.
+
+Download size limits
+^^^^^^^^^^^^^^^^^^^^^
+
+Use the ``max_download_size`` parameter to limit how much data geoextent downloads from a remote repository. The value is a human-friendly size string parsed by `filesizelib <https://pypi.org/project/filesizelib/>`_ (e.g. ``'100MB'``, ``'2GB'``, ``'500KB'``, ``'10MiB'``, ``'0.5GiB'``):
+
+::
+
+   # Limit download to 20 MB
+   geoextent.fromRemote('10.23728/b2share.26jnj-a4x24', bbox=True, tbox=True,
+                         max_download_size='20MB')
+
+   # Limit GBIF DwC-A download to 500 MB
+   geoextent.fromRemote('10.15468/6bleia', bbox=True, tbox=True,
+                         max_download_size='500MB')
+
+When the combined file sizes exceed the limit, geoextent selects a subset using the ``max_download_method`` strategy (``'ordered'`` by default, or ``'random'`` with a reproducible seed via ``max_download_method_seed``).
+
+**GBIF DwC-A soft limit.** GBIF datasets that provide Darwin Core Archive (DwC-A) downloads have a built-in 1 GB soft limit. If the archive exceeds this (or the ``max_download_size``, whichever is smaller), a ``DownloadSizeExceeded`` exception is raised:
+
+::
+
+   from geoextent.lib.exceptions import DownloadSizeExceeded
+
+   try:
+       result = geoextent.fromRemote('10.15468/6bleia', bbox=True,
+                                      download_data=True)
+   except DownloadSizeExceeded as exc:
+       print(f"Archive is {exc.estimated_size:,} bytes "
+             f"(limit: {exc.max_size:,} bytes)")
+       # Retry with a larger limit
+       result = geoextent.fromRemote('10.15468/6bleia', bbox=True,
+                                      download_data=True,
+                                      max_download_size=f'{exc.estimated_size + 1}B')
+
+The exception carries three attributes:
+
+- ``exc.estimated_size`` — estimated archive size in bytes
+- ``exc.max_size`` — the size limit that was exceeded, in bytes
+- ``exc.provider`` — name of the provider (e.g. ``"GBIF"``)
+
+To avoid the size check entirely, use ``download_data=False`` for metadata-only extraction:
+
+::
+
+   # Fast, no download — uses GBIF Registry API metadata
+   result = geoextent.fromRemote('10.15468/6bleia', bbox=True, tbox=True,
+                                  download_data=False)

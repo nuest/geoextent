@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>API Docs &#8212; geoextent 0.1.dev1+g76d8b624a documentation</title>
+    <title>API Docs &#8212; geoextent 0.1.dev1+gd424c2264 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=157038e1"></script>
+    <script src="../_static/documentation_options.js?v=b70d95b4"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -149,7 +149,7 @@
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 157.43task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 145.74task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -229,7 +229,7 @@
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 127.24task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 128.58task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -245,7 +245,7 @@
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 48.80item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 22.94item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -277,7 +277,7 @@
 </section>
 <section id="remote-repositories">
 <h2>Remote repositories<a class="headerlink" href="#remote-repositories" title="Link to this heading">¶</a></h2>
-<p><strong>Geoextent</strong> supports queries for multiple research data repositories including Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ Data Services, Pensoft, and TU Dresden Opara.</p>
+<p><strong>Geoextent</strong> supports queries for multiple research data repositories including Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ Data Services, Pensoft, GBIF, Arctic Data Center, and TU Dresden Opara.</p>
 <p>Geoextent downloads files from the repository and extracts the temporal or geographical extent. The function supports both single identifiers (string) and multiple identifiers (list).</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="n">remote_identifier</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">details</span><span class="p">)</span>
 </pre></div>
@@ -305,50 +305,50 @@
 <pre class="stderr literal-block">Downloading files:   0%|          | 0.00/14.1M [00:00&lt;?, ?B/s]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:   0%|          | 81.0/14.1M [00:00&lt;19:21:08, 202B/s]</pre>
+<pre class="stderr literal-block">Downloading files:   0%|          | 81.0/14.1M [00:00&lt;27:37:16, 141B/s]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:   0%|          | 81.0/14.1M [00:00&lt;19:21:08, 202B/s, files=1/6]</pre>
+<pre class="stderr literal-block">Downloading files:   0%|          | 81.0/14.1M [00:00&lt;27:37:16, 141B/s, files=1/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:   0%|          | 162/14.1M [00:00&lt;12:29:16, 313B/s, files=1/6] </pre>
+<pre class="stderr literal-block">Downloading files:   0%|          | 162/14.1M [00:00&lt;17:49:21, 219B/s, files=1/6] </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:   0%|          | 162/14.1M [00:00&lt;12:29:16, 313B/s, files=2/6]</pre>
+<pre class="stderr literal-block">Downloading files:   0%|          | 162/14.1M [00:00&lt;17:49:21, 219B/s, files=2/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:  32%|███▏      | 4.52M/14.1M [00:00&lt;00:01, 6.57MB/s, files=2/6]</pre>
+<pre class="stderr literal-block">Downloading files:  17%|█▋        | 2.39M/14.1M [00:01&lt;00:04, 2.77MB/s, files=2/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:  32%|███▏      | 4.52M/14.1M [00:00&lt;00:01, 6.57MB/s, files=3/6]</pre>
+<pre class="stderr literal-block">Downloading files:  17%|█▋        | 2.39M/14.1M [00:01&lt;00:04, 2.77MB/s, files=3/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:  49%|████▉     | 6.91M/14.1M [00:01&lt;00:00, 8.48MB/s, files=3/6]</pre>
+<pre class="stderr literal-block">Downloading files:  49%|████▉     | 6.91M/14.1M [00:01&lt;00:01, 5.93MB/s, files=3/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:  49%|████▉     | 6.91M/14.1M [00:01&lt;00:00, 8.48MB/s, files=4/6]</pre>
+<pre class="stderr literal-block">Downloading files:  49%|████▉     | 6.91M/14.1M [00:01&lt;00:01, 5.93MB/s, files=4/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files:  81%|████████▏ | 11.4M/14.1M [00:01&lt;00:00, 8.48MB/s, files=5/6]</pre>
+<pre class="stderr literal-block">Downloading files:  81%|████████▏ | 11.4M/14.1M [00:01&lt;00:00, 5.93MB/s, files=5/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:01&lt;00:00, 14.2MB/s, files=5/6]</pre>
+<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:02&lt;00:00, 10.2MB/s, files=5/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:01&lt;00:00, 14.2MB/s, files=6/6]</pre>
+<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:02&lt;00:00, 10.2MB/s, files=6/6]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:01&lt;00:00, 9.80MB/s, files=6/6]</pre>
+<pre class="stderr literal-block">Downloading files: 100%|██████████| 14.1M/14.1M [00:02&lt;00:00, 6.84MB/s, files=6/6]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be:   0%|          | 0/6 [00:00&lt;?, ?item/s]</pre>
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:   0%|          | 0/6 [00:00&lt;?, ?item/s]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be:   0%|          | 0/6 [00:00&lt;?, ?item/s, Processing 20160100_Hpakan_20151123_PRE.tif]</pre>
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:   0%|          | 0/6 [00:00&lt;?, ?item/s, Processing 20160100_Hpakan_20151123_PRE.tif]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -375,7 +375,7 @@
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.tif:  50%|█████     | 1/2 [00:00&lt;00:00, 69.77task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.tif:  50%|█████     | 1/2 [00:00&lt;00:00, 73.42task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -391,7 +391,7 @@
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be:  17%|█▋        | 1/6 [00:00&lt;00:00, 18.41item/s, Processing 20160100_Hpakan_20160322_POST.tif]</pre>
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:  17%|█▋        | 1/6 [00:00&lt;00:00, 12.84item/s, Processing 20160100_Hpakan_20160322_POST.tif]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -418,7 +418,7 @@
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.tif:  50%|█████     | 1/2 [00:00&lt;00:00, 85.57task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.tif:  50%|█████     | 1/2 [00:00&lt;00:00, 86.69task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -434,7 +434,10 @@
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be:  33%|███▎      | 2/6 [00:00&lt;00:00, 23.25item/s, Processing 20160100_Hpakan_20151123_PRE.png] </pre>
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:  33%|███▎      | 2/6 [00:00&lt;00:00, 18.96item/s, Processing 20160100_Hpakan_20160322_POST.tif]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:  33%|███▎      | 2/6 [00:00&lt;00:00, 18.96item/s, Processing 20160100_Hpakan_20151123_PRE.png] </pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -461,7 +464,7 @@
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.png:  50%|█████     | 1/2 [00:00&lt;00:00, 222.91task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.png:  50%|█████     | 1/2 [00:00&lt;00:00, 229.56task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -477,10 +480,7 @@
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be:  50%|█████     | 3/6 [00:00&lt;00:00, 28.96item/s, Processing 20160100_Hpakan_20151123_PRE.png]</pre>
-</div>
-<div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be:  50%|█████     | 3/6 [00:00&lt;00:00, 28.96item/s, Processing 20160100_Hpakan_20151123_PRE.pngw]</pre>
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:  50%|█████     | 3/6 [00:00&lt;00:00, 18.96item/s, Processing 20160100_Hpakan_20151123_PRE.pngw]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -507,7 +507,7 @@
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.pngw:  50%|█████     | 1/2 [00:00&lt;00:00, 180.28task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20151123_PRE.pngw:  50%|█████     | 1/2 [00:00&lt;00:00, 206.98task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -523,17 +523,20 @@
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Error for /tmp/tmp8l6a27be/20160100_Hpakan_20151123_PRE.pngw extracting bbox:
-The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20151123_PRE.pngw has no BoundingBox
+<pre class="stderr literal-block">Error for /tmp/tmpl81g1_xk/20160100_Hpakan_20151123_PRE.pngw extracting bbox:
+The csv file from /tmp/tmpl81g1_xk/20160100_Hpakan_20151123_PRE.pngw has no BoundingBox
 </pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">Error extracting tbox, time format not found 
- The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20151123_PRE.pngw has no TemporalExtent:
+ The csv file from /tmp/tmpl81g1_xk/20160100_Hpakan_20151123_PRE.pngw has no TemporalExtent:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be:  67%|██████▋   | 4/6 [00:00&lt;00:00, 28.96item/s, Processing 20160100_Hpakan_20160322_POST.pngw]</pre>
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:  67%|██████▋   | 4/6 [00:00&lt;00:00, 16.85item/s, Processing 20160100_Hpakan_20151123_PRE.pngw]</pre>
+</div>
+<div class="stderr docutils container">
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:  67%|██████▋   | 4/6 [00:00&lt;00:00, 16.85item/s, Processing 20160100_Hpakan_20160322_POST.pngw]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -560,7 +563,7 @@ The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20151123_PRE.pngw has no Boun
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.pngw:  50%|█████     | 1/2 [00:00&lt;00:00, 266.46task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.pngw:  50%|█████     | 1/2 [00:00&lt;00:00, 197.62task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -576,17 +579,17 @@ The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20151123_PRE.pngw has no Boun
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Error for /tmp/tmp8l6a27be/20160100_Hpakan_20160322_POST.pngw extracting bbox:
-The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20160322_POST.pngw has no BoundingBox
+<pre class="stderr literal-block">Error for /tmp/tmpl81g1_xk/20160100_Hpakan_20160322_POST.pngw extracting bbox:
+The csv file from /tmp/tmpl81g1_xk/20160100_Hpakan_20160322_POST.pngw has no BoundingBox
 </pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">Error extracting tbox, time format not found 
- The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20160322_POST.pngw has no TemporalExtent:
+ The csv file from /tmp/tmpl81g1_xk/20160100_Hpakan_20160322_POST.pngw has no TemporalExtent:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be:  83%|████████▎ | 5/6 [00:00&lt;00:00, 28.96item/s, Processing 20160100_Hpakan_20160322_POST.png] </pre>
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk:  83%|████████▎ | 5/6 [00:00&lt;00:00, 16.85item/s, Processing 20160100_Hpakan_20160322_POST.png] </pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -613,7 +616,7 @@ The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20160322_POST.pngw has no Bou
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.png:  50%|█████     | 1/2 [00:00&lt;00:00, 245.91task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing 20160100_Hpakan_20160322_POST.png:  50%|█████     | 1/2 [00:00&lt;00:00, 284.88task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -629,10 +632,7 @@ The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20160322_POST.pngw has no Bou
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be: 100%|██████████| 6/6 [00:00&lt;00:00, 22.09item/s, Processing 20160100_Hpakan_20160322_POST.png]</pre>
-</div>
-<div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: tmp8l6a27be: 100%|██████████| 6/6 [00:00&lt;00:00, 22.85item/s, Processing 20160100_Hpakan_20160322_POST.png]</pre>
+<pre class="stderr literal-block">Processing directory: tmpl81g1_xk: 100%|██████████| 6/6 [00:00&lt;00:00, 22.28item/s, Processing 20160100_Hpakan_20160322_POST.png]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -663,6 +663,47 @@ The csv file from /tmp/tmp8l6a27be/20160100_Hpakan_20160322_POST.pngw has no Bou
 </div>
 <p>The function returns a <strong>merged bounding box</strong> covering all resources (similar to directory extraction), plus extraction metadata with success/failure tracking. Individual resource details are available in the <code class="docutils literal notranslate"><span class="pre">details</span></code> field for diagnostics.</p>
 <p>See <a class="reference internal" href="../features.html"><span class="doc">Advanced Features</span></a> for detailed documentation on multiple resource extraction features and return structure.</p>
+</section>
+<section id="download-size-limits">
+<h3>Download size limits<a class="headerlink" href="#download-size-limits" title="Link to this heading">¶</a></h3>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">max_download_size</span></code> parameter to limit how much data geoextent downloads from a remote repository. The value is a human-friendly size string parsed by <a class="reference external" href="https://pypi.org/project/filesizelib/">filesizelib</a> (e.g. <code class="docutils literal notranslate"><span class="pre">'100MB'</span></code>, <code class="docutils literal notranslate"><span class="pre">'2GB'</span></code>, <code class="docutils literal notranslate"><span class="pre">'500KB'</span></code>, <code class="docutils literal notranslate"><span class="pre">'10MiB'</span></code>, <code class="docutils literal notranslate"><span class="pre">'0.5GiB'</span></code>):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Limit download to 20 MB</span>
+<span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="s1">&#39;10.23728/b2share.26jnj-a4x24&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">max_download_size</span><span class="o">=</span><span class="s1">&#39;20MB&#39;</span><span class="p">)</span>
+
+<span class="c1"># Limit GBIF DwC-A download to 500 MB</span>
+<span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="s1">&#39;10.15468/6bleia&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                      <span class="n">max_download_size</span><span class="o">=</span><span class="s1">&#39;500MB&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When the combined file sizes exceed the limit, geoextent selects a subset using the <code class="docutils literal notranslate"><span class="pre">max_download_method</span></code> strategy (<code class="docutils literal notranslate"><span class="pre">'ordered'</span></code> by default, or <code class="docutils literal notranslate"><span class="pre">'random'</span></code> with a reproducible seed via <code class="docutils literal notranslate"><span class="pre">max_download_method_seed</span></code>).</p>
+<p><strong>GBIF DwC-A soft limit.</strong> GBIF datasets that provide Darwin Core Archive (DwC-A) downloads have a built-in 1 GB soft limit. If the archive exceeds this (or the <code class="docutils literal notranslate"><span class="pre">max_download_size</span></code>, whichever is smaller), a <code class="docutils literal notranslate"><span class="pre">DownloadSizeExceeded</span></code> exception is raised:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DownloadSizeExceeded</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="s1">&#39;10.15468/6bleia&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">download_data</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">DownloadSizeExceeded</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Archive is </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">estimated_size</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> bytes &quot;</span>
+          <span class="sa">f</span><span class="s2">&quot;(limit: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">max_size</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> bytes)&quot;</span><span class="p">)</span>
+    <span class="c1"># Retry with a larger limit</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="s1">&#39;10.15468/6bleia&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">download_data</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">max_download_size</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">estimated_size</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s1">B&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The exception carries three attributes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">exc.estimated_size</span></code> — estimated archive size in bytes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exc.max_size</span></code> — the size limit that was exceeded, in bytes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">exc.provider</span></code> — name of the provider (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;GBIF&quot;</span></code>)</p></li>
+</ul>
+<p>To avoid the size check entirely, use <code class="docutils literal notranslate"><span class="pre">download_data=False</span></code> for metadata-only extraction:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fast, no download — uses GBIF Registry API metadata</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="s1">&#39;10.15468/6bleia&#39;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                               <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 </section>
 </section>
