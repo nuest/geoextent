@@ -27,6 +27,7 @@ from .content_providers import DEIMSSDR
 from .content_providers import BAW
 from .content_providers import MDIDE
 from .content_providers import HALODB
+from .content_providers import GBIF
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -52,6 +53,7 @@ def _get_content_providers():
         GFZ.GFZ,
         RADAR.RADAR,
         ArcticDataCenter.ArcticDataCenter,
+        GBIF.GBIF,  # Before Pensoft: both may match 10.3897/ but GBIF excludes it
         Pensoft.Pensoft,
         BGR.BGR,  # BGR before Opara because both accept UUIDs
         BAW.BAW,  # BAW after BGR: similar CSW-based provider
@@ -1149,6 +1151,11 @@ def fromRemote(
                 output["details"][identifier] = resource_output
                 output["extraction_metadata"]["successful"] += 1
         except Exception as e:
+            # Let DownloadSizeExceeded propagate so callers can prompt
+            from .exceptions import DownloadSizeExceeded
+
+            if isinstance(e, DownloadSizeExceeded):
+                raise
             logger.warning(f"Error processing {identifier}: {str(e)}")
             output["details"][identifier] = {"error": str(e)}
             output["extraction_metadata"]["failed"] += 1

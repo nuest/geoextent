@@ -52,6 +52,7 @@ _PROVIDER_FILES = {
     "test_api_mdide.py",
     "test_api_b2share.py",
     "test_api_halodb.py",
+    "test_api_gbif.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -81,6 +82,7 @@ _FAST_PATTERNS = {
     "supports_metadata_extraction",
     "extract_external_references",
     "no_online_distribution",
+    "cli_size_prompt",
 }
 
 # One representative real-network test per provider for smoke-testing.
@@ -112,6 +114,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_mdide_metadata_only_extraction",
     "test_b2share_tainan_extraction",
     "test_halodb_metadata_only_extraction",
+    "test_gbif_metadata_only_extraction",
 }
 
 

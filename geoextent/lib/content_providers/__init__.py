@@ -27,6 +27,7 @@ from . import DEIMSSDR
 from . import BAW
 from . import MDIDE
 from . import HALODB
+from . import GBIF
 
 __all__ = [
     "providers",
@@ -51,4 +52,5 @@ __all__ = [
     "BAW",
     "MDIDE",
     "HALODB",
+    "GBIF",
 ]

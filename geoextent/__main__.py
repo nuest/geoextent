@@ -8,6 +8,7 @@ import webbrowser
 import zipfile
 from .lib import extent
 from .lib import helpfunctions as hf
+from .lib.exceptions import DownloadSizeExceeded
 
 logging.basicConfig(
     level=logging.WARNING, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
@@ -436,6 +437,35 @@ def _parse_additional_extensions(ext_string):
     return extensions
 
 
+def _call_fromRemote_with_size_prompt(kwargs):
+    """Call ``extent.fromRemote()`` with interactive size-limit prompting.
+
+    If the provider raises :class:`DownloadSizeExceeded` and stdin is a TTY,
+    the user is prompted to confirm the large download.  In non-interactive
+    mode the exception propagates.
+    """
+    try:
+        return extent.fromRemote(**kwargs)
+    except DownloadSizeExceeded as exc:
+        if not sys.stdin.isatty():
+            raise
+
+        mb = exc.estimated_size / (1024 * 1024)
+        print(
+            f"\n{exc.provider}: the download is approximately {mb:,.1f} MB "
+            f"(limit is {exc.max_size / (1024 * 1024):,.0f} MB).",
+            file=sys.stderr,
+        )
+        answer = input("Proceed with download? [y/N] ").strip().lower()
+        if answer not in ("y", "yes"):
+            logger.info("Download cancelled by user")
+            return None
+
+        # Retry with an increased limit (format as bytes string for filesizelib)
+        kwargs["max_download_size"] = f"{exc.estimated_size + 1}B"
+        return extent.fromRemote(**kwargs)
+
+
 def main():
     # Check if there is no arguments, then print help
     if len(sys.argv[1:]) == 0:
@@ -583,33 +613,35 @@ def main():
                     time_format=args["time_format"],
                 )
             elif is_url or is_doi or is_repository:
-                output = extent.fromRemote(
-                    single_input,
-                    bbox=args["bounding_box"],
-                    tbox=args["time_box"],
-                    convex_hull=args["convex_hull"],
-                    details=True,
-                    download_data=args["download_data"],
-                    show_progress=not args["no_progress"],
-                    recursive=not args["no_subdirs"],
-                    max_download_size=args["max_download_size"],
-                    max_download_method=args["max_download_method"],
-                    max_download_method_seed=args["max_download_method_seed"]
-                    or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
-                    placename=placename_service,
-                    placename_escape=args["placename_escape"],
-                    download_skip_nogeo=args["download_skip_nogeo"],
-                    download_skip_nogeo_exts=additional_extensions,
-                    max_download_workers=args["max_download_workers"],
-                    ext_metadata=args["ext_metadata"],
-                    ext_metadata_method=args["ext_metadata_method"],
-                    keep_files=args["keep_files"],
-                    legacy=args["legacy"],
-                    assume_wgs84=args["assume_wgs84"],
-                    metadata_first=args["metadata_first"],
-                    metadata_fallback=args["metadata_fallback"],
-                    time_format=args["time_format"],
-                    follow=args["follow"],
+                output = _call_fromRemote_with_size_prompt(
+                    {
+                        "remote_identifier": single_input,
+                        "bbox": args["bounding_box"],
+                        "tbox": args["time_box"],
+                        "convex_hull": args["convex_hull"],
+                        "details": True,
+                        "download_data": args["download_data"],
+                        "show_progress": not args["no_progress"],
+                        "recursive": not args["no_subdirs"],
+                        "max_download_size": args["max_download_size"],
+                        "max_download_method": args["max_download_method"],
+                        "max_download_method_seed": args["max_download_method_seed"]
+                        or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+                        "placename": placename_service,
+                        "placename_escape": args["placename_escape"],
+                        "download_skip_nogeo": args["download_skip_nogeo"],
+                        "download_skip_nogeo_exts": additional_extensions,
+                        "max_download_workers": args["max_download_workers"],
+                        "ext_metadata": args["ext_metadata"],
+                        "ext_metadata_method": args["ext_metadata_method"],
+                        "keep_files": args["keep_files"],
+                        "legacy": args["legacy"],
+                        "assume_wgs84": args["assume_wgs84"],
+                        "metadata_first": args["metadata_first"],
+                        "metadata_fallback": args["metadata_fallback"],
+                        "time_format": args["time_format"],
+                        "follow": args["follow"],
+                    }
                 )
         else:
             # Multiple files handling
@@ -629,33 +661,37 @@ def main():
 
                     if is_url or is_doi or is_repository:
                         # Process repository identifier
-                        repo_output = extent.fromRemote(
-                            file_path,
-                            bbox=args["bounding_box"],
-                            tbox=args["time_box"],
-                            convex_hull=args["convex_hull"],
-                            details=True,
-                            download_data=args["download_data"],
-                            show_progress=not args["no_progress"],
-                            recursive=not args["no_subdirs"],
-                            max_download_size=args["max_download_size"],
-                            max_download_method=args["max_download_method"],
-                            max_download_method_seed=args["max_download_method_seed"]
-                            or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
-                            placename=placename_service,
-                            placename_escape=args["placename_escape"],
-                            download_skip_nogeo=args["download_skip_nogeo"],
-                            download_skip_nogeo_exts=additional_extensions,
-                            max_download_workers=args["max_download_workers"],
-                            ext_metadata=args["ext_metadata"],
-                            ext_metadata_method=args["ext_metadata_method"],
-                            keep_files=args["keep_files"],
-                            legacy=args["legacy"],
-                            assume_wgs84=args["assume_wgs84"],
-                            metadata_first=args["metadata_first"],
-                            metadata_fallback=args["metadata_fallback"],
-                            time_format=args["time_format"],
-                            follow=args["follow"],
+                        repo_output = _call_fromRemote_with_size_prompt(
+                            {
+                                "remote_identifier": file_path,
+                                "bbox": args["bounding_box"],
+                                "tbox": args["time_box"],
+                                "convex_hull": args["convex_hull"],
+                                "details": True,
+                                "download_data": args["download_data"],
+                                "show_progress": not args["no_progress"],
+                                "recursive": not args["no_subdirs"],
+                                "max_download_size": args["max_download_size"],
+                                "max_download_method": args["max_download_method"],
+                                "max_download_method_seed": args[
+                                    "max_download_method_seed"
+                                ]
+                                or hf.DEFAULT_DOWNLOAD_SAMPLE_SEED,
+                                "placename": placename_service,
+                                "placename_escape": args["placename_escape"],
+                                "download_skip_nogeo": args["download_skip_nogeo"],
+                                "download_skip_nogeo_exts": additional_extensions,
+                                "max_download_workers": args["max_download_workers"],
+                                "ext_metadata": args["ext_metadata"],
+                                "ext_metadata_method": args["ext_metadata_method"],
+                                "keep_files": args["keep_files"],
+                                "legacy": args["legacy"],
+                                "assume_wgs84": args["assume_wgs84"],
+                                "metadata_first": args["metadata_first"],
+                                "metadata_fallback": args["metadata_fallback"],
+                                "time_format": args["time_format"],
+                                "follow": args["follow"],
+                            }
                         )
                         if repo_output is not None:
                             output["details"][file_path] = repo_output

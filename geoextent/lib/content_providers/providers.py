@@ -195,6 +195,7 @@ class DoiProvider(ContentProvider):
             # Core officially supported formats (documented in README.md and CLI)
             ".geojson",  # GeoJSON
             ".csv",  # Tabular data (potential coordinates)
+            ".txt",  # Tab-delimited text (e.g. Darwin Core Archive occurrence files)
             ".shp",
             ".shx",
             ".dbf",

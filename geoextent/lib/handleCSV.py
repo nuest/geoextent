@@ -12,8 +12,8 @@ logger = logging.getLogger("geoextent")
 # These are comma-separated lists used with X_POSSIBLE_NAMES, Y_POSSIBLE_NAMES,
 # and GEOM_POSSIBLE_NAMES to let GDAL auto-detect coordinate/geometry columns.
 # See https://gdal.org/drivers/vector/csv.html
-_GDAL_X_NAMES = "Longitude,Long,Lon,Lng,X,Easting,CoordX"
-_GDAL_Y_NAMES = "Latitude,Lat,Y,Northing,CoordY"
+_GDAL_X_NAMES = "Longitude,Long,Lon,Lng,X,Easting,CoordX,decimalLongitude"
+_GDAL_Y_NAMES = "Latitude,Lat,Y,Northing,CoordY,decimalLatitude"
 _GDAL_GEOM_NAMES = "geometry,geom,the_geom,wkt,WKT,wkb,WKB,coordinates,coords"
 
 search = {

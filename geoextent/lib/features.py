@@ -89,7 +89,7 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
             "geometry_columns": handleCSV.search.get("geometry", []),
             "time_columns": handleCSV.search.get("time", []),
         },
-        "file_extensions": [".csv"],
+        "file_extensions": [".csv", ".txt"],
         "notes": "Automatically detects coordinate columns using pattern matching. Uses GDAL CSV driver with open options for column detection.",
     }
     handlers.append(csv_info)

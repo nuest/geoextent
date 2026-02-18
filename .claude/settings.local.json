@@ -201,7 +201,8 @@
       "WebFetch(domain:nokis.mdi-de-dienste.org)",
       "Bash(.venv/bin/python3:*)",
       "Bash(.venv/bin/pip install:*)",
-      "Bash(.venv/bin/jupyter nbconvert:*)"
+      "Bash(.venv/bin/jupyter nbconvert:*)",
+      "Bash(script -qc 'echo \"\"N\"\" | .venv/bin/python -m geoextent -b --max-download-size 1KB 10.15468/rhydar 2>/dev/null' /dev/null)"
     ],
     "deny": [],
     "ask": []
