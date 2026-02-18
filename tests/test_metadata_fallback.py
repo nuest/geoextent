@@ -11,7 +11,6 @@ import pytest
 import geoextent.lib.extent as geoextent
 from conftest import NETWORK_SKIP_EXCEPTIONS
 
-
 # ---------------------------------------------------------------------------
 # Fast validation tests (no network, not marked slow)
 # ---------------------------------------------------------------------------

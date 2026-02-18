@@ -12,7 +12,6 @@ import geoextent.lib.extent as geoextent
 from geoextent.lib.content_providers.HALODB import HALODB
 from conftest import NETWORK_SKIP_EXCEPTIONS
 
-
 # --- Validation tests (no network, fast) ---
 
 

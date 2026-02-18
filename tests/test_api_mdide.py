@@ -3,7 +3,6 @@ import geoextent.lib.extent as geoextent
 from help_functions_test import tolerance
 from conftest import NETWORK_SKIP_EXCEPTIONS
 
-
 # Test datasets with known geographic and temporal coverage
 # Reference data retrieved from NOKIS CSW API
 TEST_DATASETS = {
