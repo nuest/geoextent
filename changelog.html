@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; geoextent 0.1.dev1+gd424c2264 documentation</title>
+    <title>Changelog &#8212; geoextent 0.1.dev1+gd6dd2aa32 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=b70d95b4"></script>
+    <script src="_static/documentation_options.js?v=7b1f66db"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -82,6 +82,7 @@
 <li><p>Extract temporal extent from raster files: NetCDF CF time dimensions, GeoTIFF <code class="docutils literal notranslate"><span class="pre">TIFFTAG_DATETIME</span></code>, ACDD <code class="docutils literal notranslate"><span class="pre">time_coverage_start/end</span></code> global attributes, and band-level <code class="docutils literal notranslate"><span class="pre">ACQUISITIONDATETIME</span></code> (IMAGERY domain) (<a class="reference external" href="https://github.com/nuest/geoextent/issues/22">#22</a>)</p></li>
 <li><p>Add <code class="docutils literal notranslate"><span class="pre">--assume-wgs84</span></code> CLI flag and <code class="docutils literal notranslate"><span class="pre">assume_wgs84</span></code> API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)</p></li>
 <li><p>Add support for Esri File Geodatabase (<code class="docutils literal notranslate"><span class="pre">.gdb</span></code>) format via GDAL’s OpenFileGDB driver</p></li>
+<li><p>All content providers now support interactive download size confirmation via <code class="docutils literal notranslate"><span class="pre">--max-download-size</span></code>. When the total download exceeds the limit, the CLI prompts for confirmation instead of silently truncating. API: <code class="docutils literal notranslate"><span class="pre">download_size_soft_limit=True</span></code> in <code class="docutils literal notranslate"><span class="pre">fromRemote()</span></code>.</p></li>
 </ul>
 </li>
 <li><p><strong>Breaking Changes</strong></p>

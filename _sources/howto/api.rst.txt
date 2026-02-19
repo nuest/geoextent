@@ -193,35 +193,45 @@ Use the ``max_download_size`` parameter to limit how much data geoextent downloa
    geoextent.fromRemote('10.15468/6bleia', bbox=True, tbox=True,
                          max_download_size='500MB')
 
-When the combined file sizes exceed the limit, geoextent selects a subset using the ``max_download_method`` strategy (``'ordered'`` by default, or ``'random'`` with a reproducible seed via ``max_download_method_seed``).
+When the combined file sizes exceed the limit, the default behavior (API) is to silently select a subset using the ``max_download_method`` strategy (``'ordered'`` by default, or ``'random'`` with a reproducible seed via ``max_download_method_seed``).
 
-**GBIF DwC-A soft limit.** GBIF datasets that provide Darwin Core Archive (DwC-A) downloads have a built-in 1 GB soft limit. If the archive exceeds this (or the ``max_download_size``, whichever is smaller), a ``DownloadSizeExceeded`` exception is raised:
+Download size soft limit
+""""""""""""""""""""""""
+
+Set ``download_size_soft_limit=True`` to raise a ``DownloadSizeExceeded`` exception instead of silently truncating the file list. This is what the CLI uses to prompt the user for confirmation, and is available for all providers whose APIs report file sizes:
 
 ::
 
    from geoextent.lib.exceptions import DownloadSizeExceeded
 
    try:
-       result = geoextent.fromRemote('10.15468/6bleia', bbox=True,
-                                      download_data=True)
+       result = geoextent.fromRemote('10.5281/zenodo.820562', bbox=True,
+                                      max_download_size='1MB',
+                                      download_size_soft_limit=True)
    except DownloadSizeExceeded as exc:
-       print(f"Archive is {exc.estimated_size:,} bytes "
-             f"(limit: {exc.max_size:,} bytes)")
+       print(f"Download is {exc.estimated_size:,} bytes "
+             f"(limit: {exc.max_size:,} bytes, provider: {exc.provider})")
        # Retry with a larger limit
-       result = geoextent.fromRemote('10.15468/6bleia', bbox=True,
-                                      download_data=True,
-                                      max_download_size=f'{exc.estimated_size + 1}B')
+       result = geoextent.fromRemote('10.5281/zenodo.820562', bbox=True,
+                                      max_download_size=f'{exc.estimated_size + 1}B',
+                                      download_size_soft_limit=True)
 
 The exception carries three attributes:
 
-- ``exc.estimated_size`` — estimated archive size in bytes
+- ``exc.estimated_size`` — total available download size in bytes
 - ``exc.max_size`` — the size limit that was exceeded, in bytes
-- ``exc.provider`` — name of the provider (e.g. ``"GBIF"``)
+- ``exc.provider`` — name of the provider (e.g. ``"Zenodo"``, ``"GBIF"``)
+
+**GBIF DwC-A soft limit.** GBIF datasets with Darwin Core Archive downloads have an additional built-in 1 GB soft limit that is always active (regardless of ``download_size_soft_limit``).
+
+.. note::
+
+   The soft limit relies on providers reporting file sizes in their API metadata before download. Metadata-only providers (DEIMS-SDR, HALO DB, Wikidata, Pensoft) do not download data files, so the size limit does not apply. A warning is logged when ``max_download_size`` is configured but the provider cannot enforce it.
 
 To avoid the size check entirely, use ``download_data=False`` for metadata-only extraction:
 
 ::
 
-   # Fast, no download — uses GBIF Registry API metadata
+   # Fast, no download — uses provider API metadata
    result = geoextent.fromRemote('10.15468/6bleia', bbox=True, tbox=True,
                                   download_data=False)
