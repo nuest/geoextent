@@ -1876,6 +1876,7 @@ def filter_files_by_size(
     max_download_size: int,
     method: str = "ordered",
     seed: int = DEFAULT_DOWNLOAD_SAMPLE_SEED,
+    provider_name: str = None,
 ):
     """
     Filter files based on cumulative download size limit and selection method.
@@ -1888,9 +1889,15 @@ def filter_files_by_size(
         max_download_size: Maximum cumulative download size in bytes for all files combined
         method: Selection method - 'ordered' (as returned by provider), 'random', 'smallest' (smallest files first), or 'largest' (largest files first)
         seed: Random seed for reproducible random selection
+        provider_name: If set, raise DownloadSizeExceeded instead of silently
+            truncating when files are skipped. When None (default), behavior is
+            unchanged (silent truncation for backward compatibility).
 
     Returns:
         tuple: (selected_files, total_size, skipped_files)
+
+    Raises:
+        DownloadSizeExceeded: When provider_name is set and files would be skipped
     """
     if not files_info or max_download_size is None:
         return files_info, sum(f.get("size", 0) for f in files_info), []
@@ -1993,6 +2000,14 @@ def filter_files_by_size(
             f"Selected {len(selected_files)} files totaling {humanfriendly.format_size(total_size, binary=True)}"
         )
         logger.info(f"Skipped {len(skipped_items)} files due to cumulative size limit.")
+
+        if provider_name is not None:
+            from .exceptions import DownloadSizeExceeded
+
+            total_available = sum(f.get("size", 0) for f in files_info)
+            raise DownloadSizeExceeded(
+                total_available, max_download_size, provider_name
+            )
 
     return selected_files, total_size, skipped_items
 

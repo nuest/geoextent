@@ -174,18 +174,35 @@ class MendeleyData(DoiProvider):
                 )
                 return
 
-            # Apply file filtering for geospatial relevance and size constraints
-            max_size_mb = max_size_bytes / (1024 * 1024) if max_size_bytes else None
+            # Apply geospatial file filtering (without size limit)
             filtered_files = self._filter_geospatial_files(
                 file_info,
                 skip_non_geospatial=download_skip_nogeo,
-                max_size_mb=max_size_mb,
                 additional_extensions=download_skip_nogeo_exts,
             )
 
             if not filtered_files:
                 self.log.warning("No files selected for download after filtering")
                 return
+
+            # Apply size filtering if specified
+            if max_size_bytes is not None:
+                filtered_files, filtered_total_size, skipped_files = (
+                    hf.filter_files_by_size(
+                        filtered_files,
+                        max_size_bytes,
+                        max_download_method,
+                        max_download_method_seed,
+                        provider_name=(
+                            self.name
+                            if getattr(self, "_download_size_soft_limit", False)
+                            else None
+                        ),
+                    )
+                )
+                if not filtered_files:
+                    self.log.warning("No files can be downloaded within the size limit")
+                    return
 
             filtered_total_size = sum(f.get("size", 0) for f in filtered_files)
 

@@ -464,6 +464,11 @@ class OSF(DoiProvider):
                         max_size_bytes,
                         max_download_method,
                         max_download_method_seed,
+                        provider_name=(
+                            self.name
+                            if getattr(self, "_download_size_soft_limit", False)
+                            else None
+                        ),
                     )
                 )
                 if not selected_files:

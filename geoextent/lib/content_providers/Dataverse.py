@@ -477,19 +477,21 @@ class Dataverse(DoiProvider):
                 )
 
             # Apply size limiting
-            if max_size_bytes:
-                max_size_mb = max_size_bytes / (1024 * 1024)
-                selected = self._filter_geospatial_files(
+            if max_size_bytes is not None:
+                file_info_list, total_size, skipped_files = hf.filter_files_by_size(
                     file_info_list,
-                    skip_non_geospatial=False,
-                    max_size_mb=max_size_mb,
+                    max_size_bytes,
+                    max_download_method,
+                    max_download_method_seed,
+                    provider_name=(
+                        self.name
+                        if getattr(self, "_download_size_soft_limit", False)
+                        else None
+                    ),
                 )
-                if not selected:
-                    self.log.warning(
-                        f"No files fit within the download size limit of {max_size_mb:.1f} MB"
-                    )
+                if not file_info_list:
+                    self.log.warning("No files can be downloaded within the size limit")
                     return
-                file_info_list = selected
 
             if not file_info_list:
                 self.log.warning("No files to download after filtering")

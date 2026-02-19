@@ -985,6 +985,7 @@ def fromRemote(
     metadata_fallback: bool = True,
     time_format: str | None = None,
     follow: bool = True,
+    download_size_soft_limit: bool = False,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -1049,6 +1050,10 @@ def fromRemote(
         Follow external DOIs/URLs to other providers (e.g., DEIMS-SDR datasets
         referencing Zenodo). Disable with ``follow=False`` or ``--no-follow``.
         (default: True)
+    download_size_soft_limit : bool, optional
+        When True, raise DownloadSizeExceeded instead of silently truncating
+        files that exceed max_download_size. The CLI sets this to True so it
+        can prompt the user for confirmation. (default: False)
 
     Returns
     -------
@@ -1145,6 +1150,7 @@ def fromRemote(
                 metadata_fallback=metadata_fallback,
                 time_format=time_format,
                 follow=follow,
+                download_size_soft_limit=download_size_soft_limit,
             )
             if resource_output is not None:
                 resource_output["format"] = "remote"
@@ -1273,6 +1279,7 @@ def _process_remote_download(
     metadata_fallback=True,
     time_format=None,
     follow=True,
+    download_size_soft_limit=False,
 ):
     """
     Shared logic for processing remote downloads and extracting metadata.
@@ -1333,6 +1340,21 @@ def _process_remote_download(
     _follow_kwargs = {}
     if hasattr(repository, "_try_follow_reference"):
         _follow_kwargs["follow"] = follow
+
+    # Set soft limit flag on provider so it can raise DownloadSizeExceeded
+    repository._download_size_soft_limit = download_size_soft_limit
+
+    # Warn when size limit is set but provider is metadata-only (no data download)
+    if (
+        max_size_bytes is not None
+        and not download_data
+        and getattr(repository, "supports_metadata_extraction", False)
+    ):
+        logger.warning(
+            "%s: --max-download-size has no effect when not downloading data "
+            "(metadata-only extraction).",
+            repository.name,
+        )
 
     # Download files from repository
     repository.download(
@@ -1434,6 +1456,7 @@ def _metadata_first_extract(
     assume_wgs84,
     time_format=None,
     follow=True,
+    download_size_soft_limit=False,
 ):
     """Try metadata-only extraction first, fall back to data download if needed.
 
@@ -1468,6 +1491,7 @@ def _metadata_first_extract(
         metadata_fallback=False,  # metadata_first has its own two-phase strategy
         time_format=time_format,
         follow=follow,
+        download_size_soft_limit=download_size_soft_limit,
     )
 
     # Phase 1: Try metadata-only extraction if the provider supports it
@@ -1576,6 +1600,7 @@ def _extract_from_remote(
     metadata_fallback=True,
     time_format=None,
     follow=True,
+    download_size_soft_limit=False,
 ):
     """
     Internal method to extract extent from a single remote identifier.
@@ -1629,6 +1654,7 @@ def _extract_from_remote(
                 assume_wgs84=assume_wgs84,
                 time_format=time_format,
                 follow=follow,
+                download_size_soft_limit=download_size_soft_limit,
             )
             return metadata
 
@@ -1665,6 +1691,7 @@ def _extract_from_remote(
                         metadata_fallback=metadata_fallback,
                         time_format=time_format,
                         follow=follow,
+                        download_size_soft_limit=download_size_soft_limit,
                     )
 
                     # Explicitly clean up temporary directory
@@ -1711,6 +1738,7 @@ def _extract_from_remote(
                     metadata_fallback=metadata_fallback,
                     time_format=time_format,
                     follow=follow,
+                    download_size_soft_limit=download_size_soft_limit,
                 )
 
                 logger.info(f"Files kept in: {tmp}")

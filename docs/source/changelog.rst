@@ -35,6 +35,7 @@ Unreleased
   - Extract temporal extent from raster files: NetCDF CF time dimensions, GeoTIFF ``TIFFTAG_DATETIME``, ACDD ``time_coverage_start/end`` global attributes, and band-level ``ACQUISITIONDATETIME`` (IMAGERY domain) (:issue:`22`)
   - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
   - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
+  - All content providers now support interactive download size confirmation via ``--max-download-size``. When the total download exceeds the limit, the CLI prompts for confirmation instead of silently truncating. API: ``download_size_soft_limit=True`` in ``fromRemote()``.
 
 - **Breaking Changes**
 

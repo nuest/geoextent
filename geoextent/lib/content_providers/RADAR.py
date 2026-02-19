@@ -238,6 +238,10 @@ class RADAR(DoiProvider):
             and total_size > 0
             and total_size > max_size_bytes
         ):
+            if getattr(self, "_download_size_soft_limit", False):
+                from ..exceptions import DownloadSizeExceeded
+
+                raise DownloadSizeExceeded(total_size, max_size_bytes, self.name)
             logger.warning(
                 f"RADAR archive ({total_size:,} bytes) exceeds size limit "
                 f"({max_size_bytes:,} bytes). Skipping download."

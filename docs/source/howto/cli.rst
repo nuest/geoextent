@@ -371,7 +371,18 @@ Format               Meaning
 ``1.5TB``            1.5 terabytes (decimal)
 ===================  ==========================
 
-When the limit is exceeded, geoextent selects a subset of files using the ``--max-download-method`` strategy (default: ``ordered``).
+When the total download exceeds the limit, the CLI prompts for confirmation instead of silently truncating the file list. This works for all providers whose APIs report file sizes before download:
+
+::
+
+   Zenodo: the download is approximately 45.2 MB (limit is 20 MB).
+   Proceed with download? [y/N]
+
+Answering ``y`` retries with the actual size as the new limit. In non-interactive contexts (scripts, CI pipelines), geoextent exits with an error. To avoid the prompt entirely, use ``--no-download-data`` for metadata-only extraction or set a sufficiently large ``--max-download-size``.
+
+.. note::
+
+   The interactive prompt relies on providers reporting file sizes in their API metadata before download. Metadata-only providers (DEIMS-SDR, HALO DB, Wikidata, Pensoft) do not download data files, so the size limit does not apply to them.
 
 ::
 
@@ -384,20 +395,15 @@ When the limit is exceeded, geoextent selects a subset of files using the ``--ma
    # Use binary units
    geoextent -b --max-download-size 0.5GiB 10.5281/zenodo.4593540
 
-For GBIF datasets, Darwin Core Archive (DwC-A) downloads have an additional built-in soft limit of 1 GB. When a DwC-A archive exceeds this limit (or the ``--max-download-size`` value, whichever is smaller), the CLI prompts interactively::
+For GBIF datasets, Darwin Core Archive (DwC-A) downloads have an additional built-in soft limit of 1 GB. When a DwC-A archive exceeds this limit (or the ``--max-download-size`` value, whichever is smaller), the CLI also prompts interactively.
 
-   GBIF: the download is approximately 2,345.6 MB (limit is 1,024 MB).
-   Proceed with download? [y/N]
-
-Answering ``y`` retries with the actual size as the new limit. In non-interactive contexts (scripts, CI pipelines), geoextent exits with an error. To avoid the prompt entirely, use ``--no-download-data`` for metadata-only extraction or set a sufficiently large ``--max-download-size``.
-
-You can trigger this prompt intentionally by setting a very small limit. For example, the `NCBI Taxonomy <https://www.gbif.org/dataset/d7dddbf4-2cf0-4f39-9b2a-bb099caae36c>`_ backbone (~82 MB DwC-A) will always exceed a 1 KB limit:
+You can trigger this prompt intentionally by setting a very small limit:
 
 .. code-block:: console
 
-   $ geoextent -b --max-download-size 1KB 10.15468/rhydar
+   $ geoextent -b --max-download-size 1KB 10.5281/zenodo.820562
 
-   GBIF: the download is approximately 78.2 MB (limit is 0 MB).
+   Zenodo: the download is approximately 2.3 MB (limit is 0 MB).
    Proceed with download? [y/N] N
 
 Answering ``N`` (or pressing Enter) cancels the download and produces no output.

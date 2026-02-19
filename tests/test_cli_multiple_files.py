@@ -236,7 +236,7 @@ _KNOWN_BBOXES = [
 def _run_convex_hull(*file_paths):
     """Run geoextent --convex-hull on given files and return parsed JSON."""
     cmd = [
-        ".venv/bin/python",
+        "python",
         "-m",
         "geoextent",
         "-b",
@@ -403,7 +403,7 @@ class TestMultipleFilesConvexHull:
 
         # Get bounding box for same files
         cmd = [
-            ".venv/bin/python",
+            "python",
             "-m",
             "geoextent",
             "-b",

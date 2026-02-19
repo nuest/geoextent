@@ -63,6 +63,7 @@ _PROVIDER_FILES = {
     "test_multiple_repositories.py",
     "test_cli_parameter_combinations.py",
     "test_doi_url_support.py",
+    "test_download_size_limit.py",
 }
 
 # Test name patterns that are fast (validation-only, no network)
@@ -83,6 +84,11 @@ _FAST_PATTERNS = {
     "extract_external_references",
     "no_online_distribution",
     "cli_size_prompt",
+    "filter_raises_with_provider_name",
+    "filter_no_raise_without_provider_name",
+    "filter_no_raise_when_all_fit",
+    "estimated_size_is_total",
+    "cli_size_prompt_passes_soft_limit",
 }
 
 # One representative real-network test per provider for smoke-testing.

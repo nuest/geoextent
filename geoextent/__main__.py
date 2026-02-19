@@ -641,6 +641,7 @@ def main():
                         "metadata_fallback": args["metadata_fallback"],
                         "time_format": args["time_format"],
                         "follow": args["follow"],
+                        "download_size_soft_limit": True,
                     }
                 )
         else:
@@ -691,6 +692,7 @@ def main():
                                 "metadata_fallback": args["metadata_fallback"],
                                 "time_format": args["time_format"],
                                 "follow": args["follow"],
+                                "download_size_soft_limit": True,
                             }
                         )
                         if repo_output is not None:
