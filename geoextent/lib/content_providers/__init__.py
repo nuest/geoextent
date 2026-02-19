@@ -26,6 +26,7 @@ from . import ArcticDataCenter
 from . import DEIMSSDR
 from . import BAW
 from . import MDIDE
+from . import GDIDE
 from . import HALODB
 from . import GBIF
 from . import SEANOE
@@ -53,6 +54,7 @@ __all__ = [
     "DEIMSSDR",
     "BAW",
     "MDIDE",
+    "GDIDE",
     "HALODB",
     "GBIF",
     "SEANOE",

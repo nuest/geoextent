@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 27 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 28 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, GDI-DE, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -120,6 +120,8 @@ Quick Reference
 | SEANOE            | 10.17882            | 10.17882/105467                        |
 +-------------------+---------------------+----------------------------------------+
 | UKCEH (EIDC)      | 10.5285             | 10.5285/dd35316a-...                   |
++-------------------+---------------------+----------------------------------------+
+| GDI-DE            | UUIDs / URLs        | geoportal.de/Metadata/{uuid}           |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -860,6 +862,50 @@ UKCEH (EIDC)
 - Supports ``--no-download-data`` for metadata-only extraction (bounding boxes and temporal ranges from catalogue API)
 - Full support for download size limiting, geospatial file filtering, and parallel downloads
 - Dataset identifiers are UUIDs (e.g., ``dd35316a-cecc-4f6d-9a21-74a0f6599e9e``)
+
+GDI-DE (geoportal.de)
+^^^^^^^^^^^^^^^^^^^^^
+
+**Description:** GDI-DE (Geodateninfrastruktur Deutschland / Spatial Data Infrastructure Germany) is the national spatial data infrastructure catalogue with 771,000+ records, aggregating metadata from German federal, state, and municipal agencies (BKG, DWD, DLR, etc.).
+
+**Website:** https://www.geoportal.de/
+
+**Identifier Format:** UUIDs or geoportal.de URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- Landing page URL: ``https://www.geoportal.de/Metadata/{uuid}``
+- CSW URL: ``https://gdk.gdi-de.org/gdi-de/srv/eng/csw?...Id={uuid}``
+- Bare UUID: ``75987CE0-AA66-4445-AC44-068B98390E89``
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # Heavy rain hazard map — bbox from GDI-DE catalogue metadata
+   python -m geoextent -b --no-download-data https://www.geoportal.de/Metadata/75987CE0-AA66-4445-AC44-068B98390E89
+
+   # Forest canopy cover loss — bbox and temporal extent from bare UUID
+   python -m geoextent -b -t --no-download-data cdb2c209-7e08-4f4c-b500-69de926e3023
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: uses GDI-DE CSW 2.0.2 API for bbox and temporal extent
+   result = geoextent.fromRemote(
+       'https://www.geoportal.de/Metadata/75987CE0-AA66-4445-AC44-068B98390E89',
+       bbox=True, tbox=True, download_data=False
+   )
+
+**Special Notes:**
+
+- **Metadata-only provider**: GDI-DE is a catalogue pointing to external WMS/WFS/Atom services; no data files are downloaded
+- Uses OGC CSW 2.0.2 endpoint with ISO 19115/19139 metadata (same standard as BGR, BAW, MDI-DE)
+- The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
+- Supports bare UUIDs verified against the GDI-DE CSW catalog
 
 Usage Examples
 --------------

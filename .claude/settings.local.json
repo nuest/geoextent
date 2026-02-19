@@ -208,7 +208,10 @@
       "WebFetch(domain:catalogue.ceh.ac.uk)",
       "WebFetch(domain:api.datacite.org)",
       "WebFetch(domain:www.re3data.org)",
-      "WebFetch(domain:data-package.ceh.ac.uk)"
+      "WebFetch(domain:data-package.ceh.ac.uk)",
+      "WebFetch(domain:gdk.gdi-de.org)",
+      "WebFetch(domain:www.geoportal.de)",
+      "Bash(xmllint:*)"
     ],
     "deny": [],
     "ask": []

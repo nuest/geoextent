@@ -26,6 +26,7 @@ from .content_providers import ArcticDataCenter
 from .content_providers import DEIMSSDR
 from .content_providers import BAW
 from .content_providers import MDIDE
+from .content_providers import GDIDE
 from .content_providers import HALODB
 from .content_providers import GBIF
 from .content_providers import SEANOE
@@ -60,6 +61,7 @@ def _get_content_providers():
         BGR.BGR,  # BGR before Opara because both accept UUIDs
         BAW.BAW,  # BAW after BGR: similar CSW-based provider
         MDIDE.MDIDE,  # MDI-DE after BAW: similar CSW-based, no DOIs
+        GDIDE.GDIDE,  # GDI-DE after MDI-DE: similar CSW-based, no DOIs
         Opara.Opara,
         Senckenberg.Senckenberg,
         MendeleyData.MendeleyData,
