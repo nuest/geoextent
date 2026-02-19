@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 26 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 27 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, GBIF, DEIMS-SDR, HALO DB, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -118,6 +118,8 @@ Quick Reference
 | Arctic Data Center| 10.18739            | 10.18739/A2Z892H2J                     |
 +-------------------+---------------------+----------------------------------------+
 | SEANOE            | 10.17882            | 10.17882/105467                        |
++-------------------+---------------------+----------------------------------------+
+| UKCEH (EIDC)      | 10.5285             | 10.5285/dd35316a-...                   |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -803,6 +805,61 @@ SEANOE
 - Data files can be downloaded and processed for more precise extent extraction
 - Only open-access files are downloaded; restricted files are automatically skipped
 - Full support for download size limiting, geospatial file filtering, and parallel downloads
+
+UKCEH (EIDC)
+^^^^^^^^^^^^^
+
+**Description:** UKCEH (UK Centre for Ecology & Hydrology) operates the Environmental Information Data Centre (EIDC), publishing environmental science datasets including water chemistry, land cover, biomass, and atmospheric data. The catalogue provides structured metadata via a JSON API with bounding boxes and temporal extents.
+
+**Website:** https://catalogue.ceh.ac.uk/
+
+**DOI Prefix:** ``10.5285``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e``
+- DOI URL: ``https://doi.org/10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e``
+- Catalogue URL: ``https://catalogue.ceh.ac.uk/documents/dd35316a-cecc-4f6d-9a21-74a0f6599e9e``
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # Blelham Tarn water chemistry — bbox and temporal extent from catalogue metadata
+   python -m geoextent -b -t --no-download-data 10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e
+
+**Example (Data Download):**
+
+.. code-block:: bash
+
+   # Blelham Tarn water chemistry — download CSV data and extract extent
+   python -m geoextent -b -t 10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: uses catalogue JSON API for bbox and temporal extent
+   result = geoextent.fromRemote(
+       '10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e',
+       bbox=True, tbox=True, download_data=False
+   )
+
+   # Data download mode: downloads files and extracts extent
+   result = geoextent.fromRemote(
+       '10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e',
+       bbox=True, tbox=True, download_data=True
+   )
+
+**Special Notes:**
+
+- Dual download pattern: Apache datastore directory listing (selective file download) or data-package ZIP (all-or-nothing)
+- Datastore listing tried first to enable selective file download and size filtering; falls back to data-package ZIP
+- Supports ``--no-download-data`` for metadata-only extraction (bounding boxes and temporal ranges from catalogue API)
+- Full support for download size limiting, geospatial file filtering, and parallel downloads
+- Dataset identifiers are UUIDs (e.g., ``dd35316a-cecc-4f6d-9a21-74a0f6599e9e``)
 
 Usage Examples
 --------------

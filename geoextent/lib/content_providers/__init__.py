@@ -29,6 +29,7 @@ from . import MDIDE
 from . import HALODB
 from . import GBIF
 from . import SEANOE
+from . import UKCEH
 
 __all__ = [
     "providers",
@@ -55,4 +56,5 @@ __all__ = [
     "HALODB",
     "GBIF",
     "SEANOE",
+    "UKCEH",
 ]

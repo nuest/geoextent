@@ -204,6 +204,11 @@
       "Bash(.venv/bin/jupyter nbconvert:*)",
       "Bash(script -qc 'echo \"\"N\"\" | .venv/bin/python -m geoextent -b --max-download-size 1KB 10.15468/rhydar 2>/dev/null' /dev/null)",
       "WebFetch(domain:www.seanoe.org)",
+      "WebFetch(domain:artefacts.ceda.ac.uk)",
+      "WebFetch(domain:catalogue.ceh.ac.uk)",
+      "WebFetch(domain:api.datacite.org)",
+      "WebFetch(domain:www.re3data.org)",
+      "WebFetch(domain:data-package.ceh.ac.uk)"
     ],
     "deny": [],
     "ask": []

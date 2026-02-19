@@ -29,6 +29,7 @@ from .content_providers import MDIDE
 from .content_providers import HALODB
 from .content_providers import GBIF
 from .content_providers import SEANOE
+from .content_providers import UKCEH
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -65,6 +66,7 @@ def _get_content_providers():
         DEIMSSDR.DEIMSSDR,
         HALODB.HALODB,
         SEANOE.SEANOE,
+        UKCEH.UKCEH,
     ]
 
 

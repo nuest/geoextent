@@ -188,3 +188,10 @@ def test_seanoe_soft_limit():
         _assert_size_exceeded("10.17882/103743")
     except NETWORK_SKIP_EXCEPTIONS:
         pytest.skip("Network unavailable")
+
+
+def test_ukceh_soft_limit():
+    try:
+        _assert_size_exceeded("10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e")
+    except NETWORK_SKIP_EXCEPTIONS:
+        pytest.skip("Network unavailable")

@@ -54,6 +54,7 @@ _PROVIDER_FILES = {
     "test_api_halodb.py",
     "test_api_gbif.py",
     "test_api_seanoe.py",
+    "test_api_ukceh.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -123,6 +124,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_halodb_metadata_only_extraction",
     "test_gbif_metadata_only_extraction",
     "test_seanoe_metadata_only_extraction",
+    "test_ukceh_metadata_only_extraction",
 }
 
 

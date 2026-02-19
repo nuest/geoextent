@@ -23,6 +23,7 @@ Unreleased
   - Add HALO DB (DLR) as metadata-only content provider for the HALO research aircraft database, extracting flight track geometry from the GeoJSON search API and temporal extent from dataset HTML pages (:issue:`88`)
   - Add GBIF (Global Biodiversity Information Facility) as content provider with metadata-only extraction from the Registry API and optional Darwin Core Archive (DwC-A) data download from institutional IPT servers; supports DOI prefixes 10.15468, 10.15470, 10.15472, 10.25607, 10.71819, 10.82144 and gbif.org dataset URLs (:issue:`62`)
   - Add SEANOE (SEA scieNtific Open data Edition) as content provider for marine science data from Ifremer/SISMER, with metadata-only extraction from the REST API (geographic bounding boxes, temporal extents) and data download of open-access files; supports DOI prefix 10.17882 and seanoe.org landing page URLs (:issue:`104`)
+  - Add UKCEH (UK Centre for Ecology & Hydrology) EIDC as content provider with metadata-only extraction from the catalogue JSON API (bounding boxes, temporal extents) and dual data download pattern (Apache datastore listing or data-package ZIP); supports DOI prefix 10.5285 and catalogue.ceh.ac.uk URLs (:issue:`103`)
 
 - **New Features**
 

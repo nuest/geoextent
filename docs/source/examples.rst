@@ -106,6 +106,29 @@ Multiple URL variants are supported:
 
 This example dataset contains glacier calving front locations with ZIP files containing nested directories and multiple shapefiles.
 
+UKCEH (EIDC) Example
+^^^^^^^^^^^^^^^^^^^^^
+
+Extract extent from a UKCEH Environmental Information Data Centre dataset (metadata-only):
+
+::
+
+   python -m geoextent -b -t --no-download-data 10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e
+
+Download data and extract extent:
+
+::
+
+   python -m geoextent -b -t 10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e
+
+UKCEH supports both Apache datastore directory listings and data-package ZIP downloads. The provider tries the datastore first (enabling selective file download) and falls back to the ZIP if needed.
+
+Convex hull from a multi-region UKCEH dataset (3 bounding boxes across Africa):
+
+::
+
+   python -m geoextent -b --convex-hull --no-download-data 10.5285/3de48cb6-d1c2-446e-a652-57d329849361
+
 DEIMS-SDR Example
 ^^^^^^^^^^^^^^^^^^
 
