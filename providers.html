@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Content Providers &#8212; geoextent 0.1.dev1+ge3ccba9ad documentation</title>
+    <title>Content Providers &#8212; geoextent 0.1.dev1+g1116865c8 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=a52d9634"></script>
+    <script src="_static/documentation_options.js?v=ac8595c8"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -46,7 +46,7 @@
             
   <section id="content-providers">
 <h1>Content Providers<a class="headerlink" href="#content-providers" title="Link to this heading">¶</a></h1>
-<p>Geoextent supports extracting geospatial data from 18 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
+<p>Geoextent supports extracting geospatial data from 28 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
 <p>All content providers support:</p>
@@ -61,7 +61,7 @@
 </ul>
 <section id="metadata-first-extraction">
 <h3>Metadata-First Extraction<a class="headerlink" href="#metadata-first-extraction" title="Link to this heading">¶</a></h3>
-<p>Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> flag leverages this for a smart two-phase strategy:</p>
+<p>Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, GDI-DE, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> flag leverages this for a smart two-phase strategy:</p>
 <ol class="arabic simple">
 <li><p><strong>Phase 1 (metadata):</strong> If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).</p></li>
 <li><p><strong>Phase 2 (fallback):</strong> If metadata didn’t yield the requested extents, or if the provider doesn’t support metadata, fall back to downloading and processing data files.</p></li>
@@ -606,6 +606,129 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>Supports both DOI and URN UUID identifiers</p></li>
 <li><p>Individual file downloads via DataONE object endpoint</p></li>
 <li><p>Parallel downloads supported</p></li>
+</ul>
+<p><strong>Description:</strong> SEANOE (SEA scieNtific Open data Edition) is a marine science data repository operated by Ifremer/SISMER (France). It publishes open-access oceanographic, marine biology, and geoscience datasets with DOI prefix 10.17882.</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://www.seanoe.org/">https://www.seanoe.org/</a></p>
+<p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.17882</span></code></p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>DOI: <code class="docutils literal notranslate"><span class="pre">10.17882/105467</span></code></p></li>
+<li><p>DOI URL: <code class="docutils literal notranslate"><span class="pre">https://doi.org/10.17882/105467</span></code></p></li>
+<li><p>SEANOE URL: <code class="docutils literal notranslate"><span class="pre">https://www.seanoe.org/data/00943/105467/</span></code></p></li>
+</ul>
+<p><strong>Example (Metadata Only):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># French Mediterranean CTD data — bbox and temporal extent from SEANOE metadata</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--no-download-data<span class="w"> </span><span class="m">10</span>.17882/105467
+
+<span class="c1"># Bowhead whale biologging — open in geojson.io</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--geojsonio<span class="w"> </span>--no-download-data<span class="w"> </span><span class="m">10</span>.17882/112127
+</pre></div>
+</div>
+<p><strong>Example (Data Download):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ireland coastline REI — download data files and extract extent</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span><span class="m">10</span>.17882/109463
+</pre></div>
+</div>
+<p><strong>Python API Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Metadata-only: uses SEANOE REST API for bbox and temporal extent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.17882/105467&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># Data download mode: downloads open-access files and extracts extent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.17882/109463&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p>Rich structured metadata via <code class="docutils literal notranslate"><span class="pre">https://www.seanoe.org/api/find-by-id/{id}</span></code> REST API</p></li>
+<li><p>Supports <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> for metadata-only extraction (geographic bounding boxes and temporal ranges from API)</p></li>
+<li><p>Data files can be downloaded and processed for more precise extent extraction</p></li>
+<li><p>Only open-access files are downloaded; restricted files are automatically skipped</p></li>
+<li><p>Full support for download size limiting, geospatial file filtering, and parallel downloads</p></li>
+</ul>
+<p><strong>Description:</strong> UKCEH (UK Centre for Ecology &amp; Hydrology) operates the Environmental Information Data Centre (EIDC), publishing environmental science datasets including water chemistry, land cover, biomass, and atmospheric data. The catalogue provides structured metadata via a JSON API with bounding boxes and temporal extents.</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://catalogue.ceh.ac.uk/">https://catalogue.ceh.ac.uk/</a></p>
+<p><strong>DOI Prefix:</strong> <code class="docutils literal notranslate"><span class="pre">10.5285</span></code></p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>DOI: <code class="docutils literal notranslate"><span class="pre">10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e</span></code></p></li>
+<li><p>DOI URL: <code class="docutils literal notranslate"><span class="pre">https://doi.org/10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e</span></code></p></li>
+<li><p>Catalogue URL: <code class="docutils literal notranslate"><span class="pre">https://catalogue.ceh.ac.uk/documents/dd35316a-cecc-4f6d-9a21-74a0f6599e9e</span></code></p></li>
+</ul>
+<p><strong>Example (Metadata Only):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Blelham Tarn water chemistry — bbox and temporal extent from catalogue metadata</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--no-download-data<span class="w"> </span><span class="m">10</span>.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e
+</pre></div>
+</div>
+<p><strong>Example (Data Download):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Blelham Tarn water chemistry — download CSV data and extract extent</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span><span class="m">10</span>.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e
+</pre></div>
+</div>
+<p><strong>Python API Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Metadata-only: uses catalogue JSON API for bbox and temporal extent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># Data download mode: downloads files and extracts extent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p>Dual download pattern: Apache datastore directory listing (selective file download) or data-package ZIP (all-or-nothing)</p></li>
+<li><p>Datastore listing tried first to enable selective file download and size filtering; falls back to data-package ZIP</p></li>
+<li><p>Supports <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> for metadata-only extraction (bounding boxes and temporal ranges from catalogue API)</p></li>
+<li><p>Full support for download size limiting, geospatial file filtering, and parallel downloads</p></li>
+<li><p>Dataset identifiers are UUIDs (e.g., <code class="docutils literal notranslate"><span class="pre">dd35316a-cecc-4f6d-9a21-74a0f6599e9e</span></code>)</p></li>
+</ul>
+<p><strong>Description:</strong> GDI-DE (Geodateninfrastruktur Deutschland / Spatial Data Infrastructure Germany) is the national spatial data infrastructure catalogue with 771,000+ records, aggregating metadata from German federal, state, and municipal agencies (BKG, DWD, DLR, etc.).</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://www.geoportal.de/">https://www.geoportal.de/</a></p>
+<p><strong>Identifier Format:</strong> UUIDs or geoportal.de URLs (no DOIs)</p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>Landing page URL: <code class="docutils literal notranslate"><span class="pre">https://www.geoportal.de/Metadata/{uuid}</span></code></p></li>
+<li><p>CSW URL: <code class="docutils literal notranslate"><span class="pre">https://gdk.gdi-de.org/gdi-de/srv/eng/csw?...Id={uuid}</span></code></p></li>
+<li><p>Bare UUID: <code class="docutils literal notranslate"><span class="pre">75987CE0-AA66-4445-AC44-068B98390E89</span></code></p></li>
+</ul>
+<p><strong>Example (Metadata Only):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Heavy rain hazard map — bbox from GDI-DE catalogue metadata</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--no-download-data<span class="w"> </span>https://www.geoportal.de/Metadata/75987CE0-AA66-4445-AC44-068B98390E89
+
+<span class="c1"># Forest canopy cover loss — bbox and temporal extent from bare UUID</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--no-download-data<span class="w"> </span>cdb2c209-7e08-4f4c-b500-69de926e3023
+</pre></div>
+</div>
+<p><strong>Python API Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Metadata-only: uses GDI-DE CSW 2.0.2 API for bbox and temporal extent</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://www.geoportal.de/Metadata/75987CE0-AA66-4445-AC44-068B98390E89&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_data</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p><strong>Metadata-only provider</strong>: GDI-DE is a catalogue pointing to external WMS/WFS/Atom services; no data files are downloaded</p></li>
+<li><p>Uses OGC CSW 2.0.2 endpoint with ISO 19115/19139 metadata (same standard as BGR, BAW, MDI-DE)</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> flag is accepted but has no effect (there are no data files)</p></li>
+<li><p>Supports bare UUIDs verified against the GDI-DE CSW catalog</p></li>
 </ul>
 </section>
 <section id="usage-examples">

@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 18 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 28 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, GDI-DE, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -116,6 +116,12 @@ Quick Reference
 | RADAR             | 10.35097            | 10.35097/tvn5vujqfvf99f32              |
 +-------------------+---------------------+----------------------------------------+
 | Arctic Data Center| 10.18739            | 10.18739/A2Z892H2J                     |
++-------------------+---------------------+----------------------------------------+
+| SEANOE            | 10.17882            | 10.17882/105467                        |
++-------------------+---------------------+----------------------------------------+
+| UKCEH (EIDC)      | 10.5285             | 10.5285/dd35316a-...                   |
++-------------------+---------------------+----------------------------------------+
+| GDI-DE            | UUIDs / URLs        | geoportal.de/Metadata/{uuid}           |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -743,6 +749,163 @@ Arctic Data Center
 - Supports both DOI and URN UUID identifiers
 - Individual file downloads via DataONE object endpoint
 - Parallel downloads supported
+
+SEANOE
+^^^^^^
+
+**Description:** SEANOE (SEA scieNtific Open data Edition) is a marine science data repository operated by Ifremer/SISMER (France). It publishes open-access oceanographic, marine biology, and geoscience datasets with DOI prefix 10.17882.
+
+**Website:** https://www.seanoe.org/
+
+**DOI Prefix:** ``10.17882``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.17882/105467``
+- DOI URL: ``https://doi.org/10.17882/105467``
+- SEANOE URL: ``https://www.seanoe.org/data/00943/105467/``
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # French Mediterranean CTD data — bbox and temporal extent from SEANOE metadata
+   python -m geoextent -b -t --no-download-data 10.17882/105467
+
+   # Bowhead whale biologging — open in geojson.io
+   python -m geoextent -b -t --geojsonio --no-download-data 10.17882/112127
+
+**Example (Data Download):**
+
+.. code-block:: bash
+
+   # Ireland coastline REI — download data files and extract extent
+   python -m geoextent -b 10.17882/109463
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: uses SEANOE REST API for bbox and temporal extent
+   result = geoextent.fromRemote(
+       '10.17882/105467',
+       bbox=True, tbox=True, download_data=False
+   )
+
+   # Data download mode: downloads open-access files and extracts extent
+   result = geoextent.fromRemote(
+       '10.17882/109463',
+       bbox=True, download_data=True
+   )
+
+**Special Notes:**
+
+- Rich structured metadata via ``https://www.seanoe.org/api/find-by-id/{id}`` REST API
+- Supports ``--no-download-data`` for metadata-only extraction (geographic bounding boxes and temporal ranges from API)
+- Data files can be downloaded and processed for more precise extent extraction
+- Only open-access files are downloaded; restricted files are automatically skipped
+- Full support for download size limiting, geospatial file filtering, and parallel downloads
+
+UKCEH (EIDC)
+^^^^^^^^^^^^^
+
+**Description:** UKCEH (UK Centre for Ecology & Hydrology) operates the Environmental Information Data Centre (EIDC), publishing environmental science datasets including water chemistry, land cover, biomass, and atmospheric data. The catalogue provides structured metadata via a JSON API with bounding boxes and temporal extents.
+
+**Website:** https://catalogue.ceh.ac.uk/
+
+**DOI Prefix:** ``10.5285``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e``
+- DOI URL: ``https://doi.org/10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e``
+- Catalogue URL: ``https://catalogue.ceh.ac.uk/documents/dd35316a-cecc-4f6d-9a21-74a0f6599e9e``
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # Blelham Tarn water chemistry — bbox and temporal extent from catalogue metadata
+   python -m geoextent -b -t --no-download-data 10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e
+
+**Example (Data Download):**
+
+.. code-block:: bash
+
+   # Blelham Tarn water chemistry — download CSV data and extract extent
+   python -m geoextent -b -t 10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: uses catalogue JSON API for bbox and temporal extent
+   result = geoextent.fromRemote(
+       '10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e',
+       bbox=True, tbox=True, download_data=False
+   )
+
+   # Data download mode: downloads files and extracts extent
+   result = geoextent.fromRemote(
+       '10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e',
+       bbox=True, tbox=True, download_data=True
+   )
+
+**Special Notes:**
+
+- Dual download pattern: Apache datastore directory listing (selective file download) or data-package ZIP (all-or-nothing)
+- Datastore listing tried first to enable selective file download and size filtering; falls back to data-package ZIP
+- Supports ``--no-download-data`` for metadata-only extraction (bounding boxes and temporal ranges from catalogue API)
+- Full support for download size limiting, geospatial file filtering, and parallel downloads
+- Dataset identifiers are UUIDs (e.g., ``dd35316a-cecc-4f6d-9a21-74a0f6599e9e``)
+
+GDI-DE (geoportal.de)
+^^^^^^^^^^^^^^^^^^^^^
+
+**Description:** GDI-DE (Geodateninfrastruktur Deutschland / Spatial Data Infrastructure Germany) is the national spatial data infrastructure catalogue with 771,000+ records, aggregating metadata from German federal, state, and municipal agencies (BKG, DWD, DLR, etc.).
+
+**Website:** https://www.geoportal.de/
+
+**Identifier Format:** UUIDs or geoportal.de URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- Landing page URL: ``https://www.geoportal.de/Metadata/{uuid}``
+- CSW URL: ``https://gdk.gdi-de.org/gdi-de/srv/eng/csw?...Id={uuid}``
+- Bare UUID: ``75987CE0-AA66-4445-AC44-068B98390E89``
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # Heavy rain hazard map — bbox from GDI-DE catalogue metadata
+   python -m geoextent -b --no-download-data https://www.geoportal.de/Metadata/75987CE0-AA66-4445-AC44-068B98390E89
+
+   # Forest canopy cover loss — bbox and temporal extent from bare UUID
+   python -m geoextent -b -t --no-download-data cdb2c209-7e08-4f4c-b500-69de926e3023
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: uses GDI-DE CSW 2.0.2 API for bbox and temporal extent
+   result = geoextent.fromRemote(
+       'https://www.geoportal.de/Metadata/75987CE0-AA66-4445-AC44-068B98390E89',
+       bbox=True, tbox=True, download_data=False
+   )
+
+**Special Notes:**
+
+- **Metadata-only provider**: GDI-DE is a catalogue pointing to external WMS/WFS/Atom services; no data files are downloaded
+- Uses OGC CSW 2.0.2 endpoint with ISO 19115/19139 metadata (same standard as BGR, BAW, MDI-DE)
+- The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
+- Supports bare UUIDs verified against the GDI-DE CSW catalog
 
 Usage Examples
 --------------

@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+ge3ccba9ad documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g1116865c8 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=a52d9634"></script>
+    <script src="../_static/documentation_options.js?v=ac8595c8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -436,11 +436,14 @@ Supported data repositories:
 - BGR (geoportal.bgr.de)
 - BAW (datenrepository.baw.de)
 - MDI-DE (mdi-de.org)
+- GDI-DE (geoportal.de)
 - Opara (opara.zih.tu-dresden.de)
 - Senckenberg (dataportal.senckenberg.de)
 - Mendeley Data (data.mendeley.com)
 - DEIMS-SDR (deims.org)
 - HALO DB (halo-db.pa.op.dlr.de)
+- SEANOE (seanoe.org)
+- UKCEH (catalogue.ceh.ac.uk)
 
 </pre></div>
 </div>
@@ -535,7 +538,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 161.85task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 155.07task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -599,7 +602,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 21.75task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 26.47task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -615,7 +618,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 12.89item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 14.21item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -642,7 +645,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 108.42task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 106.57task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -658,7 +661,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 20.90item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 22.31item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -706,7 +709,7 @@ Supported data repositories:
 </section>
 <section id="remote-repositories">
 <h2>Remote Repositories<a class="headerlink" href="#remote-repositories" title="Link to this heading">¶</a></h2>
-<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, DEIMS-SDR, GBIF, Dataverse, and Pensoft.</p>
+<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, GBIF, Dataverse, and Pensoft.</p>
 <section id="extract-from-zenodo">
 <h3>Extract from Zenodo<a class="headerlink" href="#extract-from-zenodo" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
@@ -816,6 +819,18 @@ Supported data repositories:
 </pre></div>
 </div>
 </section>
+<section id="extract-from-gdi-de-metadata-only-geoportal-de-url">
+<h3>Extract from GDI-DE (metadata only, geoportal.de URL)<a class="headerlink" href="#extract-from-gdi-de-metadata-only-geoportal-de-url" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">data</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">www</span><span class="o">.</span><span class="n">geoportal</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">Metadata</span><span class="o">/</span><span class="mi">75987</span><span class="n">CE0</span><span class="o">-</span><span class="n">AA66</span><span class="o">-</span><span class="mi">4445</span><span class="o">-</span><span class="n">AC44</span><span class="o">-</span><span class="mi">068</span><span class="n">B98390E89</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-gdi-de-metadata-only-bare-uuid">
+<h3>Extract from GDI-DE (metadata only, bare UUID)<a class="headerlink" href="#extract-from-gdi-de-metadata-only-bare-uuid" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">data</span> <span class="n">cdb2c209</span><span class="o">-</span><span class="mf">7e08</span><span class="o">-</span><span class="mi">4</span><span class="n">f4c</span><span class="o">-</span><span class="n">b500</span><span class="o">-</span><span class="mi">69</span><span class="n">de926e3023</span>
+</pre></div>
+</div>
+</section>
 <section id="extract-from-deims-sdr-dataset">
 <h3>Extract from DEIMS-SDR (dataset)<a class="headerlink" href="#extract-from-deims-sdr-dataset" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">deims</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="n">dataset</span><span class="o">/</span><span class="mi">3</span><span class="n">d87da8b</span><span class="o">-</span><span class="mi">2</span><span class="n">b07</span><span class="o">-</span><span class="mi">41</span><span class="n">c7</span><span class="o">-</span><span class="n">bf05</span><span class="o">-</span><span class="mi">417832</span><span class="n">de4fa2</span>
@@ -849,6 +864,24 @@ Supported data repositories:
 <section id="extract-from-gbif-with-geojson-io-preview">
 <h3>Extract from GBIF with geojson.io preview<a class="headerlink" href="#extract-from-gbif-with-geojson-io-preview" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">geojsonio</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">data</span> <span class="mf">10.15472</span><span class="o">/</span><span class="n">lavgys</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-seanoe-metadata-only-french-mediterranean-ctd">
+<h3>Extract from SEANOE (metadata only, French Mediterranean CTD)<a class="headerlink" href="#extract-from-seanoe-metadata-only-french-mediterranean-ctd" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">data</span> <span class="mf">10.17882</span><span class="o">/</span><span class="mi">105467</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-seanoe-data-download-ireland-coastline">
+<h3>Extract from SEANOE (data download, Ireland coastline)<a class="headerlink" href="#extract-from-seanoe-data-download-ireland-coastline" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="mf">10.17882</span><span class="o">/</span><span class="mi">109463</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-seanoe-whale-biologging-with-geojson-io-preview">
+<h3>Extract from SEANOE (whale biologging with geojson.io preview)<a class="headerlink" href="#extract-from-seanoe-whale-biologging-with-geojson-io-preview" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">geojsonio</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">data</span> <span class="mf">10.17882</span><span class="o">/</span><span class="mi">112127</span>
 </pre></div>
 </div>
 </section>
@@ -1016,7 +1049,7 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 115.22task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 112.18task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -1032,7 +1065,7 @@ or time box (tbox).</p>
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 51.88item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 55.54item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">

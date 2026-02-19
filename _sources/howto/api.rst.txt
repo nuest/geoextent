@@ -125,7 +125,7 @@ Output:
 Remote repositories
 -------------------
 
-**Geoextent** supports queries for multiple research data repositories including Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ Data Services, Pensoft, GBIF, Arctic Data Center, and TU Dresden Opara.
+**Geoextent** supports queries for multiple research data repositories including Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ Data Services, Pensoft, GBIF, SEANOE, DEIMS-SDR, HALO DB, GDI-DE, Arctic Data Center, and TU Dresden Opara.
 
 Geoextent downloads files from the repository and extracts the temporal or geographical extent. The function supports both single identifiers (string) and multiple identifiers (list).
 
