@@ -197,3 +197,127 @@ jobs:
         else
           echo "No import errors found in test collection"
         fi
+
+  test-fast-windows:
+    runs-on: windows-latest
+    continue-on-error: true
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Enable long paths on Windows
+      shell: pwsh
+      run: |
+        New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+          -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.12'
+        channels: conda-forge
+        channel-priority: strict
+        activate-environment: geoextent-test
+        miniforge-version: latest
+
+    - name: Cache conda packages
+      uses: actions/cache@v3
+      with:
+        path: ~/conda_pkgs_dir
+        key: windows-conda-${{ hashFiles('.github/workflows/pythonpackage.yml') }}
+        restore-keys: |
+          windows-conda-
+
+    - name: Install GDAL and system deps via conda
+      run: |
+        conda install -y gdal libgdal libspatialite netcdf4 proj
+
+    - name: Install geoextent in dev mode (no dependency resolution)
+      run: |
+        pip install --no-deps -e .
+
+    - name: Install runtime dependencies (excluding gdal)
+      run: |
+        pip install pyproj "geojson>=2.4.1" geojsonio pygeoj pyshp \
+          patool python-dateutil pandas "numpy<2" requests traitlets \
+          wheel pangaeapy osfclient filesizelib "setuptools-scm>=8" \
+          tqdm bs4 geopy python-dotenv humanfriendly crossref-commons \
+          datacite owslib
+
+    - name: Install dev and test dependencies
+      run: |
+        pip install pytest pytest-cov "pytest-xdist[psutil]" \
+          pytest-console-scripts geojson-validator black pre-commit
+
+    - name: Verify GDAL import
+      run: |
+        python -c "from osgeo import gdal; print(f'GDAL {gdal.VersionInfo()}')"
+
+    - name: Test with pytest (fast tests only)
+      run: |
+        pytest -v --tb=short -n auto -m "not slow and not large_download"
+
+  test-providers-windows:
+    runs-on: windows-latest
+    continue-on-error: true
+    defaults:
+      run:
+        shell: bash -el {0}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Enable long paths on Windows
+      shell: pwsh
+      run: |
+        New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+          -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        python-version: '3.12'
+        channels: conda-forge
+        channel-priority: strict
+        activate-environment: geoextent-test
+        miniforge-version: latest
+
+    - name: Cache conda packages
+      uses: actions/cache@v3
+      with:
+        path: ~/conda_pkgs_dir
+        key: windows-conda-${{ hashFiles('.github/workflows/pythonpackage.yml') }}
+        restore-keys: |
+          windows-conda-
+
+    - name: Install GDAL and system deps via conda
+      run: |
+        conda install -y gdal libgdal libspatialite netcdf4 proj
+
+    - name: Install geoextent in dev mode (no dependency resolution)
+      run: |
+        pip install --no-deps -e .
+
+    - name: Install runtime dependencies (excluding gdal)
+      run: |
+        pip install pyproj "geojson>=2.4.1" geojsonio pygeoj pyshp \
+          patool python-dateutil pandas "numpy<2" requests traitlets \
+          wheel pangaeapy osfclient filesizelib "setuptools-scm>=8" \
+          tqdm bs4 geopy python-dotenv humanfriendly crossref-commons \
+          datacite owslib
+
+    - name: Install dev and test dependencies
+      run: |
+        pip install pytest pytest-cov "pytest-xdist[psutil]" \
+          pytest-console-scripts geojson-validator black pre-commit
+
+    - name: Verify GDAL import
+      run: |
+        python -c "from osgeo import gdal; print(f'GDAL {gdal.VersionInfo()}')"
+
+    - name: Test provider samples
+      run: |
+        pytest -v --tb=short -n auto -m provider_sample
