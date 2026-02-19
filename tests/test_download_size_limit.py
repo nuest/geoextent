@@ -181,3 +181,10 @@ def test_fourtu_soft_limit():
         _assert_size_exceeded("10.4121/uuid:8ce9d22a-9aa4-41ea-9299-f44efa9c8b75")
     except NETWORK_SKIP_EXCEPTIONS:
         pytest.skip("Network unavailable")
+
+
+def test_seanoe_soft_limit():
+    try:
+        _assert_size_exceeded("10.17882/103743")
+    except NETWORK_SKIP_EXCEPTIONS:
+        pytest.skip("Network unavailable")

@@ -28,6 +28,7 @@ from .content_providers import BAW
 from .content_providers import MDIDE
 from .content_providers import HALODB
 from .content_providers import GBIF
+from .content_providers import SEANOE
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -63,6 +64,7 @@ def _get_content_providers():
         MendeleyData.MendeleyData,
         DEIMSSDR.DEIMSSDR,
         HALODB.HALODB,
+        SEANOE.SEANOE,
     ]
 
 

@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 18 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 26 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, GBIF, DEIMS-SDR, HALO DB, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -116,6 +116,8 @@ Quick Reference
 | RADAR             | 10.35097            | 10.35097/tvn5vujqfvf99f32              |
 +-------------------+---------------------+----------------------------------------+
 | Arctic Data Center| 10.18739            | 10.18739/A2Z892H2J                     |
++-------------------+---------------------+----------------------------------------+
+| SEANOE            | 10.17882            | 10.17882/105467                        |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -743,6 +745,64 @@ Arctic Data Center
 - Supports both DOI and URN UUID identifiers
 - Individual file downloads via DataONE object endpoint
 - Parallel downloads supported
+
+SEANOE
+^^^^^^
+
+**Description:** SEANOE (SEA scieNtific Open data Edition) is a marine science data repository operated by Ifremer/SISMER (France). It publishes open-access oceanographic, marine biology, and geoscience datasets with DOI prefix 10.17882.
+
+**Website:** https://www.seanoe.org/
+
+**DOI Prefix:** ``10.17882``
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.17882/105467``
+- DOI URL: ``https://doi.org/10.17882/105467``
+- SEANOE URL: ``https://www.seanoe.org/data/00943/105467/``
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # French Mediterranean CTD data — bbox and temporal extent from SEANOE metadata
+   python -m geoextent -b -t --no-download-data 10.17882/105467
+
+   # Bowhead whale biologging — open in geojson.io
+   python -m geoextent -b -t --geojsonio --no-download-data 10.17882/112127
+
+**Example (Data Download):**
+
+.. code-block:: bash
+
+   # Ireland coastline REI — download data files and extract extent
+   python -m geoextent -b 10.17882/109463
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: uses SEANOE REST API for bbox and temporal extent
+   result = geoextent.fromRemote(
+       '10.17882/105467',
+       bbox=True, tbox=True, download_data=False
+   )
+
+   # Data download mode: downloads open-access files and extracts extent
+   result = geoextent.fromRemote(
+       '10.17882/109463',
+       bbox=True, download_data=True
+   )
+
+**Special Notes:**
+
+- Rich structured metadata via ``https://www.seanoe.org/api/find-by-id/{id}`` REST API
+- Supports ``--no-download-data`` for metadata-only extraction (geographic bounding boxes and temporal ranges from API)
+- Data files can be downloaded and processed for more precise extent extraction
+- Only open-access files are downloaded; restricted files are automatically skipped
+- Full support for download size limiting, geospatial file filtering, and parallel downloads
 
 Usage Examples
 --------------

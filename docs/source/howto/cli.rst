@@ -315,6 +315,27 @@ Extract from GBIF with geojson.io preview
 
    geoextent -b --geojsonio --no-download-data 10.15472/lavgys
 
+Extract from SEANOE (metadata only, French Mediterranean CTD)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t --no-download-data 10.17882/105467
+
+Extract from SEANOE (data download, Ireland coastline)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b 10.17882/109463
+
+Extract from SEANOE (whale biologging with geojson.io preview)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t --geojsonio --no-download-data 10.17882/112127
+
 Extract from DEIMS-SDR without following external references
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
