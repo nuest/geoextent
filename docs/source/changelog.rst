@@ -26,6 +26,7 @@ Unreleased
   - Add UKCEH (UK Centre for Ecology & Hydrology) EIDC as content provider with metadata-only extraction from the catalogue JSON API (bounding boxes, temporal extents) and dual data download pattern (Apache datastore listing or data-package ZIP); supports DOI prefix 10.5285 and catalogue.ceh.ac.uk URLs (:issue:`103`)
   - Add GDI-DE (Geodateninfrastruktur Deutschland / geoportal.de) as metadata-only content provider for the national German spatial data infrastructure catalogue (771,000+ records), with CSW 2.0.2 metadata extraction via OWSLib; supports geoportal.de landing page URLs and bare UUIDs (:issue:`84`)
   - Add generic CKAN content provider supporting any CKAN instance via dataset URL matching, with known-host fast matching and dynamic API discovery; includes GeoJSON spatial metadata parsing with geometry preservation for convex hull, multi-format temporal field support, and UK ``bbox-*`` extras pattern; known hosts include GeoKur TU Dresden, data.gov.uk, GovData.de, data.gov.au, and catalog.data.gov (:issue:`98`)
+  - Add STAC (SpatioTemporal Asset Catalog) as metadata-only content provider, extracting spatial bounding boxes and temporal intervals directly from STAC Collection JSON; supports known STAC API hosts (Element84, DLR, Terradue, WorldPop, Lantmateriet, etc.), ``/stac/`` URL path patterns, JSON content-inspection fallback, and content negotiation for HTML/JSON servers (:issue:`25`)
 
 - **New Features**
 

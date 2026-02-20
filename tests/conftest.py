@@ -57,6 +57,7 @@ _PROVIDER_FILES = {
     "test_api_seanoe.py",
     "test_api_ukceh.py",
     "test_api_ckan.py",
+    "test_api_stac.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -98,6 +99,10 @@ _FAST_PATTERNS = {
     "rejects_senckenberg",
     "rejects_non_dataset",
     "known_host_validation",
+    "provider_info",
+    "path_pattern",
+    "collection_id_extraction",
+    "non_http_rejected",
 }
 
 # One representative real-network test per provider for smoke-testing.
@@ -134,6 +139,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_seanoe_metadata_only_extraction",
     "test_ukceh_metadata_only_extraction",
     "test_ckan_metadata_only_extraction",
+    "test_stac_metadata_only_extraction",
 }
 
 

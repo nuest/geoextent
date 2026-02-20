@@ -32,6 +32,7 @@ from .content_providers import GBIF
 from .content_providers import SEANOE
 from .content_providers import UKCEH
 from .content_providers import CKAN
+from .content_providers import STAC
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -71,6 +72,7 @@ def _get_content_providers():
         HALODB.HALODB,
         SEANOE.SEANOE,
         UKCEH.UKCEH,
+        STAC.STAC,  # Late: broad /collections/ URL pattern could false-match
     ]
 
 

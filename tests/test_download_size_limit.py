@@ -195,3 +195,21 @@ def test_ukceh_soft_limit():
         _assert_size_exceeded("10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e")
     except NETWORK_SKIP_EXCEPTIONS:
         pytest.skip("Network unavailable")
+
+
+def test_stac_soft_limit_metadata_only():
+    """STAC is metadata-only: size limit is accepted but does not raise DownloadSizeExceeded."""
+    try:
+        result = extent.fromRemote(
+            "https://earth-search.aws.element84.com/v1/collections/naip",
+            bbox=True,
+            max_download_size="1B",
+            download_size_soft_limit=True,
+            show_progress=False,
+        )
+    except NETWORK_SKIP_EXCEPTIONS:
+        pytest.skip("Network unavailable")
+
+    # Metadata-only provider should succeed despite tiny size limit
+    assert result is not None
+    assert result.get("bbox") is not None

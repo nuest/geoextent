@@ -32,6 +32,7 @@ from . import GBIF
 from . import SEANOE
 from . import UKCEH
 from . import CKAN
+from . import STAC
 
 __all__ = [
     "providers",
@@ -61,4 +62,5 @@ __all__ = [
     "SEANOE",
     "UKCEH",
     "CKAN",
+    "STAC",
 ]

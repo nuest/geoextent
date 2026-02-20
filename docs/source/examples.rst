@@ -146,6 +146,24 @@ Extract spatial extent from a DEIMS-SDR research site:
 
 DEIMS-SDR is a metadata-only provider. It extracts geospatial boundaries (POINT, POLYGON, MULTIPOLYGON) and temporal ranges from the DEIMS-SDR REST API for long-term ecological research sites and datasets.
 
+STAC Catalog Example
+^^^^^^^^^^^^^^^^^^^^^
+
+Extract extent from any STAC (SpatioTemporal Asset Catalog) Collection. STAC Collections contain pre-computed bounding boxes and temporal intervals, so extraction is instant (metadata-only, no file downloads).
+
+::
+
+   # US National Agriculture Imagery (Element84 Earth Search)
+   python -m geoextent -b -t https://earth-search.aws.element84.com/v1/collections/naip
+
+   # German forest structure (DLR EOC) — open-ended temporal range
+   python -m geoextent -b -t https://geoservice.dlr.de/eoc/ogc/stac/v1/collections/FOREST_STRUCTURE_DE_COVER_P1Y
+
+   # Switzerland population data (WorldPop)
+   python -m geoextent -b -t https://api.stac.worldpop.org/collections/CHE
+
+Any URL pointing to a STAC Collection is supported — geoextent recognizes known STAC API hosts, ``/stac/`` URL path patterns, and falls back to JSON content inspection. See :doc:`providers` for the full list of known hosts.
+
 CKAN Example
 ^^^^^^^^^^^^
 
@@ -584,6 +602,11 @@ TU Dresden Opara:
 ::
 
    python -m geoextent -b 10.25532/OPARA-581
+
+STAC Catalog (any STAC Collection URL):
+::
+
+   python -m geoextent -b -t https://earth-search.aws.element84.com/v1/collections/naip
 
 Interactive Showcase Notebooks
 -------------------------------

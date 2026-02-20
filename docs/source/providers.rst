@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 29 research data repositories (including 10 Dataverse instances), Wikidata, and any CKAN instance. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 30 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, and any CKAN instance. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, GDI-DE, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, GDI-DE, STAC, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -122,6 +122,8 @@ Quick Reference
 | UKCEH (EIDC)      | 10.5285             | 10.5285/dd35316a-...                   |
 +-------------------+---------------------+----------------------------------------+
 | GDI-DE            | UUIDs / URLs        | geoportal.de/Metadata/{uuid}           |
++-------------------+---------------------+----------------------------------------+
+| STAC              | Collection URLs     | https://{host}/collections/{id}        |
 +-------------------+---------------------+----------------------------------------+
 | CKAN (any)        | Dataset URLs        | https://{host}/dataset/{id}            |
 +-------------------+---------------------+----------------------------------------+
@@ -908,6 +910,71 @@ GDI-DE (geoportal.de)
 - Uses OGC CSW 2.0.2 endpoint with ISO 19115/19139 metadata (same standard as BGR, BAW, MDI-DE)
 - The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
 - Supports bare UUIDs verified against the GDI-DE CSW catalog
+
+STAC (SpatioTemporal Asset Catalog)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Description:** STAC (SpatioTemporal Asset Catalog) is an OGC Community Standard for describing geospatial information. STAC Collections contain pre-computed aggregate bounding boxes and temporal intervals, making them ideal for fast metadata-only extraction. Geoextent supports any STAC-compliant API.
+
+**Website:** https://stacspec.org/
+
+**Identifier Format:** STAC Collection URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- Collection URL: ``https://{host}/stac/v1/collections/{id}``
+- Collection URL: ``https://{host}/collections/{id}``
+- Known STAC API hosts are matched instantly (Element84, DLR, Terradue, WorldPop, Lantmateriet, etc.)
+- Unknown hosts with ``/stac/`` in the URL path are also matched
+- Fallback: any URL returning JSON with a ``stac_version`` field
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # US National Agriculture Imagery (Element84 Earth Search)
+   python -m geoextent -b -t https://earth-search.aws.element84.com/v1/collections/naip
+
+   # German forest structure (DLR EOC STAC API)
+   python -m geoextent -b -t https://geoservice.dlr.de/eoc/ogc/stac/v1/collections/FOREST_STRUCTURE_DE_COVER_P1Y
+
+   # Switzerland population data (WorldPop)
+   python -m geoextent -b -t https://api.stac.worldpop.org/collections/CHE
+
+   # Swedish orthophoto (Lantmateriet)
+   python -m geoextent -b -t https://api.lantmateriet.se/stac-bild/v1/collections/orto-f2-2014
+
+   # San Andreas Fault SAR data (Terradue)
+   python -m geoextent -b -t https://gep-supersites-stac.terradue.com/collections/csk-san-andrea-supersite
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Extract bbox and temporal extent from STAC Collection
+   result = geoextent.fromRemote(
+       'https://earth-search.aws.element84.com/v1/collections/naip',
+       bbox=True, tbox=True
+   )
+   print(result['bbox'])   # [17.0, -160.0, 50.0, -67.0] (NAIP US coverage)
+   print(result['tbox'])   # ['2010-01-01', '2022-12-31']
+
+   # Open-ended temporal range (end date is null)
+   result = geoextent.fromRemote(
+       'https://geoservice.dlr.de/eoc/ogc/stac/v1/collections/FOREST_STRUCTURE_DE_COVER_P1Y',
+       bbox=True, tbox=True
+   )
+   print(result['tbox'])   # ['2017-01-01', None]
+
+**Special Notes:**
+
+- **Metadata-only provider**: Extracts pre-computed ``extent.spatial.bbox`` and ``extent.temporal.interval`` directly from STAC Collection JSON — no data files are downloaded
+- The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
+- Supports content negotiation: if a URL returns HTML (e.g. OGC API with content negotiation), retries with ``?f=application/json``
+- Handles open-ended temporal ranges where the end date is ``null`` (ongoing data collection)
+- Supports STAC API v1.0 and v1.1
 
 CKAN (Generic)
 ^^^^^^^^^^^^^^
