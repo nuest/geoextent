@@ -56,6 +56,7 @@ _PROVIDER_FILES = {
     "test_api_gbif.py",
     "test_api_seanoe.py",
     "test_api_ukceh.py",
+    "test_api_ckan.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -92,6 +93,11 @@ _FAST_PATTERNS = {
     "filter_no_raise_when_all_fit",
     "estimated_size_is_total",
     "cli_size_prompt_passes_soft_limit",
+    "sets_dynamic_host",
+    "subpath_url",
+    "rejects_senckenberg",
+    "rejects_non_dataset",
+    "known_host_validation",
 }
 
 # One representative real-network test per provider for smoke-testing.
@@ -127,6 +133,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_gbif_metadata_only_extraction",
     "test_seanoe_metadata_only_extraction",
     "test_ukceh_metadata_only_extraction",
+    "test_ckan_metadata_only_extraction",
 }
 
 

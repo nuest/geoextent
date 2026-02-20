@@ -146,6 +146,39 @@ Extract spatial extent from a DEIMS-SDR research site:
 
 DEIMS-SDR is a metadata-only provider. It extracts geospatial boundaries (POINT, POLYGON, MULTIPOLYGON) and temporal ranges from the DEIMS-SDR REST API for long-term ecological research sites and datasets.
 
+CKAN Example
+^^^^^^^^^^^^
+
+Extract extent from any CKAN open data portal. The generic CKAN provider works with all CKAN instances.
+
+**Metadata-only extraction** (fast, no file downloads):
+
+::
+
+   # GeoKur TU Dresden — global cropland extent with temporal range
+   python -m geoextent -b -t --no-download-data https://geokur-dmp.geo.tu-dresden.de/dataset/cropland-extent
+
+   # German GovData — Rhine surface water sampling dataset
+   python -m geoextent -b -t --no-download-data https://ckan.govdata.de/dataset/a-spatially-distributed-sampling-of-rhine-surface-water-for-non-target-screening
+
+**Data download** (downloads files and extracts extent from contents):
+
+::
+
+   # Ireland — downloads Shapefile of Dublin library locations
+   python -m geoextent -b https://data.gov.ie/dataset/libraries-dlr
+
+   # Australia — downloads GeoJSON of Gisborne neighbourhood precincts
+   python -m geoextent -b https://data.gov.au/dataset/gisborne-neighbourhood-character-precincts
+
+**Recommended: metadata-first strategy** for CKAN datasets, which tries catalogue metadata first and falls back to data download if needed:
+
+::
+
+   python -m geoextent -b -t --metadata-first https://ckan.govdata.de/dataset/a-spatially-distributed-sampling-of-rhine-surface-water-for-non-target-screening
+
+The CKAN provider supports known hosts (instant matching) and unknown CKAN instances (verified via API probe). See :doc:`providers` for the full list of known hosts.
+
 Advanced Features
 -----------------
 

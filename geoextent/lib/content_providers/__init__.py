@@ -31,6 +31,7 @@ from . import HALODB
 from . import GBIF
 from . import SEANOE
 from . import UKCEH
+from . import CKAN
 
 __all__ = [
     "providers",
@@ -59,4 +60,5 @@ __all__ = [
     "GBIF",
     "SEANOE",
     "UKCEH",
+    "CKAN",
 ]

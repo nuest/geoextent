@@ -31,6 +31,7 @@ from .content_providers import HALODB
 from .content_providers import GBIF
 from .content_providers import SEANOE
 from .content_providers import UKCEH
+from .content_providers import CKAN
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -64,6 +65,7 @@ def _get_content_providers():
         GDIDE.GDIDE,  # GDI-DE after MDI-DE: similar CSW-based, no DOIs
         Opara.Opara,
         Senckenberg.Senckenberg,
+        CKAN.CKAN,  # Generic CKAN catch-all (after specific CKAN providers)
         MendeleyData.MendeleyData,
         DEIMSSDR.DEIMSSDR,
         HALODB.HALODB,
@@ -1427,6 +1429,69 @@ def _process_remote_download(
         time_format=time_format,
         _internal=True,
     )
+
+    # Second metadata fallback: files were downloaded but yielded no extent.
+    # This happens when data files exist but lack geospatial content (e.g.,
+    # plain CSVs without coordinate columns from a CKAN dataset that has rich
+    # spatial metadata in its catalogue record).
+    if (
+        not _used_metadata_fallback
+        and download_data
+        and metadata_fallback
+        and repository.supports_metadata_extraction
+        and not metadata.get("bbox")
+        and not metadata.get("tbox")
+    ):
+        logger.info(
+            "Data files yielded no extent. Falling back to metadata-only "
+            "extraction from %s. Use --no-metadata-fallback to disable.",
+            repository.name,
+        )
+        import shutil
+
+        # Clear the temp folder and re-download with metadata only
+        for item in os.listdir(tmp):
+            item_path = os.path.join(tmp, item)
+            if os.path.isdir(item_path):
+                shutil.rmtree(item_path)
+            else:
+                os.remove(item_path)
+
+        _fallback_follow_kwargs = {}
+        if hasattr(repository, "_try_follow_reference"):
+            _fallback_follow_kwargs["follow"] = False
+
+        repository.download(
+            tmp,
+            throttle,
+            False,  # download_data=False
+            show_progress,
+            max_size_bytes=max_size_bytes,
+            max_download_method=max_download_method,
+            max_download_method_seed=max_download_method_seed,
+            download_skip_nogeo=download_skip_nogeo,
+            download_skip_nogeo_exts=download_skip_nogeo_exts,
+            max_download_workers=max_download_workers,
+            **_fallback_follow_kwargs,
+        )
+        _used_metadata_fallback = True
+
+        metadata = fromDirectory(
+            tmp,
+            bbox,
+            tbox,
+            convex_hull,
+            details,
+            timeout,
+            show_progress=show_progress,
+            recursive=recursive,
+            include_geojsonio=include_geojsonio,
+            placename=placename,
+            placename_escape=placename_escape,
+            assume_wgs84=assume_wgs84,
+            time_format=time_format,
+            _internal=True,
+        )
 
     if _used_metadata_fallback:
         metadata["extraction_method"] = "metadata_fallback"

@@ -149,7 +149,7 @@ class CKANProvider(DoiProvider):
             file_info = {
                 "name": resource.get("name") or resource.get("id"),
                 "url": resource.get("url"),
-                "size": resource.get("size", 0),
+                "size": resource.get("size") or 0,
                 "format": resource.get("format", "").lower(),
                 "description": resource.get("description", ""),
                 "id": resource.get("id"),
@@ -168,17 +168,25 @@ class CKANProvider(DoiProvider):
         """
         Extract spatial extent metadata from CKAN dataset.
 
-        CKAN datasets may include spatial information in various formats.
-        This method attempts to extract bounding box coordinates if available.
+        CKAN datasets may include spatial information in various formats:
+        - GeoJSON geometry in ``spatial`` field (top-level or extras)
+        - Separate ``bbox-*`` extras (UK data.gov.uk pattern)
+        - Dict with ``west``/``south``/``east``/``north`` keys
 
         Returns:
-            dict or None: Spatial metadata with bbox in [W, S, E, N] format, or None
+            dict or None: Spatial metadata with keys:
+                - ``bbox``: [W, S, E, N] (always present)
+                - ``crs``: coordinate reference system (always ``"4326"``)
+                - ``geometry``: original GeoJSON geometry dict (when source is GeoJSON,
+                  preserved for convex hull calculations)
         """
+        import json as _json
+
         if not self.metadata:
             self._get_metadata()
 
-        # Try to find spatial extent in common CKAN metadata fields
         spatial_data = None
+        bbox_parts = {}
 
         # Check for spatial coverage in extras
         extras = self.metadata.get("extras", [])
@@ -186,32 +194,40 @@ class CKANProvider(DoiProvider):
             key = extra.get("key", "")
             value = extra.get("value", "")
 
-            if key in ["spatial", "spatial-reference-system", "bbox"]:
+            if key in ("spatial", "bbox"):
                 spatial_data = value
-                break
+            # UK data.gov.uk pattern: separate bbox-* extras
+            elif key in (
+                "bbox-east-long",
+                "bbox-west-long",
+                "bbox-north-lat",
+                "bbox-south-lat",
+            ):
+                bbox_parts[key] = value
 
-        # Also check direct spatial field (some CKAN instances)
+        # Also check direct spatial field (GeoKur, GovData, Canada, Australia)
         if not spatial_data and "spatial" in self.metadata:
             spatial_data = self.metadata.get("spatial")
 
         # Try to parse spatial data if found
         if spatial_data:
             try:
-                # Handle JSON string
                 if isinstance(spatial_data, str):
-                    import json
+                    spatial_data = _json.loads(spatial_data)
 
-                    spatial_data = json.loads(spatial_data)
-
-                # Extract coordinates (various formats)
                 if isinstance(spatial_data, dict):
-                    # GeoJSON format
+                    # GeoJSON geometry (Polygon, MultiPolygon, Point, etc.)
                     if "coordinates" in spatial_data:
-                        # This would need proper GeoJSON parsing
-                        pass
-                    # Bounding box format
+                        bbox = hf.geojson_to_bbox(spatial_data)
+                        if bbox:
+                            return {
+                                "bbox": bbox,
+                                "crs": "4326",
+                                "geometry": spatial_data,
+                            }
+                    # Dict with named bbox fields
                     elif all(
-                        k in spatial_data for k in ["west", "south", "east", "north"]
+                        k in spatial_data for k in ("west", "south", "east", "north")
                     ):
                         return {
                             "bbox": [
@@ -225,11 +241,45 @@ class CKANProvider(DoiProvider):
             except Exception as e:
                 self.log.debug(f"Could not parse spatial metadata: {e}")
 
+        # Fallback: UK-style separate bbox-* extras
+        if len(bbox_parts) == 4:
+            try:
+                return {
+                    "bbox": [
+                        float(bbox_parts["bbox-west-long"]),
+                        float(bbox_parts["bbox-south-lat"]),
+                        float(bbox_parts["bbox-east-long"]),
+                        float(bbox_parts["bbox-north-lat"]),
+                    ],
+                    "crs": "4326",
+                }
+            except (ValueError, TypeError) as e:
+                self.log.debug(f"Could not parse bbox-* extras: {e}")
+
         return None
+
+    # Known temporal field names across CKAN instances
+    _TEMPORAL_START_KEYS = {
+        "temporal_start",  # GeoKur, GovData
+        "temporal-extent-begin",  # legacy CKAN
+        "temporal_coverage-from",  # UK data.gov.uk
+        "temporal_coverage_from",  # data.gov.au
+        "time_period_coverage_start",  # open.canada.ca
+    }
+    _TEMPORAL_END_KEYS = {
+        "temporal_end",  # GeoKur, GovData
+        "temporal-extent-end",  # legacy CKAN
+        "temporal_coverage-to",  # UK data.gov.uk
+        "temporal_coverage_to",  # data.gov.au
+        "time_period_coverage_end",  # open.canada.ca
+    }
 
     def _extract_temporal_metadata(self):
         """
         Extract temporal extent metadata from CKAN dataset.
+
+        Checks both extras key-value pairs and top-level metadata fields,
+        since different CKAN instances store temporal information differently.
 
         Returns:
             list or None: Temporal extent as [start_date, end_date], or None
@@ -237,19 +287,31 @@ class CKANProvider(DoiProvider):
         if not self.metadata:
             self._get_metadata()
 
-        # Check for temporal coverage in extras
-        extras = self.metadata.get("extras", [])
         start_date = None
         end_date = None
 
+        # Check extras key-value pairs
+        extras = self.metadata.get("extras", [])
         for extra in extras:
             key = extra.get("key", "")
             value = extra.get("value", "")
 
-            if key in ["temporal_start", "temporal-extent-begin"]:
+            if key in self._TEMPORAL_START_KEYS:
                 start_date = value
-            elif key in ["temporal_end", "temporal-extent-end"]:
+            elif key in self._TEMPORAL_END_KEYS:
                 end_date = value
+
+        # Also check top-level metadata fields (GeoKur, GovData, Canada, Australia)
+        if not start_date:
+            for k in self._TEMPORAL_START_KEYS:
+                if k in self.metadata and self.metadata[k]:
+                    start_date = self.metadata[k]
+                    break
+        if not end_date:
+            for k in self._TEMPORAL_END_KEYS:
+                if k in self.metadata and self.metadata[k]:
+                    end_date = self.metadata[k]
+                    break
 
         if start_date or end_date:
             return [start_date, end_date]
@@ -360,7 +422,7 @@ class CKANProvider(DoiProvider):
                 final_files = selected_files
             else:
                 final_files = filtered_files
-                total_size = sum(f.get("size", 0) for f in final_files)
+                total_size = sum(f.get("size") or 0 for f in final_files)
 
             if not final_files:
                 self.log.warning(f"No files selected for download after filtering")
@@ -393,21 +455,20 @@ class CKANProvider(DoiProvider):
         """
         Create a GeoJSON file from metadata for geoextent processing.
 
-        This allows metadata-only extraction to work by creating a file that
-        geoextent can process to extract the spatial and temporal extent.
+        When the spatial metadata includes the original GeoJSON geometry (e.g.,
+        a complex Polygon or MultiPolygon from the CKAN ``spatial`` field), that
+        geometry is preserved so that convex hull calculations use the full shape
+        rather than a simplified bounding-box rectangle.
 
         Args:
             target_folder: Directory to create the GeoJSON file in
-            spatial: Spatial metadata dict with 'bbox' and 'crs' keys
+            spatial: Spatial metadata dict with ``bbox``, ``crs``, and optional
+                ``geometry`` keys
             temporal: Temporal metadata list with [start_date, end_date] or None
             metadata: Full dataset metadata
         """
         import json
         import os
-
-        bbox = spatial["bbox"]
-        # bbox is [W, S, E, N]
-        min_lon, min_lat, max_lon, max_lat = bbox
 
         # Build properties
         properties = {
@@ -428,37 +489,45 @@ class CKANProvider(DoiProvider):
                 if end_date:
                     properties["end_time"] = end_date
             elif len(temporal) == 1:
-                # Single date
                 properties["start_time"] = temporal[0]
                 properties["end_time"] = temporal[0]
 
-        # Create a polygon feature representing the bounding box
+        # Use original geometry if available (preserves precision for convex hull),
+        # otherwise create a rectangular polygon from the bounding box.
+        if "geometry" in spatial and spatial["geometry"]:
+            geometry = spatial["geometry"]
+        else:
+            bbox = spatial["bbox"]
+            min_lon, min_lat, max_lon, max_lat = bbox
+            geometry = {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [min_lon, min_lat],
+                        [max_lon, min_lat],
+                        [max_lon, max_lat],
+                        [min_lon, max_lat],
+                        [min_lon, min_lat],
+                    ]
+                ],
+            }
+
         geojson_data = {
             "type": "FeatureCollection",
             "features": [
                 {
                     "type": "Feature",
-                    "geometry": {
-                        "type": "Polygon",
-                        "coordinates": [
-                            [
-                                [min_lon, min_lat],
-                                [max_lon, min_lat],
-                                [max_lon, max_lat],
-                                [min_lon, max_lat],
-                                [min_lon, min_lat],
-                            ]
-                        ],
-                    },
+                    "geometry": geometry,
                     "properties": properties,
                 }
             ],
         }
 
-        # Create the GeoJSON file
-        geojson_file = os.path.join(
-            target_folder, f"{self.name.lower()}_{self.dataset_id}.geojson"
-        )
+        # Sanitise dataset_id for filename (replace / and other path-unsafe chars)
+        safe_id = re.sub(r"[^\w\-.]", "_", self.dataset_id)
+        # Sanitise provider name similarly
+        safe_name = re.sub(r"[^\w\-.]", "_", self.name.lower())
+        geojson_file = os.path.join(target_folder, f"{safe_name}_{safe_id}.geojson")
 
         with open(geojson_file, "w") as f:
             json.dump(geojson_data, f, indent=2)

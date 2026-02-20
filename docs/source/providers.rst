@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 28 research data repositories (including 10 Dataverse instances) and Wikidata. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 29 research data repositories (including 10 Dataverse instances), Wikidata, and any CKAN instance. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, GDI-DE, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, GDI-DE, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -122,6 +122,8 @@ Quick Reference
 | UKCEH (EIDC)      | 10.5285             | 10.5285/dd35316a-...                   |
 +-------------------+---------------------+----------------------------------------+
 | GDI-DE            | UUIDs / URLs        | geoportal.de/Metadata/{uuid}           |
++-------------------+---------------------+----------------------------------------+
+| CKAN (any)        | Dataset URLs        | https://{host}/dataset/{id}            |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -906,6 +908,100 @@ GDI-DE (geoportal.de)
 - Uses OGC CSW 2.0.2 endpoint with ISO 19115/19139 metadata (same standard as BGR, BAW, MDI-DE)
 - The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
 - Supports bare UUIDs verified against the GDI-DE CSW catalog
+
+CKAN (Generic)
+^^^^^^^^^^^^^^
+
+**Description:** Generic provider for any CKAN (Comprehensive Knowledge Archive Network) instance. CKAN is the world's most widely-used open-source data management system, powering government open data portals and research data repositories worldwide. The generic CKAN provider supports metadata-only extraction (spatial extent from GeoJSON geometries, temporal extent from various field naming conventions) and data file downloads.
+
+**Website:** https://ckan.org/
+
+**Identifier Format:** Dataset URLs (no DOIs)
+
+**Known CKAN Instances:**
+
++----------------------------+----------------------------------------------+
+| Instance                   | Host                                         |
++============================+==============================================+
+| GeoKur (TU Dresden)        | geokur-dmp.geo.tu-dresden.de                 |
++----------------------------+----------------------------------------------+
+| UK data.gov.uk             | ckan.publishing.service.gov.uk               |
++----------------------------+----------------------------------------------+
+| GovData.de                 | ckan.govdata.de                              |
++----------------------------+----------------------------------------------+
+| Canada Open Data           | open.canada.ca                               |
++----------------------------+----------------------------------------------+
+| Australia Open Data        | data.gov.au                                  |
++----------------------------+----------------------------------------------+
+| US data.gov                | catalog.data.gov                             |
++----------------------------+----------------------------------------------+
+| Ireland Open Data          | data.gov.ie                                  |
++----------------------------+----------------------------------------------+
+| Singapore Open Data        | data.gov.sg                                  |
++----------------------------+----------------------------------------------+
+
+Unknown CKAN hosts are automatically detected by probing the ``/api/3/action/status_show`` endpoint.
+
+**Supported Identifier Formats:**
+
+- Dataset URL: ``https://{ckan-host}/dataset/{dataset_id_or_name}``
+- Subpath URL: ``https://{host}/data/en/dataset/{id}`` (e.g. Canada)
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # GeoKur cropland extent — bbox and temporal from CKAN metadata (GeoJSON geometry + temporal_start/end)
+   python -m geoextent -b -t --no-download-data https://geokur-dmp.geo.tu-dresden.de/dataset/cropland-extent
+
+   # UK data.gov.uk — bbox from bbox-* extras pattern
+   python -m geoextent -b --no-download-data https://ckan.publishing.service.gov.uk/dataset/bishkek-spatial-data
+
+   # German GovData — spatial GeoJSON and temporal extent
+   python -m geoextent -b -t --no-download-data https://ckan.govdata.de/dataset/a-spatially-distributed-sampling-of-rhine-surface-water-for-non-target-screening
+
+**Example (Data Download):**
+
+.. code-block:: bash
+
+   # Ireland libraries — download Shapefile and extract bbox from file contents
+   python -m geoextent -b https://data.gov.ie/dataset/libraries-dlr
+
+   # Australia Gisborne — download GeoJSON and extract bbox from file contents
+   python -m geoextent -b https://data.gov.au/dataset/gisborne-neighbourhood-character-precincts
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: uses CKAN API for bbox and temporal extent
+   result = geoextent.fromRemote(
+       'https://geokur-dmp.geo.tu-dresden.de/dataset/cropland-extent',
+       bbox=True, tbox=True, download_data=False
+   )
+
+   # Data download: downloads files and extracts extent
+   result = geoextent.fromRemote(
+       'https://data.gov.ie/dataset/libraries-dlr',
+       bbox=True, tbox=True, download_data=True
+   )
+
+   # Metadata-first strategy: tries metadata first, falls back to data download
+   result = geoextent.fromRemote(
+       'https://ckan.govdata.de/dataset/a-spatially-distributed-sampling-of-rhine-surface-water-for-non-target-screening',
+       bbox=True, tbox=True, metadata_first=True
+   )
+
+**Special Notes:**
+
+- **Recommended:** Use ``--metadata-first`` for CKAN datasets — many have rich catalogue metadata but data files may not contain geospatial content
+- Spatial metadata supports: GeoJSON geometries (Polygon, MultiPolygon, Point), ``bbox-*`` extras (UK pattern), and ``west/south/east/north`` dict fields
+- Temporal metadata supports 5 naming conventions across instances: ``temporal_start/end``, ``temporal-extent-begin/end``, ``temporal_coverage-from/to``, ``temporal_coverage_from/to``, ``time_period_coverage_start/end``
+- Complex GeoJSON geometries are preserved for convex hull calculations (not simplified to bounding box rectangles)
+- Automatic metadata fallback: if downloaded data files have no geospatial content, automatically falls back to catalogue metadata
+- Senckenberg (``dataportal.senckenberg.de``) has a dedicated provider and is excluded from generic CKAN matching
 
 Usage Examples
 --------------
