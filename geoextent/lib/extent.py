@@ -32,6 +32,7 @@ from .content_providers import GBIF
 from .content_providers import SEANOE
 from .content_providers import UKCEH
 from .content_providers import CKAN
+from .content_providers import NFDI4Earth
 from .content_providers import STAC
 from . import handleCSV
 from . import handleRaster
@@ -69,6 +70,7 @@ def _get_content_providers():
         CKAN.CKAN,  # Generic CKAN catch-all (after specific CKAN providers)
         MendeleyData.MendeleyData,
         DEIMSSDR.DEIMSSDR,
+        NFDI4Earth.NFDI4Earth,  # After DEIMS-SDR: URL-based, no DOIs, no collision risk
         HALODB.HALODB,
         SEANOE.SEANOE,
         UKCEH.UKCEH,

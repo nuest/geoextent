@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, HALO DB, GDI-DE, STAC, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, NFDI4Earth, HALO DB, GDI-DE, STAC, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -122,6 +122,8 @@ Quick Reference
 | UKCEH (EIDC)      | 10.5285             | 10.5285/dd35316a-...                   |
 +-------------------+---------------------+----------------------------------------+
 | GDI-DE            | UUIDs / URLs        | geoportal.de/Metadata/{uuid}           |
++-------------------+---------------------+----------------------------------------+
+| NFDI4Earth        | OneStop4All / URLs  | onestop4all.nfdi4earth.de/result/{id}  |
 +-------------------+---------------------+----------------------------------------+
 | STAC              | Collection URLs     | https://{host}/collections/{id}        |
 +-------------------+---------------------+----------------------------------------+
@@ -910,6 +912,74 @@ GDI-DE (geoportal.de)
 - Uses OGC CSW 2.0.2 endpoint with ISO 19115/19139 metadata (same standard as BGR, BAW, MDI-DE)
 - The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
 - Supports bare UUIDs verified against the GDI-DE CSW catalog
+
+NFDI4Earth Knowledge Hub
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+**Description:** NFDI4Earth (National Research Data Infrastructure for Earth System Sciences) operates the Knowledge Hub — a Cordra-based digital object repository with 1.3M+ datasets, 168 repositories, and 415K data services. The OneStop4All portal provides a unified search/discovery frontend. Geospatial metadata is extracted from the SPARQL endpoint (with Cordra REST API fallback). Only ``dcat:Dataset`` type objects are processed.
+
+**Website:** https://onestop4all.nfdi4earth.de/
+
+**Identifier Format:** OneStop4All or Cordra URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- OneStop4All URL: ``https://onestop4all.nfdi4earth.de/result/{id}``
+- Cordra URL: ``https://cordra.knowledgehub.nfdi4earth.de/objects/n4e/{id}``
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # Schiffsdichte 2013 — bbox from WKT geometry via SPARQL
+   python -m geoextent -b https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/
+
+   # ESA Antarctic Ice Sheet — bbox and temporal extent (1994–2021)
+   python -m geoextent -b -t https://onestop4all.nfdi4earth.de/result/dthb-7b3bddd5af4945c2ac508a6d25537f0a/
+
+   # FNP Berlin — Berlin area polygon
+   python -m geoextent -b https://onestop4all.nfdi4earth.de/result/dthb-92a8e490-3d32-46cc-853a-50c0d43a187f/
+
+**Example (Disable Follow):**
+
+.. code-block:: bash
+
+   # Use NFDI4Earth metadata only, do not follow the landingPage to another provider
+   python -m geoextent -b -t --no-follow https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Extract bbox and temporal extent from NFDI4Earth Knowledge Hub
+   result = geoextent.fromRemote(
+       'https://onestop4all.nfdi4earth.de/result/dthb-7b3bddd5af4945c2ac508a6d25537f0a/',
+       bbox=True, tbox=True
+   )
+   print(result['bbox'])   # Antarctic region bounding box
+   print(result['tbox'])   # ['1994-01-28', '2021-01-19']
+
+   # Disable follow — use NFDI4Earth SPARQL metadata only
+   result = geoextent.fromRemote(
+       'https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/',
+       bbox=True, follow=False
+   )
+
+   # Direct Cordra URL also works
+   result = geoextent.fromRemote(
+       'https://cordra.knowledgehub.nfdi4earth.de/objects/n4e/dthb-82b6552d-2b8e-4800-b955-ea495efc28af',
+       bbox=True
+   )
+
+**Special Notes:**
+
+- **Metadata-only provider**: Extracts WKT geometry and temporal ranges from the NFDI4Earth SPARQL endpoint — no data files are downloaded
+- **Provider-jump (follow)**: When a dataset has a ``landingPage`` URL that matches another supported provider (e.g., GDI-DE), geoextent automatically follows it for data extent extraction. Disable with ``--no-follow`` or ``follow=False``.
+- Uses SPARQL as the primary data access method with Cordra REST API as fallback when the SPARQL endpoint is unavailable
+- The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
+- Both OneStop4All landing pages and direct Cordra object URLs are supported
 
 STAC (SpatioTemporal Asset Catalog)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

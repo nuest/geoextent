@@ -58,6 +58,7 @@ _PROVIDER_FILES = {
     "test_api_ukceh.py",
     "test_api_ckan.py",
     "test_api_stac.py",
+    "test_api_nfdi4earth.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -140,6 +141,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_ukceh_metadata_only_extraction",
     "test_ckan_metadata_only_extraction",
     "test_stac_metadata_only_extraction",
+    "test_nfdi4earth_metadata_only_extraction",
 }
 
 

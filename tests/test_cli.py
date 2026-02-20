@@ -457,7 +457,13 @@ def test_zenodo_valid_doi_repository(script_runner):
 
 def test_zenodo_valid_link_repository_with_no_geoextent(script_runner):
     ret = script_runner.run(
-        ["geoextent", "-b", "-t", "https://zenodo.org/record/1810558"]
+        [
+            "geoextent",
+            "-b",
+            "-t",
+            "--no-metadata-fallback",
+            "https://zenodo.org/record/1810558",
+        ]
     )
     result = ret.stdout
     assert (
@@ -466,6 +472,25 @@ def test_zenodo_valid_link_repository_with_no_geoextent(script_runner):
     assert (
         "tbox" not in result
     ), "This repository contains a PDF file, it should not return a tbox"
+
+
+def test_zenodo_valid_link_repository_with_no_geoextent_metadata_fallback(
+    script_runner,
+):
+    """With metadata fallback enabled (default), catalogue metadata provides temporal extent."""
+    ret = script_runner.run(
+        ["geoextent", "-b", "-t", "https://zenodo.org/record/1810558"]
+    )
+    result = ret.stdout
+    assert (
+        "bbox" not in result
+    ), "Catalogue metadata for this record has no spatial extent"
+    assert (
+        "tbox" in result
+    ), "Metadata fallback should extract temporal extent from catalogue record"
+    assert (
+        "metadata_fallback" in result
+    ), "Result should indicate metadata_fallback extraction method"
 
 
 def test_zenodo_invalid_link_repository(script_runner):

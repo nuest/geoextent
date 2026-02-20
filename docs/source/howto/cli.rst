@@ -144,7 +144,7 @@ Use ``--details`` to see per-file results alongside the merged extent:
 Remote Repositories
 -------------------
 
-Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, GBIF, Dataverse, and Pensoft.
+Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, NFDI4Earth, GBIF, Dataverse, and Pensoft.
 
 Extract from Zenodo
 ^^^^^^^^^^^^^^^^^^^
@@ -359,6 +359,29 @@ By default, DEIMS-SDR datasets that reference external repositories (e.g., Zenod
 
    geoextent -b -t --no-follow https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2
 
+Extract from NFDI4Earth Knowledge Hub (OneStop4All URL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b -t https://onestop4all.nfdi4earth.de/result/dthb-7b3bddd5af4945c2ac508a6d25537f0a/
+
+Extract from NFDI4Earth Knowledge Hub (Cordra URL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b https://cordra.knowledgehub.nfdi4earth.de/objects/n4e/dthb-82b6552d-2b8e-4800-b955-ea495efc28af
+
+Extract from NFDI4Earth without following landing page
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+By default, NFDI4Earth datasets with a ``landingPage`` URL are followed to other supported providers. Use ``--no-follow`` to disable this and use NFDI4Earth SPARQL metadata only:
+
+::
+
+   geoextent -b -t --no-follow https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/
+
 Smart metadata-first extraction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -417,7 +440,7 @@ Answering ``y`` retries with the actual size as the new limit. In non-interactiv
 
 .. note::
 
-   The interactive prompt relies on providers reporting file sizes in their API metadata before download. Metadata-only providers (DEIMS-SDR, HALO DB, Wikidata, Pensoft) do not download data files, so the size limit does not apply to them.
+   The interactive prompt relies on providers reporting file sizes in their API metadata before download. Metadata-only providers (DEIMS-SDR, NFDI4Earth, HALO DB, Wikidata, Pensoft) do not download data files, so the size limit does not apply to them.
 
 ::
 

@@ -236,7 +236,9 @@
       "WebFetch(domain:open.canada.ca)",
       "WebFetch(domain:www.cordra.org)",
       "WebFetch(domain:www.nfdi4earth.de)",
-      "Bash(# Look at OneStop4All frontend to understand URL patterns # Try fetching a known dataset page curl -sI ''https://onestop4all.nfdi4earth.de/dataset/test'')"
+      "Bash(# Look at OneStop4All frontend to understand URL patterns # Try fetching a known dataset page curl -sI ''https://onestop4all.nfdi4earth.de/dataset/test'')",
+      "Bash(.venv/bin/pip show:*)",
+      "Bash(.venv/bin/pip list:*)"
     ],
     "deny": [],
     "ask": []

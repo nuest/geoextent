@@ -146,6 +146,25 @@ Extract spatial extent from a DEIMS-SDR research site:
 
 DEIMS-SDR is a metadata-only provider. It extracts geospatial boundaries (POINT, POLYGON, MULTIPOLYGON) and temporal ranges from the DEIMS-SDR REST API for long-term ecological research sites and datasets.
 
+NFDI4Earth Knowledge Hub Example
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Extract extent from the NFDI4Earth Knowledge Hub (metadata-only, via SPARQL):
+
+::
+
+   # Schiffsdichte 2013 — North Sea shipping density (spatial only)
+   python -m geoextent -b https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/
+
+   # ESA Antarctic Ice Sheet — spatial + temporal extent (1994–2021)
+   python -m geoextent -b -t https://onestop4all.nfdi4earth.de/result/dthb-7b3bddd5af4945c2ac508a6d25537f0a/
+
+NFDI4Earth is a metadata-only provider. It extracts WKT geometry and temporal ranges from the SPARQL endpoint. When a dataset has a ``landingPage`` URL that matches another supported provider, geoextent automatically follows it. Use ``--no-follow`` to stay with NFDI4Earth metadata:
+
+::
+
+   python -m geoextent -b -t --no-follow https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/
+
 STAC Catalog Example
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -602,6 +621,11 @@ TU Dresden Opara:
 ::
 
    python -m geoextent -b 10.25532/OPARA-581
+
+NFDI4Earth Knowledge Hub (OneStop4All URL):
+::
+
+   python -m geoextent -b -t https://onestop4all.nfdi4earth.de/result/dthb-7b3bddd5af4945c2ac508a6d25537f0a/
 
 STAC Catalog (any STAC Collection URL):
 ::

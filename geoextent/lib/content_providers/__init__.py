@@ -32,6 +32,7 @@ from . import GBIF
 from . import SEANOE
 from . import UKCEH
 from . import CKAN
+from . import NFDI4Earth
 from . import STAC
 
 __all__ = [
@@ -62,5 +63,6 @@ __all__ = [
     "SEANOE",
     "UKCEH",
     "CKAN",
+    "NFDI4Earth",
     "STAC",
 ]
