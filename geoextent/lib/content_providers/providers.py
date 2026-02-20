@@ -521,7 +521,7 @@ class DoiProvider(ContentProvider):
                 else:
                     wait_seconds = 1
 
-        print(f"INFO: Sleep {wait_seconds:.0f} s...")
+        logger.info("Rate limited, sleeping %d s...", wait_seconds)
         time.sleep(wait_seconds)
 
         return

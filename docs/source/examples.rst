@@ -241,6 +241,25 @@ Extract extent from public GitHub repositories. The GitHub provider downloads ge
 
 The GitHub provider preserves directory structure when downloading, which is essential for shapefile components and world files. Set the ``GITHUB_TOKEN`` environment variable for higher API rate limits (5000/hour vs 60/hour unauthenticated).
 
+Software Heritage Example
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Extract extent from software artifacts archived by Software Heritage using persistent SWHIDs or browse URLs.
+
+**Browse origin URL with subdirectory** (targeted extraction, minimal download):
+
+::
+
+   python -m geoextent -b --download-skip-nogeo "https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/AWMC/geodata&path=Cultural-Data/political_shading/hasmonean"
+
+**Direct directory SWHID**:
+
+::
+
+   python -m geoextent -b --download-skip-nogeo swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a
+
+Software Heritage assigns persistent identifiers (SWHIDs) to every software artifact, providing long-term reproducibility. Set the ``SWH_TOKEN`` environment variable for higher API rate limits (1200/hour vs 120/hour anonymous).
+
 Advanced Features
 -----------------
 

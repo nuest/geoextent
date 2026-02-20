@@ -397,6 +397,17 @@ Skip non-geospatial files (recommended for repos with many non-geo files)::
 
    geoextent -b --download-skip-nogeo https://github.com/fraxen/tectonicplates
 
+Extract from Software Heritage
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b --download-skip-nogeo "https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/AWMC/geodata&path=Cultural-Data/political_shading/hasmonean"
+
+Extract from a directory SWHID::
+
+   geoextent -b --download-skip-nogeo swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a
+
 Smart metadata-first extraction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

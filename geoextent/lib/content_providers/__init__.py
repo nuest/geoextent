@@ -36,6 +36,7 @@ from . import NFDI4Earth
 from . import STAC
 from . import GitHostProvider
 from . import GitHub
+from . import SoftwareHeritage
 
 __all__ = [
     "providers",
@@ -69,4 +70,5 @@ __all__ = [
     "STAC",
     "GitHostProvider",
     "GitHub",
+    "SoftwareHeritage",
 ]

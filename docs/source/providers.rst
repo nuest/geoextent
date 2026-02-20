@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 30 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, any CKAN instance, and GitHub repositories. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 31 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, any CKAN instance, GitHub repositories, and the Software Heritage archive. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -130,6 +130,8 @@ Quick Reference
 | CKAN (any)        | Dataset URLs        | https://{host}/dataset/{id}            |
 +-------------------+---------------------+----------------------------------------+
 | GitHub            | Repository URLs     | https://github.com/{owner}/{repo}      |
++-------------------+---------------------+----------------------------------------+
+| Software Heritage | SWHIDs / URLs       | swh:1:dir:<40-hex>                     |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -1194,6 +1196,56 @@ GitHub
 - **Rate limits**: Unauthenticated: 60 API requests/hour. Set the ``GITHUB_TOKEN`` environment variable for 5000 requests/hour.
 - **Directory structure preservation**: Files are downloaded preserving their path structure, which is essential for shapefile components (``.shp`` + ``.shx`` + ``.dbf`` + ``.prj``) and world files
 - **Recommended**: Use ``--download-skip-nogeo`` for repositories with many non-geospatial files
+
+Software Heritage
+^^^^^^^^^^^^^^^^^
+
+**Description:** Software Heritage is a non-profit archive (Inria + UNESCO) of all publicly available source code, assigning persistent identifiers (SWHIDs) to every software artifact. This provider downloads geospatial files from archived repositories and extracts their spatial and temporal extent. It resolves SWHIDs through the SWH API chain (origin/snapshot/revision/directory) and downloads files by content hash.
+
+**Website:** https://www.softwareheritage.org/
+
+**Identifier Format:** SWHIDs and browse URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- Bare SWHID: ``swh:1:dir:<40-hex>``
+- Origin SWHID: ``swh:1:ori:<40-hex>``
+- SWHID with qualifiers: ``swh:1:dir:<hash>;origin=<url>;path=/subdir``
+- Browse origin URL: ``https://archive.softwareheritage.org/browse/origin/directory/?origin_url=<url>``
+- Browse origin URL with path: ``https://archive.softwareheritage.org/browse/origin/directory/?origin_url=<url>&path=<path>``
+- Browse directory URL: ``https://archive.softwareheritage.org/browse/directory/<sha>/``
+- Browse revision URL: ``https://archive.softwareheritage.org/browse/revision/<sha>/``
+
+**Example (CLI):**
+
+.. code-block:: bash
+
+   # Extract bbox from an archived repository subdirectory
+   python -m geoextent -b --download-skip-nogeo \
+       "https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/AWMC/geodata&path=Cultural-Data/political_shading/hasmonean"
+
+   # Extract from a directory SWHID
+   python -m geoextent -b --download-skip-nogeo swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Extract bbox from Software Heritage archive
+   result = geoextent.fromRemote(
+       'swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a',
+       bbox=True, tbox=False, download_skip_nogeo=True
+   )
+
+**Special Notes:**
+
+- **Data-download provider**: Downloads actual files from the archive -- no metadata-only extraction
+- **Rate limits**: Anonymous: 120 API requests/hour. Set the ``SWH_TOKEN`` environment variable for 1200 requests/hour.
+- **Sequential downloads**: Downloads are sequential due to strict API rate limits
+- **Subpath optimization**: When a path is specified, only the targeted subdirectory is traversed
+- **Recommended**: Use ``--download-skip-nogeo`` to skip non-geospatial files and ``&path=`` to target specific subdirectories
 
 Usage Examples
 --------------

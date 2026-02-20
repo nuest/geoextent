@@ -258,7 +258,13 @@
       "WebFetch(domain:zivgitlab.uni-muenster.de)",
       "WebFetch(domain:git.gfz-potsdam.de)",
       "WebFetch(domain:framagit.org)",
-      "WebFetch(domain:git.ufz.de)"
+      "WebFetch(domain:git.ufz.de)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:jakubnowosad.com)",
+      "WebFetch(domain:nowosad.r-universe.dev)",
+      "Bash(/home/daniel/git/geoextent/.venv/bin/python3:*)",
+      "WebFetch(domain:docs.softwareheritage.org)",
+      "WebFetch(domain:archive.softwareheritage.org)"
     ],
     "deny": [],
     "ask": []

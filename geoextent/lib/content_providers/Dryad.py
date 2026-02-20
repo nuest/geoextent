@@ -115,8 +115,7 @@ class Dryad(DoiProvider):
                 )
                 self.record2 = resp.json()
             except Exception as e:
-                # TODO: make it prettier
-                print("DEBUG:", e)
+                self.log.debug("Dryad API error: %s", e)
                 raise
 
             return self.record2

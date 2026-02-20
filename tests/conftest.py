@@ -60,6 +60,7 @@ _PROVIDER_FILES = {
     "test_api_stac.py",
     "test_api_nfdi4earth.py",
     "test_api_github.py",
+    "test_api_software_heritage.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -106,6 +107,7 @@ _FAST_PATTERNS = {
     "path_pattern",
     "collection_id_extraction",
     "non_http_rejected",
+    "swhid",
 }
 
 # One representative real-network test per provider for smoke-testing.
@@ -145,6 +147,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_stac_metadata_only_extraction",
     "test_nfdi4earth_metadata_only_extraction",
     "test_github_metadata_only_extraction",
+    "test_swh_metadata_only_extraction",
 }
 
 
