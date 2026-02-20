@@ -97,10 +97,10 @@ class TestDEIMSSDRDatasets:
         # Rosalia forest is in Austria (~16.3E, ~47.7N);
         # use wide tolerance since upstream data files may change
         bbox = result["bbox"]
-        assert 47.5 < bbox[0] < 47.8  # minlat
-        assert 16.2 < bbox[1] < 16.4  # minlon
-        assert 47.5 < bbox[2] < 47.8  # maxlat
-        assert 16.2 < bbox[3] < 16.4  # maxlon
+        assert bbox[0] == pytest.approx(47.65, abs=0.15)  # minlat
+        assert bbox[1] == pytest.approx(16.3, abs=0.1)  # minlon
+        assert bbox[2] == pytest.approx(47.65, abs=0.15)  # maxlat
+        assert bbox[3] == pytest.approx(16.3, abs=0.1)  # maxlon
 
     def test_deimssdr_sierra_nevada_complex_polygon(self):
         """Sierra Nevada (Spain): very complex POLYGON (~23,574 vertices)."""
@@ -118,10 +118,10 @@ class TestDEIMSSDRDatasets:
         assert result["tbox"] == ["2001-01-01", "2018-01-01"]
         # Sierra Nevada is in SE Spain (~-3.6W to -2.6W, ~36.9N to 37.2N)
         bbox = result["bbox"]
-        assert bbox[1] < -2.5  # minlon (west)
-        assert bbox[3] > -3.7  # maxlon (east) — careful, negative
-        assert bbox[0] > 36.5  # minlat
-        assert bbox[2] < 37.5  # maxlat
+        assert bbox[1] == pytest.approx(-3.1, abs=0.6)  # minlon (west)
+        assert bbox[3] == pytest.approx(-3.1, abs=0.6)  # maxlon (east)
+        assert bbox[0] == pytest.approx(37.0, abs=0.5)  # minlat
+        assert bbox[2] == pytest.approx(37.0, abs=0.5)  # maxlat
 
     def test_deimssdr_lake_paione_with_zenodo_doi(self):
         """Lake Paione Superiore (Italy): POLYGON, has external Zenodo DOI."""
@@ -178,8 +178,8 @@ class TestDEIMSSDRDatasets:
         assert result["tbox"] == ["1960-01-01", "1960-01-01"]
         # Moor House is in northern England (~-2.4W, ~54.7N)
         bbox = result["bbox"]
-        assert bbox[1] < -2.0  # minlon (west)
-        assert bbox[0] > 54.0  # minlat
+        assert bbox[1] == pytest.approx(-2.4, abs=0.5)  # minlon (west)
+        assert bbox[0] == pytest.approx(54.7, abs=0.5)  # minlat
 
     def test_deimssdr_meteorological_station_point(self):
         """Schröckalm (Austria): POINT geometry, ongoing."""
@@ -276,7 +276,7 @@ class TestDEIMSSDRSites:
         assert "bbox" in result
         # Algoa Bay is in South Africa (~24.6-26.9E, ~-34.3 to -33.6S)
         bbox = result["bbox"]
-        assert bbox[0] < -33.0  # minlat (southern hemisphere)
+        assert bbox[0] == pytest.approx(-34.0, abs=1.0)  # minlat (southern hemisphere)
         assert bbox[1] == pytest.approx(24.61, abs=0.5)  # minlon
         assert bbox[3] == pytest.approx(26.91, abs=0.5)  # maxlon
 

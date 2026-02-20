@@ -94,8 +94,8 @@ class TestHALODBExtraction:
             bbox = result["bbox"]
             assert len(bbox) == 4
             # In EPSG:4326 native order: [minlat, minlon, maxlat, maxlon]
-            assert bbox[0] < 20  # minlat (Cape Verde area)
-            assert bbox[2] > 45  # maxlat (Germany area)
+            assert bbox[0] == pytest.approx(16, abs=2)  # minlat (Cape Verde area)
+            assert bbox[2] == pytest.approx(49, abs=2)  # maxlat (Germany area)
 
         # Should have temporal extent from departure/arrival
         if result.get("tbox") is not None:

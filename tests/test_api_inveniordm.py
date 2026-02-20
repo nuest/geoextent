@@ -267,10 +267,10 @@ class TestInvenioRDMExtraction:
 
             # Expected: Sichuan, China region [lat, lon] order
             # [30.99, 103.47, 31.05, 103.58] approximately
-            assert abs(bbox[0] - 30.99) < 0.1, f"South lat: {bbox[0]}"
-            assert abs(bbox[1] - 103.47) < 0.2, f"West lon: {bbox[1]}"
-            assert abs(bbox[2] - 31.05) < 0.1, f"North lat: {bbox[2]}"
-            assert abs(bbox[3] - 103.58) < 0.2, f"East lon: {bbox[3]}"
+            assert bbox[0] == pytest.approx(30.99, abs=0.1), f"South lat: {bbox[0]}"
+            assert bbox[1] == pytest.approx(103.47, abs=0.2), f"West lon: {bbox[1]}"
+            assert bbox[2] == pytest.approx(31.05, abs=0.1), f"North lat: {bbox[2]}"
+            assert bbox[3] == pytest.approx(103.58, abs=0.2), f"East lon: {bbox[3]}"
 
             assert result.get("crs") == "4326"
 
@@ -296,10 +296,10 @@ class TestInvenioRDMExtraction:
 
             # Expected: Austria region [lat, lon] order
             # [46.11, 9.53, 49.18, 17.27] approximately
-            assert abs(bbox[0] - 46.11) < 0.5, f"South lat: {bbox[0]}"
-            assert abs(bbox[1] - 9.53) < 0.5, f"West lon: {bbox[1]}"
-            assert abs(bbox[2] - 49.18) < 0.5, f"North lat: {bbox[2]}"
-            assert abs(bbox[3] - 17.27) < 0.5, f"East lon: {bbox[3]}"
+            assert bbox[0] == pytest.approx(46.11, abs=0.5), f"South lat: {bbox[0]}"
+            assert bbox[1] == pytest.approx(9.53, abs=0.5), f"West lon: {bbox[1]}"
+            assert bbox[2] == pytest.approx(49.18, abs=0.5), f"North lat: {bbox[2]}"
+            assert bbox[3] == pytest.approx(17.27, abs=0.5), f"East lon: {bbox[3]}"
 
             assert result.get("crs") == "4326"
 
@@ -324,10 +324,10 @@ class TestInvenioRDMExtraction:
 
             # Expected: Central Europe region [lat, lon] order
             # [36.50, -6.30, 69.10, 24.70] approximately
-            assert abs(bbox[0] - 36.50) < 2.0, f"South lat: {bbox[0]}"
-            assert abs(bbox[1] - (-6.30)) < 2.0, f"West lon: {bbox[1]}"
-            assert abs(bbox[2] - 69.10) < 2.0, f"North lat: {bbox[2]}"
-            assert abs(bbox[3] - 24.70) < 2.0, f"East lon: {bbox[3]}"
+            assert bbox[0] == pytest.approx(36.50, abs=2.0), f"South lat: {bbox[0]}"
+            assert bbox[1] == pytest.approx(-6.30, abs=2.0), f"West lon: {bbox[1]}"
+            assert bbox[2] == pytest.approx(69.10, abs=2.0), f"North lat: {bbox[2]}"
+            assert bbox[3] == pytest.approx(24.70, abs=2.0), f"East lon: {bbox[3]}"
 
             assert result.get("crs") == "4326"
 
@@ -371,10 +371,10 @@ class TestInvenioRDMExtraction:
 
             # Expected: Oldenburg, Germany region [lat, lon] order
             # Polygon coords: [8.1901, 53.1285] to [8.2323, 53.1491]
-            assert abs(bbox[0] - 53.1285) < 0.01, f"South lat: {bbox[0]}"
-            assert abs(bbox[1] - 8.1901) < 0.01, f"West lon: {bbox[1]}"
-            assert abs(bbox[2] - 53.1491) < 0.01, f"North lat: {bbox[2]}"
-            assert abs(bbox[3] - 8.2323) < 0.01, f"East lon: {bbox[3]}"
+            assert bbox[0] == pytest.approx(53.1285, abs=0.01), f"South lat: {bbox[0]}"
+            assert bbox[1] == pytest.approx(8.1901, abs=0.01), f"West lon: {bbox[1]}"
+            assert bbox[2] == pytest.approx(53.1491, abs=0.01), f"North lat: {bbox[2]}"
+            assert bbox[3] == pytest.approx(8.2323, abs=0.01), f"East lon: {bbox[3]}"
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
@@ -418,14 +418,10 @@ class TestInvenioRDMExtraction:
             # Expected: European coverage [lat, lon] order
             # 334 study areas in 200x200km squares across Europe
             # Includes outlier tiles (Iceland, Canary Islands, etc.)
-            assert bbox[0] > 25.0, f"South lat too low: {bbox[0]}"
-            assert bbox[0] < 45.0, f"South lat too high: {bbox[0]}"
-            assert bbox[1] > -35.0, f"West lon too low: {bbox[1]}"
-            assert bbox[1] < -10.0, f"West lon too high: {bbox[1]}"
-            assert bbox[2] > 60.0, f"North lat too low: {bbox[2]}"
-            assert bbox[2] < 75.0, f"North lat too high: {bbox[2]}"
-            assert bbox[3] > 30.0, f"East lon too low: {bbox[3]}"
-            assert bbox[3] < 50.0, f"East lon too high: {bbox[3]}"
+            assert bbox[0] == pytest.approx(35.0, abs=10.0), f"South lat: {bbox[0]}"
+            assert bbox[1] == pytest.approx(-22.5, abs=12.5), f"West lon: {bbox[1]}"
+            assert bbox[2] == pytest.approx(67.5, abs=7.5), f"North lat: {bbox[2]}"
+            assert bbox[3] == pytest.approx(40.0, abs=10.0), f"East lon: {bbox[3]}"
 
             assert result.get("crs") == "4326"
 

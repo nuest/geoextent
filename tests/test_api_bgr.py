@@ -167,10 +167,10 @@ class TestBGRProvider:
                 assert isinstance(bbox[3], (int, float))
 
                 # Verify bounding box is close to expected (Langeoog island)
-                assert abs(bbox[0] - expected_bbox[0]) < 0.5
-                assert abs(bbox[1] - expected_bbox[1]) < 0.5
-                assert abs(bbox[2] - expected_bbox[2]) < 0.5
-                assert abs(bbox[3] - expected_bbox[3]) < 0.5
+                assert bbox[0] == pytest.approx(expected_bbox[0], abs=0.5)
+                assert bbox[1] == pytest.approx(expected_bbox[1], abs=0.5)
+                assert bbox[2] == pytest.approx(expected_bbox[2], abs=0.5)
+                assert bbox[3] == pytest.approx(expected_bbox[3], abs=0.5)
 
             # Check CRS
             if "crs" in result:

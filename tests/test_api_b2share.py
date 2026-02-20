@@ -102,10 +102,10 @@ class TestB2SHAREProvider:
             if "bbox" in result and result["bbox"] is not None:
                 bbox = result["bbox"]
                 expected = ds["expected_bbox"]
-                assert abs(bbox[0] - expected[0]) < 0.1
-                assert abs(bbox[1] - expected[1]) < 0.1
-                assert abs(bbox[2] - expected[2]) < 0.1
-                assert abs(bbox[3] - expected[3]) < 0.1
+                assert bbox[0] == pytest.approx(expected[0], abs=0.1)
+                assert bbox[1] == pytest.approx(expected[1], abs=0.1)
+                assert bbox[2] == pytest.approx(expected[2], abs=0.1)
+                assert bbox[3] == pytest.approx(expected[3], abs=0.1)
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
@@ -123,10 +123,10 @@ class TestB2SHAREProvider:
             if "bbox" in result and result["bbox"] is not None:
                 bbox = result["bbox"]
                 expected = ds["expected_bbox"]
-                assert abs(bbox[0] - expected[0]) < 0.1
-                assert abs(bbox[1] - expected[1]) < 0.1
-                assert abs(bbox[2] - expected[2]) < 0.1
-                assert abs(bbox[3] - expected[3]) < 0.1
+                assert bbox[0] == pytest.approx(expected[0], abs=0.1)
+                assert bbox[1] == pytest.approx(expected[1], abs=0.1)
+                assert bbox[2] == pytest.approx(expected[2], abs=0.1)
+                assert bbox[3] == pytest.approx(expected[3], abs=0.1)
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
@@ -149,10 +149,10 @@ class TestB2SHAREProvider:
             if "bbox" in result and result["bbox"] is not None:
                 bbox = result["bbox"]
                 expected = ds["expected_bbox"]
-                assert abs(bbox[0] - expected[0]) < 0.1
-                assert abs(bbox[1] - expected[1]) < 0.1
-                assert abs(bbox[2] - expected[2]) < 0.1
-                assert abs(bbox[3] - expected[3]) < 0.1
+                assert bbox[0] == pytest.approx(expected[0], abs=0.1)
+                assert bbox[1] == pytest.approx(expected[1], abs=0.1)
+                assert bbox[2] == pytest.approx(expected[2], abs=0.1)
+                assert bbox[3] == pytest.approx(expected[3], abs=0.1)
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
@@ -170,8 +170,8 @@ class TestB2SHAREProvider:
             if "bbox" in result and result["bbox"] is not None:
                 bbox = result["bbox"]
                 expected = ds["expected_bbox"]
-                assert abs(bbox[0] - expected[0]) < 0.1
-                assert abs(bbox[1] - expected[1]) < 0.1
+                assert bbox[0] == pytest.approx(expected[0], abs=0.1)
+                assert bbox[1] == pytest.approx(expected[1], abs=0.1)
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")

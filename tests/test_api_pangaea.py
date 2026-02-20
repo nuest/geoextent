@@ -198,8 +198,8 @@ class TestPangaeaProvider:
                 expected_bbox = dataset["expected_bbox"]
                 assert len(bbox) == 4
                 # For point locations, min and max should be close or identical
-                assert abs(bbox[0] - expected_bbox[0]) < 0.1  # latitude
-                assert abs(bbox[1] - expected_bbox[1]) < 0.1  # longitude
+                assert bbox[0] == pytest.approx(expected_bbox[0], abs=0.1)  # latitude
+                assert bbox[1] == pytest.approx(expected_bbox[1], abs=0.1)  # longitude
 
             # Check temporal coverage
             if "tbox" in result:
@@ -280,8 +280,12 @@ class TestPangaeaProvider:
                 ]
                 assert len(bbox) == 4
                 # Allow tolerance for extraction differences
-                assert abs(bbox[0] - expected_bbox[0]) < 5.0  # latitude tolerance
-                assert abs(bbox[1] - expected_bbox[1]) < 5.0  # longitude tolerance
+                assert bbox[0] == pytest.approx(
+                    expected_bbox[0], abs=5.0
+                )  # latitude tolerance
+                assert bbox[1] == pytest.approx(
+                    expected_bbox[1], abs=5.0
+                )  # longitude tolerance
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
@@ -304,8 +308,12 @@ class TestPangaeaProvider:
                     expected_bbox = dataset["expected_bbox"]
                     assert len(bbox) == 4
                     # For point locations, coordinates should be very close
-                    assert abs(bbox[0] - expected_bbox[0]) < 0.01  # latitude
-                    assert abs(bbox[1] - expected_bbox[1]) < 0.01  # longitude
+                    assert bbox[0] == pytest.approx(
+                        expected_bbox[0], abs=0.01
+                    )  # latitude
+                    assert bbox[1] == pytest.approx(
+                        expected_bbox[1], abs=0.01
+                    )  # longitude
 
                 # Check temporal coverage
                 if "tbox" in result and "expected_tbox" in dataset:
@@ -332,8 +340,8 @@ class TestPangaeaProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
                 assert len(bbox) == 4
-                assert abs(bbox[0] - expected_bbox[0]) < 0.1  # latitude
-                assert abs(bbox[1] - expected_bbox[1]) < 0.1  # longitude
+                assert bbox[0] == pytest.approx(expected_bbox[0], abs=0.1)  # latitude
+                assert bbox[1] == pytest.approx(expected_bbox[1], abs=0.1)  # longitude
 
             # Temporal coverage might not be available for geological datasets
             # This is OK - the test should pass even without temporal data

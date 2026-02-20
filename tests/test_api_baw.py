@@ -131,10 +131,10 @@ class TestBAWProvider:
                 expected_bbox = dataset["expected_bbox"]
 
                 assert len(bbox) == 4
-                assert abs(bbox[0] - expected_bbox[0]) < 0.01
-                assert abs(bbox[1] - expected_bbox[1]) < 0.01
-                assert abs(bbox[2] - expected_bbox[2]) < 0.01
-                assert abs(bbox[3] - expected_bbox[3]) < 0.01
+                assert bbox[0] == pytest.approx(expected_bbox[0], abs=0.01)
+                assert bbox[1] == pytest.approx(expected_bbox[1], abs=0.01)
+                assert bbox[2] == pytest.approx(expected_bbox[2], abs=0.01)
+                assert bbox[3] == pytest.approx(expected_bbox[3], abs=0.01)
 
             # Check temporal coverage
             if "tbox" in result and result["tbox"] is not None:
@@ -198,10 +198,10 @@ class TestBAWProvider:
                 bbox = result["bbox"]
                 expected_bbox = dataset["expected_bbox"]
 
-                assert abs(bbox[0] - expected_bbox[0]) < 0.5
-                assert abs(bbox[1] - expected_bbox[1]) < 0.5
-                assert abs(bbox[2] - expected_bbox[2]) < 0.5
-                assert abs(bbox[3] - expected_bbox[3]) < 0.5
+                assert bbox[0] == pytest.approx(expected_bbox[0], abs=0.5)
+                assert bbox[1] == pytest.approx(expected_bbox[1], abs=0.5)
+                assert bbox[2] == pytest.approx(expected_bbox[2], abs=0.5)
+                assert bbox[3] == pytest.approx(expected_bbox[3], abs=0.5)
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")

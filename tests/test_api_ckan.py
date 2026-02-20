@@ -225,10 +225,18 @@ class TestGenericCKANProvider:
             assert len(bbox) == 4
             expected = dataset["expected_bbox_approx"]
             # bbox is [minlat, minlon, maxlat, maxlon] in output (EPSG:4326 native)
-            assert abs(bbox[0] - expected["south"]) < 1.0, f"South mismatch: {bbox}"
-            assert abs(bbox[1] - expected["west"]) < 1.0, f"West mismatch: {bbox}"
-            assert abs(bbox[2] - expected["north"]) < 1.0, f"North mismatch: {bbox}"
-            assert abs(bbox[3] - expected["east"]) < 1.0, f"East mismatch: {bbox}"
+            assert bbox[0] == pytest.approx(
+                expected["south"], abs=1.0
+            ), f"South mismatch: {bbox}"
+            assert bbox[1] == pytest.approx(
+                expected["west"], abs=1.0
+            ), f"West mismatch: {bbox}"
+            assert bbox[2] == pytest.approx(
+                expected["north"], abs=1.0
+            ), f"North mismatch: {bbox}"
+            assert bbox[3] == pytest.approx(
+                expected["east"], abs=1.0
+            ), f"East mismatch: {bbox}"
 
     def test_ckan_govdata_metadata_extraction(self):
         """Test metadata extraction from German GovData CKAN instance."""
@@ -253,8 +261,12 @@ class TestGenericCKANProvider:
 
         # Rhine region should be roughly in Germany
         # bbox output is [minlat, minlon, maxlat, maxlon]
-        assert 45.0 < bbox[0] < 55.0, f"South latitude out of range: {bbox}"
-        assert 5.0 < bbox[1] < 10.0, f"West longitude out of range: {bbox}"
+        assert bbox[0] == pytest.approx(
+            50.0, abs=5.0
+        ), f"South latitude out of range: {bbox}"
+        assert bbox[1] == pytest.approx(
+            7.5, abs=2.5
+        ), f"West longitude out of range: {bbox}"
 
     def test_ckan_dynamic_host_discovery(self):
         """Test that the API probe can verify a CKAN instance."""

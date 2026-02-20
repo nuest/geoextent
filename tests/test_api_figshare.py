@@ -711,8 +711,8 @@ class TestFigshareInstitutionalMetadata:
             assert len(bbox) == 4
             # Degenerate point bbox near Beltsville, Maryland
             # Expected: [39.02, -76.85, 39.02, -76.85]
-            assert abs(bbox[0] - 39.02) < 0.1, f"lat: {bbox[0]}"
-            assert abs(bbox[1] - (-76.85)) < 0.1, f"lon: {bbox[1]}"
+            assert bbox[0] == pytest.approx(39.02, abs=0.1), f"lat: {bbox[0]}"
+            assert bbox[1] == pytest.approx(-76.85, abs=0.1), f"lon: {bbox[1]}"
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
 
@@ -749,10 +749,10 @@ class TestFigshareInstitutionalMetadata:
             assert bbox[0] <= bbox[2]
             assert bbox[1] <= bbox[3]
             # Expected: ~[24.7, -126.0, 49.5, -67.1] — CONUS
-            assert 20 < bbox[0] < 30, f"S lat: {bbox[0]}"
-            assert -130 < bbox[1] < -120, f"W lon: {bbox[1]}"
-            assert 45 < bbox[2] < 55, f"N lat: {bbox[2]}"
-            assert -72 < bbox[3] < -62, f"E lon: {bbox[3]}"
+            assert bbox[0] == pytest.approx(25.0, abs=5.0), f"S lat: {bbox[0]}"
+            assert bbox[1] == pytest.approx(-125.0, abs=5.0), f"W lon: {bbox[1]}"
+            assert bbox[2] == pytest.approx(50.0, abs=5.0), f"N lat: {bbox[2]}"
+            assert bbox[3] == pytest.approx(-67.0, abs=5.0), f"E lon: {bbox[3]}"
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
 
