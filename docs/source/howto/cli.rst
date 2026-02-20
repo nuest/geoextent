@@ -144,7 +144,7 @@ Use ``--details`` to see per-file results alongside the merged extent:
 Remote Repositories
 -------------------
 
-Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, NFDI4Earth, GBIF, Dataverse, and Pensoft.
+Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, NFDI4Earth, GBIF, Dataverse, Pensoft, and GitHub repositories.
 
 Extract from Zenodo
 ^^^^^^^^^^^^^^^^^^^
@@ -381,6 +381,21 @@ By default, NFDI4Earth datasets with a ``landingPage`` URL are followed to other
 ::
 
    geoextent -b -t --no-follow https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/
+
+Extract from GitHub
+^^^^^^^^^^^^^^^^^^^
+
+::
+
+   geoextent -b https://github.com/fraxen/tectonicplates
+
+Extract from a specific subdirectory::
+
+   geoextent -b https://github.com/Nowosad/spDataLarge/tree/master/inst/raster
+
+Skip non-geospatial files (recommended for repos with many non-geo files)::
+
+   geoextent -b --download-skip-nogeo https://github.com/fraxen/tectonicplates
 
 Smart metadata-first extraction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

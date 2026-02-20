@@ -59,6 +59,7 @@ _PROVIDER_FILES = {
     "test_api_ckan.py",
     "test_api_stac.py",
     "test_api_nfdi4earth.py",
+    "test_api_github.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
     "test_external_metadata.py",
@@ -101,6 +102,7 @@ _FAST_PATTERNS = {
     "rejects_non_dataset",
     "known_host_validation",
     "provider_info",
+    "parse_reference",
     "path_pattern",
     "collection_id_extraction",
     "non_http_rejected",
@@ -142,6 +144,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_ckan_metadata_only_extraction",
     "test_stac_metadata_only_extraction",
     "test_nfdi4earth_metadata_only_extraction",
+    "test_github_metadata_only_extraction",
 }
 
 

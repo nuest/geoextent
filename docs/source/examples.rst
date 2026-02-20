@@ -216,6 +216,31 @@ Extract extent from any CKAN open data portal. The generic CKAN provider works w
 
 The CKAN provider supports known hosts (instant matching) and unknown CKAN instances (verified via API probe). See :doc:`providers` for the full list of known hosts.
 
+GitHub Example
+^^^^^^^^^^^^^^
+
+Extract extent from public GitHub repositories. The GitHub provider downloads geospatial files and extracts their spatial and temporal extent.
+
+**Repository root** (all geospatial files):
+
+::
+
+   python -m geoextent -b https://github.com/fraxen/tectonicplates
+
+**Specific subdirectory** (only files under the given path):
+
+::
+
+   python -m geoextent -b https://github.com/Nowosad/spDataLarge/tree/master/inst/raster
+
+**Skip non-geospatial files** (recommended for repositories with many non-geospatial files):
+
+::
+
+   python -m geoextent -b --download-skip-nogeo https://github.com/fraxen/tectonicplates
+
+The GitHub provider preserves directory structure when downloading, which is essential for shapefile components and world files. Set the ``GITHUB_TOKEN`` environment variable for higher API rate limits (5000/hour vs 60/hour unauthenticated).
+
 Advanced Features
 -----------------
 

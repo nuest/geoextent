@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 30 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, and any CKAN instance. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 30 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, any CKAN instance, and GitHub repositories. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -128,6 +128,8 @@ Quick Reference
 | STAC              | Collection URLs     | https://{host}/collections/{id}        |
 +-------------------+---------------------+----------------------------------------+
 | CKAN (any)        | Dataset URLs        | https://{host}/dataset/{id}            |
++-------------------+---------------------+----------------------------------------+
+| GitHub            | Repository URLs     | https://github.com/{owner}/{repo}      |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -1139,6 +1141,59 @@ Unknown CKAN hosts are automatically detected by probing the ``/api/3/action/sta
 - Complex GeoJSON geometries are preserved for convex hull calculations (not simplified to bounding box rectangles)
 - Automatic metadata fallback: if downloaded data files have no geospatial content, automatically falls back to catalogue metadata
 - Senckenberg (``dataportal.senckenberg.de``) has a dedicated provider and is excluded from generic CKAN matching
+
+GitHub
+^^^^^^
+
+**Description:** GitHub is the most widely used platform for hosting research code and data, including research compendia that bundle geospatial data alongside analysis scripts. This provider downloads geospatial files from public GitHub repositories and extracts their spatial and temporal extent. It uses the Git Trees API (2 API calls per repo) and raw file downloads, preserving directory structure for co-located files (e.g. shapefile components).
+
+**Website:** https://github.com/
+
+**Identifier Format:** Repository URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- Repository: ``https://github.com/{owner}/{repo}``
+- Branch/tag: ``https://github.com/{owner}/{repo}/tree/{ref}``
+- Subdirectory: ``https://github.com/{owner}/{repo}/tree/{ref}/{path}``
+
+**Example (CLI):**
+
+.. code-block:: bash
+
+   # Extract bbox from entire repository (GeoJSON tectonic plates — global extent)
+   python -m geoextent -b https://github.com/fraxen/tectonicplates
+
+   # Extract from a specific subdirectory
+   python -m geoextent -b https://github.com/Nowosad/spDataLarge/tree/master/inst/raster
+
+   # Skip non-geospatial files
+   python -m geoextent -b --download-skip-nogeo https://github.com/fraxen/tectonicplates
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Extract bbox from GitHub repository
+   result = geoextent.fromRemote(
+       'https://github.com/fraxen/tectonicplates',
+       bbox=True, tbox=False, download_skip_nogeo=True
+   )
+
+   # Extract from a specific subdirectory
+   result = geoextent.fromRemote(
+       'https://github.com/Nowosad/spDataLarge/tree/master/inst/raster',
+       bbox=True, tbox=True
+   )
+
+**Special Notes:**
+
+- **Data-download provider**: Downloads actual files from the repository — no metadata-only extraction (git repositories don't have structured spatial metadata)
+- **Rate limits**: Unauthenticated: 60 API requests/hour. Set the ``GITHUB_TOKEN`` environment variable for 5000 requests/hour.
+- **Directory structure preservation**: Files are downloaded preserving their path structure, which is essential for shapefile components (``.shp`` + ``.shx`` + ``.dbf`` + ``.prj``) and world files
+- **Recommended**: Use ``--download-skip-nogeo`` for repositories with many non-geospatial files
 
 Usage Examples
 --------------

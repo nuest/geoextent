@@ -34,6 +34,8 @@ from . import UKCEH
 from . import CKAN
 from . import NFDI4Earth
 from . import STAC
+from . import GitHostProvider
+from . import GitHub
 
 __all__ = [
     "providers",
@@ -65,4 +67,6 @@ __all__ = [
     "CKAN",
     "NFDI4Earth",
     "STAC",
+    "GitHostProvider",
+    "GitHub",
 ]

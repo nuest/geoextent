@@ -34,6 +34,7 @@ from .content_providers import UKCEH
 from .content_providers import CKAN
 from .content_providers import NFDI4Earth
 from .content_providers import STAC
+from .content_providers import GitHub
 from . import handleCSV
 from . import handleRaster
 from . import handleVector
@@ -75,6 +76,7 @@ def _get_content_providers():
         SEANOE.SEANOE,
         UKCEH.UKCEH,
         STAC.STAC,  # Late: broad /collections/ URL pattern could false-match
+        GitHub.GitHub,  # Very late: github.com URLs are unambiguous, no DOI collision
     ]
 
 
