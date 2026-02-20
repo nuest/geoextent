@@ -1387,9 +1387,10 @@ def _process_remote_download(
         and repository.supports_metadata_extraction
         and not os.listdir(tmp)
     ):
-        logger.info(
-            "No data files found after download. Falling back to metadata-only "
-            "extraction from %s. Use --no-metadata-fallback to disable.",
+        logger.warning(
+            "No data files found after download from %s. "
+            "Falling back to metadata-only extraction. "
+            "Use --no-metadata-fallback to disable this behavior.",
             repository.name,
         )
         # Metadata fallback: follow=False since download_data=False
@@ -1442,9 +1443,10 @@ def _process_remote_download(
         and not metadata.get("bbox")
         and not metadata.get("tbox")
     ):
-        logger.info(
-            "Data files yielded no extent. Falling back to metadata-only "
-            "extraction from %s. Use --no-metadata-fallback to disable.",
+        logger.warning(
+            "Downloaded data files from %s contain no geospatial extent. "
+            "Falling back to metadata-only extraction from the catalogue record. "
+            "Use --no-metadata-fallback to disable this behavior.",
             repository.name,
         )
         import shutil
@@ -1495,6 +1497,17 @@ def _process_remote_download(
 
     if _used_metadata_fallback:
         metadata["extraction_method"] = "metadata_fallback"
+        if metadata.get("bbox") or metadata.get("tbox"):
+            logger.warning(
+                "Metadata fallback succeeded for %s. "
+                "The reported extent is based on catalogue metadata, not file contents.",
+                repository.name,
+            )
+        else:
+            logger.warning(
+                "Metadata fallback for %s also yielded no extent.",
+                repository.name,
+            )
 
     # Surface follow info from providers that support it
     if hasattr(repository, "_follow_info") and repository._follow_info:
@@ -1590,9 +1603,9 @@ def _metadata_first_extract(
                     metadata["extraction_method"] = "metadata"
                     return metadata
                 else:
-                    logger.info(
-                        f"Metadata-first: incomplete results from {repository.name}, "
-                        f"falling back to data download"
+                    logger.warning(
+                        f"Metadata-first: incomplete results from {repository.name}. "
+                        f"Falling back to data download for full extent extraction."
                     )
         except Exception as e:
             logger.warning(

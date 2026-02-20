@@ -596,7 +596,7 @@ class Pangaea(DoiProvider):
             self.log.error(f"Error downloading Pangaea data files: {e}")
             # Try fallback to actual file download before giving up
             try:
-                self.log.info("Attempting direct file download as fallback")
+                self.log.warning("Attempting direct file download as fallback")
                 if self._download_files_fallback(
                     target_folder,
                     None,

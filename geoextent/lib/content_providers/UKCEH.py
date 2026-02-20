@@ -602,9 +602,9 @@ class UKCEH(DoiProvider):
                 )
 
         # Neither download method worked — metadata fallback
-        logger.info(
+        logger.warning(
             "No data download available for UKCEH record %s. "
-            "Using metadata-only extraction.",
+            "Falling back to metadata-only extraction from catalogue record.",
             self.record_id,
         )
         self._create_metadata_geojson(folder, metadata)
