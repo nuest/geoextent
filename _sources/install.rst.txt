@@ -60,25 +60,70 @@ Windows Installation
 ^^^^^^^^^^^^^^^^^^^^
 
 .. note::
-   These Windows installation instructions are provided by the community and have not been extensively tested by the geoextent developers. We recommend using Docker (Option 1) for the most reliable experience on Windows. If you encounter issues with other methods, please report them on the `issue tracker <https://github.com/nuest/geoextent/issues>`_.
+   Windows support is tested in CI using the conda-forge approach described below (see ``.github/workflows/pythonpackage.yml`` for the exact setup).  If you encounter issues, please report them on the `issue tracker <https://github.com/nuest/geoextent/issues>`_.
 
-For Windows, we recommend using one of these approaches:
+GDAL has no official PyPI wheels for Windows, so ``pip install gdal`` will fail. Use one of these approaches instead:
 
-**Option 1: Docker** (recommended)
+**Option 1: Miniforge + conda-forge** (recommended)
 
-Use the Docker installation to avoid system dependency issues. See :doc:`howto/docker` for details.
+This is the approach used by the geoextent CI and is the most reliable method on Windows.
 
-**Option 2: Conda**
+1. Install `Miniforge <https://github.com/conda-forge/miniforge#miniforge3>`_ (provides conda with conda-forge as the default channel).
 
-Use conda-forge which handles system dependencies automatically:
+2. Open the Miniforge Prompt and create an environment:
 
 ::
 
-   conda install -c conda-forge gdal
+   conda create -n geoextent python=3.12
+   conda activate geoextent
+
+3. Install GDAL and system dependencies via conda:
+
+::
+
+   conda install -y gdal libgdal libspatialite netcdf4 proj
+
+4. Install geoextent **without dependency resolution** (to avoid pip trying to install GDAL from PyPI):
+
+::
+
+   pip install --no-deps geoextent
+
+5. Install the remaining runtime dependencies via pip:
+
+::
+
+   pip install pyproj "geojson>=2.4.1" geojsonio pygeoj pyshp ^
+     patool python-dateutil pandas "numpy<2" requests traitlets ^
+     wheel pangaeapy osfclient filesizelib "setuptools-scm>=8" ^
+     tqdm bs4 geopy python-dotenv humanfriendly crossref-commons ^
+     datacite owslib
+
+6. Verify the installation:
+
+::
+
+   python -c "from osgeo import gdal; print(f'GDAL {gdal.VersionInfo()}')"
+   python -m geoextent --version
+
+.. tip::
+   **Long file paths:** Some operations (archive extraction with temporary directories) may exceed the Windows 260-character path limit.  Enable long paths via PowerShell (run as Administrator):
+
+   .. code-block:: powershell
+
+      New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+        -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+
+.. tip::
+   **Archive extraction:** geoextent uses ``patool`` for archive extraction.  On Windows, patool relies on `7-Zip <https://www.7-zip.org/>`_ being installed and available on the ``PATH``.  7-Zip is pre-installed on most Windows CI runners, but you may need to install it manually on your system.
+
+**Option 2: Docker**
+
+Use the Docker installation to avoid system dependency issues entirely. See the Docker Installation section below.
 
 **Option 3: OSGeo4W**
 
-Install OSGeo4W from https://trac.osgeo.org/osgeo4w/ for a complete geospatial stack on Windows.
+Install OSGeo4W from https://trac.osgeo.org/osgeo4w/ for a complete geospatial stack on Windows.  After installation, use the OSGeo4W shell to run pip and geoextent.
 
 Installing GDAL Python Bindings
 --------------------------------
@@ -210,5 +255,5 @@ If you have conflicting GDAL versions:
 
 For Windows users, we recommend:
 
-1. Using the Docker installation for the easiest setup
-2. Or installing via conda-forge which handles system dependencies
+1. Using Miniforge + conda-forge (see the Windows Installation section above for step-by-step instructions)
+2. Or using the Docker installation for the easiest setup

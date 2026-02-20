@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gc8a7afbdd documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gefaae2a0b documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=4ba1b0d2"></script>
+    <script src="../_static/documentation_options.js?v=b6163ddc"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -439,11 +439,14 @@ Supported data repositories:
 - GDI-DE (geoportal.de)
 - Opara (opara.zih.tu-dresden.de)
 - Senckenberg (dataportal.senckenberg.de)
+- CKAN (ckan.org)
 - Mendeley Data (data.mendeley.com)
 - DEIMS-SDR (deims.org)
+- NFDI4Earth (onestop4all.nfdi4earth.de)
 - HALO DB (halo-db.pa.op.dlr.de)
 - SEANOE (seanoe.org)
 - UKCEH (catalogue.ceh.ac.uk)
+- STAC (stacspec.org)
 
 </pre></div>
 </div>
@@ -538,7 +541,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 142.27task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 159.97task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -602,7 +605,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 23.24task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 23.72task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -618,7 +621,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 13.56item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 13.66item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -645,7 +648,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 108.03task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 123.20task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -661,7 +664,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 21.63item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 22.00item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -709,7 +712,7 @@ Supported data repositories:
 </section>
 <section id="remote-repositories">
 <h2>Remote Repositories<a class="headerlink" href="#remote-repositories" title="Link to this heading">¶</a></h2>
-<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, GBIF, Dataverse, and Pensoft.</p>
+<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, NFDI4Earth, GBIF, Dataverse, and Pensoft.</p>
 <section id="extract-from-zenodo">
 <h3>Extract from Zenodo<a class="headerlink" href="#extract-from-zenodo" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
@@ -892,6 +895,25 @@ Supported data repositories:
 </pre></div>
 </div>
 </section>
+<section id="extract-from-nfdi4earth-knowledge-hub-onestop4all-url">
+<h3>Extract from NFDI4Earth Knowledge Hub (OneStop4All URL)<a class="headerlink" href="#extract-from-nfdi4earth-knowledge-hub-onestop4all-url" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">onestop4all</span><span class="o">.</span><span class="n">nfdi4earth</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">result</span><span class="o">/</span><span class="n">dthb</span><span class="o">-</span><span class="mi">7</span><span class="n">b3bddd5af4945c2ac508a6d25537f0a</span><span class="o">/</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-nfdi4earth-knowledge-hub-cordra-url">
+<h3>Extract from NFDI4Earth Knowledge Hub (Cordra URL)<a class="headerlink" href="#extract-from-nfdi4earth-knowledge-hub-cordra-url" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">cordra</span><span class="o">.</span><span class="n">knowledgehub</span><span class="o">.</span><span class="n">nfdi4earth</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">objects</span><span class="o">/</span><span class="n">n4e</span><span class="o">/</span><span class="n">dthb</span><span class="o">-</span><span class="mi">82</span><span class="n">b6552d</span><span class="o">-</span><span class="mi">2</span><span class="n">b8e</span><span class="o">-</span><span class="mi">4800</span><span class="o">-</span><span class="n">b955</span><span class="o">-</span><span class="n">ea495efc28af</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-nfdi4earth-without-following-landing-page">
+<h3>Extract from NFDI4Earth without following landing page<a class="headerlink" href="#extract-from-nfdi4earth-without-following-landing-page" title="Link to this heading">¶</a></h3>
+<p>By default, NFDI4Earth datasets with a <code class="docutils literal notranslate"><span class="pre">landingPage</span></code> URL are followed to other supported providers. Use <code class="docutils literal notranslate"><span class="pre">--no-follow</span></code> to disable this and use NFDI4Earth SPARQL metadata only:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">follow</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">onestop4all</span><span class="o">.</span><span class="n">nfdi4earth</span><span class="o">.</span><span class="n">de</span><span class="o">/</span><span class="n">result</span><span class="o">/</span><span class="n">dthb</span><span class="o">-</span><span class="mi">82</span><span class="n">b6552d</span><span class="o">-</span><span class="mi">2</span><span class="n">b8e</span><span class="o">-</span><span class="mi">4800</span><span class="o">-</span><span class="n">b955</span><span class="o">-</span><span class="n">ea495efc28af</span><span class="o">/</span>
+</pre></div>
+</div>
+</section>
 <section id="smart-metadata-first-extraction">
 <h3>Smart metadata-first extraction<a class="headerlink" href="#smart-metadata-first-extraction" title="Link to this heading">¶</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> to try metadata-only extraction first, falling back to data download if the provider has no metadata or the metadata didn’t yield results. This is useful for batch extractions across multiple providers:</p>
@@ -953,7 +975,7 @@ Proceed with download? [y/N]
 <p>Answering <code class="docutils literal notranslate"><span class="pre">y</span></code> retries with the actual size as the new limit. In non-interactive contexts (scripts, CI pipelines), geoextent exits with an error. To avoid the prompt entirely, use <code class="docutils literal notranslate"><span class="pre">--no-download-data</span></code> for metadata-only extraction or set a sufficiently large <code class="docutils literal notranslate"><span class="pre">--max-download-size</span></code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The interactive prompt relies on providers reporting file sizes in their API metadata before download. Metadata-only providers (DEIMS-SDR, HALO DB, Wikidata, Pensoft) do not download data files, so the size limit does not apply to them.</p>
+<p>The interactive prompt relies on providers reporting file sizes in their API metadata before download. Metadata-only providers (DEIMS-SDR, NFDI4Earth, HALO DB, Wikidata, Pensoft) do not download data files, so the size limit does not apply to them.</p>
 </div>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download at most 20 MB of data</span>
 <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="nb">max</span><span class="o">-</span><span class="n">download</span><span class="o">-</span><span class="n">size</span> <span class="mi">20</span><span class="n">MB</span> <span class="mf">10.23728</span><span class="o">/</span><span class="n">b2share</span><span class="mf">.26</span><span class="n">jnj</span><span class="o">-</span><span class="n">a4x24</span>
@@ -1049,7 +1071,7 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 113.45task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 113.87task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -1065,7 +1087,7 @@ or time box (tbox).</p>
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 57.57item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 51.58item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
