@@ -241,6 +241,37 @@ Extract extent from public GitHub repositories. The GitHub provider downloads ge
 
 The GitHub provider preserves directory structure when downloading, which is essential for shapefile components and world files. Set the ``GITHUB_TOKEN`` environment variable for higher API rate limits (5000/hour vs 60/hour unauthenticated).
 
+GitLab Example
+^^^^^^^^^^^^^^
+
+Extract extent from public GitLab repositories on gitlab.com and self-hosted instances. The GitLab provider downloads geospatial files and extracts their spatial and temporal extent.
+
+**Repository root** (all geospatial files):
+
+::
+
+   python -m geoextent -b -t https://gitlab.com/bazylizon/seismicity
+
+**Specific subdirectory** (only files under the given path):
+
+::
+
+   python -m geoextent -b https://gitlab.com/eaws/eaws-regions/-/tree/master/public/outline
+
+**Self-hosted GitLab instance** (RWTH Aachen):
+
+::
+
+   python -m geoextent -b https://git.rwth-aachen.de/nfdi4earth/crosstopics/knowledgehub-maps/-/tree/main/maps/200_datasets/data
+
+**Skip non-geospatial files** (recommended for repositories with many non-geospatial files):
+
+::
+
+   python -m geoextent -b --download-skip-nogeo https://gitlab.com/bazylizon/seismicity
+
+The GitLab provider supports nested namespace paths (``group/subgroup/project``), ``/-/tree/{ref}/{path}`` branch/subdirectory URLs, and ``.git`` suffixes. Self-hosted instances are detected via known hosts, hostname heuristic (contains "gitlab"), or API probe. Set the ``GITLAB_TOKEN`` environment variable for higher API rate limits.
+
 Software Heritage Example
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -675,6 +706,21 @@ STAC Catalog (any STAC Collection URL):
 ::
 
    python -m geoextent -b -t https://earth-search.aws.element84.com/v1/collections/naip
+
+GitHub:
+::
+
+   python -m geoextent -b https://github.com/fraxen/tectonicplates
+
+GitLab:
+::
+
+   python -m geoextent -b -t https://gitlab.com/bazylizon/seismicity
+
+GitLab (self-hosted):
+::
+
+   python -m geoextent -b https://git.rwth-aachen.de/nfdi4earth/crosstopics/knowledgehub-maps/-/tree/main/maps/200_datasets/data
 
 Interactive Showcase Notebooks
 -------------------------------
