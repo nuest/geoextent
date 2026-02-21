@@ -20,7 +20,7 @@ dir_name = "showcase_geojson"
 file_url = "https://raw.githubusercontent.com/nuest/geoextent/main/tests/testdata/geojson/muenster_ring_zeit.geojson"
 get_showcase_file(dir_name, file_url)
 
-geoextent.fromFile("showcase_folder/muenster_ring_zeit.geojson", True, True)
+geoextent.from_file("showcase_folder/muenster_ring_zeit.geojson", True, True)
 
 import geoextent.lib.extent as geoextent
 
@@ -28,7 +28,7 @@ dir_name = "showcase_csv"
 file_url = "https://sandbox.zenodo.org/record/256820/files/cities_NL.csv"
 get_showcase_file(dir_name, file_url)
 
-geoextent.fromFile("showcase_folder/cities_NL.csv", True, True)
+geoextent.from_file("showcase_folder/cities_NL.csv", True, True)
 
 import geoextent.lib.extent as geoextent
 
@@ -38,7 +38,7 @@ file_url = (
 )
 get_showcase_file(dir_name, file_url)
 
-geoextent.fromFile("showcase_folder/wf_100m_klas.tif", True, False)
+geoextent.from_file("showcase_folder/wf_100m_klas.tif", True, False)
 
 import geoextent.lib.extent as geoextent
 
@@ -46,7 +46,7 @@ dir_name = "showcase_shp"
 file_url = "https://www.geofabrik.de/data/shapefiles_toulouse.zip"
 get_showcase_file(dir_name, file_url, "shapefiles_toulouse.zip")
 
-geoextent.fromFile("showcase_folder/gis_osm_buildings_a_07_1.shp", True, False)
+geoextent.from_file("showcase_folder/gis_osm_buildings_a_07_1.shp", True, False)
 
 import subprocess
 

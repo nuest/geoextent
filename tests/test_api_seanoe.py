@@ -113,7 +113,7 @@ class TestSeanoeProvider:
         """Test metadata-only extraction (provider_sample smoke test)"""
         ds = self.TEST_DATASETS["french_mediterranean_ctd"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -140,7 +140,7 @@ class TestSeanoeProvider:
         """10.17882/105467: CTD French Mediterranean — bbox + tbox"""
         ds = self.TEST_DATASETS["french_mediterranean_ctd"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -169,7 +169,7 @@ class TestSeanoeProvider:
         """10.17882/109463: Ireland coastline REI — bbox, no tbox"""
         ds = self.TEST_DATASETS["ireland_rei"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -192,7 +192,7 @@ class TestSeanoeProvider:
         """10.17882/108464: Drone thermal, Hawaii — point bbox + tbox"""
         ds = self.TEST_DATASETS["hawaii_drone_thermal"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -218,7 +218,7 @@ class TestSeanoeProvider:
         """10.17882/103743: Shipboard bathymetry — bbox, no tbox"""
         ds = self.TEST_DATASETS["bathymetry"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -241,7 +241,7 @@ class TestSeanoeProvider:
         """10.17882/112127: Bowhead whale biologging — bbox + tbox"""
         ds = self.TEST_DATASETS["whale_biologging"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -307,7 +307,7 @@ class TestSeanoeProvider:
 
         monkeypatch.setattr(SEANOE, "_request", mock_request)
 
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.17882/999999",
             bbox=True,
             tbox=True,

@@ -85,7 +85,7 @@ class TestArcticDataCenterProvider:
         """Test metadata-only extraction (provider_sample smoke test)"""
         ds = self.TEST_DATASETS["ice_wedge_point_lay"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -113,7 +113,7 @@ class TestArcticDataCenterProvider:
         """Test full download extraction from Arctic Data Center"""
         ds = self.TEST_DATASETS["ice_wedge_point_lay"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=False,
@@ -140,7 +140,7 @@ class TestArcticDataCenterProvider:
         """Test extraction via URN UUID identifier (metadata-only)"""
         ds = self.TEST_DATASETS["circum_arctic_permafrost"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["urn_uuid"],
                 bbox=True,
                 tbox=False,
@@ -160,7 +160,7 @@ class TestArcticDataCenterProvider:
         """Test temporal extent extraction from Arctic Data Center metadata"""
         ds = self.TEST_DATASETS["ice_wedge_point_lay"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=False,
                 tbox=True,

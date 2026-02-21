@@ -11,7 +11,7 @@ The main function is:
 
 ::
 
-   geoextent.fromFile(input, bbox, time)
+   geoextent.from_file(input, bbox, time)
 
 **Parameters:**
    - ``input``: a string value of input file or path
@@ -30,7 +30,7 @@ Code:
 
 ::
 
-   geoextent.fromFile('muenster_ring_zeit.geojson', True, False)
+   geoextent.from_file('muenster_ring_zeit.geojson', True, False)
 
 Output:
 
@@ -39,7 +39,7 @@ Output:
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromFile('../tests/testdata/geojson/muenster_ring_zeit.geojson', True, False)
+   geoextent.from_file('../tests/testdata/geojson/muenster_ring_zeit.geojson', True, False)
 
 (`source of file muenster_ring_zeit.geojson`_)
 
@@ -50,7 +50,7 @@ Code:
 
 ::
 
-   geoextent.fromFile('muenster_ring_zeit.geojson', False, True)
+   geoextent.from_file('muenster_ring_zeit.geojson', False, True)
 
 Output:
 
@@ -59,7 +59,7 @@ Output:
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromFile('../tests/testdata/geojson/muenster_ring_zeit.geojson', False, True)
+   geoextent.from_file('../tests/testdata/geojson/muenster_ring_zeit.geojson', False, True)
 
 (`source of file muenster_ring_zeit.geojson`_)
 
@@ -70,7 +70,7 @@ Code:
 
 ::
 
-   geoextent.fromFile('muenster_ring_zeit.geojson', True, True)
+   geoextent.from_file('muenster_ring_zeit.geojson', True, True)
 
 Output:
 
@@ -79,7 +79,7 @@ Output:
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromFile('../tests/testdata/geojson/muenster_ring_zeit.geojson', True, True)
+   geoextent.from_file('../tests/testdata/geojson/muenster_ring_zeit.geojson', True, True)
 
 (`source of file muenster_ring_zeit.geojson`_)
 
@@ -92,7 +92,7 @@ Folders or ZIP file(s)
 
 ::
 
-   geoextent.fromDirectory(input, bbox, time, details)
+   geoextent.from_directory(input, bbox, time, details)
 
 **Parameters:**
    - ``input``: a string value of directory of zipfile path
@@ -109,7 +109,7 @@ Code:
 
 ::
 
-   geoextent.fromDirectory('folder_one_file', True, True, True)
+   geoextent.from_directory('folder_one_file', True, True, True)
 
 Output:
 
@@ -118,7 +118,7 @@ Output:
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromDirectory('../tests/testdata/folders/folder_one_file', True, True, True)
+   geoextent.from_directory('../tests/testdata/folders/folder_one_file', True, True, True)
 
 `folder_two_files <https://github.com/nuest/geoextent/blob/main/tests/testdata/folders/folder_two_files>`_
 
@@ -131,7 +131,7 @@ Geoextent downloads files from the repository and extracts the temporal or geogr
 
 ::
 
-   geoextent.fromRemote(remote_identifier, bbox, time, details)
+   geoextent.from_remote(remote_identifier, bbox, time, details)
 
 **Parameters:**
    - ``remote_identifier``: a string value with a repository URL or DOI (e.g., https://zenodo.org/record/3528062, https://doi.org/10.5281/zenodo.3528062, 10.5281/zenodo.3528062), or a list of identifiers for multiple resource extraction
@@ -148,7 +148,7 @@ Code:
 
 ::
 
-   geoextent.fromRemote('https://zenodo.org/record/820562', True, True, False)
+   geoextent.from_remote('https://zenodo.org/record/820562', True, True, False)
 
 Output:
 
@@ -157,7 +157,7 @@ Output:
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromRemote('https://zenodo.org/record/820562', True, True)
+   geoextent.from_remote('https://zenodo.org/record/820562', True, True)
 
 Multiple repositories
 ^^^^^^^^^^^^^^^^^^^^^
@@ -172,7 +172,7 @@ Extract from multiple repositories in a single call:
        'https://osf.io/abc123/'
    ]
 
-   geoextent.fromRemote(identifiers, True, True, True)
+   geoextent.from_remote(identifiers, True, True, True)
 
 The function returns a **merged bounding box** covering all resources (similar to directory extraction), plus extraction metadata with success/failure tracking. Individual resource details are available in the ``details`` field for diagnostics.
 
@@ -186,11 +186,11 @@ Use the ``max_download_size`` parameter to limit how much data geoextent downloa
 ::
 
    # Limit download to 20 MB
-   geoextent.fromRemote('10.23728/b2share.26jnj-a4x24', bbox=True, tbox=True,
+   geoextent.from_remote('10.23728/b2share.26jnj-a4x24', bbox=True, tbox=True,
                          max_download_size='20MB')
 
    # Limit GBIF DwC-A download to 500 MB
-   geoextent.fromRemote('10.15468/6bleia', bbox=True, tbox=True,
+   geoextent.from_remote('10.15468/6bleia', bbox=True, tbox=True,
                          max_download_size='500MB')
 
 When the combined file sizes exceed the limit, the default behavior (API) is to silently select a subset using the ``max_download_method`` strategy (``'ordered'`` by default, or ``'random'`` with a reproducible seed via ``max_download_method_seed``).
@@ -205,14 +205,14 @@ Set ``download_size_soft_limit=True`` to raise a ``DownloadSizeExceeded`` except
    from geoextent.lib.exceptions import DownloadSizeExceeded
 
    try:
-       result = geoextent.fromRemote('10.5281/zenodo.820562', bbox=True,
+       result = geoextent.from_remote('10.5281/zenodo.820562', bbox=True,
                                       max_download_size='1MB',
                                       download_size_soft_limit=True)
    except DownloadSizeExceeded as exc:
        print(f"Download is {exc.estimated_size:,} bytes "
              f"(limit: {exc.max_size:,} bytes, provider: {exc.provider})")
        # Retry with a larger limit
-       result = geoextent.fromRemote('10.5281/zenodo.820562', bbox=True,
+       result = geoextent.from_remote('10.5281/zenodo.820562', bbox=True,
                                       max_download_size=f'{exc.estimated_size + 1}B',
                                       download_size_soft_limit=True)
 
@@ -233,5 +233,5 @@ To avoid the size check entirely, use ``download_data=False`` for metadata-only 
 ::
 
    # Fast, no download — uses provider API metadata
-   result = geoextent.fromRemote('10.15468/6bleia', bbox=True, tbox=True,
+   result = geoextent.from_remote('10.15468/6bleia', bbox=True, tbox=True,
                                   download_data=False)

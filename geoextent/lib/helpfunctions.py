@@ -99,7 +99,7 @@ doi_regexp = re.compile(
 )
 
 
-def getAllRowElements(row_name, elements, exp_data=None):
+def get_all_row_elements(row_name, elements, exp_data=None):
     """
     Function purpose: help-function to get all row elements for a specific string \n
     Input: row name, elements, exp_format \n
@@ -145,19 +145,19 @@ def float_convert(val):
         pass
 
 
-def searchForParameters(elements, param_array, exp_data=None):
+def search_for_parameters(elements, param_array, exp_data=None):
     """
     Function purpose: return all attributes of a elements in the first row of a file \n
     Function purpose: return all attributes of a elements in the first row of a file \n
     Input: paramArray, elements \n
-    Output: getAllRowElements(x,elements)
+    Output: get_all_row_elements(x,elements)
     """
     matching_elements = []
     for x in param_array:
         for row in elements[0]:
             p = re.compile(x, re.IGNORECASE)
             if p.search(row) is not None:
-                row_to_extract = getAllRowElements(row, elements, exp_data)
+                row_to_extract = get_all_row_elements(row, elements, exp_data)
                 if row_to_extract is not None:
                     matching_elements.append(row_to_extract)
 
@@ -168,7 +168,7 @@ def searchForParameters(elements, param_array, exp_data=None):
     return matching_elements
 
 
-def transformingIntoWGS84(crs, coordinate):
+def transform_to_wgs84(crs, coordinate):
     """
     Transform coordinates from any CRS to WGS84 (EPSG:4326).
 
@@ -207,23 +207,23 @@ def transformingIntoWGS84(crs, coordinate):
     return [point.GetX(), point.GetY()]
 
 
-def transformingArrayIntoWGS84(crs, pointArray):
+def transform_array_to_wgs84(crs, point_array):
     """
     Function purpose: transforming SRS into WGS84 (EPSG 4326) from an array
-    Input: crs, pointArray \n
+    Input: crs, point_array \n
     Output: array array
     """
-    # print("----<>", pointArray)#
+    # print("----<>", point_array)#
     array = []
     # vector_rep
-    if type(pointArray[0]) == list:
-        for x in pointArray:
-            array.append(transformingIntoWGS84(crs, x))
+    if type(point_array[0]) == list:
+        for x in point_array:
+            array.append(transform_to_wgs84(crs, x))
         return array
     # bbox
-    elif len(pointArray) == 4:
-        bbox = [[pointArray[0], pointArray[1]], [pointArray[2], pointArray[3]]]
-        transf_bbox = transformingArrayIntoWGS84(crs, bbox)
+    elif len(point_array) == 4:
+        bbox = [[point_array[0], point_array[1]], [point_array[2], point_array[3]]]
+        transf_bbox = transform_array_to_wgs84(crs, bbox)
         return [
             transf_bbox[0][0],
             transf_bbox[0][1],
@@ -232,7 +232,7 @@ def transformingArrayIntoWGS84(crs, pointArray):
         ]
 
 
-def transformingIntoWGS84FromWkt(crs_wkt, coordinate):
+def transform_to_wgs84_from_wkt(crs_wkt, coordinate):
     """
     Transform coordinates from a WKT-defined CRS to WGS84 (EPSG:4326).
 
@@ -266,27 +266,27 @@ def transformingIntoWGS84FromWkt(crs_wkt, coordinate):
     return [point.GetX(), point.GetY()]
 
 
-def transformingArrayIntoWGS84FromWkt(crs_wkt, pointArray):
+def transform_array_to_wgs84_from_wkt(crs_wkt, point_array):
     """
     Transform an array of coordinates from a WKT-defined CRS to WGS84 (EPSG:4326).
 
     Args:
         crs_wkt: Source CRS as OGC WKT string
-        pointArray: Array of coordinate pairs or bbox [minx, miny, maxx, maxy]
+        point_array: Array of coordinate pairs or bbox [minx, miny, maxx, maxy]
 
     Returns:
         Transformed array in WGS84
     """
     array = []
     # vector_rep
-    if type(pointArray[0]) == list:
-        for x in pointArray:
-            array.append(transformingIntoWGS84FromWkt(crs_wkt, x))
+    if type(point_array[0]) == list:
+        for x in point_array:
+            array.append(transform_to_wgs84_from_wkt(crs_wkt, x))
         return array
     # bbox
-    elif len(pointArray) == 4:
-        bbox = [[pointArray[0], pointArray[1]], [pointArray[2], pointArray[3]]]
-        transf_bbox = transformingArrayIntoWGS84FromWkt(crs_wkt, bbox)
+    elif len(point_array) == 4:
+        bbox = [[point_array[0], point_array[1]], [point_array[2], point_array[3]]]
+        transf_bbox = transform_array_to_wgs84_from_wkt(crs_wkt, bbox)
         return [
             transf_bbox[0][0],
             transf_bbox[0][1],
@@ -323,7 +323,7 @@ def validate(date_text):
         return False
 
 
-def getDelimiter(csv_file):
+def get_delimiter(csv_file):
     dialect = csv.Sniffer().sniff(csv_file.readline(1024))
     # To reset back position to beginning of the file
     csv_file.seek(0)

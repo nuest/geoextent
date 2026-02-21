@@ -120,7 +120,7 @@ class TestIoerDataExtraction:
         ioerDATA (Dataverse) does not expose geospatial metadata in a way
         geoextent can use, so metadata-only returns a minimal result.
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.71830/VDMUWW",
             bbox=True,
             tbox=True,
@@ -139,7 +139,7 @@ class TestIoerDataExtraction:
         A size limit excludes the 60MB code release ZIP.
         Restricted parquet files are automatically skipped.
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.71830/VDMUWW",
             bbox=True,
             tbox=True,
@@ -170,7 +170,7 @@ class TestIoerDataExtraction:
 
         results = []
         for identifier in variants:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 identifier,
                 bbox=True,
                 download_data=True,
@@ -194,7 +194,7 @@ class TestIoerDataExtraction:
         With a 5MB limit, the 2 GeoTIFFs (~2.8MB combined) + README (14KB) fit.
         The PNG (17MB) exceeds the budget.
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.71830/VDMUWW",
             bbox=True,
             download_data=True,

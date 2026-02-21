@@ -203,7 +203,7 @@ class TestWikidataExtraction:
 
         Entity: Berlin (Q64) - German capital with full extreme coordinates.
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "Q64",
             bbox=True,
             tbox=False,
@@ -219,7 +219,7 @@ class TestWikidataExtraction:
         Berlin has P1332-P1335 extreme coordinates:
         North ~52.68, South ~52.34, East ~13.76, West ~13.09
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "Q64",
             bbox=True,
             tbox=False,
@@ -244,7 +244,7 @@ class TestWikidataExtraction:
         Denmark has full extreme coordinates:
         North ~57.75, South ~54.56, East ~15.20, West ~8.07
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "Q35",
             bbox=True,
             tbox=False,
@@ -267,7 +267,7 @@ class TestWikidataExtraction:
         This entity has only P625 (coordinate location), no extreme coordinates.
         Expected point: ~13.39°E, ~49.00°N
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "Q60786916",
             bbox=True,
             tbox=False,
@@ -289,7 +289,7 @@ class TestWikidataExtraction:
         This entity has multiple P625 points but no extreme coordinates.
         Points roughly at (6.88, 53.53) and (8.6, 55.23).
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "Q26080",
             bbox=True,
             tbox=False,
@@ -308,7 +308,7 @@ class TestWikidataExtraction:
 
     def test_wikidata_url_extraction(self):
         """Test extraction using Wikidata URL instead of Q-number."""
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "https://www.wikidata.org/wiki/Q64",
             bbox=True,
             tbox=False,
@@ -320,7 +320,7 @@ class TestWikidataExtraction:
 
     def test_wikidata_entity_url_extraction(self):
         """Test extraction using Wikidata entity URI."""
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "http://www.wikidata.org/entity/Q64",
             bbox=True,
             tbox=False,
@@ -340,7 +340,7 @@ class TestWikidataExtraction:
 
         results = []
         for identifier in variants:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 identifier,
                 bbox=True,
                 tbox=False,

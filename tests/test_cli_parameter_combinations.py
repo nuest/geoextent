@@ -123,7 +123,7 @@ class TestCLIErrorConditions:
         import geoextent.lib.extent as geoextent
 
         with pytest.raises(Exception, match="No extraction options enabled"):
-            geoextent.fromFile(
+            geoextent.from_file(
                 "tests/testdata/geojson/muenster_ring_zeit.geojson",
                 bbox=False,
                 tbox=False,

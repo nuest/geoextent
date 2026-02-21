@@ -4,7 +4,7 @@ import geoextent.lib.extent as geoextent
 
 
 def test_gdb_extract_bbox():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/gdb/points_muenster.gdb", bbox=True, tbox=False
     )
     assert "bbox" in result
@@ -17,7 +17,7 @@ def test_gdb_extract_bbox():
 
 
 def test_gdb_extract_only_bbox():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/gdb/points_muenster.gdb", bbox=True, tbox=False
     )
     assert "bbox" in result
@@ -26,7 +26,7 @@ def test_gdb_extract_only_bbox():
 
 
 def test_gdb_extract_time():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/gdb/points_muenster.gdb", bbox=False, tbox=True
     )
     assert "bbox" not in result
@@ -36,14 +36,14 @@ def test_gdb_extract_time():
 
 
 def test_gdb_format_recognition():
-    result = geoextent.fromFile("tests/testdata/gdb/points_muenster.gdb", bbox=True)
+    result = geoextent.from_file("tests/testdata/gdb/points_muenster.gdb", bbox=True)
     assert result["format"] == "gdb"
-    assert result["geoextent_handler"] == "handleVector"
+    assert result["geoextent_handler"] == "handle_vector"
 
 
 def test_gdb_in_directory():
     """Test that a .gdb inside a directory is treated as a dataset, not traversed."""
-    result = geoextent.fromDirectory("tests/testdata/gdb", bbox=True, tbox=False)
+    result = geoextent.from_directory("tests/testdata/gdb", bbox=True, tbox=False)
     assert result is not None
     assert "bbox" in result
     assert result["bbox"] == pytest.approx(
@@ -53,11 +53,11 @@ def test_gdb_in_directory():
 
 
 def test_gdb_fromfile_is_directory():
-    """Test that fromFile handles .gdb (which is a directory) correctly."""
+    """Test that from_file handles .gdb (which is a directory) correctly."""
     import os
 
     path = "tests/testdata/gdb/points_muenster.gdb"
     assert os.path.isdir(path)
-    result = geoextent.fromFile(path, bbox=True)
+    result = geoextent.from_file(path, bbox=True)
     assert result is not None
     assert "bbox" in result

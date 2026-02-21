@@ -678,8 +678,8 @@ class TestDataverseProvider:
         test_doi = "https://doi.org/10.7910/DVN/4YGU5J"
 
         try:
-            # Test the from_repository function directly
-            result = extent.from_repository(
+            # Test the from_remote function directly
+            result = extent.from_remote(
                 repository_identifier=test_doi,
                 bbox=True,
                 tbox=False,  # Focus on spatial extent for this test
@@ -744,7 +744,7 @@ class TestDataverseProvider:
             )
 
             # Test Python API
-            api_result = extent.from_repository(
+            api_result = extent.from_remote(
                 repository_identifier=test_doi,
                 bbox=True,
                 tbox=False,

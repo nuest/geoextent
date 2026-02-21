@@ -43,7 +43,7 @@ class TestGeoJSONTboxExtraction:
         """Test tbox extraction with bbox explicitly disabled"""
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/geojson/muenster_ring_zeit.geojson", bbox=False, tbox=True
         )
         assert_tbox_result(result, MUENSTER_RING_TBOX)

@@ -198,7 +198,7 @@ class TestOSFProvider:
         dataset = self.TEST_DATASETS["gis_dataset_shapefiles"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"], bbox=True, tbox=False, timeout=60, download_data=True
             )
 
@@ -225,7 +225,7 @@ class TestOSFProvider:
         dataset = self.TEST_DATASETS["gis_dataset_shapefiles"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"], bbox=True, tbox=False, timeout=30, download_data=False
             )
 
@@ -276,7 +276,7 @@ class TestOSFParameterCombinations:
         dataset = TestOSFProvider.TEST_DATASETS["gis_dataset_shapefiles"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"], bbox=True, tbox=False, timeout=30, download_data=True
             )
 
@@ -293,7 +293,7 @@ class TestOSFParameterCombinations:
         dataset = TestOSFProvider.TEST_DATASETS["gis_dataset_shapefiles"]
 
         with pytest.raises(Exception):
-            geoextent.fromRemote(dataset["url"], bbox=False, tbox=False, timeout=30)
+            geoextent.from_remote(dataset["url"], bbox=False, tbox=False, timeout=30)
 
     def test_osf_repository_with_timeout(self):
         """Test OSF repository extraction with different timeout values"""
@@ -301,7 +301,7 @@ class TestOSFParameterCombinations:
 
         try:
             # Test with short timeout
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=False,
@@ -419,7 +419,7 @@ class TestOSFActualBoundingBoxVerification:
 
         try:
             # Test with plain OSF identifier format (OSF.IO/9JG2U)
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["plain_id"], bbox=True, tbox=True, download_data=True
             )
 
@@ -480,7 +480,7 @@ class TestOSFActualBoundingBoxVerification:
 
         try:
             # Test with bare DOI format
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["bare_doi"], bbox=True, tbox=True, download_data=True
             )
 
@@ -550,7 +550,9 @@ class TestOSFActualBoundingBoxVerification:
 
         for identifier in identifiers:
             try:
-                result = geoextent.fromRemote(identifier, bbox=True, download_data=True)
+                result = geoextent.from_remote(
+                    identifier, bbox=True, download_data=True
+                )
 
                 if result and "bbox" in result:
                     bbox = result["bbox"]
@@ -663,7 +665,7 @@ class TestOSFFilteringCapabilities:
 
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
-                result = geoextent.fromRemote(
+                result = geoextent.from_remote(
                     dataset["url"],
                     bbox=True,
                     tbox=False,
@@ -693,7 +695,7 @@ class TestOSFFilteringCapabilities:
 
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
-                result = geoextent.fromRemote(
+                result = geoextent.from_remote(
                     dataset["url"],
                     bbox=True,
                     tbox=False,
@@ -717,7 +719,7 @@ class TestOSFFilteringCapabilities:
 
         try:
             with tempfile.TemporaryDirectory() as tmpdir:
-                result = geoextent.fromRemote(
+                result = geoextent.from_remote(
                     dataset["url"],
                     bbox=True,
                     tbox=False,

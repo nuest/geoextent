@@ -106,7 +106,7 @@ class TestFourTUProvider:
         dataset = self.TEST_DATASETS["rhine_mississippi_shapefile"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=False,
@@ -137,7 +137,7 @@ class TestFourTUProvider:
         dataset = self.TEST_DATASETS["rhine_mississippi_shapefile"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=True,
@@ -156,7 +156,7 @@ class TestFourTUProvider:
         dataset = self.TEST_DATASETS["rhine_mississippi_shapefile"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["doi"],
                 bbox=True,
                 tbox=False,
@@ -181,7 +181,7 @@ class TestFourTUProvider:
         try:
             # Use UUID-based URL format
             uuid_url = f"https://data.4tu.nl/datasets/{dataset['uuid']}/1"
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 uuid_url,
                 bbox=True,
                 tbox=False,
@@ -211,7 +211,7 @@ class TestFourTUProvider:
         dataset = self.TEST_DATASETS["rebioclim_dresden"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=True,
@@ -255,7 +255,7 @@ class TestFourTUProvider:
         dataset = self.TEST_DATASETS["rebioclim_dresden"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["doi"],
                 bbox=True,
                 tbox=False,
@@ -283,7 +283,7 @@ class TestFourTUProvider:
         dataset = self.TEST_DATASETS["rebioclim_dresden"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=True,

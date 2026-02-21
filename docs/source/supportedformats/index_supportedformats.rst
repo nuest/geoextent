@@ -47,7 +47,7 @@ The file used in the example can be in the code repository: `muenster_ring_zeit.
    file_url = 'https://raw.githubusercontent.com/nuest/geoextent/maintests/testdata/geojson/muenster_ring_zeit.geojson'
    get_showcase_file(dir_name, file_url)
 
-   geoextent.fromFile('showcase_folder/muenster_ring_zeit.geojson', True, True)
+   geoextent.from_file('showcase_folder/muenster_ring_zeit.geojson', True, True)
 
 CSV
 ^^^
@@ -111,7 +111,7 @@ The file used in the example can be obtained from `Zenodo Sandbox record 256820 
    file_url = 'https://sandbox.zenodo.org/record/256820/files/cities_NL.csv'
    get_showcase_file(dir_name, file_url)
 
-   geoextent.fromFile('showcase_folder/cities_NL.csv', True, True)
+   geoextent.from_file('showcase_folder/cities_NL.csv', True, True)
 
 GeoTIFF
 ^^^^^^^
@@ -131,7 +131,7 @@ The file used in the example is available online: `wf_100m_klas.tif <https://git
    file_url = 'https://github.com/nuest/geoextent/raw/main/tests/testdata/tif/wf_100m_klas.tif'
    get_showcase_file(dir_name, file_url)
 
-   geoextent.fromFile('showcase_folder/wf_100m_klas.tif', True, False)
+   geoextent.from_file('showcase_folder/wf_100m_klas.tif', True, False)
 
 World Files
 ^^^^^^^^^^^
@@ -205,7 +205,7 @@ The file used in the example can be found at Geofabrik: `shapefiles_toulouse.zip
    file_url = 'https://www.geofabrik.de/data/shapefiles_toulouse.zip'
    get_showcase_file(dir_name, file_url, 'shapefiles_toulouse.zip')
 
-   geoextent.fromFile('showcase_folder/gis_osm_buildings_a_07_1.shp', True, False)
+   geoextent.from_file('showcase_folder/gis_osm_buildings_a_07_1.shp', True, False)
 
 GeoPackage
 ^^^^^^^^^^
@@ -224,7 +224,7 @@ The file used in the example is available online: `sample1_2.gpkg <http://www.ge
    dir_name = 'showcase_geopackage'
    file_url = 'http://www.geopackage.org/data/sample1_2.gpkg'
    get_showcase_file(dir_name, file_url)
-   geoextent.fromFile('showcase_folder/sample1_2.gpkg', True, False)
+   geoextent.from_file('showcase_folder/sample1_2.gpkg', True, False)
 
 GPS Exchange Format
 ^^^^^^^^^^^^^^^^^^^
@@ -243,7 +243,7 @@ The file used in the example is available online: `run.gpx <https://docs.mapbox.
    dir_name = 'showcase_gpx'
    file_url = 'https://docs.mapbox.com/help/data/run.gpx'
    get_showcase_file(dir_name, file_url)
-   geoextent.fromFile('showcase_folder/run.gpx', True, False)
+   geoextent.from_file('showcase_folder/run.gpx', True, False)
 
 Geography Markup Language
 ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -262,7 +262,7 @@ The file used in the example is available online: `clc_1000_PT.gml <https://gith
    dir_name = 'showcase_gml'
    file_url = 'https://raw.githubusercontent.com/nuest/geoextent/maintests/testdata/gml/clc_1000_PT.gml'
    get_showcase_file(dir_name, file_url)
-   geoextent.fromFile('showcase_folder/clc_1000_PT.gml', True, False)
+   geoextent.from_file('showcase_folder/clc_1000_PT.gml', True, False)
 
 Keyhole Markup Language
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -281,7 +281,7 @@ The file used in the example is available online: `KML_Samples.kml <https://deve
    dir_name = 'showcase_kml'
    file_url = 'https://developers.google.com/kml/documentation/KML_Samples.kml'
    get_showcase_file(dir_name, file_url)
-   geoextent.fromFile('showcase_folder/KML_Samples.kml', True, False)
+   geoextent.from_file('showcase_folder/KML_Samples.kml', True, False)
 
 
 .. jupyter-execute::

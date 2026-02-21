@@ -2,7 +2,7 @@
 
 Unit tests verify filter_files_by_size() raises DownloadSizeExceeded when
 provider_name is set. Network tests verify each provider raises the exception
-when called with a tiny limit via fromRemote().
+when called with a tiny limit via from_remote().
 """
 
 import pytest
@@ -67,13 +67,13 @@ class TestCliSetsSoftLimitFlag:
     """Verify the CLI passes download_size_soft_limit=True."""
 
     def test_cli_size_prompt_passes_soft_limit(self):
-        """_call_fromRemote_with_size_prompt receives download_size_soft_limit in kwargs."""
+        """_call_from_remote_with_size_prompt receives download_size_soft_limit in kwargs."""
         # We test this by importing the main module and inspecting the code paths.
         # Since the actual call would require network, we just verify the parameter
-        # is accepted by fromRemote.
+        # is accepted by from_remote.
         import inspect
 
-        sig = inspect.signature(extent.fromRemote)
+        sig = inspect.signature(extent.from_remote)
         assert "download_size_soft_limit" in sig.parameters
         param = sig.parameters["download_size_soft_limit"]
         assert param.default is False
@@ -82,14 +82,14 @@ class TestCliSetsSoftLimitFlag:
 # ---------------------------------------------------------------------------
 # Network tests (slow, one per provider)
 # ---------------------------------------------------------------------------
-# Each test calls fromRemote() with max_download_size="1B" and
+# Each test calls from_remote() with max_download_size="1B" and
 # download_size_soft_limit=True, expecting DownloadSizeExceeded.
 
 
 def _assert_size_exceeded(doi, **kwargs):
-    """Helper: assert that fromRemote raises DownloadSizeExceeded with a 1-byte limit."""
+    """Helper: assert that from_remote raises DownloadSizeExceeded with a 1-byte limit."""
     with pytest.raises(DownloadSizeExceeded):
-        extent.fromRemote(
+        extent.from_remote(
             doi,
             bbox=True,
             max_download_size="1B",
@@ -200,7 +200,7 @@ def test_ukceh_soft_limit():
 def test_stac_soft_limit_metadata_only():
     """STAC is metadata-only: size limit is accepted but does not raise DownloadSizeExceeded."""
     try:
-        result = extent.fromRemote(
+        result = extent.from_remote(
             "https://earth-search.aws.element84.com/v1/collections/naip",
             bbox=True,
             max_download_size="1B",

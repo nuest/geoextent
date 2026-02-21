@@ -132,7 +132,7 @@ class TestMDIDEMetadata:
         dataset = TEST_DATASETS["seegras"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=False
             )
 
@@ -223,11 +223,11 @@ class TestMDIDEMetadata:
             pytest.skip(f"Network error: {e}")
 
     def test_mdide_landing_url_extraction(self):
-        """Test full fromRemote() with landing page URL"""
+        """Test full from_remote() with landing page URL"""
         dataset = TEST_DATASETS["seegras"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["landing_url"],
                 bbox=True,
                 tbox=True,
@@ -259,7 +259,7 @@ class TestMDIDEDirectDownload:
         dataset = TEST_DATASETS["seegras"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=True
             )
 
@@ -285,7 +285,7 @@ class TestMDIDEDirectDownload:
         dataset = TEST_DATASETS["msrl_schadstoffe"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=True
             )
 
@@ -304,7 +304,7 @@ class TestMDIDEWFSDownload:
         dataset = TEST_DATASETS["kuestenlinie"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=False, download_data=True
             )
 
@@ -319,7 +319,7 @@ class TestMDIDEWFSDownload:
         dataset = TEST_DATASETS["schutzgebiete"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=True
             )
 
@@ -338,7 +338,7 @@ class TestMDIDEParameterCombinations:
         dataset = TEST_DATASETS["seegras"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=False, download_data=False
             )
             assert result is not None
@@ -352,7 +352,7 @@ class TestMDIDEParameterCombinations:
         dataset = TEST_DATASETS["seegras"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=False, tbox=True, download_data=False
             )
             assert result is not None

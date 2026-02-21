@@ -133,7 +133,7 @@ class TestMendeleyDataExtraction:
         Mendeley Data does not expose geospatial metadata, so this returns
         a minimal result without bbox.
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.17632/ybx6zp2rfp.1",
             bbox=True,
             tbox=True,
@@ -159,7 +159,7 @@ class TestMendeleyDataExtraction:
 
         results = []
         for identifier in variants:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 identifier,
                 bbox=True,
                 download_data=True,
@@ -179,7 +179,7 @@ class TestMendeleyDataExtraction:
 
     def test_mendeley_data_geotiff_extraction(self):
         """Test full extraction of a GeoTIFF dataset (tropical cloud forests)."""
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.17632/ybx6zp2rfp.1",
             bbox=True,
             tbox=True,
@@ -203,7 +203,7 @@ class TestMendeleyDataExtraction:
 
     def test_mendeley_data_geopackage_extraction(self):
         """Test extraction of a GeoPackage dataset (Emilia-Romagna floods)."""
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.17632/yzddsc67gy.1",
             bbox=True,
             download_data=True,
@@ -229,7 +229,7 @@ class TestMendeleyDataExtraction:
         Dataset contains 3 ZIP files with Shapefile, GML, GeoJSON, and KML data
         covering the historical Galicia region (modern southern Poland / western Ukraine).
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.17632/8h9295v4t3.2",
             bbox=True,
             download_data=True,
@@ -264,7 +264,7 @@ class TestMendeleyDataExtraction:
         from the mills geospatial data.
         """
         # Small limit: only non-geospatial control points fit
-        result_small = geoextent.fromRemote(
+        result_small = geoextent.from_remote(
             "10.17632/8h9295v4t3.2",
             bbox=True,
             download_data=True,
@@ -278,7 +278,7 @@ class TestMendeleyDataExtraction:
         )
 
         # Larger limit: mills dataset (1.8MB) + control points (256KB) fit
-        result_large = geoextent.fromRemote(
+        result_large = geoextent.from_remote(
             "10.17632/8h9295v4t3.2",
             bbox=True,
             download_data=True,

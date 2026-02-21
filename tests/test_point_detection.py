@@ -5,7 +5,7 @@ import pytest
 from unittest.mock import patch
 import logging
 
-from geoextent.lib.extent import fromRemote
+from geoextent.lib.extent import from_remote
 from geoextent.lib.helpfunctions import (
     is_geometry_a_point,
     create_geojson_feature_collection,
@@ -159,7 +159,7 @@ class TestPangaeaDataset918707:
         """Test extraction of bounding box from PANGAEA dataset 918707 metadata"""
         # This dataset contains a single point location in metadata
         # Use metadata-only mode to avoid downloading actual data files
-        result = fromRemote(
+        result = from_remote(
             "https://doi.org/10.1594/PANGAEA.918707",
             bbox=True,
             tbox=False,
@@ -189,7 +189,7 @@ class TestPangaeaDataset918707:
 
     def test_pangaea_918707_convex_hull(self):
         """Test extraction of convex hull from PANGAEA dataset 918707 metadata"""
-        result = fromRemote(
+        result = from_remote(
             "https://doi.org/10.1594/PANGAEA.918707",
             bbox=True,
             tbox=False,
@@ -215,7 +215,7 @@ class TestPangaeaDataset918707:
 
     def test_pangaea_918707_geojson_output_point_geometry(self):
         """Test that PANGAEA 918707 metadata outputs Point geometry in GeoJSON format"""
-        result = fromRemote(
+        result = from_remote(
             "https://doi.org/10.1594/PANGAEA.918707",
             bbox=True,
             tbox=False,
@@ -223,7 +223,7 @@ class TestPangaeaDataset918707:
             download_data=False,
         )
 
-        # Convert to GeoJSON format - result is in native [lat, lon] order from fromRemote(),
+        # Convert to GeoJSON format - result is in native [lat, lon] order from from_remote(),
         # so pass native_order=True to swap back to [lon, lat] for RFC 7946 compliance
         geojson_output = format_extent_output(
             result, "geojson", extraction_metadata={}, native_order=True
@@ -255,7 +255,7 @@ class TestPangaeaDataset918707:
 
     def test_pangaea_918707_convex_hull_geojson_output_point_geometry(self):
         """Test that PANGAEA 918707 metadata with convex hull outputs Point geometry in GeoJSON format"""
-        result = fromRemote(
+        result = from_remote(
             "https://doi.org/10.1594/PANGAEA.918707",
             bbox=True,
             tbox=False,
@@ -263,7 +263,7 @@ class TestPangaeaDataset918707:
             download_data=False,
         )
 
-        # Convert to GeoJSON format - result is in native [lat, lon] order from fromRemote(),
+        # Convert to GeoJSON format - result is in native [lat, lon] order from from_remote(),
         # so pass native_order=True to swap back to [lon, lat] for RFC 7946 compliance
         geojson_output = format_extent_output(
             result, "geojson", extraction_metadata={}, native_order=True

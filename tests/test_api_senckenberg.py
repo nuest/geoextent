@@ -168,7 +168,7 @@ class TestSenckenbergProvider:
             reference = dataset["dataset_id"]
 
         # Extract spatial extent
-        result = geoextent.fromRemote(reference, bbox=True, tbox=False)
+        result = geoextent.from_remote(reference, bbox=True, tbox=False)
 
         # Verify extraction succeeded
         assert result is not None
@@ -184,7 +184,7 @@ class TestSenckenbergProvider:
         # This dataset has spatial extent in metadata
         # However, it may be metadata-only (no downloadable files)
         # Use the URL instead of UUID to ensure Senckenberg provider is used
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["url"],
             bbox=True,
             download_data=False,  # Metadata only for this test
@@ -200,7 +200,7 @@ class TestSenckenbergProvider:
         dataset = self.TEST_DATASETS["as_sahabi"]
 
         # Test with adequate size limit
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["dataset_id"],
             bbox=True,
             max_download_size="1MB",  # Should be enough for the small ZIP
@@ -213,7 +213,7 @@ class TestSenckenbergProvider:
         dataset = self.TEST_DATASETS["as_sahabi"]
 
         # Test with geospatial filtering (should include ZIP files but skip R and CSV)
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["dataset_id"],
             bbox=True,
             download_skip_nogeo=True,
@@ -226,7 +226,7 @@ class TestSenckenbergProvider:
         dataset = self.TEST_DATASETS["as_sahabi"]
 
         # Test metadata-only mode (should not download files)
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["dataset_id"],
             bbox=True,
             download_data=False,
@@ -255,7 +255,7 @@ class TestSenckenbergProvider:
         dataset = self.TEST_DATASETS["as_sahabi"]
 
         # Full extraction test
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["dataset_id"],
             bbox=True,
             tbox=True,
@@ -337,7 +337,7 @@ class TestSenckenbergProvider:
         ]
 
         # Extract from multiple datasets
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset_ids,
             bbox=True,
             download_data=False,  # Metadata only for faster testing
@@ -371,7 +371,7 @@ class TestSenckenbergProvider:
         dataset = self.TEST_DOI_WITH_TEMPORAL
 
         # Extract with both spatial and temporal extent
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["doi"],
             bbox=True,
             tbox=True,

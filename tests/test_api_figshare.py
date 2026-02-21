@@ -96,7 +96,7 @@ class TestFigshareProvider:
 
         try:
             # Test with download_data=True to get actual geospatial data
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
 
@@ -153,7 +153,7 @@ class TestFigshareProvider:
 
         try:
             # Test with download_data=True to get actual geospatial data
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"], bbox=True, tbox=True, download_data=True
             )
 
@@ -205,7 +205,7 @@ class TestFigshareProvider:
         dataset = self.TEST_DATASETS["prince_edward_islands"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"], bbox=True, tbox=True, download_data=False
             )
 
@@ -254,7 +254,7 @@ class TestFigshareProvider:
 
         # But trying to extract should fail gracefully
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 nonexistent_url, bbox=True, download_data=True
             )
             # Should either raise exception or return error indicator
@@ -274,7 +274,7 @@ class TestFigshareParameterCombinations:
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 test_url, bbox=True, tbox=False, download_data=True
             )
             assert result is not None
@@ -318,7 +318,7 @@ class TestFigshareParameterCombinations:
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 test_url, bbox=False, tbox=True, download_data=True
             )
             assert result is not None
@@ -334,7 +334,7 @@ class TestFigshareParameterCombinations:
         test_url = "https://figshare.com/articles/dataset/Prince_Edward_Islands_geospatial_database/19248626"
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 test_url, bbox=True, tbox=True, details=True, download_data=True
             )
             assert result is not None
@@ -351,7 +351,7 @@ class TestFigshareParameterCombinations:
 
         try:
             # Test with download_data=False (metadata-only)
-            result_metadata = geoextent.fromRemote(
+            result_metadata = geoextent.from_remote(
                 test_url, bbox=True, tbox=True, download_data=False
             )
             assert result_metadata is not None
@@ -537,7 +537,9 @@ class TestFigshareExtendedDatasets:
         """Country Centroids CSV (33KB) - near-global coverage"""
         url = "https://figshare.com/articles/dataset/Country_centroids/5902369"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [-56.0, -176.2, 78.0, 178.0]
@@ -551,7 +553,9 @@ class TestFigshareExtendedDatasets:
         """Whale Observations South Africa CSV (0.33MB) - Indian Ocean / South Africa"""
         url = "https://figshare.com/articles/dataset/Whale_observations_South_Africa/12630380"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [-38.34, -0.16, -10.13, 73.09]
@@ -565,7 +569,9 @@ class TestFigshareExtendedDatasets:
         """Eland Observations CSV+KMZ+XLS (0.35MB) - Southern/Central Africa"""
         url = "https://figshare.com/articles/dataset/Observations_of_eland/4668736"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [-31.87, 0.0, 16.0, 24.80]
@@ -579,7 +585,9 @@ class TestFigshareExtendedDatasets:
         """Mont Avic Land Cover GeoTIFF x7 (0.57MB) - Aosta Valley, Italy"""
         url = "https://figshare.com/articles/dataset/Mont_Avic_land_cover/16718737"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [45.64, 7.54, 45.72, 7.67]
@@ -593,7 +601,9 @@ class TestFigshareExtendedDatasets:
         """SEAMA Montane GeoPackage+KML (1.09MB) - Mozambique/Malawi"""
         url = "https://figshare.com/articles/dataset/SEAMA_montane/24586941"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [-17.59, 34.86, -14.28, 38.99]
@@ -607,7 +617,9 @@ class TestFigshareExtendedDatasets:
         """London Boroughs GeoJSON (1.28MB) - Greater London"""
         url = "https://figshare.com/articles/dataset/London_boroughs/11373984"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [51.29, -0.51, 51.69, 0.33]
@@ -621,7 +633,9 @@ class TestFigshareExtendedDatasets:
         """Peru Aridity Map Shapefile ZIP (1.54MB) - Peru"""
         url = "https://figshare.com/articles/dataset/Peru_aridity_map/13031021"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [-18.35, -81.33, -0.04, -68.65]
@@ -635,7 +649,9 @@ class TestFigshareExtendedDatasets:
         """Ontario Maps GeoJSON x6 (4.81MB) - Ontario, Canada"""
         url = "https://figshare.com/articles/dataset/Ontario_maps/10312097"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [41.38, -95.19, 56.94, -74.31]
@@ -649,7 +665,9 @@ class TestFigshareExtendedDatasets:
         """Test GeoTIFF/ENVISAT (5.97MB) - raster"""
         url = "https://figshare.com/articles/dataset/Test_GeoTIFF_ENVISAT/5758794"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [11.36, -117.64, 33.94, 46.25]
@@ -663,7 +681,9 @@ class TestFigshareExtendedDatasets:
         """Australian Hospitals CSV (197KB) - Australia (institutional portal)"""
         url = "https://springernature.figshare.com/articles/dataset/Australian_hospitals/8319737"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [-43.31, 113.66, -10.59, 159.07]
@@ -679,7 +699,9 @@ class TestFigshareExtendedDatasets:
         """ICES HELCOM fishing effort shapefiles (23MB) - Baltic Sea (institutional portal)"""
         url = "https://ices-library.figshare.com/articles/dataset/HELCOM_request_2022_for_spatial_data_layers_on_effort_fishing_intensity_and_fishing_footprint_for_the_years_2016-2021/20310255"
         try:
-            result = geoextent.fromRemote(url, bbox=True, tbox=True, download_data=True)
+            result = geoextent.from_remote(
+                url, bbox=True, tbox=True, download_data=True
+            )
             assert result is not None
             assert "bbox" in result
             # Expected: [53.9, 9.4, 65.8, 27.9] — Baltic Sea region
@@ -702,7 +724,7 @@ class TestFigshareInstitutionalMetadata:
         # Tall Fescue dataset - Point at [-76.854, 39.018] in Geographic Coverage
         url = "https://api.figshare.com/v2/articles/30753383"
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 url, bbox=True, tbox=True, download_data=False
             )
             assert result is not None
@@ -721,7 +743,7 @@ class TestFigshareInstitutionalMetadata:
         # Tall Fescue dataset - Temporal Extent Start Date: 2022-03-31, End Date: 2024-12-05
         url = "https://api.figshare.com/v2/articles/30753383"
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 url, bbox=False, tbox=True, download_data=False
             )
             assert result is not None
@@ -739,7 +761,7 @@ class TestFigshareInstitutionalMetadata:
         # US National Dairy Producer Survey - US-spanning Polygon
         url = "https://api.figshare.com/v2/articles/31079356"
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 url, bbox=True, tbox=True, download_data=False
             )
             assert result is not None
@@ -764,10 +786,10 @@ class TestFigshareMetadataVsDownload:
         """Country Centroids: metadata-only has no bbox, download has bbox from CSV."""
         url = "https://figshare.com/articles/dataset/Country_centroids/5902369"
         try:
-            result_meta = geoextent.fromRemote(
+            result_meta = geoextent.from_remote(
                 url, bbox=True, tbox=True, download_data=False
             )
-            result_data = geoextent.fromRemote(
+            result_data = geoextent.from_remote(
                 url, bbox=True, tbox=True, download_data=True
             )
 
@@ -786,10 +808,10 @@ class TestFigshareMetadataVsDownload:
         """Whale Observations: metadata tbox = published_date, download tbox from CSV dates."""
         url = "https://figshare.com/articles/dataset/Whale_observations_South_Africa/12630380"
         try:
-            result_meta = geoextent.fromRemote(
+            result_meta = geoextent.from_remote(
                 url, bbox=False, tbox=True, download_data=False
             )
-            result_data = geoextent.fromRemote(
+            result_data = geoextent.from_remote(
                 url, bbox=False, tbox=True, download_data=True
             )
 
@@ -807,7 +829,7 @@ class TestFigshareMetadataVsDownload:
         """Country Centroids: metadata_first tries metadata (no bbox), falls back to download."""
         url = "https://figshare.com/articles/dataset/Country_centroids/5902369"
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 url, bbox=True, tbox=True, metadata_first=True
             )
             assert result is not None
@@ -820,8 +842,8 @@ class TestFigshareMetadataVsDownload:
         """Mont Avic (7 GeoTIFFs): compare bbox vs convex hull."""
         url = "https://figshare.com/articles/dataset/Mont_Avic_land_cover/16718737"
         try:
-            result_bbox = geoextent.fromRemote(url, bbox=True, download_data=True)
-            result_hull = geoextent.fromRemote(
+            result_bbox = geoextent.from_remote(url, bbox=True, download_data=True)
+            result_hull = geoextent.from_remote(
                 url, bbox=True, convex_hull=True, download_data=True
             )
             assert result_bbox is not None

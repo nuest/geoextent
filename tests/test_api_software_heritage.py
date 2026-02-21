@@ -183,7 +183,7 @@ class TestSWHExtraction:
         region (modern Israel/Palestine/Jordan).
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://archive.softwareheritage.org/browse/origin/directory/"
                 "?origin_url=https://github.com/AWMC/geodata"
                 "&path=Cultural-Data/political_shading/hasmonean",
@@ -214,7 +214,7 @@ class TestSWHExtraction:
         containing hasmonean_kingdom.geojson. Same bbox as the browse URL test.
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a",
                 bbox=True,
                 tbox=False,
@@ -238,7 +238,7 @@ class TestSWHExtraction:
     def test_swh_download_skip_nogeo(self):
         """Verify --download-skip-nogeo filters files from root directory."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://archive.softwareheritage.org/browse/origin/directory/"
                 "?origin_url=https://github.com/AWMC/geodata"
                 "&path=Cultural-Data/political_shading/hasmonean",

@@ -12,10 +12,15 @@ try:
 except ImportError:
     __version__ = "unknown"
 
-# Import main functions for easy access
-from .lib.extent import fromFile, fromDirectory, fromRemote
+from .lib.extent import from_file, from_directory, from_remote
 
 # Import main modules for advanced usage
 from . import lib
 
-__all__ = ["fromFile", "fromDirectory", "fromRemote", "lib", "__version__"]
+__all__ = [
+    "from_file",
+    "from_directory",
+    "from_remote",
+    "lib",
+    "__version__",
+]

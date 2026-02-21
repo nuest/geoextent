@@ -32,7 +32,7 @@ class TestCustomCRSHandling:
         Expected behavior: Should successfully extract bbox by using WKT-based
         transformation to WGS84.
         """
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/geopackage/custom_crs.gpkg", bbox=True
         )
 
@@ -51,16 +51,16 @@ class TestCustomCRSHandling:
         assert result["crs"] == "4326"
 
     def test_custom_crs_handler_recognition(self):
-        """Test that custom CRS files are handled by handleVector"""
-        result = geoextent.fromFile(
+        """Test that custom CRS files are handled by handle_vector"""
+        result = geoextent.from_file(
             "tests/testdata/geopackage/custom_crs.gpkg", bbox=True
         )
         assert "geoextent_handler" in result
-        assert result["geoextent_handler"] == "handleVector"
+        assert result["geoextent_handler"] == "handle_vector"
 
     def test_custom_crs_format_recognition(self):
         """Test that GeoPackage format is correctly identified"""
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/geopackage/custom_crs.gpkg", bbox=True
         )
         assert "format" in result
@@ -77,7 +77,7 @@ class TestWKTTransformation:
         produces the same results as would be expected from a proper
         EPSG-based transformation.
         """
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/geopackage/custom_crs.gpkg", bbox=True
         )
 
@@ -101,7 +101,7 @@ class TestWKTTransformation:
         This test ensures that convex hull calculation and transformation
         work correctly when using WKT definitions instead of EPSG codes.
         """
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/geopackage/custom_crs.gpkg", bbox=True, convex_hull=True
         )
 

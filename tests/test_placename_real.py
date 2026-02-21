@@ -86,7 +86,7 @@ class TestPlacenameLocalFiles:
             pytest.skip(f"Gazetteer {gazetteer} not defined for dataset {dataset_key}")
 
         try:
-            result = extent.fromFile(
+            result = extent.from_file(
                 dataset["file_path"], bbox=True, tbox=False, placename=gazetteer
             )
 
@@ -129,7 +129,7 @@ class TestPlacenameLocalFiles:
 
         try:
             # Test without escaping
-            result_normal = extent.fromFile(
+            result_normal = extent.from_file(
                 dataset["file_path"],
                 bbox=True,
                 tbox=False,
@@ -138,7 +138,7 @@ class TestPlacenameLocalFiles:
             )
 
             # Test with escaping
-            result_escaped = extent.fromFile(
+            result_escaped = extent.from_file(
                 dataset["file_path"],
                 bbox=True,
                 tbox=False,
@@ -195,7 +195,7 @@ class TestPlacenameLocalFiles:
             )
 
         try:
-            result = extent.fromFile(
+            result = extent.from_file(
                 dataset["file_path"], bbox=True, tbox=False, placename=gazetteer
             )
 
@@ -405,7 +405,7 @@ class TestPlacenameLocalFiles:
         dataset = self.LOCAL_TEST_FILES["muenster_geojson"]
 
         try:
-            result = extent.fromFile(
+            result = extent.from_file(
                 dataset["file_path"],
                 bbox=True,
                 tbox=False,

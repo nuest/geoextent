@@ -118,7 +118,7 @@ class TestBAWProvider:
         dataset = self.TEST_DATASETS["eider_schwebstoff"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=False
             )
 
@@ -187,7 +187,7 @@ class TestBAWProvider:
         dataset = self.TEST_DATASETS["trilawatt_hydro"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, download_data=False
             )
 
@@ -211,7 +211,7 @@ class TestBAWProvider:
         dataset = self.TEST_DATASETS["eider_schwebstoff"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, download_data=False
             )
 
@@ -235,7 +235,7 @@ class TestBAWParameterCombinations:
     def test_baw_bbox_only(self):
         """Test BAW extraction with only bbox enabled"""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "4C9E4FD1-D87A-4769-88C5-02F2DD8E37B0",
                 bbox=True,
                 tbox=False,
@@ -250,7 +250,7 @@ class TestBAWParameterCombinations:
     def test_baw_tbox_only(self):
         """Test BAW extraction with only tbox enabled"""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "4C9E4FD1-D87A-4769-88C5-02F2DD8E37B0",
                 bbox=False,
                 tbox=True,
@@ -265,7 +265,7 @@ class TestBAWParameterCombinations:
     def test_baw_with_details(self):
         """Test BAW extraction with details enabled"""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "4C9E4FD1-D87A-4769-88C5-02F2DD8E37B0",
                 bbox=True,
                 tbox=True,

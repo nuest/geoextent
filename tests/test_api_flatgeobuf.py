@@ -4,7 +4,7 @@ import geoextent.lib.extent as geoextent
 
 
 def test_flatgeobuf_extract_bbox():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/flatgeobuf/countries.fgb", bbox=True, tbox=False
     )
     assert "bbox" in result
@@ -16,7 +16,7 @@ def test_flatgeobuf_extract_bbox():
 
 
 def test_flatgeobuf_extract_only_bbox():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/flatgeobuf/countries.fgb", bbox=True, tbox=False
     )
     assert "bbox" in result
@@ -25,7 +25,7 @@ def test_flatgeobuf_extract_only_bbox():
 
 
 def test_flatgeobuf_extract_time():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/flatgeobuf/countries.fgb", bbox=False, tbox=True
     )
     assert "bbox" not in result
@@ -36,7 +36,7 @@ def test_flatgeobuf_extract_time():
 
 
 def test_flatgeobuf_extract_both():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/flatgeobuf/countries.fgb", bbox=True, tbox=True
     )
     assert "bbox" in result
@@ -51,8 +51,8 @@ def test_flatgeobuf_extract_both():
 
 
 def test_flatgeobuf_format_recognition():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/flatgeobuf/countries.fgb", bbox=True, tbox=True
     )
     assert result["format"] == "fgb"
-    assert result["geoextent_handler"] == "handleVector"
+    assert result["geoextent_handler"] == "handle_vector"

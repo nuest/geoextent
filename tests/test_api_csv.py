@@ -178,7 +178,7 @@ class TestCSVSampling:
         """Test temporal extraction with valid random sampling"""
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/csv/3DCMTcatalog_TakemuraEPS.csv",
             bbox=False,
             tbox=True,
@@ -192,7 +192,7 @@ class TestCSVSampling:
         """Test temporal extraction with invalid negative sample size"""
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/csv/3DCMTcatalog_TakemuraEPS.csv",
             bbox=False,
             tbox=True,
@@ -205,7 +205,7 @@ class TestCSVSampling:
         """Test temporal extraction with sample size larger than data"""
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/csv/3DCMTcatalog_TakemuraEPS.csv",
             bbox=False,
             tbox=True,
@@ -281,7 +281,7 @@ class TestCSVGeometryColumns:
 
     def test_invalid_geometry_handling(self):
         """Test that invalid WKT/WKB geometries are handled gracefully"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
         import csv
         import tempfile
         import os
@@ -302,7 +302,7 @@ class TestCSVGeometryColumns:
             temp_path = f.name
 
         try:
-            result = handleCSV._extract_bbox_from_geometry_column(temp_path)
+            result = handle_csv._extract_bbox_from_geometry_column(temp_path)
             assert result is not None
             assert "bbox" in result
             bbox = result["bbox"]
@@ -382,9 +382,9 @@ class TestCSVGdalColumnNames:
 
     def test_gdal_direct_function(self):
         """Test the _extract_bbox_via_gdal function directly"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
-        result = handleCSV._extract_bbox_via_gdal(get_test_file("csv", "cities_nl_xy"))
+        result = handle_csv._extract_bbox_via_gdal(get_test_file("csv", "cities_nl_xy"))
         assert result is not None
         assert "bbox" in result
         assert "crs" in result
@@ -396,10 +396,10 @@ class TestCSVGdalColumnNames:
 
     def test_gdal_returns_none_for_unrecognized_columns(self):
         """Test that GDAL path returns None for CSV with unrecognized column names"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
         # case_flip has columns no_Latitude and no_Longitude — not in GDAL name lists
-        result = handleCSV._extract_bbox_via_gdal(
+        result = handle_csv._extract_bbox_via_gdal(
             "tests/testdata/csv/cities_NL_case_flip.csv"
         )
         assert result is None
@@ -412,7 +412,7 @@ class TestCSVConvexHull:
         """Test convex hull extraction from CSV with X/Y columns"""
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             get_test_file("csv", "cities_nl_xy"),
             bbox=True,
             tbox=False,
@@ -432,7 +432,7 @@ class TestCSVConvexHull:
         """Test convex hull extraction from CSV with the_geom WKT column"""
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             get_test_file("csv", "cities_nl_the_geom"),
             bbox=True,
             tbox=False,
@@ -454,7 +454,7 @@ class TestCSVConvexHull:
         """
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             get_test_file("csv", "cities_nl"),
             bbox=True,
             tbox=False,
@@ -494,9 +494,9 @@ class TestGeoCSV:
 
     def test_geocsv_coordxy_via_gdal(self):
         """Test that CoordX/CoordY columns are detected by GDAL open options"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
-        result = handleCSV._extract_bbox_via_gdal(
+        result = handle_csv._extract_bbox_via_gdal(
             get_test_file("csv", "geocsv_semicolon")
         )
         assert result is not None, "GDAL should detect CoordX/CoordY columns"
@@ -514,9 +514,9 @@ class TestGeoCSV:
 
     def test_geocsv_prj_crs_detection(self):
         """Test that PRJ sidecar file provides CRS information"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
-        result = handleCSV._extract_bbox_via_gdal(get_test_file("csv", "geocsv_prj"))
+        result = handle_csv._extract_bbox_via_gdal(get_test_file("csv", "geocsv_prj"))
         assert result is not None
         # PRJ file specifies WGS84
         assert result["crs"] == "4326"
@@ -532,17 +532,17 @@ class TestGeoCSV:
 
     def test_geocsv_earthscope_file_supported(self):
         """Test that EarthScope GeoCSV files are recognized as supported CSV"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
-        assert handleCSV.checkFileSupported(
+        assert handle_csv.check_file_supported(
             get_test_file("csv", "geocsv_earthscope")
         ), "EarthScope GeoCSV should be recognized as CSV"
 
     def test_geocsv_earthscope_header_stripping(self):
         """Test that _strip_geocsv_headers correctly parses EarthScope metadata"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
-        path, meta = handleCSV._strip_geocsv_headers(
+        path, meta = handle_csv._strip_geocsv_headers(
             get_test_file("csv", "geocsv_earthscope")
         )
         try:
@@ -579,7 +579,7 @@ class TestGeoCSV:
         """Test convex hull extraction from CSV with WKT polygon geometries"""
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             get_test_file("csv", "geocsv_wkt_polygons"),
             bbox=True,
             tbox=False,
@@ -616,9 +616,9 @@ class TestGeoCSV:
 
     def test_earthscope_pipe_delimiter_detected(self):
         """Test that pipe delimiter is correctly detected after header stripping"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
-        path, meta = handleCSV._strip_geocsv_headers(
+        path, meta = handle_csv._strip_geocsv_headers(
             get_test_file("csv", "earthscope_stations")
         )
         try:
@@ -632,9 +632,9 @@ class TestGeoCSV:
 
     def test_normal_csv_not_affected_by_geocsv_preprocessing(self):
         """Test that normal CSV files pass through GeoCSV preprocessing unchanged"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
-        path, meta = handleCSV._strip_geocsv_headers(get_test_file("csv", "cities_nl"))
+        path, meta = handle_csv._strip_geocsv_headers(get_test_file("csv", "cities_nl"))
         assert path == get_test_file(
             "csv", "cities_nl"
         ), "Normal CSV should not be modified"
@@ -655,9 +655,9 @@ class TestGeoCSV:
 
     def test_prj_sidecar_projected_crs_wkt_detection(self):
         """Test that _extract_bbox_via_gdal returns crs_wkt for projected PRJ sidecar"""
-        import geoextent.lib.handleCSV as handleCSV
+        import geoextent.lib.handle_csv as handle_csv
 
-        result = handleCSV._extract_bbox_via_gdal(get_test_file("csv", "rd_new_prj"))
+        result = handle_csv._extract_bbox_via_gdal(get_test_file("csv", "rd_new_prj"))
         assert result is not None
         assert (
             "crs_wkt" in result
@@ -669,7 +669,7 @@ class TestGeoCSV:
         """Test convex hull extraction with projected PRJ sidecar CRS transformation"""
         import geoextent.lib.extent as geoextent
 
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             get_test_file("csv", "rd_new_prj"),
             bbox=True,
             tbox=False,

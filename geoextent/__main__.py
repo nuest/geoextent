@@ -437,15 +437,15 @@ def _parse_additional_extensions(ext_string):
     return extensions
 
 
-def _call_fromRemote_with_size_prompt(kwargs):
-    """Call ``extent.fromRemote()`` with interactive size-limit prompting.
+def _call_from_remote_with_size_prompt(kwargs):
+    """Call ``extent.from_remote()`` with interactive size-limit prompting.
 
     If the provider raises :class:`DownloadSizeExceeded` and stdin is a TTY,
     the user is prompted to confirm the large download.  In non-interactive
     mode the exception propagates.
     """
     try:
-        return extent.fromRemote(**kwargs)
+        return extent.from_remote(**kwargs)
     except DownloadSizeExceeded as exc:
         if not sys.stdin.isatty():
             raise
@@ -463,7 +463,7 @@ def _call_fromRemote_with_size_prompt(kwargs):
 
         # Retry with an increased limit (format as bytes string for filesizelib)
         kwargs["max_download_size"] = f"{exc.estimated_size + 1}B"
-        return extent.fromRemote(**kwargs)
+        return extent.from_remote(**kwargs)
 
 
 def main():
@@ -585,7 +585,7 @@ def main():
             is_repository = rfd_instance._is_supported_repository(single_input)
 
             if is_file and not is_zipfile:
-                output = extent.fromFile(
+                output = extent.from_file(
                     single_input,
                     bbox=args["bounding_box"],
                     tbox=args["time_box"],
@@ -598,7 +598,7 @@ def main():
                     time_format=args["time_format"],
                 )
             elif is_directory or is_zipfile:
-                output = extent.fromDirectory(
+                output = extent.from_directory(
                     single_input,
                     bbox=args["bounding_box"],
                     tbox=args["time_box"],
@@ -613,7 +613,7 @@ def main():
                     time_format=args["time_format"],
                 )
             elif is_url or is_doi or is_repository:
-                output = _call_fromRemote_with_size_prompt(
+                output = _call_from_remote_with_size_prompt(
                     {
                         "remote_identifier": single_input,
                         "bbox": args["bounding_box"],
@@ -662,7 +662,7 @@ def main():
 
                     if is_url or is_doi or is_repository:
                         # Process repository identifier
-                        repo_output = _call_fromRemote_with_size_prompt(
+                        repo_output = _call_from_remote_with_size_prompt(
                             {
                                 "remote_identifier": file_path,
                                 "bbox": args["bounding_box"],
@@ -701,7 +701,7 @@ def main():
                         file_path
                     ):
                         # Process individual file
-                        file_output = extent.fromFile(
+                        file_output = extent.from_file(
                             file_path,
                             bbox=args["bounding_box"],
                             tbox=args["time_box"],
@@ -717,7 +717,7 @@ def main():
                             output["details"][file_path] = file_output
                     elif os.path.isdir(file_path) or zipfile.is_zipfile(file_path):
                         # Process directory or zip file
-                        dir_output = extent.fromDirectory(
+                        dir_output = extent.from_directory(
                             file_path,
                             bbox=args["bounding_box"],
                             tbox=args["time_box"],

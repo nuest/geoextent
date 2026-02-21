@@ -138,7 +138,7 @@ class TestUkcehProvider:
         """Test metadata-only extraction (provider_sample smoke test)"""
         ds = self.TEST_DATASETS["blelham_tarn"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -165,7 +165,7 @@ class TestUkcehProvider:
         """10.5285/dd35316a...: Blelham Tarn water chemistry — bbox + tbox"""
         ds = self.TEST_DATASETS["blelham_tarn"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -193,7 +193,7 @@ class TestUkcehProvider:
         """10.5285/6a8b07f9...: Mozambique woody biomass — bbox + tbox"""
         ds = self.TEST_DATASETS["mozambique_biomass"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -221,7 +221,7 @@ class TestUkcehProvider:
         """10.5285/02977a5d...: Lake Victoria erosion — bbox + tbox"""
         ds = self.TEST_DATASETS["lake_victoria"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -249,7 +249,7 @@ class TestUkcehProvider:
         """10.5285/4b0871a9...: UK/USA ozone model — bbox + tbox"""
         ds = self.TEST_DATASETS["ozone_model"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -283,7 +283,7 @@ class TestUkcehProvider:
         """
         ds = self.TEST_DATASETS["dddac"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -379,7 +379,7 @@ class TestUkcehProvider:
 
         monkeypatch.setattr(UKCEH, "_request", mock_request)
 
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.5285/00000000-0000-0000-0000-000000000000",
             bbox=True,
             tbox=True,

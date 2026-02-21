@@ -8,31 +8,31 @@ from geoextent.lib import extent
 
 
 class TestMultiRemoteExtraction(unittest.TestCase):
-    """Test cases for fromRemote function"""
+    """Test cases for from_remote function"""
 
-    def test_fromRemote_validates_non_empty(self):
-        """Test that fromRemote validates list is not empty"""
+    def test_from_remote_validates_non_empty(self):
+        """Test that from_remote validates list is not empty"""
         with self.assertRaises(ValueError) as context:
-            extent.fromRemote([], bbox=True)
+            extent.from_remote([], bbox=True)
         self.assertIn("cannot be empty", str(context.exception))
 
-    def test_fromRemote_accepts_string_or_list(self):
-        """Test that fromRemote accepts both string and list inputs"""
+    def test_from_remote_accepts_string_or_list(self):
+        """Test that from_remote accepts both string and list inputs"""
         # String input should not raise ValueError
         with patch("geoextent.lib.extent._extract_from_remote") as mock_extract:
             mock_extract.return_value = {"bbox": [1, 2, 3, 4], "crs": "4326"}
 
             # This should work without raising
-            result = extent.fromRemote("10.5281/zenodo.123", bbox=True)
+            result = extent.from_remote("10.5281/zenodo.123", bbox=True)
             self.assertIsInstance(result, dict)
 
             # List input should also work
-            result = extent.fromRemote(["10.5281/zenodo.123"], bbox=True)
+            result = extent.from_remote(["10.5281/zenodo.123"], bbox=True)
             self.assertIsInstance(result, dict)
 
     @patch("geoextent.lib.extent._extract_from_remote")
-    def test_fromRemote_processes_multiple_identifiers(self, mock_extract):
-        """Test that fromRemote processes multiple remote identifiers"""
+    def test_from_remote_processes_multiple_identifiers(self, mock_extract):
+        """Test that from_remote processes multiple remote identifiers"""
         # Mock successful responses
         mock_extract.side_effect = [
             {"bbox": [5.0, 50.0, 6.0, 51.0], "crs": "4326"},
@@ -40,7 +40,7 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         ]
 
         identifiers = ["10.5281/zenodo.123", "10.25532/OPARA-456"]
-        result = extent.fromRemote(identifiers, bbox=True)
+        result = extent.from_remote(identifiers, bbox=True)
 
         # Verify structure
         self.assertEqual(result["format"], "remote_bulk")
@@ -60,8 +60,8 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         self.assertEqual(mock_extract.call_count, 2)
 
     @patch("geoextent.lib.extent._extract_from_remote")
-    def test_fromRemote_handles_errors_gracefully(self, mock_extract):
-        """Test that fromRemote handles individual failures"""
+    def test_from_remote_handles_errors_gracefully(self, mock_extract):
+        """Test that from_remote handles individual failures"""
         # Mock with first succeeds, second fails, third succeeds
         mock_extract.side_effect = [
             {"bbox": [5.0, 50.0, 6.0, 51.0], "crs": "4326"},
@@ -70,7 +70,7 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         ]
 
         identifiers = ["10.5281/zenodo.123", "invalid-doi", "10.25532/OPARA-789"]
-        result = extent.fromRemote(identifiers, bbox=True)
+        result = extent.from_remote(identifiers, bbox=True)
 
         # Verify metadata reflects partial success
         self.assertEqual(result["extraction_metadata"]["total_resources"], 3)
@@ -83,8 +83,8 @@ class TestMultiRemoteExtraction(unittest.TestCase):
 
     @patch("geoextent.lib.extent._extract_from_remote")
     @patch("geoextent.lib.helpfunctions.bbox_merge")
-    def test_fromRemote_merges_bboxes(self, mock_bbox_merge, mock_extract):
-        """Test that fromRemote merges bounding boxes correctly"""
+    def test_from_remote_merges_bboxes(self, mock_bbox_merge, mock_extract):
+        """Test that from_remote merges bounding boxes correctly"""
         # Mock responses with bboxes
         mock_extract.side_effect = [
             {"bbox": [5.0, 50.0, 6.0, 51.0], "crs": "4326"},
@@ -95,7 +95,7 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         mock_bbox_merge.return_value = {"bbox": [5.0, 50.0, 8.0, 53.0], "crs": "4326"}
 
         identifiers = ["10.5281/zenodo.123", "10.25532/OPARA-456"]
-        result = extent.fromRemote(identifiers, bbox=True)
+        result = extent.from_remote(identifiers, bbox=True)
 
         # Verify merged bbox is present
         self.assertIn("bbox", result)
@@ -107,8 +107,8 @@ class TestMultiRemoteExtraction(unittest.TestCase):
 
     @patch("geoextent.lib.extent._extract_from_remote")
     @patch("geoextent.lib.helpfunctions.tbox_merge")
-    def test_fromRemote_merges_temporal_extents(self, mock_tbox_merge, mock_extract):
-        """Test that fromRemote merges temporal extents correctly"""
+    def test_from_remote_merges_temporal_extents(self, mock_tbox_merge, mock_extract):
+        """Test that from_remote merges temporal extents correctly"""
         # Mock responses with temporal extents
         mock_extract.side_effect = [
             {"tbox": ["2020-01-01", "2020-12-31"]},
@@ -119,7 +119,7 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         mock_tbox_merge.return_value = ["2020-01-01", "2021-12-31"]
 
         identifiers = ["10.5281/zenodo.123", "10.25532/OPARA-456"]
-        result = extent.fromRemote(identifiers, tbox=True)
+        result = extent.from_remote(identifiers, tbox=True)
 
         # Verify merged tbox is present
         self.assertIn("tbox", result)
@@ -129,11 +129,11 @@ class TestMultiRemoteExtraction(unittest.TestCase):
         mock_tbox_merge.assert_called_once()
 
     @patch("geoextent.lib.extent._extract_from_remote")
-    def test_fromRemote_passes_parameters_to_fromRemote(self, mock_extract):
+    def test_from_remote_passes_parameters_to_from_remote(self, mock_extract):
         """Test that all parameters are correctly passed to _extract_from_remote"""
         mock_extract.return_value = {}
 
-        extent.fromRemote(
+        extent.from_remote(
             ["10.5281/zenodo.123"],
             bbox=True,
             tbox=True,

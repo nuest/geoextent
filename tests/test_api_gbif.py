@@ -87,7 +87,7 @@ class TestGBIFProvider:
             "124\t51.9244\t4.4777\tBombus terrestris\n"
             "125\t53.2194\t6.5665\tAndrena flavipes\n"
         )
-        result = geoextent.fromFile(str(txt_file), bbox=True)
+        result = geoextent.from_file(str(txt_file), bbox=True)
         assert result is not None
         bbox = result.get("bbox")
         assert bbox is not None, "Expected bbox from tab-delimited DwC-A .txt file"
@@ -104,7 +104,7 @@ class TestGBIFProvider:
         """Test metadata-only extraction from GBIF (provider_sample smoke test)"""
         ds = self.TEST_DATASETS["bee_species_nl"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=True,
@@ -132,7 +132,7 @@ class TestGBIFProvider:
         """Test temporal extent extraction from GBIF metadata"""
         ds = self.TEST_DATASETS["bee_species_nl"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=False,
                 tbox=True,
@@ -153,7 +153,7 @@ class TestGBIFProvider:
         """Test extraction via gbif.org dataset URL"""
         ds = self.TEST_DATASETS["bee_species_nl"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 f"https://www.gbif.org/dataset/{ds['dataset_key']}",
                 bbox=True,
                 tbox=False,
@@ -173,7 +173,7 @@ class TestGBIFProvider:
         """Test extraction with non-primary DOI prefix (10.15472/)"""
         ds = self.TEST_DATASETS["colombia_biodiversity"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=False,
@@ -190,11 +190,11 @@ class TestGBIFProvider:
         assert bbox is not None, "Expected bbox from GBIF 10.15472/ dataset"
 
     def test_gbif_download_size_exceeded_small_limit(self):
-        """Test that DownloadSizeExceeded is raised via fromRemote with a tiny size limit"""
+        """Test that DownloadSizeExceeded is raised via from_remote with a tiny size limit"""
         ds = self.TEST_DATASETS["bee_species_nl"]
         try:
             with pytest.raises(DownloadSizeExceeded) as exc_info:
-                geoextent.fromRemote(
+                geoextent.from_remote(
                     ds["doi"],
                     bbox=True,
                     tbox=False,
@@ -221,10 +221,10 @@ class TestGBIFProvider:
             assert exc.estimated_size > 1
 
     def test_gbif_cli_size_prompt_decline(self, monkeypatch):
-        """Test that _call_fromRemote_with_size_prompt returns None when user declines"""
-        from geoextent.__main__ import _call_fromRemote_with_size_prompt
+        """Test that _call_from_remote_with_size_prompt returns None when user declines"""
+        from geoextent.__main__ import _call_from_remote_with_size_prompt
 
-        def fake_fromRemote(**kwargs):
+        def fake_from_remote(**kwargs):
             raise DownloadSizeExceeded(500_000_000, 100_000_000, "GBIF")
 
         # io.StringIO.isatty() returns False; wrap to pretend we have a TTY
@@ -232,21 +232,21 @@ class TestGBIFProvider:
             def isatty(self):
                 return True
 
-        monkeypatch.setattr("geoextent.__main__.extent.fromRemote", fake_fromRemote)
+        monkeypatch.setattr("geoextent.__main__.extent.from_remote", fake_from_remote)
         monkeypatch.setattr("sys.stdin", FakeTTY("N\n"))
 
-        result = _call_fromRemote_with_size_prompt(
+        result = _call_from_remote_with_size_prompt(
             {"remote_identifier": "10.15468/fake", "bbox": True}
         )
         assert result is None
 
     def test_gbif_cli_size_prompt_accept(self, monkeypatch):
-        """Test that _call_fromRemote_with_size_prompt retries when user accepts"""
-        from geoextent.__main__ import _call_fromRemote_with_size_prompt
+        """Test that _call_from_remote_with_size_prompt retries when user accepts"""
+        from geoextent.__main__ import _call_from_remote_with_size_prompt
 
         call_count = {"n": 0}
 
-        def fake_fromRemote(**kwargs):
+        def fake_from_remote(**kwargs):
             call_count["n"] += 1
             if call_count["n"] == 1:
                 raise DownloadSizeExceeded(500_000_000, 100_000_000, "GBIF")
@@ -258,10 +258,10 @@ class TestGBIFProvider:
             def isatty(self):
                 return True
 
-        monkeypatch.setattr("geoextent.__main__.extent.fromRemote", fake_fromRemote)
+        monkeypatch.setattr("geoextent.__main__.extent.from_remote", fake_from_remote)
         monkeypatch.setattr("sys.stdin", FakeTTY("y\n"))
 
-        result = _call_fromRemote_with_size_prompt(
+        result = _call_from_remote_with_size_prompt(
             {"remote_identifier": "10.15468/fake", "bbox": True}
         )
         assert result == {"bbox": [1, 2, 3, 4]}
@@ -269,30 +269,30 @@ class TestGBIFProvider:
 
     def test_gbif_cli_size_prompt_noninteractive_validation(self):
         """Test that DownloadSizeExceeded propagates in non-interactive mode"""
-        from geoextent.__main__ import _call_fromRemote_with_size_prompt
+        from geoextent.__main__ import _call_from_remote_with_size_prompt
 
         # In test context, stdin.isatty() returns False, so exception propagates
         with pytest.raises(DownloadSizeExceeded):
 
-            def fake_fromRemote(**kwargs):
+            def fake_from_remote(**kwargs):
                 raise DownloadSizeExceeded(500_000_000, 100_000_000, "GBIF")
 
             import geoextent.__main__ as main_mod
 
-            orig = main_mod.extent.fromRemote
-            main_mod.extent.fromRemote = fake_fromRemote
+            orig = main_mod.extent.from_remote
+            main_mod.extent.from_remote = fake_from_remote
             try:
-                _call_fromRemote_with_size_prompt(
+                _call_from_remote_with_size_prompt(
                     {"remote_identifier": "10.15468/fake", "bbox": True}
                 )
             finally:
-                main_mod.extent.fromRemote = orig
+                main_mod.extent.from_remote = orig
 
     def test_gbif_dwca_download(self):
         """Test DwC-A download for the bee species dataset (small archive)"""
         ds = self.TEST_DATASETS["bee_species_nl"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=False,

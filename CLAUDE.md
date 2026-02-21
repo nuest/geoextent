@@ -18,16 +18,16 @@ This project is currently in version 0.x, which means:
 
 ### Current API Functions
 
-1. **fromFile()** - Extract extent from individual files
-2. **fromDirectory()** - Extract extent from directories
-3. **fromRemote()** - Extract extent from remote sources (repositories, journals, preprint servers)
+1. **from_file()** - Extract extent from individual files
+2. **from_directory()** - Extract extent from directories
+3. **from_remote()** - Extract extent from remote sources (repositories, journals, preprint servers)
 
 ### Function Naming Convention
 
-All main API functions use **camelCase** for consistency:
-- `fromFile` (not `from_file`)
-- `fromDirectory` (not `from_directory`)
-- `fromRemote` (not `from_remote`)
+All functions use **snake_case** per PEP 8:
+- `from_file`, `from_directory`, `from_remote` (public API)
+- `handle_csv`, `handle_raster`, `handle_vector` (handler modules)
+- `check_file_supported`, `get_bounding_box`, `get_temporal_extent`, `get_convex_hull` (handler functions)
 
 ### Recent Breaking Changes
 
@@ -58,7 +58,7 @@ geoextent uses two coordinate order modes:
 ### Internal vs Output Coordinate Order
 
 - **Internally**, all processing uses traditional GIS order `[longitude, latitude]` (i.e. `[x, y]`)
-- The coordinate swap to native EPSG:4326 `[latitude, longitude]` happens **only at the output boundary** of public API functions (`fromFile`, `fromDirectory`, `fromRemote`)
+- The coordinate swap to native EPSG:4326 `[latitude, longitude]` happens **only at the output boundary** of public API functions (`from_file`, `from_directory`, `from_remote`)
 - OGR's `GetExtent()` returns `(minX, maxX, minY, maxY)` in traditional order; do **not** swap axes internally
 - The `_swap_coordinate_order()` function in `extent.py` handles the output swap
 - Internal calls between functions use `_internal=True` to prevent double-swapping
@@ -228,12 +228,12 @@ The project follows a modular handler-based architecture:
 
 1. **Main Entry Points**:
    - `geoextent/__main__.py` - CLI entry point
-   - `geoextent/lib/extent.py` - Core extraction functions (`fromFile`, `fromDirectory`, `from_repository`)
+   - `geoextent/lib/extent.py` - Core extraction functions (`from_file`, `from_directory`, `from_remote`)
 
 2. **Format Handlers** (in `geoextent/lib/`):
-   - `handleCSV.py` - CSV file processing with coordinate detection
-   - `handleRaster.py` - Raster data (GeoTIFF, world files) processing using GDAL. Temporal extraction supports: NetCDF CF time dimensions, ACDD `time_coverage_start/end`, GeoTIFF `TIFFTAG_DATETIME`, and band-level `ACQUISITIONDATETIME` (IMAGERY domain)
-   - `handleVector.py` - Vector data (Shapefile, GeoJSON) processing using OGR
+   - `handle_csv.py` - CSV file processing with coordinate detection
+   - `handle_raster.py` - Raster data (GeoTIFF, world files) processing using GDAL. Temporal extraction supports: NetCDF CF time dimensions, ACDD `time_coverage_start/end`, GeoTIFF `TIFFTAG_DATETIME`, and band-level `ACQUISITIONDATETIME` (IMAGERY domain)
+   - `handle_vector.py` - Vector data (Shapefile, GeoJSON) processing using OGR
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):
@@ -251,8 +251,8 @@ The project follows a modular handler-based architecture:
 ### Handler Selection
 
 The system automatically selects appropriate handlers based on file format:
-- Files are tested against each handler module's `checkFileSupported()` function
-- Each handler provides format-specific `getBoundingBox()` and `getTemporalExtent()` methods
+- Files are tested against each handler module's `check_file_supported()` function
+- Each handler provides format-specific `get_bounding_box()` and `get_temporal_extent()` methods
 - All spatial extents are transformed to WGS84 (EPSG:4326) for consistency
 
 ### World File Support
@@ -264,7 +264,7 @@ World files provide geospatial transformation information for raster images with
 
 **Implementation Details:**
 - GDAL automatically detects world files when named correctly (e.g., `image.png` + `image.pngw`)
-- `handleRaster.py` handles cases where projection reference is empty (world files without .prj)
+- `handle_raster.py` handles cases where projection reference is empty (world files without .prj)
 - When no CRS is specified, assumes WGS84 (EPSG:4326)
 - Test data available in `tests/testdata/worldfile/`
 
@@ -274,8 +274,8 @@ World files provide geospatial transformation information for raster images with
 
 ### Key Functions
 
-- `fromFile()` - Extract extent from single file using threading for bbox/tbox extraction
-- `fromDirectory()` - Recursively process directories and archives with timeout support
+- `from_file()` - Extract extent from single file using threading for bbox/tbox extraction
+- `from_directory()` - Recursively process directories and archives with timeout support
 - `from_repository()` - Download and process data from research repositories
 - `compute_bbox_wgs84()` - Transform bounding boxes to WGS84 coordinate system
 
@@ -319,9 +319,9 @@ geoextent/
 ├── __main__.py              # CLI entry point
 ├── lib/
 │   ├── extent.py           # Core extraction logic
-│   ├── handleCSV.py        # CSV format handler
-│   ├── handleRaster.py     # Raster format handler
-│   ├── handleVector.py     # Vector format handler
+│   ├── handle_csv.py       # CSV format handler
+│   ├── handle_raster.py    # Raster format handler
+│   ├── handle_vector.py    # Vector format handler
 │   ├── helpfunctions.py    # Utility functions
 │   └── content_providers/  # Repository integrations
 tests/                      # Test files organized by format

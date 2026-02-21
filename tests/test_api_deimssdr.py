@@ -78,7 +78,7 @@ class TestDEIMSSDRDatasets:
     def test_deimssdr_dataset_metadata_only_extraction(self):
         """Provider sample test: Rosalia forest (Austria), POLYGON geometry."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/1a179105-8f6d-416c-98a4-c819006a1255",
                 bbox=True,
                 tbox=True,
@@ -105,7 +105,7 @@ class TestDEIMSSDRDatasets:
     def test_deimssdr_sierra_nevada_complex_polygon(self):
         """Sierra Nevada (Spain): very complex POLYGON (~23,574 vertices)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/9ca7a359-17b0-41f7-b81b-c6aae9268b2a",
                 bbox=True,
                 tbox=True,
@@ -126,7 +126,7 @@ class TestDEIMSSDRDatasets:
     def test_deimssdr_lake_paione_with_zenodo_doi(self):
         """Lake Paione Superiore (Italy): POLYGON, has external Zenodo DOI."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2",
                 bbox=True,
                 tbox=True,
@@ -145,7 +145,7 @@ class TestDEIMSSDRDatasets:
     def test_deimssdr_burgas_bay_seanoe(self):
         """Burgas Bay (Bulgaria): POLYGON, external SEANOE DOI."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/f88b59ce-3716-4823-9152-985e5ff84a7a",
                 bbox=True,
                 tbox=True,
@@ -164,7 +164,7 @@ class TestDEIMSSDRDatasets:
     def test_deimssdr_moor_house_multipolygon(self):
         """Moor House (UK): MULTIPOLYGON geometry, ongoing (end date null)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/4f9bf89d-5ecb-41bf-970a-9c69a02cc51b",
                 bbox=True,
                 tbox=True,
@@ -184,7 +184,7 @@ class TestDEIMSSDRDatasets:
     def test_deimssdr_meteorological_station_point(self):
         """Schröckalm (Austria): POINT geometry, ongoing."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/c93f0317-8a7e-44c9-8276-f4eae114c03d",
                 bbox=True,
                 tbox=True,
@@ -203,7 +203,7 @@ class TestDEIMSSDRDatasets:
     def test_deimssdr_bird_survey_placeholder_doi(self):
         """Bird survey (Germany): POLYGON, DOI field has placeholder text."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/5244d4e4-a206-11e2-b534-005056ab003f",
                 bbox=True,
                 tbox=True,
@@ -230,7 +230,7 @@ class TestDEIMSSDRSites:
     def test_deimssdr_site_zobelboden_austria(self):
         """LTER Zobelboden (Austria): complex POLYGON boundary."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/8eda49e9-1f4e-4f3e-b58e-e0bb25dc32a6",
                 bbox=True,
             )
@@ -248,7 +248,7 @@ class TestDEIMSSDRSites:
     def test_deimssdr_site_rosalia_austria(self):
         """Lehrforst Rosalia (Austria): very complex POLYGON boundary."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/77c127c4-2ebe-453b-b5af-61858ff02e31",
                 bbox=True,
             )
@@ -265,7 +265,7 @@ class TestDEIMSSDRSites:
     def test_deimssdr_site_algoa_bay_south_africa(self):
         """Algoa Bay (South Africa): Southern hemisphere POLYGON."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/6dfa31b5-f5d2-4579-b869-c329c2b76af6",
                 bbox=True,
             )
@@ -290,7 +290,7 @@ class TestDEIMSSDRIntegration:
     def test_deimssdr_no_download_data(self):
         """With download_data=False, should still return metadata (DEIMS is always metadata)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2",
                 bbox=True,
                 tbox=True,
@@ -306,7 +306,7 @@ class TestDEIMSSDRIntegration:
     def test_deimssdr_no_metadata_fallback(self):
         """With metadata_fallback=False, should still work (DEIMS always produces metadata)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2",
                 bbox=True,
                 tbox=True,
@@ -322,7 +322,7 @@ class TestDEIMSSDRIntegration:
     def test_deimssdr_metadata_first(self):
         """With metadata_first=True, should use metadata extraction."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/1a179105-8f6d-416c-98a4-c819006a1255",
                 bbox=True,
                 metadata_first=True,
@@ -336,7 +336,7 @@ class TestDEIMSSDRIntegration:
     def test_deimssdr_bbox_only(self):
         """Extract only bbox (no tbox)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/f88b59ce-3716-4823-9152-985e5ff84a7a",
                 bbox=True,
                 tbox=False,
@@ -425,7 +425,7 @@ class TestDEIMSSDRFollow:
     def test_deimssdr_follow_to_zenodo(self):
         """Lake Paione -> should follow to Zenodo for actual data."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2",
                 bbox=True,
                 tbox=True,
@@ -443,7 +443,7 @@ class TestDEIMSSDRFollow:
     def test_deimssdr_follow_to_pangaea(self):
         """Sierra Nevada -> should follow to PANGAEA for actual data."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/9ca7a359-17b0-41f7-b81b-c6aae9268b2a",
                 bbox=True,
                 tbox=True,
@@ -460,7 +460,7 @@ class TestDEIMSSDRFollow:
     def test_deimssdr_no_follow_uses_deims_metadata(self):
         """Lake Paione with follow=False -> no followed key, DEIMS metadata bbox."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/3d87da8b-2b07-41c7-bf05-417832de4fa2",
                 bbox=True,
                 tbox=True,
@@ -476,7 +476,7 @@ class TestDEIMSSDRFollow:
     def test_deimssdr_follow_unsupported_falls_back(self):
         """Burgas Bay (SEANOE not supported) -> no followed key, DEIMS metadata used."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/f88b59ce-3716-4823-9152-985e5ff84a7a",
                 bbox=True,
                 tbox=True,
@@ -491,7 +491,7 @@ class TestDEIMSSDRFollow:
     def test_deimssdr_follow_placeholder_doi_falls_back(self):
         """Bird survey (placeholder text DOI) -> no followed key."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://deims.org/dataset/5244d4e4-a206-11e2-b534-005056ab003f",
                 bbox=True,
                 tbox=True,

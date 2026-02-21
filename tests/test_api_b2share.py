@@ -94,7 +94,7 @@ class TestB2SHAREProvider:
         ds = self.TEST_DATASETS["tainan_placenames"]
 
         try:
-            result = geoextent.fromRemote(ds["url"], bbox=True, tbox=True)
+            result = geoextent.from_remote(ds["url"], bbox=True, tbox=True)
 
             assert result is not None
             assert result["format"] == "remote"
@@ -115,7 +115,7 @@ class TestB2SHAREProvider:
         ds = self.TEST_DATASETS["migda_soil_moisture"]
 
         try:
-            result = geoextent.fromRemote(ds["url"], bbox=True, tbox=True)
+            result = geoextent.from_remote(ds["url"], bbox=True, tbox=True)
 
             assert result is not None
             assert result["format"] == "remote"
@@ -136,7 +136,7 @@ class TestB2SHAREProvider:
         ds = self.TEST_DATASETS["hainich_gpp"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["url"],
                 bbox=True,
                 tbox=True,
@@ -162,7 +162,7 @@ class TestB2SHAREProvider:
         ds = self.TEST_DATASETS["tainan_placenames"]
 
         try:
-            result = geoextent.fromRemote(ds["doi"], bbox=True, tbox=True)
+            result = geoextent.from_remote(ds["doi"], bbox=True, tbox=True)
 
             assert result is not None
             assert result["format"] == "remote"

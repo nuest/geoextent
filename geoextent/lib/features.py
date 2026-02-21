@@ -69,25 +69,25 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     - Capabilities (bbox, temporal extent, convex hull)
     - Example file extensions (derived from GDAL driver support)
     """
-    from . import handleCSV, handleRaster, handleVector
+    from . import handle_csv, handle_raster, handle_vector
 
     handlers = []
 
     # CSV Handler
     csv_info = {
-        "handler": handleCSV.get_handler_name(),
-        "display_name": handleCSV.get_handler_display_name(),
+        "handler": handle_csv.get_handler_name(),
+        "display_name": handle_csv.get_handler_display_name(),
         "description": "CSV files with coordinate or geometry columns",
         "capabilities": {
             "bounding_box": True,
             "temporal_extent": True,
-            "convex_hull": hasattr(handleCSV, "getConvexHull"),
+            "convex_hull": hasattr(handle_csv, "get_convex_hull"),
         },
         "supported_patterns": {
-            "longitude_columns": handleCSV.search.get("longitude", []),
-            "latitude_columns": handleCSV.search.get("latitude", []),
-            "geometry_columns": handleCSV.search.get("geometry", []),
-            "time_columns": handleCSV.search.get("time", []),
+            "longitude_columns": handle_csv.search.get("longitude", []),
+            "latitude_columns": handle_csv.search.get("latitude", []),
+            "geometry_columns": handle_csv.search.get("geometry", []),
+            "time_columns": handle_csv.search.get("time", []),
         },
         "file_extensions": [".csv", ".txt"],
         "notes": "Automatically detects coordinate columns using pattern matching. Uses GDAL CSV driver with open options for column detection.",
@@ -96,15 +96,15 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
 
     # Vector Handler
     vector_info = {
-        "handler": handleVector.get_handler_name(),
-        "display_name": handleVector.get_handler_display_name(),
+        "handler": handle_vector.get_handler_name(),
+        "display_name": handle_vector.get_handler_display_name(),
         "description": "Vector geospatial formats (Shapefile, GeoJSON, GeoPackage, Esri File Geodatabase, etc.)",
         "capabilities": {
             "bounding_box": True,
             "temporal_extent": True,
-            "convex_hull": hasattr(handleVector, "getConvexHull"),
+            "convex_hull": hasattr(handle_vector, "get_convex_hull"),
         },
-        "supported_patterns": {"time_columns": handleVector.search.get("time", [])},
+        "supported_patterns": {"time_columns": handle_vector.search.get("time", [])},
         "file_extensions": [
             ".shp",
             ".shx",
@@ -126,8 +126,8 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
 
     # Raster Handler
     raster_info = {
-        "handler": handleRaster.get_handler_name(),
-        "display_name": handleRaster.get_handler_display_name(),
+        "handler": handle_raster.get_handler_name(),
+        "display_name": handle_raster.get_handler_display_name(),
         "description": "Raster geospatial formats (GeoTIFF, NetCDF, world files, etc.)",
         "capabilities": {
             "bounding_box": True,
@@ -249,13 +249,17 @@ def validate_file_format(filepath: str) -> Dict[str, Any]:
             - handler: str or None, name of the supporting handler
             - message: str, description of the result
     """
-    from . import handleCSV, handleRaster, handleVector
+    from . import handle_csv, handle_raster, handle_vector
 
-    handlers = [("CSV", handleCSV), ("Vector", handleVector), ("Raster", handleRaster)]
+    handlers = [
+        ("CSV", handle_csv),
+        ("Vector", handle_vector),
+        ("Raster", handle_raster),
+    ]
 
     for handler_name, handler_module in handlers:
         try:
-            if handler_module.checkFileSupported(filepath):
+            if handler_module.check_file_supported(filepath):
                 return {
                     "valid": True,
                     "handler": handler_module.get_handler_name(),

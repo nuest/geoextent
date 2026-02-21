@@ -107,7 +107,7 @@ class TestOparaProvider:
         reference = dataset[reference_type]
 
         # Extract spatial extent
-        result = geoextent.fromRemote(reference, bbox=True, tbox=False)
+        result = geoextent.from_remote(reference, bbox=True, tbox=False)
 
         # Verify extraction succeeded
         assert result is not None
@@ -137,7 +137,7 @@ class TestOparaProvider:
         dataset = self.TEST_DATASETS["glacier_calving_fronts"]
 
         # Test with very small size limit (should skip files)
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["doi"],
             bbox=True,
             max_download_size="1MB",  # Much smaller than the 2.7MB file
@@ -146,7 +146,7 @@ class TestOparaProvider:
         assert result is not None
 
         # Test with adequate size limit
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["doi"],
             bbox=True,
             max_download_size="5MB",  # Larger than the 2.7MB file
@@ -159,7 +159,7 @@ class TestOparaProvider:
         dataset = self.TEST_DATASETS["glacier_calving_fronts"]
 
         # Test with geospatial filtering (should include ZIP files)
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["doi"],
             bbox=True,
             download_skip_nogeo=True,
@@ -173,7 +173,7 @@ class TestOparaProvider:
         dataset = self.TEST_DATASETS["glacier_calving_fronts"]
 
         # Test metadata-only mode (should not download files)
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["doi"],
             bbox=True,
             download_data=False,
@@ -203,7 +203,7 @@ class TestOparaProvider:
         dataset = self.TEST_DATASETS["glacier_calving_fronts"]
 
         # Full extraction test
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             dataset["doi"],
             bbox=True,
             tbox=True,

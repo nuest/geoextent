@@ -17,10 +17,10 @@ from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 def test_metadata_fallback_default_validation():
-    """Verify fromRemote has metadata_fallback parameter with default True."""
-    sig = inspect.signature(geoextent.fromRemote)
+    """Verify from_remote has metadata_fallback parameter with default True."""
+    sig = inspect.signature(geoextent.from_remote)
     param = sig.parameters.get("metadata_fallback")
-    assert param is not None, "fromRemote should have a metadata_fallback parameter"
+    assert param is not None, "from_remote should have a metadata_fallback parameter"
     assert param.default is True, "metadata_fallback should default to True"
 
 
@@ -60,7 +60,7 @@ def test_gkhub_package_metadata_fallback():
     fall back to metadata-only extraction and return a bounding box.
     """
     try:
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "https://gkhub.earthobservations.org/packages/msaw9-hzd25",
             bbox=True,
             tbox=False,
@@ -80,7 +80,7 @@ def test_gkhub_package_no_metadata_fallback():
     Without metadata fallback, the empty download folder produces no spatial extent.
     """
     try:
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "https://gkhub.earthobservations.org/packages/msaw9-hzd25",
             bbox=True,
             tbox=False,

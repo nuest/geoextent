@@ -252,7 +252,7 @@ class TestInvenioRDMExtraction:
     def test_inveniordm_caltech_bbox(self):
         """CaltechDATA: GeoTIFF raster, CRS transform from UTM zone 48N."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "10.22002/D1.1705",
                 bbox=True,
                 tbox=True,
@@ -280,7 +280,7 @@ class TestInvenioRDMExtraction:
     def test_inveniordm_tuwien_bbox(self):
         """TU Wien: Shapefile vector, CRS transform from LAEA Europe (EPSG:3035)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "10.48436/jpzv9-c8w75",
                 bbox=True,
                 tbox=False,
@@ -309,7 +309,7 @@ class TestInvenioRDMExtraction:
     def test_inveniordm_freidata_bbox(self):
         """Frei-Data: CSV tabular, WGS84 coordinates."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "10.60493/834bd-mww13",
                 bbox=True,
                 tbox=True,
@@ -337,7 +337,7 @@ class TestInvenioRDMExtraction:
     def test_inveniordm_gkhub_bbox(self):
         """GEO Knowledge Hub: Shapefile via direct URL (no DOI)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://gkhub.earthobservations.org/records/nfhvt-6va30",
                 bbox=True,
                 tbox=False,
@@ -356,7 +356,7 @@ class TestInvenioRDMExtraction:
     def test_inveniordm_gkhub_package_metadata_only(self):
         """GEO Knowledge Hub: metadata-only extraction from /packages/ URL."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://gkhub.earthobservations.org/packages/msaw9-hzd25",
                 bbox=True,
                 tbox=False,
@@ -382,7 +382,7 @@ class TestInvenioRDMExtraction:
     def test_inveniordm_metadata_only_extraction(self):
         """Provider sample test: metadata-only extraction (publication_date for tbox)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "10.22002/D1.1705",
                 bbox=True,
                 tbox=True,
@@ -400,7 +400,7 @@ class TestInvenioRDMExtraction:
     def test_inveniordm_fdat_geopackage_bbox(self):
         """FDAT: GeoPackage vector, European soil mapping tiles (200x200km grid)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "10.57754/FDAT.xnm1g-f9c07",
                 bbox=True,
                 tbox=False,

@@ -127,7 +127,7 @@ class TestGitHubExtraction:
         Expected bbox covers the entire globe (tectonic plates).
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://github.com/fraxen/tectonicplates",
                 bbox=True,
                 tbox=False,
@@ -153,7 +153,7 @@ class TestGitHubExtraction:
     def test_github_specific_directory(self):
         """Extract from a specific subdirectory path."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://github.com/nuest/geoextent/tree/main/tests/testdata/geojson",
                 bbox=True,
                 tbox=False,
@@ -169,7 +169,7 @@ class TestGitHubExtraction:
     def test_github_download_skip_nogeo(self):
         """Verify --download-skip-nogeo filters non-geospatial files."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://github.com/fraxen/tectonicplates",
                 bbox=True,
                 tbox=False,
@@ -199,7 +199,7 @@ class TestGitHubExtraction:
         ~20MB download.
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://github.com/Nowosad/spDataLarge/tree/master/inst/raster",
                 bbox=True,
                 tbox=False,

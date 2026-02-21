@@ -12,7 +12,7 @@ logger = logging.getLogger("geoextent")
 
 
 def get_handler_name():
-    return "handleRaster"
+    return "handle_raster"
 
 
 def get_handler_display_name():
@@ -20,7 +20,7 @@ def get_handler_display_name():
     return "Raster data"
 
 
-def checkFileSupported(filepath):
+def check_file_supported(filepath):
     """Checks whether it is valid raster file or not. \n
     input "path": type string, path to file which shall be extracted \n
     raise exception if not valid
@@ -31,25 +31,29 @@ def checkFileSupported(filepath):
         file = gdal.OpenEx(filepath)
         driver = file.GetDriver().ShortName
     except:
-        logger.debug("File {} is NOT supported by handleRaster module".format(filepath))
+        logger.debug(
+            "File {} is NOT supported by handle_raster module".format(filepath)
+        )
         return False
 
     if file.RasterCount > 0:
-        logger.debug("File {} is supported by handleRaster module".format(filepath))
+        logger.debug("File {} is supported by handle_raster module".format(filepath))
         return True
     elif file.GetSubDatasets():
         logger.debug(
-            "File {} is supported by handleRaster module (has subdatasets)".format(
+            "File {} is supported by handle_raster module (has subdatasets)".format(
                 filepath
             )
         )
         return True
     else:
-        logger.debug("File {} is NOT supported by handleRaster module".format(filepath))
+        logger.debug(
+            "File {} is NOT supported by handle_raster module".format(filepath)
+        )
         return False
 
 
-def getBoundingBox(filepath, assume_wgs84=False):
+def get_bounding_box(filepath, assume_wgs84=False):
     """extracts bounding box from raster \n
     input "filepath": type string, file path to raster file \n
     input "assume_wgs84": type bool, if True assume WGS84 for ungeoreferenced rasters (default False) \n
@@ -337,7 +341,7 @@ def _parse_imagery_acquisition_time(ds, time_format=None):
     return [min_date.strftime(out_fmt), max_date.strftime(out_fmt)]
 
 
-def getTemporalExtent(filepath, time_format=None):
+def get_temporal_extent(filepath, time_format=None):
     """Extract temporal extent from raster files.
 
     Tries metadata sources in this order, returning the first non-None result:

@@ -1,5 +1,5 @@
 """
-Tests to verify fromRemote works correctly with single string inputs
+Tests to verify from_remote works correctly with single string inputs
 """
 
 import unittest
@@ -8,11 +8,11 @@ from geoextent.lib import extent
 
 
 class TestFromRemoteWrapper(unittest.TestCase):
-    """Test cases for fromRemote with single string inputs"""
+    """Test cases for from_remote with single string inputs"""
 
     @patch("geoextent.lib.extent._extract_from_remote")
-    def test_fromRemote_processes_single_identifier(self, mock_extract):
-        """Test that fromRemote handles single string identifier correctly"""
+    def test_from_remote_processes_single_identifier(self, mock_extract):
+        """Test that from_remote handles single string identifier correctly"""
         # Mock _extract_from_remote to return extent data
         mock_extract.return_value = {
             "bbox": [5.0, 50.0, 6.0, 51.0],
@@ -20,8 +20,8 @@ class TestFromRemoteWrapper(unittest.TestCase):
             "tbox": ["2020-01-01", "2020-12-31"],
         }
 
-        # Call fromRemote with a single identifier
-        result = extent.fromRemote("10.5281/zenodo.4593540", bbox=True, tbox=True)
+        # Call from_remote with a single identifier
+        result = extent.from_remote("10.5281/zenodo.4593540", bbox=True, tbox=True)
 
         # Verify it returns the expected format
         self.assertIn("bbox", result)
@@ -30,24 +30,24 @@ class TestFromRemoteWrapper(unittest.TestCase):
         self.assertEqual(result["bbox"], [5.0, 50.0, 6.0, 51.0])
 
     @patch("geoextent.lib.extent._extract_from_remote")
-    def test_fromRemote_raises_exception_on_error(self, mock_extract):
-        """Test that fromRemote raises exceptions for single identifier errors"""
+    def test_from_remote_raises_exception_on_error(self, mock_extract):
+        """Test that from_remote raises exceptions for single identifier errors"""
         # Mock _extract_from_remote to raise an error
         mock_extract.side_effect = Exception("Provider not found")
 
         # Verify exception is raised
         with self.assertRaises(Exception) as context:
-            extent.fromRemote("invalid-identifier", bbox=True)
+            extent.from_remote("invalid-identifier", bbox=True)
 
         self.assertIn("Provider not found", str(context.exception))
 
     @patch("geoextent.lib.extent._extract_from_remote")
-    def test_fromRemote_passes_all_parameters(self, mock_extract):
-        """Test that fromRemote passes all parameters through correctly"""
+    def test_from_remote_passes_all_parameters(self, mock_extract):
+        """Test that from_remote passes all parameters through correctly"""
         # Mock _extract_from_remote to return extent data
         mock_extract.return_value = {"bbox": [1, 2, 3, 4], "crs": "4326"}
 
-        result = extent.fromRemote(
+        result = extent.from_remote(
             "10.5281/zenodo.123",
             bbox=True,
             tbox=True,
@@ -71,8 +71,8 @@ class TestFromRemoteWrapper(unittest.TestCase):
         self.assertEqual(call_kwargs["max_download_workers"], 2)
 
     @patch("geoextent.lib.extent._extract_from_remote")
-    def test_fromRemote_backward_compatibility(self, mock_extract):
-        """Test that fromRemote maintains backward compatibility with existing code"""
+    def test_from_remote_backward_compatibility(self, mock_extract):
+        """Test that from_remote maintains backward compatibility with existing code"""
         # Mock _extract_from_remote to return extent data
         mock_extract.return_value = {
             "bbox": [7.6, 51.95, 7.65, 52.0],
@@ -80,8 +80,8 @@ class TestFromRemoteWrapper(unittest.TestCase):
             "tbox": ["2019-01-01", "2019-12-31"],
         }
 
-        # This is how existing code would call fromRemote
-        result = extent.fromRemote(
+        # This is how existing code would call from_remote
+        result = extent.from_remote(
             "https://doi.org/10.5281/zenodo.4593540", bbox=True, tbox=True
         )
 

@@ -35,7 +35,7 @@ This is especially useful when processing multiple providers in batch:
 
    import geoextent.lib.extent as geoextent
 
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        '10.12761/sgn.2018.10225',
        bbox=True, metadata_first=True
    )
@@ -61,7 +61,7 @@ By default, geoextent automatically detects this situation and falls back to met
 
    import geoextent.lib.extent as geoextent
 
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://gkhub.earthobservations.org/packages/msaw9-hzd25',
        bbox=True
    )
@@ -211,19 +211,19 @@ Figshare
    import geoextent.lib.extent as geoextent
 
    # Data download mode: downloads files and extracts extent from file contents
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://figshare.com/articles/dataset/London_boroughs/11373984',
        bbox=True, tbox=True, download_data=True
    )
 
    # Metadata-only mode: uses published_date for temporal extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://figshare.com/articles/dataset/Country_centroids/5902369',
        bbox=True, tbox=True, download_data=False
    )
 
    # Metadata-first strategy: tries metadata first, falls back to data download
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://figshare.com/articles/dataset/Country_centroids/5902369',
        bbox=True, tbox=True, metadata_first=True
    )
@@ -278,13 +278,13 @@ Figshare
    import geoextent.lib.extent as geoextent
 
    # Data download mode: downloads files and extracts extent from file contents
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://data.4tu.nl/articles/_/12707150/1',
        bbox=True, tbox=False, download_data=True
    )
 
    # Metadata-only mode: uses repository metadata (no file download)
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://data.4tu.nl/articles/_/12707150/1',
        bbox=True, tbox=True, download_data=False
    )
@@ -801,13 +801,13 @@ SEANOE
    import geoextent.lib.extent as geoextent
 
    # Metadata-only: uses SEANOE REST API for bbox and temporal extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        '10.17882/105467',
        bbox=True, tbox=True, download_data=False
    )
 
    # Data download mode: downloads open-access files and extracts extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        '10.17882/109463',
        bbox=True, download_data=True
    )
@@ -856,13 +856,13 @@ UKCEH (EIDC)
    import geoextent.lib.extent as geoextent
 
    # Metadata-only: uses catalogue JSON API for bbox and temporal extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        '10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e',
        bbox=True, tbox=True, download_data=False
    )
 
    # Data download mode: downloads files and extracts extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        '10.5285/dd35316a-cecc-4f6d-9a21-74a0f6599e9e',
        bbox=True, tbox=True, download_data=True
    )
@@ -907,7 +907,7 @@ GDI-DE (geoportal.de)
    import geoextent.lib.extent as geoextent
 
    # Metadata-only: uses GDI-DE CSW 2.0.2 API for bbox and temporal extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://www.geoportal.de/Metadata/75987CE0-AA66-4445-AC44-068B98390E89',
        bbox=True, tbox=True, download_data=False
    )
@@ -960,7 +960,7 @@ NFDI4Earth Knowledge Hub
    import geoextent.lib.extent as geoextent
 
    # Extract bbox and temporal extent from NFDI4Earth Knowledge Hub
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://onestop4all.nfdi4earth.de/result/dthb-7b3bddd5af4945c2ac508a6d25537f0a/',
        bbox=True, tbox=True
    )
@@ -968,13 +968,13 @@ NFDI4Earth Knowledge Hub
    print(result['tbox'])   # ['1994-01-28', '2021-01-19']
 
    # Disable follow — use NFDI4Earth SPARQL metadata only
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/',
        bbox=True, follow=False
    )
 
    # Direct Cordra URL also works
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://cordra.knowledgehub.nfdi4earth.de/objects/n4e/dthb-82b6552d-2b8e-4800-b955-ea495efc28af',
        bbox=True
    )
@@ -1030,7 +1030,7 @@ STAC (SpatioTemporal Asset Catalog)
    import geoextent.lib.extent as geoextent
 
    # Extract bbox and temporal extent from STAC Collection
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://earth-search.aws.element84.com/v1/collections/naip',
        bbox=True, tbox=True
    )
@@ -1038,7 +1038,7 @@ STAC (SpatioTemporal Asset Catalog)
    print(result['tbox'])   # ['2010-01-01', '2022-12-31']
 
    # Open-ended temporal range (end date is null)
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://geoservice.dlr.de/eoc/ogc/stac/v1/collections/FOREST_STRUCTURE_DE_COVER_P1Y',
        bbox=True, tbox=True
    )
@@ -1120,19 +1120,19 @@ Unknown CKAN hosts are automatically detected by probing the ``/api/3/action/sta
    import geoextent.lib.extent as geoextent
 
    # Metadata-only: uses CKAN API for bbox and temporal extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://geokur-dmp.geo.tu-dresden.de/dataset/cropland-extent',
        bbox=True, tbox=True, download_data=False
    )
 
    # Data download: downloads files and extracts extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://data.gov.ie/dataset/libraries-dlr',
        bbox=True, tbox=True, download_data=True
    )
 
    # Metadata-first strategy: tries metadata first, falls back to data download
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://ckan.govdata.de/dataset/a-spatially-distributed-sampling-of-rhine-surface-water-for-non-target-screening',
        bbox=True, tbox=True, metadata_first=True
    )
@@ -1181,13 +1181,13 @@ GitHub
    import geoextent.lib.extent as geoextent
 
    # Extract bbox from GitHub repository
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://github.com/fraxen/tectonicplates',
        bbox=True, tbox=False, download_skip_nogeo=True
    )
 
    # Extract from a specific subdirectory
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://github.com/Nowosad/spDataLarge/tree/master/inst/raster',
        bbox=True, tbox=True
    )
@@ -1271,19 +1271,19 @@ Unknown self-hosted instances are detected automatically if the hostname contain
    import geoextent.lib.extent as geoextent
 
    # Extract bbox from GitLab repository
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://gitlab.com/bazylizon/seismicity',
        bbox=True, tbox=True, download_skip_nogeo=True
    )
 
    # Extract from a specific subdirectory
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://gitlab.com/eaws/eaws-regions/-/tree/master/public/outline',
        bbox=True, tbox=False
    )
 
    # Self-hosted GitLab instance
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://git.rwth-aachen.de/nfdi4earth/crosstopics/knowledgehub-maps/-/tree/main/maps/200_datasets/data',
        bbox=True, tbox=False, download_skip_nogeo=True
    )
@@ -1334,7 +1334,7 @@ Software Heritage
    import geoextent.lib.extent as geoextent
 
    # Extract bbox from Software Heritage archive
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a',
        bbox=True, tbox=False, download_skip_nogeo=True
    )

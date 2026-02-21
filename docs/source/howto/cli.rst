@@ -49,7 +49,7 @@ Output:
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromFile('../tests/testdata/geojson/muenster_ring_zeit.geojson', True, False)
+   geoextent.from_file('../tests/testdata/geojson/muenster_ring_zeit.geojson', True, False)
 
 Extract time interval from a single file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,7 +68,7 @@ Output:
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromFile('../tests/testdata/geojson/muenster_ring_zeit.geojson', False, True)
+   geoextent.from_file('../tests/testdata/geojson/muenster_ring_zeit.geojson', False, True)
 
 Extract both bounding box and time interval from a single file
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -85,7 +85,7 @@ Extract both bounding box and time interval from a single file
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromFile('../tests/testdata/geojson/muenster_ring_zeit.geojson', True, True)
+   geoextent.from_file('../tests/testdata/geojson/muenster_ring_zeit.geojson', True, True)
 
 Folders or ZIP files(s)
 -----------------------
@@ -104,7 +104,7 @@ Extract both bounding box and time interval from a folder or zipfile
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromDirectory('../tests/testdata/folders/folder_two_files', True, True)
+   geoextent.from_directory('../tests/testdata/folders/folder_two_files', True, True)
 
 The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: :doc:`../supportedformats/index_supportedformats`) inside the folder or zipfile. The resulting coordinate reference system  ``CRS`` of the combined bbox is always in the `EPSG: 4326 <https://epsg.io/4326>`_ system.
 
@@ -555,7 +555,7 @@ or time box (tbox).
    :stderr:
 
    import geoextent.lib.extent as geoextent
-   geoextent.fromDirectory('../tests/testdata/folders/folder_one_file', True, True, True)
+   geoextent.from_directory('../tests/testdata/folders/folder_one_file', True, True, True)
 
 Export function
 ^^^^^^^^^^^^^^^

@@ -70,7 +70,7 @@ class TestRFC7946CoordinateOrder:
 
     def test_geojson_input_produces_lonlat_output(self):
         """GeoJSON input -> GeoJSON output should maintain [lon, lat] order."""
-        result = geoextent.fromFile(MUENSTER_GEOJSON, bbox=True)
+        result = geoextent.from_file(MUENSTER_GEOJSON, bbox=True)
         geojson_output = format_extent_output(
             result, "geojson", extraction_metadata={}, native_order=True
         )
@@ -80,7 +80,7 @@ class TestRFC7946CoordinateOrder:
 
     def test_geotiff_input_produces_lonlat_output(self):
         """Projected GeoTIFF -> GeoJSON output should use [lon, lat] order."""
-        result = geoextent.fromFile(GEOTIFF, bbox=True)
+        result = geoextent.from_file(GEOTIFF, bbox=True)
         geojson_output = format_extent_output(
             result, "geojson", extraction_metadata={}, native_order=True
         )
@@ -90,7 +90,7 @@ class TestRFC7946CoordinateOrder:
 
     def test_csv_input_produces_lonlat_output(self):
         """CSV with lat/lon columns -> GeoJSON output should use [lon, lat] order."""
-        result = geoextent.fromFile(CSV_NL, bbox=True)
+        result = geoextent.from_file(CSV_NL, bbox=True)
         geojson_output = format_extent_output(
             result, "geojson", extraction_metadata={}, native_order=True
         )
@@ -100,7 +100,7 @@ class TestRFC7946CoordinateOrder:
 
     def test_directory_input_produces_lonlat_output(self):
         """Directory extraction -> GeoJSON output should use [lon, lat] order."""
-        result = geoextent.fromDirectory(
+        result = geoextent.from_directory(
             "tests/testdata/folders/folder_one_file", bbox=True, show_progress=False
         )
         geojson_output = format_extent_output(
@@ -112,7 +112,7 @@ class TestRFC7946CoordinateOrder:
 
     def test_legacy_flag_still_produces_lonlat_geojson(self):
         """With legacy=True, GeoJSON output should STILL use [lon, lat] per RFC 7946."""
-        result = geoextent.fromFile(MUENSTER_GEOJSON, bbox=True, legacy=True)
+        result = geoextent.from_file(MUENSTER_GEOJSON, bbox=True, legacy=True)
         # legacy=True means data is already in [lon, lat] internal order (no swap applied)
         # So native_order=False (data is not in native [lat, lon] order)
         geojson_output = format_extent_output(
@@ -124,7 +124,7 @@ class TestRFC7946CoordinateOrder:
 
     def test_legacy_flag_geotiff_still_produces_lonlat_geojson(self):
         """With legacy=True, GeoTIFF -> GeoJSON should STILL use [lon, lat]."""
-        result = geoextent.fromFile(GEOTIFF, bbox=True, legacy=True)
+        result = geoextent.from_file(GEOTIFF, bbox=True, legacy=True)
         geojson_output = format_extent_output(
             result, "geojson", extraction_metadata={}, native_order=False
         )
@@ -139,7 +139,7 @@ class TestCoordinateOrderConsistency:
 
     def test_bbox_order_geojson_input(self):
         """GeoJSON bbox should be [minlat, minlon, maxlat, maxlon]."""
-        result = geoextent.fromFile(MUENSTER_GEOJSON, bbox=True)
+        result = geoextent.from_file(MUENSTER_GEOJSON, bbox=True)
         bbox = result["bbox"]
         # Muenster: lat ~51.95, lon ~7.62
         # bbox[0] = minlat, bbox[1] = minlon, bbox[2] = maxlat, bbox[3] = maxlon
@@ -150,7 +150,7 @@ class TestCoordinateOrderConsistency:
 
     def test_bbox_order_geotiff_input(self):
         """GeoTIFF bbox should be [minlat, minlon, maxlat, maxlon]."""
-        result = geoextent.fromFile(GEOTIFF, bbox=True)
+        result = geoextent.from_file(GEOTIFF, bbox=True)
         bbox = result["bbox"]
         # Germany GeoTIFF: lat ~50-52, lon ~5-9
         assert 49 < bbox[0] < 53, f"bbox[0] should be latitude (~50.3), got {bbox[0]}"
@@ -160,7 +160,7 @@ class TestCoordinateOrderConsistency:
 
     def test_bbox_order_csv_input(self):
         """CSV bbox should be [minlat, minlon, maxlat, maxlon]."""
-        result = geoextent.fromFile(CSV_NL, bbox=True)
+        result = geoextent.from_file(CSV_NL, bbox=True)
         bbox = result["bbox"]
         # Netherlands: lat ~51-53, lon ~4-6
         assert 50 < bbox[0] < 54, f"bbox[0] should be latitude (~51.4), got {bbox[0]}"
@@ -170,9 +170,9 @@ class TestCoordinateOrderConsistency:
 
     def test_bbox_order_consistent_across_formats(self):
         """All formats should produce bbox with the same [minlat, minlon, maxlat, maxlon] convention."""
-        geojson_result = geoextent.fromFile(MUENSTER_GEOJSON, bbox=True)
-        geotiff_result = geoextent.fromFile(GEOTIFF, bbox=True)
-        csv_result = geoextent.fromFile(CSV_NL, bbox=True)
+        geojson_result = geoextent.from_file(MUENSTER_GEOJSON, bbox=True)
+        geotiff_result = geoextent.from_file(GEOTIFF, bbox=True)
+        csv_result = geoextent.from_file(CSV_NL, bbox=True)
 
         for name, result in [
             ("GeoJSON", geojson_result),

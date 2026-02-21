@@ -182,7 +182,7 @@ class TestGenericCKANProvider:
         """Provider sample: metadata-only extraction from GeoKur CKAN instance."""
         dataset = self.TEST_DATASETS["geokur_cropland"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=True,
@@ -207,7 +207,7 @@ class TestGenericCKANProvider:
         """Test metadata extraction from UK data.gov.uk CKAN instance."""
         dataset = self.TEST_DATASETS["uk_bishkek"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=True,
@@ -242,7 +242,7 @@ class TestGenericCKANProvider:
         """Test metadata extraction from German GovData CKAN instance."""
         dataset = self.TEST_DATASETS["govdata_rhine"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=True,
@@ -286,7 +286,7 @@ class TestGenericCKANProvider:
         """Test data download from data.gov.ie CKAN instance (Shapefile with Points)."""
         dataset = self.TEST_DATASETS["ireland_libraries"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=True,
@@ -316,7 +316,7 @@ class TestGenericCKANProvider:
         """Test data download from data.gov.au CKAN instance (GeoJSON with MultiPolygons)."""
         dataset = self.TEST_DATASETS["australia_gisborne"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["url"],
                 bbox=True,
                 tbox=True,

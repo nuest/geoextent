@@ -157,7 +157,7 @@ class TestGitLabExtraction:
         Upper Silesia (Poland) seismicity data, 46 KB CSV.
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://gitlab.com/bazylizon/seismicity",
                 bbox=True,
                 tbox=False,
@@ -186,7 +186,7 @@ class TestGitLabExtraction:
         to Scandinavia and eastward to the Carpathians.
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://gitlab.com/eaws/eaws-regions/-/tree/master/public/outline",
                 bbox=True,
                 tbox=False,
@@ -216,7 +216,7 @@ class TestGitLabExtraction:
         1077 earthquake records.
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://gitlab.com/bazylizon/seismicity",
                 bbox=True,
                 tbox=True,
@@ -250,7 +250,7 @@ class TestGitLabExtraction:
         Two GeoPackage files in EPSG:3035 (European LAEA), reprojected to WGS84.
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://gitlab.com/Weatherman_/radolan2map/-/tree/master/example/shapes/RadarNetwork",
                 bbox=True,
                 tbox=False,
@@ -279,7 +279,7 @@ class TestGitLabExtraction:
         Downloads GeoPackage files with NFDI4Earth dataset locations.
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://git.rwth-aachen.de/nfdi4earth/crosstopics/knowledgehub-maps/-/tree/main/maps/200_datasets/data",
                 bbox=True,
                 tbox=False,

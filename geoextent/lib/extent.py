@@ -6,6 +6,7 @@ import random
 import threading
 import time
 import tempfile
+import warnings
 from .content_providers import Dryad
 from .content_providers import Figshare
 from .content_providers import Zenodo
@@ -37,14 +38,14 @@ from .content_providers import STAC
 from .content_providers import GitHub
 from .content_providers import GitLab
 from .content_providers import SoftwareHeritage
-from . import handleCSV
-from . import handleRaster
-from . import handleVector
+from . import handle_csv
+from . import handle_raster
+from . import handle_vector
 from . import helpfunctions as hf
 from . import external_metadata
 
 logger = logging.getLogger("geoextent")
-handle_modules = {"CSV": handleCSV, "raster": handleRaster, "vector": handleVector}
+handle_modules = {"CSV": handle_csv, "raster": handle_raster, "vector": handle_vector}
 
 
 def _get_content_providers():
@@ -129,7 +130,7 @@ def compute_bbox_wgs84(module, path, assume_wgs84=False):
     uses coordinates as provided by the handler without modification.
 
     Args:
-        module: Handler module (handleCSV, handleVector, handleRaster)
+        module: Handler module (handle_csv, handle_vector, handle_raster)
         path: File path
         assume_wgs84: If True, assume WGS84 for ungeoreferenced rasters (default False)
 
@@ -138,10 +139,10 @@ def compute_bbox_wgs84(module, path, assume_wgs84=False):
               Coordinates are always in [longitude, latitude] order per GeoJSON spec.
     """
     logger.debug("compute_bbox_wgs84: {}".format(path))
-    if module.get_handler_name() == "handleRaster":
-        spatial_extent_origin = module.getBoundingBox(path, assume_wgs84=assume_wgs84)
+    if module.get_handler_name() == "handle_raster":
+        spatial_extent_origin = module.get_bounding_box(path, assume_wgs84=assume_wgs84)
     else:
-        spatial_extent_origin = module.getBoundingBox(path)
+        spatial_extent_origin = module.get_bounding_box(path)
 
     if spatial_extent_origin is None:
         return None
@@ -151,7 +152,7 @@ def compute_bbox_wgs84(module, path, assume_wgs84=False):
             # CRS defined by WKT (e.g. from PRJ sidecar where EPSG identification failed)
             logger.debug("Transforming bbox from WKT CRS to WGS84 for {}".format(path))
             spatial_extent = {
-                "bbox": hf.transformingArrayIntoWGS84FromWkt(
+                "bbox": hf.transform_array_to_wgs84_from_wkt(
                     spatial_extent_origin["crs_wkt"],
                     spatial_extent_origin["bbox"],
                 ),
@@ -188,7 +189,7 @@ def compute_bbox_wgs84(module, path, assume_wgs84=False):
                 )
             )
             spatial_extent = {
-                "bbox": hf.transformingArrayIntoWGS84(
+                "bbox": hf.transform_array_to_wgs84(
                     spatial_extent_origin["crs"], spatial_extent_origin["bbox"]
                 ),
                 "crs": str(hf.WGS84_EPSG_ID),
@@ -216,7 +217,7 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
     uses coordinates as provided by the handler without modification.
 
     Args:
-        module: Handler module (handleCSV, handleVector, handleRaster)
+        module: Handler module (handle_csv, handle_vector, handle_raster)
         path: File path
         assume_wgs84: If True, assume WGS84 for ungeoreferenced rasters (default False)
 
@@ -228,7 +229,7 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
     logger.debug("compute_convex_hull_wgs84: {}".format(path))
 
     # Check if module has convex hull support
-    if not hasattr(module, "getConvexHull"):
+    if not hasattr(module, "get_convex_hull"):
         logger.debug(
             "Module {} does not support convex hull calculation, falling back to bounding box".format(
                 module.get_handler_name()
@@ -236,7 +237,7 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
         )
         return compute_bbox_wgs84(module, path, assume_wgs84=assume_wgs84)
 
-    spatial_extent_origin = module.getConvexHull(path)
+    spatial_extent_origin = module.get_convex_hull(path)
 
     if spatial_extent_origin is None:
         return None
@@ -249,7 +250,7 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
                 "Transforming convex hull from WKT CRS to WGS84 for {}".format(path)
             )
             spatial_extent = {
-                "bbox": hf.transformingArrayIntoWGS84FromWkt(
+                "bbox": hf.transform_array_to_wgs84_from_wkt(
                     crs_wkt, spatial_extent_origin["bbox"]
                 ),
                 "crs": str(hf.WGS84_EPSG_ID),
@@ -262,7 +263,7 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
             ):
                 transformed_coords = []
                 for coord in spatial_extent_origin["convex_hull_coords"]:
-                    transformed_point = hf.transformingArrayIntoWGS84FromWkt(
+                    transformed_point = hf.transform_array_to_wgs84_from_wkt(
                         crs_wkt,
                         [coord[0], coord[1], coord[0], coord[1]],
                     )
@@ -313,7 +314,7 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
                 )
             )
             spatial_extent = {
-                "bbox": hf.transformingArrayIntoWGS84(
+                "bbox": hf.transform_array_to_wgs84(
                     spatial_extent_origin["crs"], spatial_extent_origin["bbox"]
                 ),
                 "crs": str(hf.WGS84_EPSG_ID),
@@ -327,7 +328,7 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
                 transformed_coords = []
                 for coord in spatial_extent_origin["convex_hull_coords"]:
                     # Transform each coordinate point
-                    transformed_point = hf.transformingArrayIntoWGS84(
+                    transformed_point = hf.transform_array_to_wgs84(
                         spatial_extent_origin["crs"],
                         [coord[0], coord[1], coord[0], coord[1]],
                     )
@@ -395,7 +396,7 @@ def _is_auxiliary_file(filename: str) -> bool:
     return False
 
 
-def fromDirectory(
+def from_directory(
     path: str,
     bbox: bool = False,
     tbox: bool = False,
@@ -506,7 +507,7 @@ def fromDirectory(
                 )
             )
             if recursive:
-                metadata_directory[filename] = fromDirectory(
+                metadata_directory[filename] = from_directory(
                     absolute_path,
                     bbox,
                     tbox,
@@ -533,7 +534,7 @@ def fromDirectory(
             if os.path.isdir(absolute_path):
                 if absolute_path.rstrip(os.sep).endswith(".gdb"):
                     # ESRI File Geodatabase — treat as a dataset, not a directory
-                    metadata_file = fromFile(
+                    metadata_file = from_file(
                         absolute_path,
                         bbox,
                         tbox,
@@ -548,7 +549,7 @@ def fromDirectory(
                     )
                     metadata_directory[str(filename)] = metadata_file
                 elif recursive:
-                    metadata_directory[filename] = fromDirectory(
+                    metadata_directory[filename] = from_directory(
                         absolute_path,
                         bbox,
                         tbox,
@@ -570,7 +571,7 @@ def fromDirectory(
                         "Skipping subdirectory {} (recursive=False)".format(filename)
                     )
             else:
-                metadata_file = fromFile(
+                metadata_file = from_file(
                     absolute_path,
                     bbox,
                     tbox,
@@ -734,7 +735,7 @@ def fromDirectory(
     return metadata
 
 
-def fromFile(
+def from_file(
     filepath,
     bbox=True,
     tbox=True,
@@ -782,7 +783,7 @@ def fromFile(
 
     file_format = os.path.splitext(filepath)[1][1:]
 
-    usedModule = None
+    used_module = None
 
     # initialization of later output dict
     metadata = {}
@@ -790,18 +791,18 @@ def fromFile(
     # get the module that will be called (depending on the format of the file)
 
     for i in handle_modules:
-        valid = handle_modules[i].checkFileSupported(filepath)
+        valid = handle_modules[i].check_file_supported(filepath)
         if valid:
-            usedModule = handle_modules[i]
+            used_module = handle_modules[i]
             logger.info(
                 "{} is being used to inspect {} file".format(
-                    usedModule.get_handler_name(), filepath
+                    used_module.get_handler_name(), filepath
                 )
             )
             break
 
     # If file format is not supported
-    if not usedModule:
+    if not used_module:
         logger.info(
             "Did not find a compatible module for file format {} of file {}".format(
                 file_format, filepath
@@ -819,7 +820,7 @@ def fromFile(
         def run(self):
 
             metadata["format"] = file_format
-            metadata["geoextent_handler"] = usedModule.get_handler_name()
+            metadata["geoextent_handler"] = used_module.get_handler_name()
 
             # with lock:
 
@@ -829,11 +830,11 @@ def fromFile(
                     if bbox:
                         if convex_hull:
                             spatial_extent = compute_convex_hull_wgs84(
-                                usedModule, filepath, assume_wgs84=assume_wgs84
+                                used_module, filepath, assume_wgs84=assume_wgs84
                             )
                         else:
                             spatial_extent = compute_bbox_wgs84(
-                                usedModule, filepath, assume_wgs84=assume_wgs84
+                                used_module, filepath, assume_wgs84=assume_wgs84
                             )
 
                         if spatial_extent is not None:
@@ -852,8 +853,8 @@ def fromFile(
             elif self.task == "tbox":
                 try:
                     if tbox:
-                        if usedModule.get_handler_name() == "handleCSV":
-                            extract_tbox = usedModule.getTemporalExtent(
+                        if used_module.get_handler_name() == "handle_csv":
+                            extract_tbox = used_module.get_temporal_extent(
                                 filepath, num_sample, time_format=time_format
                             )
                         else:
@@ -861,7 +862,7 @@ def fromFile(
                                 logger.warning(
                                     "num_sample parameter is ignored, only applies to CSV files"
                                 )
-                            extract_tbox = usedModule.getTemporalExtent(
+                            extract_tbox = used_module.get_temporal_extent(
                                 filepath, time_format=time_format
                             )
                         if extract_tbox is not None:
@@ -974,7 +975,7 @@ def fromFile(
     return metadata
 
 
-def fromRemote(
+def from_remote(
     remote_identifier: str | list[str],
     bbox: bool = False,
     tbox: bool = False,
@@ -1090,12 +1091,12 @@ def fromRemote(
     --------
     >>> from geoextent.lib import extent
     >>> # Single resource
-    >>> result = extent.fromRemote('10.5281/zenodo.4593540', bbox=True)
+    >>> result = extent.from_remote('10.5281/zenodo.4593540', bbox=True)
     >>> print(result['bbox'])
     >>>
     >>> # Multiple resources
     >>> identifiers = ['10.5281/zenodo.4593540', 'https://doi.org/10.25532/OPARA-581']
-    >>> result = extent.fromRemote(identifiers, bbox=True, tbox=True)
+    >>> result = extent.from_remote(identifiers, bbox=True, tbox=True)
     >>> print(result['bbox'])  # Combined bounding box
     >>> print(result['extraction_metadata'])  # Processing statistics
     """
@@ -1424,7 +1425,7 @@ def _process_remote_download(
         _used_metadata_fallback = True
 
     # Extract metadata from downloaded files
-    metadata = fromDirectory(
+    metadata = from_directory(
         tmp,
         bbox,
         tbox,
@@ -1488,7 +1489,7 @@ def _process_remote_download(
         )
         _used_metadata_fallback = True
 
-        metadata = fromDirectory(
+        metadata = from_directory(
             tmp,
             bbox,
             tbox,
@@ -1855,3 +1856,8 @@ def _extract_from_remote(
             "Geoextent can not handle this repository identifier {}"
             "\n Check for typos or if the repository exists. ".format(remote_identifier)
         )
+
+
+# ---------------------------------------------------------------------------
+# Deprecated camelCase aliases — will be removed in version 1.0
+# ---------------------------------------------------------------------------

@@ -83,7 +83,7 @@ Single File Extraction
 
    import geoextent.lib.extent as geoextent
 
-   result = geoextent.fromFile('data.geojson', bbox=True, tbox=True)
+   result = geoextent.from_file('data.geojson', bbox=True, tbox=True)
    print(result['bbox'])  # [minx, miny, maxx, maxy]
    print(result['tbox'])  # ['2020-01-01', '2020-12-31']
 
@@ -92,7 +92,7 @@ Directory Extraction
 
 .. code-block:: python
 
-   result = geoextent.fromDirectory('data/', bbox=True, tbox=True)
+   result = geoextent.from_directory('data/', bbox=True, tbox=True)
    print(result['bbox'])  # Merged bounding box of all files
 
 Remote Repository Extraction
@@ -101,11 +101,11 @@ Remote Repository Extraction
 .. code-block:: python
 
    # Single repository
-   result = geoextent.fromRemote('10.5281/zenodo.4593540', bbox=True)
+   result = geoextent.from_remote('10.5281/zenodo.4593540', bbox=True)
 
    # Multiple repositories
    identifiers = ['10.5281/zenodo.4593540', '10.25532/OPARA-581']
-   result = geoextent.fromRemote(identifiers, bbox=True, tbox=True)
+   result = geoextent.from_remote(identifiers, bbox=True, tbox=True)
    print(result['bbox'])  # Merged bounding box covering all resources
 
 Common Options

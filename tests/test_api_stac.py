@@ -142,7 +142,7 @@ class TestSTACExtraction:
         bbox: [-160, 17, -67, 50], temporal: [2010-01-01, 2022-12-31]
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://earth-search.aws.element84.com/v1/collections/naip",
                 bbox=True,
                 tbox=True,
@@ -175,7 +175,7 @@ class TestSTACExtraction:
         bbox: [5.87, 47.27, 15.04, 55.06], temporal: [2017-01-01, null]
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://geoservice.dlr.de/eoc/ogc/stac/v1/collections/FOREST_STRUCTURE_DE_COVER_P1Y",
                 bbox=True,
                 tbox=True,
@@ -207,7 +207,7 @@ class TestSTACExtraction:
         Second DLR example from issue #25.
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://geoservice.dlr.de/eoc/ogc/stac/v1/collections/S5P_TROPOMI_L3_P1D_SO2",
                 bbox=True,
                 tbox=True,
@@ -239,7 +239,7 @@ class TestSTACExtraction:
         bbox: [-125.72, 31.51, -112.89, 42.00]
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://gep-supersites-stac.terradue.com/collections/csk-san-andrea-supersite",
                 bbox=True,
                 tbox=True,
@@ -266,7 +266,7 @@ class TestSTACExtraction:
         bbox: [17.91, 56.86, 19.41, 58.45]
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://api.lantmateriet.se/stac-bild/v1/collections/orto-f2-2014",
                 bbox=True,
                 tbox=True,
@@ -293,7 +293,7 @@ class TestSTACExtraction:
         bbox: [5.96, 45.82, 10.49, 47.81]
         """
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://api.stac.worldpop.org/collections/CHE",
                 bbox=True,
                 tbox=True,
@@ -322,7 +322,7 @@ class TestSTACExtraction:
     def test_stac_no_download_data(self):
         """With download_data=False, should still extract metadata."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://earth-search.aws.element84.com/v1/collections/naip",
                 bbox=True,
                 tbox=True,

@@ -148,7 +148,7 @@ class TestBGRProvider:
 
         try:
             # Test with download_data=False to only extract metadata
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=False
             )
 
@@ -185,7 +185,7 @@ class TestBGRProvider:
 
         try:
             # Test with download_data=True to get actual geospatial data
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=True
             )
 
@@ -294,7 +294,7 @@ class TestBGRParameterCombinations:
         test_uuid = "d764e73b-27e4-4aaa-b187-b6141c115eb4"
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 test_uuid, bbox=True, tbox=False, download_data=False
             )
             assert result is not None
@@ -310,7 +310,7 @@ class TestBGRParameterCombinations:
         test_uuid = "d764e73b-27e4-4aaa-b187-b6141c115eb4"
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 test_uuid, bbox=False, tbox=True, download_data=False
             )
             assert result is not None
@@ -325,7 +325,7 @@ class TestBGRParameterCombinations:
         test_uuid = "d764e73b-27e4-4aaa-b187-b6141c115eb4"
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 test_uuid, bbox=True, tbox=True, details=True, download_data=False
             )
             assert result is not None
@@ -345,7 +345,7 @@ class TestBGREdgeCases:
         nonexistent_uuid = "00000000-0000-0000-0000-000000000000"
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 nonexistent_uuid, bbox=True, download_data=False
             )
             # Should either raise exception or return error indicator
@@ -423,7 +423,7 @@ class TestBGRIntegration:
             assert bgr.validate_provider(test_uuid) == True
 
             # Step 2: Full extraction with metadata only
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 test_uuid, bbox=True, tbox=True, download_data=False
             )
 
@@ -484,7 +484,7 @@ class TestBGRFullPortalURL:
 
             # Test with HYRAUM dataset (covers all of Germany)
             full_url = "https://geoportal.bgr.de/mapapps/resources/apps/geoportal/index.html?lang=en#/datasets/portal/b73b55f1-14ec-4b7c-aa59-49b997ce7bbd"
-            result = geoextent.fromRemote(full_url, bbox=True, download_data=False)
+            result = geoextent.from_remote(full_url, bbox=True, download_data=False)
 
             assert result is not None
             assert result["format"] == "remote"
@@ -570,7 +570,7 @@ class TestBGRDOISupport:
 
             # Test with bare DOI
             doi = "10.25928/HK1000"
-            result = geoextent.fromRemote(doi, bbox=True, download_data=False)
+            result = geoextent.from_remote(doi, bbox=True, download_data=False)
 
             assert result is not None
             assert result["format"] == "remote"
@@ -596,7 +596,7 @@ class TestBGRDOISupport:
 
             # Test with DOI URL
             doi_url = "https://doi.org/10.25928/MEDKAM.1"
-            result = geoextent.fromRemote(doi_url, bbox=True, download_data=False)
+            result = geoextent.from_remote(doi_url, bbox=True, download_data=False)
 
             assert result is not None
             assert result["format"] == "remote"

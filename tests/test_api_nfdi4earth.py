@@ -116,7 +116,7 @@ class TestNFDI4EarthExtraction:
     def test_nfdi4earth_metadata_only_extraction(self):
         """Provider sample test: Schiffsdichte 2013, spatial only."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/",
                 bbox=True,
                 tbox=True,
@@ -138,7 +138,7 @@ class TestNFDI4EarthExtraction:
     def test_nfdi4earth_berlin_dataset(self):
         """FNP Berlin: spatial only, Berlin area polygon."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://onestop4all.nfdi4earth.de/result/dthb-92a8e490-3d32-46cc-853a-50c0d43a187f/",
                 bbox=True,
                 tbox=True,
@@ -158,7 +158,7 @@ class TestNFDI4EarthExtraction:
     def test_nfdi4earth_with_temporal(self):
         """ESA Antarctic Ice Sheet: spatial + temporal 1994-2021."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://onestop4all.nfdi4earth.de/result/dthb-7b3bddd5af4945c2ac508a6d25537f0a/",
                 bbox=True,
                 tbox=True,
@@ -175,7 +175,7 @@ class TestNFDI4EarthExtraction:
     def test_nfdi4earth_cordra_url_extraction(self):
         """Same dataset via direct Cordra URL."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://cordra.knowledgehub.nfdi4earth.de/objects/n4e/dthb-82b6552d-2b8e-4800-b955-ea495efc28af",
                 bbox=True,
                 tbox=True,
@@ -192,7 +192,7 @@ class TestNFDI4EarthExtraction:
     def test_nfdi4earth_no_follow_uses_own_metadata(self):
         """With follow=False, should use own SPARQL metadata."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://onestop4all.nfdi4earth.de/result/dthb-82b6552d-2b8e-4800-b955-ea495efc28af/",
                 bbox=True,
                 tbox=True,

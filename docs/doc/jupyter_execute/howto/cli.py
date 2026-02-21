@@ -4,12 +4,12 @@ geoextent.print_help_fun()
 
 import geoextent.lib.extent as geoextent
 
-geoextent.fromFile("../tests/testdata/geojson/muenster_ring_zeit.geojson", True, False)
+geoextent.from_file("../tests/testdata/geojson/muenster_ring_zeit.geojson", True, False)
 
 import geoextent.lib.extent as geoextent
 
-geoextent.fromFile("../tests/testdata/geojson/muenster_ring_zeit.geojson", False, True)
+geoextent.from_file("../tests/testdata/geojson/muenster_ring_zeit.geojson", False, True)
 
 import geoextent.lib.extent as geoextent
 
-geoextent.fromFile("../tests/testdata/geojson/muenster_ring_zeit.geojson", True, True)
+geoextent.from_file("../tests/testdata/geojson/muenster_ring_zeit.geojson", True, True)

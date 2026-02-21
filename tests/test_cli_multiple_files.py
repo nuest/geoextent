@@ -129,7 +129,7 @@ def test_multiple_files_with_details():
         "tests/testdata/geojson/muenster_ring_zeit.geojson"
     ]
     assert muenster_details["format"] == "geojson"
-    assert muenster_details["geoextent_handler"] == "handleVector"
+    assert muenster_details["geoextent_handler"] == "handle_vector"
     assert "bbox" in muenster_details
     assert "tbox" in muenster_details
 
@@ -137,7 +137,7 @@ def test_multiple_files_with_details():
         "tests/testdata/folders/folder_two_files/districtes.geojson"
     ]
     assert barcelona_details["format"] == "geojson"
-    assert barcelona_details["geoextent_handler"] == "handleVector"
+    assert barcelona_details["geoextent_handler"] == "handle_vector"
     assert "bbox" in barcelona_details
     assert "tbox" in barcelona_details
 
@@ -171,7 +171,7 @@ def test_single_file_backward_compatibility():
 
     # Single file should not have "multiple_files" format
     assert result["format"] == "geojson"
-    assert result["geoextent_handler"] == "handleVector"
+    assert result["geoextent_handler"] == "handle_vector"
     assert "bbox" in result
     assert "tbox" in result
     assert (

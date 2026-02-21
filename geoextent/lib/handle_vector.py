@@ -20,7 +20,7 @@ logger = logging.getLogger("geoextent")
 
 
 def get_handler_name():
-    return "handleVector"
+    return "handle_vector"
 
 
 def get_handler_display_name():
@@ -84,7 +84,7 @@ def _extract_crs_from_layer(layer, layer_name, operation="extraction"):
     return crs, crs_wkt
 
 
-def checkFileSupported(filepath):
+def check_file_supported(filepath):
     """Checks whether it is valid vector file or not. \n
     input "path": type string, path to file which shall be extracted \n
     """
@@ -94,20 +94,24 @@ def checkFileSupported(filepath):
         file = gdal.OpenEx(filepath)
         driver = file.GetDriver().ShortName
     except:
-        logger.debug("File {} is NOT supported by HandleVector module".format(filepath))
+        logger.debug(
+            "File {} is NOT supported by handle_vector module".format(filepath)
+        )
         return False
     logger.debug("Layer count: {} ".format(file.GetLayerCount()))
     if file.GetLayerCount() > 0:
         if driver != "CSV":
-            logger.debug("File {} is supported by HandleVector module".format(filepath))
+            logger.debug(
+                "File {} is supported by handle_vector module".format(filepath)
+            )
             file = None
             return True
-    logger.debug("File {} is NOT supported by HandleVector module".format(filepath))
+    logger.debug("File {} is NOT supported by handle_vector module".format(filepath))
     file = None
     return False
 
 
-def getTemporalExtent(filepath, time_format=None):
+def get_temporal_extent(filepath, time_format=None):
     """extracts temporal extent of the vector file \n
     input "path": type string, file path to vector file
     """
@@ -199,7 +203,7 @@ def getTemporalExtent(filepath, time_format=None):
     return tbox
 
 
-def getBoundingBox(filepath):
+def get_bounding_box(filepath):
     """extracts bounding box from vector file \n
     input "filepath": type string, file path to vector \n
     returns bounding box of the file: type list, length = 4
@@ -250,7 +254,7 @@ def getBoundingBox(filepath):
     return spatial_extent
 
 
-def getConvexHull(filepath):
+def get_convex_hull(filepath):
     """extracts convex hull from vector file \n
     input "filepath": type string, file path to vector \n
     returns convex hull as a bounding box: type dict with keys 'bbox' and 'crs'

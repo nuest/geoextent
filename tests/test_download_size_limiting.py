@@ -259,7 +259,7 @@ class TestRepositoryExtentComparison:
             file_paths = self.create_mock_repository_files(temp_dir)
 
             # Extract extents from all files
-            extent_all = extent.fromDirectory(temp_dir, bbox=True, tbox=False)
+            extent_all = extent.from_directory(temp_dir, bbox=True, tbox=False)
 
             # Convert to WKT format using helpfunctions
             from geoextent.lib.helpfunctions import format_extent_output
@@ -307,7 +307,7 @@ class TestRepositoryExtentComparison:
         # Different methods should potentially select different files
         # (verifying the sampling logic works)
 
-    @patch("geoextent.lib.extent.fromRemote")
+    @patch("geoextent.lib.extent.from_remote")
     def test_repository_extent_extraction_with_size_limits(self, mock_from_remote):
         """Test repository extent extraction with different size limits."""
         # Mock repository responses with different file selections
@@ -323,7 +323,7 @@ class TestRepositoryExtentComparison:
 
         # Test with small size limit
         mock_from_remote.return_value = mock_small_extent
-        result_small = extent.fromRemote(
+        result_small = extent.from_remote(
             "https://example.com/repo",
             bbox=True,
             tbox=False,
@@ -333,7 +333,7 @@ class TestRepositoryExtentComparison:
 
         # Test with large size limit
         mock_from_remote.return_value = mock_large_extent
-        result_large = extent.fromRemote(
+        result_large = extent.from_remote(
             "https://example.com/repo",
             bbox=True,
             tbox=False,

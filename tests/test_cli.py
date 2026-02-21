@@ -1149,7 +1149,7 @@ def test_quiet_mode_suppresses_pandas_warnings(script_runner):
     result = json.loads(ret_quiet.stdout.strip())
     assert "tbox" in result
     assert result["format"] == "csv"
-    assert result["geoextent_handler"] == "handleCSV"
+    assert result["geoextent_handler"] == "handle_csv"
 
     # Note: In the test environment, pandas warnings might not appear in stderr
     # due to test framework behavior, but the core functionality of quiet mode
@@ -1247,7 +1247,7 @@ def test_convex_hull_single_file(script_runner):
     assert metadata["extent_type"] == "convex_hull"
     assert metadata["crs"] == "4326"
     assert metadata["format"] == "geojson"
-    assert metadata["geoextent_handler"] == "handleVector"
+    assert metadata["geoextent_handler"] == "handle_vector"
 
 
 def test_convex_hull_directory(script_runner):
@@ -1342,7 +1342,7 @@ def test_convex_hull_csv(script_runner):
     assert metadata["extent_type"] == "convex_hull"
     assert metadata["crs"] == "4326"
     assert metadata["format"] == "csv"
-    assert metadata["geoextent_handler"] == "handleCSV"
+    assert metadata["geoextent_handler"] == "handle_csv"
 
 
 def test_convex_hull_with_wkt_format(script_runner):

@@ -174,7 +174,7 @@ class TestEdmondExtraction:
         Dataset: Training and validation samples for mapping peat extent (QZGTDU)
         Small CSV with longitude/latitude columns, 214 KB.
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.17617/3.QZGTDU",
             bbox=True,
             tbox=True,
@@ -191,7 +191,7 @@ class TestEdmondExtraction:
         CSV with longitude/latitude columns, 4656 points in eastern Colombia.
         Expected bbox: ~-77W to -67W, ~-4S to 7N
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.17617/3.QZGTDU",
             bbox=True,
             tbox=True,
@@ -220,7 +220,7 @@ class TestEdmondExtraction:
         ZIP with 11 NetCDF files covering Colombia.
         Expected bbox: ~-81W to -66W, ~-2S to 13N
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.17617/3.TCJF7B",
             bbox=True,
             tbox=True,
@@ -251,7 +251,7 @@ class TestEdmondExtraction:
 
         results = []
         for identifier in variants:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 identifier,
                 bbox=True,
                 download_data=True,

@@ -142,10 +142,10 @@ class TestWKTExtentComparison:
 
             # Test 1: Process only first file (simulates 1MB limit)
             first_file = files[0]  # west_europe.geojson only
-            extent_small = extent.fromFile(first_file, bbox=True)
+            extent_small = extent.from_file(first_file, bbox=True)
 
             # Test 2: Process first two files (simulates 3MB limit)
-            extent_medium = extent.fromDirectory(temp_dir, bbox=True)
+            extent_medium = extent.from_directory(temp_dir, bbox=True)
 
             # Convert to WKT format
             from geoextent.lib.helpfunctions import format_extent_output
@@ -333,11 +333,11 @@ class TestWKTExtentComparison:
                 json.dump(file2_data, f)
 
             # Extract extent from single file
-            extent1 = extent.fromFile(file1_path, bbox=True)
-            extent2 = extent.fromFile(file2_path, bbox=True)
+            extent1 = extent.from_file(file1_path, bbox=True)
+            extent2 = extent.from_file(file2_path, bbox=True)
 
             # Extract extent from both files combined
-            extent_combined = extent.fromDirectory(temp_dir, bbox=True)
+            extent_combined = extent.from_directory(temp_dir, bbox=True)
 
             # Convert to WKT format
             from geoextent.lib.helpfunctions import format_extent_output
@@ -385,7 +385,7 @@ class TestWKTExtentComparison:
     def _compute_combined_extent(self, file_paths):
         """Compute combined spatial extent from multiple files."""
         if len(file_paths) == 1:
-            result = extent.fromFile(file_paths[0], bbox=True)
+            result = extent.from_file(file_paths[0], bbox=True)
         else:
             # Create temporary directory with only selected files
             with tempfile.TemporaryDirectory() as temp_combined:
@@ -397,7 +397,7 @@ class TestWKTExtentComparison:
                     new_path = os.path.join(temp_combined, filename)
                     shutil.copy2(file_path, new_path)
 
-                result = extent.fromDirectory(temp_combined, bbox=True)
+                result = extent.from_directory(temp_combined, bbox=True)
 
         # Convert to WKT format
         from geoextent.lib.helpfunctions import format_extent_output

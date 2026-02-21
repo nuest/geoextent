@@ -9,30 +9,30 @@ from conftest import NETWORK_SKIP_EXCEPTIONS
 
 
 def test_defaults():
-    """Verify fromFile default parameters: bbox=True, tbox=True."""
+    """Verify from_file default parameters: bbox=True, tbox=True."""
     testfile = "tests/testdata/geojson/muenster_ring_zeit.geojson"
 
     # Default: both bbox and tbox extracted
-    result = geoextent.fromFile(testfile)
+    result = geoextent.from_file(testfile)
     assert "bbox" in result
     assert "tbox" in result
     assert "crs" in result
 
     # bbox=False: only temporal extent
-    result = geoextent.fromFile(testfile, bbox=False)
+    result = geoextent.from_file(testfile, bbox=False)
     assert "bbox" not in result
     assert "tbox" in result
     assert "crs" not in result
 
     # tbox=False: only spatial extent
-    result = geoextent.fromFile(testfile, tbox=False)
+    result = geoextent.from_file(testfile, tbox=False)
     assert "bbox" in result
     assert "tbox" not in result
     assert "crs" in result
 
 
 def test_netcdf_extract_bbox():
-    result = geoextent.fromFile("tests/testdata/nc/zeroes.nc")
+    result = geoextent.from_file("tests/testdata/nc/zeroes.nc")
     assert result["bbox"] == pytest.approx(
         [-52.63157, 19.86842, 52.63157, 25.13157], abs=tolerance
     )
@@ -40,7 +40,7 @@ def test_netcdf_extract_bbox():
 
 
 def test_kml_extract_bbox():
-    result = geoextent.fromFile("tests/testdata/kml/aasee.kml", bbox=True)
+    result = geoextent.from_file("tests/testdata/kml/aasee.kml", bbox=True)
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
@@ -53,13 +53,13 @@ def test_kml_extract_bbox():
     sys.platform == "darwin", reason="MacOS does not load the file properly"
 )
 def test_kml_extract_tbox():
-    result = geoextent.fromFile("tests/testdata/kml/TimeStamp_example.kml", bbox=True)
+    result = geoextent.from_file("tests/testdata/kml/TimeStamp_example.kml", bbox=True)
     assert "tbox" in result
     assert result["tbox"] == ["2007-01-14", "2007-01-14"]
 
 
 def test_gpkg_extract_bbox():
-    result = geoextent.fromFile("tests/testdata/nc/nc.gpkg", bbox=True)
+    result = geoextent.from_file("tests/testdata/nc/nc.gpkg", bbox=True)
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
@@ -73,7 +73,7 @@ def test_gpkg_extract_bbox():
     reason="Travis GDAL version outdated",
 )
 def test_gml_extract_bbox():
-    result = geoextent.fromFile("tests/testdata/gml/clc_1000_PT.gml", bbox=True)
+    result = geoextent.from_file("tests/testdata/gml/clc_1000_PT.gml", bbox=True)
     assert "bbox" in result
     assert "crs" in result
     assert result["bbox"] == pytest.approx(
@@ -83,7 +83,7 @@ def test_gml_extract_bbox():
 
 
 def test_gpx_extract_bbox():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/gpx/gpx1.1_with_all_fields.gpx", bbox=True
     )
     assert "bbox" in result
@@ -93,7 +93,7 @@ def test_gpx_extract_bbox():
 
 
 def test_gpx_extract_tbox():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/gpx/gpx1.1_with_all_fields.gpx", tbox=True
     )
     assert "tbox" in result
@@ -102,7 +102,7 @@ def test_gpx_extract_tbox():
 
 @pytest.mark.skipif(sys.platform == "darwin", reason="MacOS recognize file")
 def test_gpx_format_error_file():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/gpx/gpx1.1_with_all_fields_error_format.gpx", tbox=True
     )
     assert result is None
@@ -110,13 +110,13 @@ def test_gpx_format_error_file():
 
 def test_empty_folder():
     with tempfile.TemporaryDirectory() as temp:
-        result = geoextent.fromDirectory(temp, bbox=True, tbox=True)
+        result = geoextent.from_directory(temp, bbox=True, tbox=True)
         assert "bbox" not in result
         assert "tbox" not in result
 
 
 def test_folder_one_file():
-    result = geoextent.fromDirectory(
+    result = geoextent.from_directory(
         "tests/testdata/folders/folder_one_file", bbox=True, tbox=True
     )
     assert "bbox" in result
@@ -130,7 +130,7 @@ def test_folder_one_file():
 
 
 def test_folder_one_file_details():
-    result = geoextent.fromDirectory(
+    result = geoextent.from_directory(
         "tests/testdata/folders/folder_one_file", bbox=True, tbox=True, details=True
     )
     assert "bbox" in result
@@ -147,14 +147,14 @@ def test_folder_one_file_details():
 
 
 def test_folder_one_file_no_details():
-    result = geoextent.fromDirectory(
+    result = geoextent.from_directory(
         "tests/testdata/folders/folder_one_file", bbox=True, tbox=True, details=False
     )
     assert "details" not in result
 
 
 def test_folder_multiple_files():
-    result = geoextent.fromDirectory(
+    result = geoextent.from_directory(
         "tests/testdata/folders/folder_two_files", bbox=True, tbox=True
     )
     assert "bbox" in result
@@ -168,7 +168,7 @@ def test_folder_multiple_files():
 
 
 def test_folder_nested_files():
-    result = geoextent.fromDirectory(
+    result = geoextent.from_directory(
         "tests/testdata/folders/nested_folder", bbox=True, tbox=True
     )
     assert "bbox" in result
@@ -189,7 +189,7 @@ def test_zipfile_unsupported_file():
         f.close()
         zip_path = os.path.join(tmp, "zipfile.zip")
         create_zip(tmp, zip_path)
-        result = geoextent.fromDirectory(zip_path, bbox=True, tbox=True)
+        result = geoextent.from_directory(zip_path, bbox=True, tbox=True)
         assert "bbox" not in result
         assert "tbox" not in result
 
@@ -199,7 +199,7 @@ def test_zipfile_one_file():
     with tempfile.TemporaryDirectory() as tmp:
         zip_path = os.path.join(tmp, "zipfile.zip")
         create_zip(folder_name, zip_path)
-        result = geoextent.fromDirectory(zip_path, bbox=True, tbox=True)
+        result = geoextent.from_directory(zip_path, bbox=True, tbox=True)
         assert result["bbox"] == pytest.approx(
             [51.948814, 7.601680, 51.974624, 7.647256], abs=tolerance
         )
@@ -212,7 +212,7 @@ def test_zipfile_nested_folders():
     with tempfile.TemporaryDirectory() as tmp:
         zip_path = os.path.join(tmp, "zipfile.zip")
         create_zip(folder_name, zip_path)
-        result = geoextent.fromDirectory(zip_path, bbox=True, tbox=True)
+        result = geoextent.from_directory(zip_path, bbox=True, tbox=True)
     assert result["bbox"] == pytest.approx(
         [34.7, 7.601680, 51.974624, 142.0], abs=tolerance
     )
@@ -231,7 +231,7 @@ def test_png_file_extract_bbox():
             urllib.request.urlretrieve(
                 url2, os.path.join(tmp, "20160100_Hpakan_20151123_PRE.pngw")
             )
-            result = geoextent.fromFile(
+            result = geoextent.from_file(
                 os.path.join(tmp, "20160100_Hpakan_20151123_PRE.png"), bbox=True
             )
 
@@ -254,24 +254,24 @@ def test_png_file_extract_bbox():
 
 
 def test_netcdf_extract_time():
-    result = geoextent.fromFile("tests/testdata/nc/ECMWF_ERA-40_subset1.nc", tbox=True)
+    result = geoextent.from_file("tests/testdata/nc/ECMWF_ERA-40_subset1.nc", tbox=True)
     assert result["tbox"] == ["2002-07-01", "2002-07-31"]
 
 
 def test_geotiff_extract_time():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/tif/tif_tifftag_datetime.tif", tbox=True
     )
     assert result["tbox"] == ["2019-03-21", "2019-03-21"]
 
 
 def test_gml_extract_time():
-    result = geoextent.fromFile("tests/testdata/gml/clc_1000_PT.gml", tbox=True)
+    result = geoextent.from_file("tests/testdata/gml/clc_1000_PT.gml", tbox=True)
     assert result["tbox"] == ["2005-12-31", "2013-11-30"]
 
 
 def test_netcdf_extract_bbox_time():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/nc/ECMWF_ERA-40_subset1.nc", bbox=True, tbox=True
     )
     # Temporal extent is always extractable from CF time metadata
@@ -281,7 +281,7 @@ def test_netcdf_extract_bbox_time():
 
 
 def test_gpkg_extract_tbox():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/geopackage/wandelroute_maastricht.gpkg", tbox=True
     )
     assert result["tbox"] == ["2021-01-05", "2021-01-05"]
@@ -292,7 +292,7 @@ def test_gpkg_extract_tbox():
     reason="Travis GDAL version outdated",
 )
 def test_gml_extract_bbox_time():
-    result = geoextent.fromFile(
+    result = geoextent.from_file(
         "tests/testdata/gml/clc_1000_PT.gml", bbox=True, tbox=True
     )
     assert result["bbox"] == pytest.approx(
@@ -303,7 +303,9 @@ def test_gml_extract_bbox_time():
 
 
 def test_jpeg_2000_extract_bbox():
-    result = geoextent.fromFile("tests/testdata/jpeg2000/MSK_SNWPRB_60m.jp2", bbox=True)
+    result = geoextent.from_file(
+        "tests/testdata/jpeg2000/MSK_SNWPRB_60m.jp2", bbox=True
+    )
     assert result["bbox"] == pytest.approx(
         [4.434354, -74.09868, 5.425259, -73.10649], abs=tolerance
     )
@@ -311,7 +313,7 @@ def test_jpeg_2000_extract_bbox():
 
 
 def test_esri_ascii_extract_bbox():
-    result = geoextent.fromFile("tests/testdata/asc/Churfirsten_30m.asc", bbox=True)
+    result = geoextent.from_file("tests/testdata/asc/Churfirsten_30m.asc", bbox=True)
     assert result["bbox"] == pytest.approx(
         [46.93996, 8.85620, 46.94050, 8.85699], abs=tolerance
     )
@@ -319,18 +321,18 @@ def test_esri_ascii_extract_bbox():
 
 
 def test_not_found_file():
-    result = geoextent.fromFile("tests/testdata/empt.geojson", bbox=True)
+    result = geoextent.from_file("tests/testdata/empt.geojson", bbox=True)
     assert result is None
 
 
 def test_not_supported_file_format():
-    result = geoextent.fromFile("tests/testdata/geojson/empty.geo", bbox=True)
+    result = geoextent.from_file("tests/testdata/geojson/empty.geo", bbox=True)
     assert result is None
 
 
 def test_bbox_and_tbox_both_false():
     with pytest.raises(Exception) as excinfo:
-        geoextent.fromFile("tests/path_does_not_matter", bbox=False, tbox=False)
+        geoextent.from_file("tests/path_does_not_matter", bbox=False, tbox=False)
     assert "No extraction options" in str(excinfo.value)
 
 
@@ -339,7 +341,7 @@ def test_degenerate_layer_skipped_with_warning(caplog):
     import logging
 
     with caplog.at_level(logging.WARNING, logger="geoextent"):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/geojson/null_island_point.geojson", bbox=True
         )
 
@@ -358,7 +360,7 @@ def test_csv_no_time_column_warning(caplog):
     import logging
 
     with caplog.at_level(logging.WARNING, logger="geoextent"):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/csv/cities_NL_lat&long.csv", tbox=True
         )
 
@@ -374,7 +376,7 @@ def test_csv_unparseable_time_column_warning(caplog):
     import logging
 
     with caplog.at_level(logging.WARNING, logger="geoextent"):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/csv/cities_NL_unparseable_time.csv", tbox=True
         )
 
@@ -392,7 +394,9 @@ def test_invalid_bbox_and_flip():
     values and vice versa). Geoextent now trusts the column labels and does not attempt
     to auto-correct/flip coordinates, following the principle of trusting input data as-is.
     """
-    result = geoextent.fromFile("tests/testdata/csv/cities_NL_case_flip.csv", bbox=True)
+    result = geoextent.from_file(
+        "tests/testdata/csv/cities_NL_case_flip.csv", bbox=True
+    )
     # Coordinates are extracted as-is based on column labels (no flip applied)
     # This results in swapped coordinates: [minLon, minLat, maxLon, maxLat]
     # but the actual values are from swapped columns
@@ -400,3 +404,20 @@ def test_invalid_bbox_and_flip():
         [4.3175, 5.0, 95.0, 53.217222], abs=tolerance
     )
     assert result["crs"] == "4326"
+
+
+# --- PEP 8 rename verification (issue #31) ---
+
+
+def test_camelCase_aliases_removed():
+    """Old camelCase names no longer exist after Phase 3 cleanup."""
+    assert not hasattr(geoextent, "fromFile")
+    assert not hasattr(geoextent, "fromDirectory")
+    assert not hasattr(geoextent, "fromRemote")
+
+
+def test_snake_case_api_works():
+    """Primary snake_case API functions work correctly."""
+    result = geoextent.from_file("tests/testdata/geojson/muenster_ring_zeit.geojson")
+    assert "bbox" in result
+    assert "tbox" in result

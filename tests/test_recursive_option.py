@@ -6,7 +6,7 @@ from help_functions_test import tolerance
 
 def test_api_recursive_default_behavior():
     """Test that recursive=True is the default behavior (processes subdirectories)"""
-    result = geoextent.fromDirectory(
+    result = geoextent.from_directory(
         "tests/testdata/folders/nested_folder", bbox=True, tbox=True, details=True
     )
 
@@ -20,7 +20,7 @@ def test_api_recursive_default_behavior():
 
 def test_api_recursive_enabled():
     """Test that recursive=True processes subdirectories"""
-    result = geoextent.fromDirectory(
+    result = geoextent.from_directory(
         "tests/testdata/folders/nested_folder",
         bbox=True,
         tbox=True,
@@ -38,7 +38,7 @@ def test_api_recursive_enabled():
 
 def test_api_recursive_disabled():
     """Test that recursive=False only processes files in top directory"""
-    result = geoextent.fromDirectory(
+    result = geoextent.from_directory(
         "tests/testdata/folders/nested_folder",
         bbox=True,
         tbox=True,
@@ -166,7 +166,7 @@ def test_cli_nested_mixed_recursive_vs_non_recursive(script_runner):
 def test_api_bbox_merging_recursive_vs_non_recursive():
     """Test that bbox merging works correctly with and without recursive processing using nested_mixed"""
     # Test with recursive (should merge both top-level and subdirectory file)
-    result_recursive = geoextent.fromDirectory(
+    result_recursive = geoextent.from_directory(
         "tests/testdata/folders/nested_mixed",
         bbox=True,
         recursive=True,
@@ -174,7 +174,7 @@ def test_api_bbox_merging_recursive_vs_non_recursive():
     )
 
     # Test without recursive (should only include top-level file)
-    result_non_recursive = geoextent.fromDirectory(
+    result_non_recursive = geoextent.from_directory(
         "tests/testdata/folders/nested_mixed",
         bbox=True,
         recursive=False,

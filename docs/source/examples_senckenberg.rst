@@ -80,7 +80,7 @@ Extract both spatial and temporal extent from metadata (most common use case):
    import geoextent.lib.extent as geoextent
 
    # Extract both spatial (bbox) and temporal (tbox) extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        '10.12761/sgn.2018.10268',
        bbox=True,
        tbox=True,
@@ -111,7 +111,7 @@ Extract spatial extent only from a Senckenberg dataset:
    import geoextent.lib.extent as geoextent
 
    # Using DOI (always use download_data=False for Senckenberg)
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        '10.12761/sgn.2018.10225',
        bbox=True,
        download_data=False
@@ -119,14 +119,14 @@ Extract spatial extent only from a Senckenberg dataset:
    print(result['bbox'])
 
    # Using dataset URL
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'https://dataportal.senckenberg.de/dataset/as-sahabi-1',
        bbox=True,
        download_data=False
    )
 
    # Using dataset name
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'as-sahabi-1',
        bbox=True,
        download_data=False
@@ -192,7 +192,7 @@ Extract and merge extents from multiple Senckenberg datasets:
        '10.12761/sgn.2018.10225',
    ]
 
-   result = geoextent.fromRemote(datasets, bbox=True, tbox=True)
+   result = geoextent.from_remote(datasets, bbox=True, tbox=True)
 
    # Returns merged bounding box covering all datasets
    print(f"Combined extent: {result['bbox']}")
@@ -225,7 +225,7 @@ Basic Usage
    import geoextent.lib.extent as geoextent
 
    # Extract spatial and temporal extent
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        'as-sahabi-1',
        bbox=True,
        tbox=True
@@ -245,7 +245,7 @@ Advanced Options
 
    import geoextent.lib.extent as geoextent
 
-   result = geoextent.fromRemote(
+   result = geoextent.from_remote(
        '10.12761/sgn.2018.10225',
        bbox=True,
        tbox=True,
@@ -270,14 +270,14 @@ Error Handling
    import geoextent.lib.extent as geoextent
 
    try:
-       result = geoextent.fromRemote('invalid-dataset-id', bbox=True)
+       result = geoextent.from_remote('invalid-dataset-id', bbox=True)
        print(f"Success: {result}")
    except Exception as e:
        print(f"Error extracting extent: {e}")
 
    # For multiple datasets, check individual errors
    datasets = ['as-sahabi-1', 'invalid-dataset']
-   result = geoextent.fromRemote(datasets, bbox=True)
+   result = geoextent.from_remote(datasets, bbox=True)
 
    for dataset_id, dataset_result in result['details'].items():
        if 'error' in dataset_result:

@@ -229,14 +229,14 @@ def assert_empty_result(result):
 
 def extract_bbox_only(filepath):
     """Extract only bbox from a file"""
-    return geoextent.fromFile(filepath, bbox=True, tbox=False)
+    return geoextent.from_file(filepath, bbox=True, tbox=False)
 
 
 def extract_tbox_only(filepath):
     """Extract only tbox from a file"""
-    return geoextent.fromFile(filepath, bbox=False, tbox=True)
+    return geoextent.from_file(filepath, bbox=False, tbox=True)
 
 
 def extract_bbox_and_tbox(filepath):
     """Extract both bbox and tbox from a file"""
-    return geoextent.fromFile(filepath, bbox=True, tbox=True)
+    return geoextent.from_file(filepath, bbox=True, tbox=True)

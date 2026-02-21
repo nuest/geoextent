@@ -205,7 +205,7 @@ Basic Usage
    from geoextent.lib import extent
 
    # Retrieve extent and metadata
-   result = extent.fromRemote(
+   result = extent.from_remote(
        '10.5281/zenodo.4593540',
        bbox=True,
        ext_metadata=True
@@ -227,7 +227,7 @@ Specifying Method
    from geoextent.lib import extent
 
    # Query only DataCite
-   result = extent.fromRemote(
+   result = extent.from_remote(
        '10.5281/zenodo.4593540',
        bbox=True,
        ext_metadata=True,
@@ -235,7 +235,7 @@ Specifying Method
    )
 
    # Query all sources
-   result = extent.fromRemote(
+   result = extent.from_remote(
        '10.5281/zenodo.4593540',
        bbox=True,
        ext_metadata=True,
@@ -408,7 +408,7 @@ Integrate metadata retrieval in a Python script:
 
    # Process each DOI
    for doi in dois:
-       result = extent.fromRemote(
+       result = extent.from_remote(
            doi,
            bbox=True,
            ext_metadata=True,

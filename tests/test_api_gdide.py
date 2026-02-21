@@ -128,7 +128,7 @@ class TestGDIDEProvider:
         dataset = TEST_DATASETS["heavy_rain_hazards"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["landing_url"],
                 bbox=True,
                 tbox=True,
@@ -160,7 +160,7 @@ class TestGDIDEProvider:
         dataset = TEST_DATASETS["forest_canopy_loss"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=False
             )
 
@@ -192,7 +192,7 @@ class TestGDIDEProvider:
         dataset = TEST_DATASETS["severe_weather_reports"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["uuid"], bbox=True, tbox=True, download_data=False
             )
 
@@ -214,11 +214,11 @@ class TestGDIDEProvider:
             pytest.skip(f"Network error: {e}")
 
     def test_gdide_url_based_extraction(self):
-        """Test full fromRemote() with geoportal.de landing URL"""
+        """Test full from_remote() with geoportal.de landing URL"""
         dataset = TEST_DATASETS["forest_canopy_loss"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["landing_url"],
                 bbox=True,
                 tbox=True,
@@ -324,7 +324,7 @@ class TestGDIDEProvider:
 
         monkeypatch.setattr(GDIDE, "download", mock_download)
 
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "https://www.geoportal.de/Metadata/75987CE0-AA66-4445-AC44-068B98390E89",
             bbox=True,
             tbox=False,

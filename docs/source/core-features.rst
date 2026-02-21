@@ -59,21 +59,21 @@ Examples
 
    from geoextent.lib import extent
 
-   result = extent.fromFile("satellite_image.tif", tbox=True)
+   result = extent.from_file("satellite_image.tif", tbox=True)
    # result["tbox"] == ["2019-03-21", "2019-03-21"]
 
 **NetCDF with CF time dimension:**
 
 .. code-block:: python
 
-   result = extent.fromFile("climate_model.nc", tbox=True)
+   result = extent.from_file("climate_model.nc", tbox=True)
    # result["tbox"] == ["2015-01-01", "2016-01-01"]
 
 **NetCDF with ACDD global attributes:**
 
 .. code-block:: python
 
-   result = extent.fromFile("ocean_temp.nc", tbox=True)
+   result = extent.from_file("ocean_temp.nc", tbox=True)
    # result["tbox"] == ["2018-04-01", "2018-09-30"]
 
 CLI usage::
@@ -123,15 +123,15 @@ Python API Examples
    from geoextent.lib import extent
 
    # Default (date only)
-   result = extent.fromFile("image.tif", tbox=True)
+   result = extent.from_file("image.tif", tbox=True)
    # result["tbox"] == ["2019-03-21", "2019-03-21"]
 
    # ISO 8601 with full time
-   result = extent.fromFile("image.tif", tbox=True, time_format="iso8601")
+   result = extent.from_file("image.tif", tbox=True, time_format="iso8601")
    # result["tbox"] == ["2019-03-21T08:15:00Z", "2019-03-21T08:15:00Z"]
 
    # Custom strftime format
-   result = extent.fromFile("image.tif", tbox=True, time_format="%d.%m.%Y %H:%M")
+   result = extent.from_file("image.tif", tbox=True, time_format="%d.%m.%Y %H:%M")
    # result["tbox"] == ["21.03.2019 08:15", "21.03.2019 08:15"]
 
 CLI Examples
@@ -154,7 +154,7 @@ Multiple Remote Resource Extraction
 Overview
 ^^^^^^^^
 
-The ``fromRemote()`` function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a **merged geometry** (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:
+The ``from_remote()`` function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a **merged geometry** (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:
 
 - Processing multiple datasets from different repositories
 - Comparing spatial coverage across multiple sources
@@ -176,7 +176,7 @@ Python API
        'https://osf.io/abc123/'
    ]
 
-   result = extent.fromRemote(
+   result = extent.from_remote(
        identifiers,
        bbox=True,
        tbox=True,
@@ -203,7 +203,7 @@ Python API
 
 .. code-block:: python
 
-   result = extent.fromRemote(
+   result = extent.from_remote(
        '10.5281/zenodo.4593540',
        bbox=True,
        tbox=True
@@ -229,7 +229,7 @@ The CLI supports multiple inputs including remote resources::
 Supported Parameters
 ^^^^^^^^^^^^^^^^^^^^
 
-All standard ``fromRemote()`` parameters are supported:
+All standard ``from_remote()`` parameters are supported:
 
 - ``bbox``, ``tbox``, ``convex_hull`` - Extraction options
 - ``max_download_size``, ``max_download_method`` - Download control

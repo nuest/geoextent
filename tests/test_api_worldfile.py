@@ -35,7 +35,7 @@ class TestWorldFileSupport:
         Test data from: https://zenodo.org/record/820562
         PNG image with accompanying .pngw world file providing geospatial information.
         """
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/worldfile/test_with_world.png", bbox=True
         )
         assert "bbox" in result
@@ -48,19 +48,19 @@ class TestWorldFileSupport:
 
     def test_png_with_world_file_no_projection(self):
         """Test that PNG with world file but no projection assumes WGS84"""
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/worldfile/test_with_world.png", bbox=True
         )
         # World files don't include CRS info, so we assume WGS84
         assert result["crs"] == "4326"
 
     def test_png_with_world_file_handler(self):
-        """Test that PNG with world file is handled by handleRaster"""
-        result = geoextent.fromFile(
+        """Test that PNG with world file is handled by handle_raster"""
+        result = geoextent.from_file(
             "tests/testdata/worldfile/test_with_world.png", bbox=True
         )
         assert "geoextent_handler" in result
-        assert result["geoextent_handler"] == "handleRaster"
+        assert result["geoextent_handler"] == "handle_raster"
 
     def test_tif_with_tfw_world_file(self):
         """Test TIFF with .tfw world file
@@ -70,13 +70,13 @@ class TestWorldFileSupport:
         up the .tfw and geoextent correctly assumes WGS84 when no CRS is
         embedded.
         """
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/worldfile/test_with_world.tif", bbox=True
         )
         assert "bbox" in result
         assert "crs" in result
         assert result["crs"] == "4326"
-        assert result["geoextent_handler"] == "handleRaster"
+        assert result["geoextent_handler"] == "handle_raster"
         assert result["bbox"] == pytest.approx(
             [52.4995, 13.3995, 52.5025, 13.4035],
             abs=tolerance,

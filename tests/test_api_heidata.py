@@ -147,7 +147,7 @@ class TestHeiDataExtraction:
         Dataset: 3D Point Cloud from Nakadake Sanroku Kiln Site Center, Japan
         heiDATA exposes geospatial metadata via Dataverse API.
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.11588/DATA/TJNQZG",
             bbox=True,
             tbox=True,
@@ -164,7 +164,7 @@ class TestHeiDataExtraction:
         Contains a small GeoTIFF (266 KB) covering Rio de Janeiro area.
         Expected bbox: ~-43.8W to ~-43.1W, ~-23.1S to ~-22.7S
         """
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             "10.11588/DATA/7LLXFP",
             bbox=True,
             tbox=True,
@@ -195,7 +195,7 @@ class TestHeiDataExtraction:
 
         results = []
         for identifier in variants:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 identifier,
                 bbox=True,
                 download_data=True,

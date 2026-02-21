@@ -158,13 +158,13 @@ class TestExternalMetadataIntegration:
 
 
 class TestExternalMetadataWithFromRemote:
-    """Test external metadata integration with fromRemote API"""
+    """Test external metadata integration with from_remote API"""
 
     DATACITE_DOI = "10.5281/zenodo.4593540"  # Zenodo (DataCite)
 
     def test_fromremote_with_ext_metadata_auto(self):
-        """Test fromRemote with ext_metadata=True and method=auto"""
-        result = geoextent.fromRemote(
+        """Test from_remote with ext_metadata=True and method=auto"""
+        result = geoextent.from_remote(
             self.DATACITE_DOI,
             bbox=True,
             ext_metadata=True,
@@ -179,8 +179,8 @@ class TestExternalMetadataWithFromRemote:
         assert result["external_metadata"][0]["source"] == "DataCite"
 
     def test_fromremote_with_ext_metadata_datacite(self):
-        """Test fromRemote with ext_metadata=True and method=datacite"""
-        result = geoextent.fromRemote(
+        """Test from_remote with ext_metadata=True and method=datacite"""
+        result = geoextent.from_remote(
             self.DATACITE_DOI,
             bbox=True,
             ext_metadata=True,
@@ -195,8 +195,8 @@ class TestExternalMetadataWithFromRemote:
         assert result["external_metadata"][0]["source"] == "DataCite"
 
     def test_fromremote_with_ext_metadata_crossref_empty(self):
-        """Test fromRemote with wrong source returns empty array"""
-        result = geoextent.fromRemote(
+        """Test from_remote with wrong source returns empty array"""
+        result = geoextent.from_remote(
             self.DATACITE_DOI,
             bbox=True,
             ext_metadata=True,
@@ -210,8 +210,8 @@ class TestExternalMetadataWithFromRemote:
         assert len(result["external_metadata"]) == 0
 
     def test_fromremote_with_ext_metadata_all(self):
-        """Test fromRemote with ext_metadata=True and method=all"""
-        result = geoextent.fromRemote(
+        """Test from_remote with ext_metadata=True and method=all"""
+        result = geoextent.from_remote(
             self.DATACITE_DOI,
             bbox=True,
             ext_metadata=True,
@@ -228,8 +228,8 @@ class TestExternalMetadataWithFromRemote:
         assert "DataCite" in sources
 
     def test_fromremote_without_ext_metadata(self):
-        """Test fromRemote without ext_metadata flag"""
-        result = geoextent.fromRemote(
+        """Test from_remote without ext_metadata flag"""
+        result = geoextent.from_remote(
             self.DATACITE_DOI, bbox=True, ext_metadata=False, download_data=False
         )
 
@@ -238,7 +238,7 @@ class TestExternalMetadataWithFromRemote:
 
     def test_fromremote_metadata_array_structure(self):
         """Test that external_metadata is always an array with correct structure"""
-        result = geoextent.fromRemote(
+        result = geoextent.from_remote(
             self.DATACITE_DOI,
             bbox=True,
             ext_metadata=True,

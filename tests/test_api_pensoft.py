@@ -194,7 +194,7 @@ class TestPensoftProvider:
             print(f"\nTesting bbox calculation for {dataset_name}: {test_input}")
 
             try:
-                result = geoextent.fromRemote(test_input, bbox=True, tbox=False)
+                result = geoextent.from_remote(test_input, bbox=True, tbox=False)
 
                 assert result is not None
                 assert "bbox" in result
@@ -263,7 +263,7 @@ class TestPensoftProvider:
         historic_dataset = self.TEST_DATASETS["scarab_beetles_volga"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 historic_dataset["doi"], bbox=True, tbox=False
             )
 
@@ -291,7 +291,7 @@ class TestPensoftProvider:
         # Test with Finland dataset (most comprehensive)
         test_dataset = self.TEST_DATASETS["fungus_gnats_finland"]
 
-        result = geoextent.fromRemote(test_dataset["doi"], bbox=True, tbox=False)
+        result = geoextent.from_remote(test_dataset["doi"], bbox=True, tbox=False)
 
         # Verify result structure
         assert result is not None

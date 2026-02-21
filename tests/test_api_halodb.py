@@ -77,7 +77,7 @@ class TestHALODBExtraction:
     def test_halodb_metadata_only_extraction(self):
         """Provider sample test: dataset 745 (TACTS flight with track geometry)."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://halo-db.pa.op.dlr.de/dataset/745",
                 bbox=True,
                 tbox=True,
@@ -105,7 +105,7 @@ class TestHALODBExtraction:
     def test_halodb_temporal_from_html_fallback(self):
         """Dataset 364 (TECHNO mission): no flight track, temporal from HTML."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://halo-db.pa.op.dlr.de/dataset/364",
                 bbox=True,
                 tbox=True,
@@ -123,7 +123,7 @@ class TestHALODBExtraction:
     def test_halodb_no_download_data(self):
         """With download_data=False, should still extract metadata."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://halo-db.pa.op.dlr.de/dataset/745",
                 bbox=True,
                 tbox=True,

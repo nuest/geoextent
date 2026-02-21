@@ -126,7 +126,7 @@ class TestPangaeaProvider:
 
         try:
             # Test with DOI
-            result = geoextent.fromRemote(dataset["doi"], bbox=True, tbox=True)
+            result = geoextent.from_remote(dataset["doi"], bbox=True, tbox=True)
 
             assert result is not None
             assert "format" in result
@@ -187,7 +187,7 @@ class TestPangaeaProvider:
 
         try:
             # Test with URL format
-            result = geoextent.fromRemote(dataset["url"], bbox=True, tbox=True)
+            result = geoextent.from_remote(dataset["url"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
             assert result["format"] == "remote"
@@ -216,7 +216,7 @@ class TestPangaeaProvider:
         dataset = self.TEST_DATASETS["reference"]
 
         try:
-            result = geoextent.fromRemote(dataset["doi"], bbox=True, tbox=True)
+            result = geoextent.from_remote(dataset["doi"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
             assert result["format"] == "remote"
@@ -262,7 +262,7 @@ class TestPangaeaProvider:
         """Test download_data flag with oceanography dataset"""
         try:
             # Test with download_data=True (should download actual files)
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 self.TEST_DATASETS["oceanography_meteor"]["doi"],
                 bbox=True,
                 tbox=True,
@@ -297,7 +297,7 @@ class TestPangaeaProvider:
         for dataset_name in radiosonde_datasets:
             dataset = self.TEST_DATASETS[dataset_name]
             try:
-                result = geoextent.fromRemote(dataset["doi"], bbox=True, tbox=True)
+                result = geoextent.from_remote(dataset["doi"], bbox=True, tbox=True)
                 assert result is not None
                 assert "format" in result
                 assert result["format"] == "remote"
@@ -330,7 +330,7 @@ class TestPangaeaProvider:
         dataset = self.TEST_DATASETS["sediment_core"]
 
         try:
-            result = geoextent.fromRemote(dataset["url"], bbox=True, tbox=True)
+            result = geoextent.from_remote(dataset["url"], bbox=True, tbox=True)
             assert result is not None
             assert "format" in result
             assert result["format"] == "remote"
@@ -463,12 +463,12 @@ class TestPangaeaProvider:
 
         try:
             # Test metadata-based extraction (default)
-            result_metadata = geoextent.fromRemote(
+            result_metadata = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, download_data=False
             )
 
             # Test local file extraction
-            result_local = geoextent.fromRemote(
+            result_local = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, download_data=True
             )
 
@@ -521,7 +521,7 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
 
         try:
-            result = geoextent.fromRemote(dataset["doi"], bbox=True, tbox=False)
+            result = geoextent.from_remote(dataset["doi"], bbox=True, tbox=False)
             assert result is not None
             assert "bbox" in result
             assert "tbox" not in result
@@ -534,7 +534,7 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
 
         try:
-            result = geoextent.fromRemote(dataset["doi"], bbox=False, tbox=True)
+            result = geoextent.from_remote(dataset["doi"], bbox=False, tbox=True)
             assert result is not None
             assert "tbox" in result
             assert "bbox" not in result
@@ -547,14 +547,14 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["oceanography"]
 
         with pytest.raises(Exception, match="No extraction options enabled"):
-            geoextent.fromRemote(dataset["doi"], bbox=False, tbox=False)
+            geoextent.from_remote(dataset["doi"], bbox=False, tbox=False)
 
     def test_pangaea_repository_with_details_enabled(self):
         """Test Pangaea repository extraction with details enabled"""
         dataset = TestPangaeaProvider.TEST_DATASETS["reference"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, details=True
             )
             assert result is not None
@@ -569,7 +569,7 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["drilling"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, throttle=True
             )
             assert result is not None
@@ -582,7 +582,7 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["reference"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, timeout=30
             )
             assert result is not None
@@ -598,14 +598,14 @@ class TestPangaeaParameterCombinations:
 
         try:
             # Test with download_data=False (default, metadata-based)
-            result1 = geoextent.fromRemote(
+            result1 = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, download_data=False
             )
             assert result1 is not None
             assert result1["format"] == "remote"
 
             # Test with download_data=True (local file download)
-            result2 = geoextent.fromRemote(
+            result2 = geoextent.from_remote(
                 dataset["doi"], bbox=True, tbox=True, download_data=True
             )
             assert result2 is not None
@@ -622,7 +622,7 @@ class TestPangaeaParameterCombinations:
         dataset = TestPangaeaProvider.TEST_DATASETS["sediment_core"]
 
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 dataset["doi"],
                 bbox=True,
                 tbox=True,
@@ -657,7 +657,7 @@ class TestPangaeaParameterCombinations:
 
         for test_case in test_cases:
             try:
-                result = geoextent.fromRemote(
+                result = geoextent.from_remote(
                     test_case["dataset"]["doi"], **test_case["params"]
                 )
                 assert result is not None

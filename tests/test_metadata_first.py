@@ -15,7 +15,7 @@ class TestMetadataFirstValidation:
     def test_metadata_first_and_no_download_data_mutually_exclusive(self):
         """--metadata-first and --no-download-data cannot be used together."""
         with pytest.raises(ValueError, match="mutually exclusive"):
-            geoextent.fromRemote(
+            geoextent.from_remote(
                 "https://zenodo.org/record/820562",
                 bbox=True,
                 tbox=False,
@@ -93,7 +93,7 @@ class TestMetadataFirstNetwork:
     def test_metadata_first_with_metadata_provider(self):
         """Senckenberg has metadata: metadata-first should succeed with extraction_method=metadata."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "10.12761/sgn.2018.10225",
                 bbox=True,
                 tbox=False,
@@ -111,7 +111,7 @@ class TestMetadataFirstNetwork:
     def test_metadata_first_with_wikidata(self):
         """Wikidata has metadata: metadata-first should succeed with extraction_method=metadata."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "Q64",  # Berlin
                 bbox=True,
                 tbox=False,
@@ -137,7 +137,7 @@ class TestMetadataFirstNetwork:
 
         try:
             # metadata-first should use metadata (point location)
-            result_mf = geoextent.fromRemote(
+            result_mf = geoextent.from_remote(
                 url,
                 bbox=True,
                 tbox=True,
@@ -161,7 +161,7 @@ class TestMetadataFirstNetwork:
             assert result_mf["tbox"][0].startswith("2025-05")
 
             # Full download should yield a different (larger) bbox
-            result_dl = geoextent.fromRemote(
+            result_dl = geoextent.from_remote(
                 url,
                 bbox=True,
                 tbox=False,
@@ -185,7 +185,7 @@ class TestMetadataFirstNetwork:
     def test_metadata_first_with_no_metadata_provider(self):
         """Zenodo has no metadata: metadata-first should fall back to extraction_method=download."""
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 "https://zenodo.org/record/820562",
                 bbox=True,
                 tbox=False,

@@ -44,7 +44,7 @@ Unreleased
   - Extract temporal extent from raster files: NetCDF CF time dimensions, GeoTIFF ``TIFFTAG_DATETIME``, ACDD ``time_coverage_start/end`` global attributes, and band-level ``ACQUISITIONDATETIME`` (IMAGERY domain) (:issue:`22`)
   - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
   - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
-  - All content providers now support interactive download size confirmation via ``--max-download-size``. When the total download exceeds the limit, the CLI prompts for confirmation instead of silently truncating. API: ``download_size_soft_limit=True`` in ``fromRemote()``.
+  - All content providers now support interactive download size confirmation via ``--max-download-size``. When the total download exceeds the limit, the CLI prompts for confirmation instead of silently truncating. API: ``download_size_soft_limit=True`` in ``from_remote()``.
 
 - **Breaking Changes**
 
@@ -55,6 +55,13 @@ Unreleased
   - Skip raster files with pixel-based coordinates (outside WGS84 bounds) instead of merging them into geographic extents
   - Validate bounding boxes against WGS84 coordinate ranges before including in results
   - Reject vector files with projected coordinates falsely reported as WGS84 (e.g., GeoJSON files without CRS declaration)
+
+- **API Changes**
+
+  - Rename all public API functions from camelCase to snake_case per PEP 8: ``from_file()``, ``from_directory()``, ``from_remote()`` (:issue:`31`)
+  - Remove old camelCase aliases (``fromFile``, ``fromDirectory``, ``fromRemote``)
+  - Rename internal handler modules: ``handleCSV`` → ``handle_csv``, ``handleRaster`` → ``handle_raster``, ``handleVector`` → ``handle_vector``
+  - Rename all internal handler functions to snake_case (e.g., ``checkFileSupported`` → ``check_file_supported``, ``getBoundingBox`` → ``get_bounding_box``)
 
 - **Improvements**
 

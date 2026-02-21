@@ -85,7 +85,7 @@ class TestRADARProvider:
         """Test metadata-only extraction (provider_sample smoke test)"""
         ds = self.TEST_DATASETS["parking2pv_hesse"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=False,
@@ -105,7 +105,7 @@ class TestRADARProvider:
         """Test full download extraction from RADAR (Parking2PV Hesse dataset)"""
         ds = self.TEST_DATASETS["parking2pv_hesse"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["url"],
                 bbox=True,
                 tbox=False,
@@ -132,7 +132,7 @@ class TestRADARProvider:
         """Test extraction via DOI resolution"""
         ds = self.TEST_DATASETS["parking2pv_hesse"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=False,
@@ -152,7 +152,7 @@ class TestRADARProvider:
         """Test extraction from large RADAR dataset (Rio Sao Francisco, ~50 MB)"""
         ds = self.TEST_DATASETS["rio_sao_francisco"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["doi"],
                 bbox=True,
                 tbox=False,
@@ -179,7 +179,7 @@ class TestRADARProvider:
         """Test extraction via radar.kit.edu URL variant"""
         ds = self.TEST_DATASETS["parking2pv_hesse"]
         try:
-            result = geoextent.fromRemote(
+            result = geoextent.from_remote(
                 ds["kit_url"],
                 bbox=True,
                 tbox=False,

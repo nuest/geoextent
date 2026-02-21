@@ -2,7 +2,7 @@
 
 Covers:
 - resolve_time_format() utility function
-- API integration via fromFile() with different handlers
+- API integration via from_file() with different handlers
 - Directory extraction with time_format
 - CLI argument parsing and validation
 """
@@ -46,13 +46,13 @@ class TestTimeFormatAPI:
     """Integration tests for time_format parameter in API functions."""
 
     def test_geotiff_default(self):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/tif/tif_tifftag_datetime.tif", tbox=True
         )
         assert result["tbox"] == ["2019-03-21", "2019-03-21"]
 
     def test_geotiff_iso8601(self):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/tif/tif_tifftag_datetime.tif",
             tbox=True,
             time_format="iso8601",
@@ -60,7 +60,7 @@ class TestTimeFormatAPI:
         assert result["tbox"] == ["2019-03-21T08:15:00Z", "2019-03-21T08:15:00Z"]
 
     def test_geotiff_custom_format(self):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/tif/tif_tifftag_datetime.tif",
             tbox=True,
             time_format="%d.%m.%Y %H:%M",
@@ -68,7 +68,7 @@ class TestTimeFormatAPI:
         assert result["tbox"] == ["21.03.2019 08:15", "21.03.2019 08:15"]
 
     def test_netcdf_iso8601(self):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/nc/nc_days_since.nc",
             tbox=True,
             time_format="iso8601",
@@ -76,7 +76,7 @@ class TestTimeFormatAPI:
         assert result["tbox"] == ["2015-01-01T00:00:00Z", "2016-01-01T00:00:00Z"]
 
     def test_vector_iso8601(self):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/folders/folder_one_file/muenster_ring_zeit.geojson",
             tbox=True,
             time_format="iso8601",
@@ -86,7 +86,7 @@ class TestTimeFormatAPI:
         assert result["tbox"][0].endswith("Z")
 
     def test_csv_iso8601(self):
-        result = geoextent.fromFile(
+        result = geoextent.from_file(
             "tests/testdata/csv/cities_NL.csv",
             tbox=True,
             time_format="iso8601",
@@ -96,10 +96,10 @@ class TestTimeFormatAPI:
         assert result["tbox"][0].endswith("Z")
 
     def test_geotiff_date_preset_same_as_default(self):
-        default = geoextent.fromFile(
+        default = geoextent.from_file(
             "tests/testdata/tif/tif_tifftag_datetime.tif", tbox=True
         )
-        explicit = geoextent.fromFile(
+        explicit = geoextent.from_file(
             "tests/testdata/tif/tif_tifftag_datetime.tif",
             tbox=True,
             time_format="date",
@@ -111,7 +111,7 @@ class TestTimeFormatDirectory:
     """Tests for time_format in directory extraction."""
 
     def test_directory_with_time_format(self):
-        result = geoextent.fromDirectory(
+        result = geoextent.from_directory(
             "tests/testdata/folders/folder_one_file",
             bbox=True,
             tbox=True,

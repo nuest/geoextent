@@ -102,7 +102,7 @@ def _strip_geocsv_headers(filepath):
 
 
 def get_handler_name():
-    return "handleCSV"
+    return "handle_csv"
 
 
 def get_handler_display_name():
@@ -110,7 +110,7 @@ def get_handler_display_name():
     return "CSV (comma-separated values)"
 
 
-def checkFileSupported(filepath):
+def check_file_supported(filepath):
     """Checks whether it is valid CSV or not. \n
     input "path": type string, path to file which shall be extracted \n
     raise exception if not valid
@@ -130,14 +130,14 @@ def checkFileSupported(filepath):
     _original_path = filepath
     filepath, _meta = _strip_geocsv_headers(filepath)
     try:
-        return _checkFileSupported_impl(filepath)
+        return _check_file_supported_impl(filepath)
     finally:
         if filepath != _original_path:
             os.unlink(filepath)
 
 
-def _checkFileSupported_impl(filepath):
-    """Internal implementation of checkFileSupported (after GeoCSV preprocessing)."""
+def _check_file_supported_impl(filepath):
+    """Internal implementation of check_file_supported (after GeoCSV preprocessing)."""
     try:
         # Force CSV driver to avoid GDAL treating coordinate data as gridded dataset
         file = gdal.OpenEx(filepath, allowed_drivers=["CSV"])
@@ -145,17 +145,17 @@ def _checkFileSupported_impl(filepath):
             driver = file.GetDriver().ShortName
         else:
             logger.debug(
-                "File {} is NOT supported by HandleCSV module".format(filepath)
+                "File {} is NOT supported by handle_csv module".format(filepath)
             )
             return False
     except Exception:
-        logger.debug("File {} is NOT supported by HandleCSV module".format(filepath))
+        logger.debug("File {} is NOT supported by handle_csv module".format(filepath))
         return False
 
     if driver == "CSV":
         with open(filepath) as csv_file:
             try:
-                delimiter = hf.getDelimiter(csv_file)
+                delimiter = hf.get_delimiter(csv_file)
                 data = csv.reader(csv_file.readlines(10000), delimiter=delimiter)
             except UnicodeDecodeError:
                 # exception to prevent this error:
@@ -173,12 +173,12 @@ def _checkFileSupported_impl(filepath):
                 data = None
             if data is None:
                 logger.debug(
-                    "File {} is NOT supported by HandleCSV module".format(filepath)
+                    "File {} is NOT supported by handle_csv module".format(filepath)
                 )
                 return False
             else:
                 logger.debug(
-                    "File {} is supported by HandleCSV module".format(filepath)
+                    "File {} is supported by handle_csv module".format(filepath)
                 )
                 return True
     else:
@@ -302,15 +302,15 @@ def _extract_bbox_via_gdal(filepath):
         return None
 
 
-def _extract_bbox_from_geometry_column(filePath, chunk_size=50000):
+def _extract_bbox_from_geometry_column(file_path, chunk_size=50000):
     """
     Extract bounding box from geometry column containing WKT data.
-    input "filePath": type string, file path to csv file
+    input "file_path": type string, file path to csv file
     returns spatialExtent: type dict, contains bbox and crs
     """
 
-    with open(filePath) as csv_file:
-        delimiter = hf.getDelimiter(csv_file)
+    with open(file_path) as csv_file:
+        delimiter = hf.get_delimiter(csv_file)
         data = csv.reader(csv_file, delimiter=delimiter)
 
         header = next(data)
@@ -467,7 +467,7 @@ def _extract_bbox_from_geometry_column(filePath, chunk_size=50000):
             return None
 
 
-def getBoundingBox(filePath, chunk_size=50000):
+def get_bounding_box(file_path, chunk_size=50000):
     """
     Function purpose: extracts the spatial extent (bounding box) from a csv-file \n
     input "filepath": type string, file path to csv file \n
@@ -475,32 +475,32 @@ def getBoundingBox(filePath, chunk_size=50000):
     """
 
     # Strip EarthScope GeoCSV #-header lines
-    _original_path = filePath
-    filePath, _meta = _strip_geocsv_headers(filePath)
+    _original_path = file_path
+    file_path, _meta = _strip_geocsv_headers(file_path)
     try:
-        return _getBoundingBox_impl(filePath, chunk_size)
+        return _get_bounding_box_impl(file_path, chunk_size)
     finally:
-        if filePath != _original_path:
-            os.unlink(filePath)
+        if file_path != _original_path:
+            os.unlink(file_path)
 
 
-def _getBoundingBox_impl(filePath, chunk_size=50000):
-    """Internal implementation of getBoundingBox (after GeoCSV preprocessing)."""
+def _get_bounding_box_impl(file_path, chunk_size=50000):
+    """Internal implementation of get_bounding_box (after GeoCSV preprocessing)."""
 
     # 1. Try GDAL CSV driver with open options (handles CSVT sidecars, GDAL column
     #    name conventions like X/Y/Easting/Northing, and GEOM_POSSIBLE_NAMES for WKT)
-    gdal_extent = _extract_bbox_via_gdal(filePath)
+    gdal_extent = _extract_bbox_via_gdal(file_path)
     if gdal_extent:
         return gdal_extent
 
     # 2. Try extracting from geometry column via manual WKT/WKB parsing
-    geometry_extent = _extract_bbox_from_geometry_column(filePath, chunk_size)
+    geometry_extent = _extract_bbox_from_geometry_column(file_path, chunk_size)
     if geometry_extent:
         return geometry_extent
 
     # 3. Fall back to traditional regex-based coordinate column extraction
-    with open(filePath) as csv_file:
-        delimiter = hf.getDelimiter(csv_file)
+    with open(file_path) as csv_file:
+        delimiter = hf.get_delimiter(csv_file)
         data = csv.reader(csv_file, delimiter=delimiter)
 
         header = next(data)
@@ -516,16 +516,16 @@ def _getBoundingBox_impl(filePath, chunk_size=50000):
         for x in data:
             chunk.append(x)
             if len(chunk) >= chunk_size:
-                spatial_lat_extent = hf.searchForParameters(
+                spatial_lat_extent = hf.search_for_parameters(
                     chunk, search["latitude"], exp_data="numeric"
                 )
-                spatial_lon_extent = hf.searchForParameters(
+                spatial_lon_extent = hf.search_for_parameters(
                     chunk, search["longitude"], exp_data="numeric"
                 )
 
                 if not spatial_lat_extent and not spatial_lon_extent:
                     raise Exception(
-                        "The csv file from " + filePath + " has no BoundingBox"
+                        "The csv file from " + file_path + " has no BoundingBox"
                     )
                 else:
                     spatial_extent["min_lat"].append(min(spatial_lat_extent))
@@ -536,15 +536,17 @@ def _getBoundingBox_impl(filePath, chunk_size=50000):
                 chunk = [header]
 
         if len(chunk) > 1:
-            spatial_lat_extent = hf.searchForParameters(
+            spatial_lat_extent = hf.search_for_parameters(
                 chunk, search["latitude"], exp_data="numeric"
             )
-            spatial_lon_extent = hf.searchForParameters(
+            spatial_lon_extent = hf.search_for_parameters(
                 chunk, search["longitude"], exp_data="numeric"
             )
 
             if not spatial_lat_extent and not spatial_lon_extent:
-                raise Exception("The csv file from " + filePath + " has no BoundingBox")
+                raise Exception(
+                    "The csv file from " + file_path + " has no BoundingBox"
+                )
             else:
                 spatial_extent["min_lat"].append(min(spatial_lat_extent))
                 spatial_extent["max_lat"].append(max(spatial_lat_extent))
@@ -559,7 +561,7 @@ def _getBoundingBox_impl(filePath, chunk_size=50000):
         ]
 
         logger.debug("Extracted Bounding box (without projection): {}".format(bbox))
-        crs = getCRS(filePath, chunk_size)
+        crs = get_crs(file_path, chunk_size)
         logger.debug("Extracted CRS: {}".format(crs))
         spatialExtent = {"bbox": bbox, "crs": crs}
         if not bbox or not crs:
@@ -611,7 +613,7 @@ def _parse_geometry_from_value(geometry_value):
         return None
 
 
-def _extract_convex_hull_from_geometry_column(filePath):
+def _extract_convex_hull_from_geometry_column(file_path):
     """Extract convex hull from geometry column containing WKT/WKB data.
 
     Similar to _extract_bbox_from_geometry_column but collects all OGR
@@ -619,8 +621,8 @@ def _extract_convex_hull_from_geometry_column(filePath):
 
     Returns dict with bbox, crs, convex_hull_coords, convex_hull keys, or None.
     """
-    with open(filePath) as csv_file:
-        delimiter = hf.getDelimiter(csv_file)
+    with open(file_path) as csv_file:
+        delimiter = hf.get_delimiter(csv_file)
         data = csv.reader(csv_file, delimiter=delimiter)
 
         header = next(data)
@@ -697,7 +699,7 @@ def _extract_convex_hull_from_geometry_column(filePath):
         }
 
 
-def getConvexHull(filepath):
+def get_convex_hull(filepath):
     """Extract convex hull from CSV file.
 
     Returns dict with 'bbox', 'crs', 'convex_hull_coords', 'convex_hull' keys,
@@ -707,14 +709,14 @@ def getConvexHull(filepath):
     _original_path = filepath
     filepath, _meta = _strip_geocsv_headers(filepath)
     try:
-        return _getConvexHull_impl(filepath)
+        return _get_convex_hull_impl(filepath)
     finally:
         if filepath != _original_path:
             os.unlink(filepath)
 
 
-def _getConvexHull_impl(filepath):
-    """Internal implementation of getConvexHull (after GeoCSV preprocessing)."""
+def _get_convex_hull_impl(filepath):
+    """Internal implementation of get_convex_hull (after GeoCSV preprocessing)."""
     # 1. Try GDAL CSV driver with open options
     ds, layer = _open_csv_via_gdal(filepath)
     if ds is not None:
@@ -826,9 +828,9 @@ def _getConvexHull_impl(filepath):
     return None
 
 
-def getTemporalExtent(filepath, num_sample, time_format=None):
+def get_temporal_extent(filepath, num_sample, time_format=None):
     """extract time extent from csv string \n
-    input "filePath": type string, file path to csv File \n
+    input "file_path": type string, file path to csv File \n
     returns temporal extent of the file: type list, length = 2, both entries have the type str, temporalExtent[0] <= temporalExtent[1]
     """
 
@@ -836,24 +838,24 @@ def getTemporalExtent(filepath, num_sample, time_format=None):
     _original_path = filepath
     filepath, _meta = _strip_geocsv_headers(filepath)
     try:
-        return _getTemporalExtent_impl(filepath, num_sample, time_format)
+        return _get_temporal_extent_impl(filepath, num_sample, time_format)
     finally:
         if filepath != _original_path:
             os.unlink(filepath)
 
 
-def _getTemporalExtent_impl(filepath, num_sample, time_format=None):
-    """Internal implementation of getTemporalExtent (after GeoCSV preprocessing)."""
+def _get_temporal_extent_impl(filepath, num_sample, time_format=None):
+    """Internal implementation of get_temporal_extent (after GeoCSV preprocessing)."""
 
     with open(filepath) as csv_file:
-        delimiter = hf.getDelimiter(csv_file)
+        delimiter = hf.get_delimiter(csv_file)
         data = csv.reader(csv_file, delimiter=delimiter)
 
         elements = []
         for x in data:
             elements.append(x)
 
-        all_temporal_extent = hf.searchForParameters(
+        all_temporal_extent = hf.search_for_parameters(
             elements, search["time"], exp_data="time"
         )
         if all_temporal_extent is None:
@@ -875,14 +877,14 @@ def _getTemporalExtent_impl(filepath, num_sample, time_format=None):
             return tbox
 
 
-def getCRS(filepath, chunk_size=50000):
+def get_crs(filepath, chunk_size=50000):
     """extracts coordinatesystem from csv File \n
     input "filepath": type string, file path to csv file \n
     returns the epsg code of the used coordinate reference system, type list, contains extracted coordinate system of content from csv file
     """
 
     with open(filepath) as csv_file:
-        delimiter = hf.getDelimiter(csv_file)
+        delimiter = hf.get_delimiter(csv_file)
         data = csv.reader(csv_file, delimiter=delimiter)
 
         header = next(data)
@@ -893,14 +895,14 @@ def getCRS(filepath, chunk_size=50000):
         for x in data:
             chunk.append(x)
             if len(chunk) >= chunk_size:
-                param = hf.searchForParameters(chunk, ["crs", "srsID", "EPSG"])
+                param = hf.search_for_parameters(chunk, ["crs", "srsID", "EPSG"])
                 if param:
                     crs.extend(param)
 
                 chunk = [header]
 
         if len(chunk) > 1:
-            param = hf.searchForParameters(chunk, ["crs", "srsID", "EPSG"])
+            param = hf.search_for_parameters(chunk, ["crs", "srsID", "EPSG"])
             if param:
                 crs.extend(param)
 

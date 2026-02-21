@@ -239,7 +239,7 @@ class TestDownloadSizeIntegration:
                         "format": "remote",
                     }
 
-                    result_small = extent.fromRemote(
+                    result_small = extent.from_remote(
                         "https://zenodo.org/record/123456",
                         bbox=True,
                         max_download_size="2MB",
@@ -252,7 +252,7 @@ class TestDownloadSizeIntegration:
                         "format": "remote",
                     }
 
-                    result_large = extent.fromRemote(
+                    result_large = extent.from_remote(
                         "https://zenodo.org/record/123456",
                         bbox=True,
                         max_download_size="20MB",
