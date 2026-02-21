@@ -355,6 +355,121 @@ Works with Remote Repositories
    # Combine with other options
    python -m geoextent -b --convex-hull --browse --quiet https://doi.org/10.1594/PANGAEA.734969
 
+Map Preview
+-----------
+
+Generate a static map image showing the extracted spatial extent overlaid on OpenStreetMap tiles. This is useful for quick visual verification of extraction results, inclusion in reports, or embedding in notebooks.
+
+.. note::
+
+   Map preview requires the ``preview`` optional dependency group::
+
+      pip install geoextent[preview]
+
+   This installs `staticmap <https://github.com/komoot/staticmap>`_, `term-image <https://github.com/AnonymouX47/term-image>`_, and Pillow.
+
+Quick Start
+^^^^^^^^^^^
+
+The simplest way to get a map preview is ``--map`` with no arguments. A temporary PNG file is created automatically and its path is printed to stderr::
+
+   geoextent --map -b tests/testdata/geojson/muenster_ring_zeit.geojson
+   # stderr: Map preview saved to: /tmp/geoextent_map_abc12345.png
+
+.. tip::
+
+   When using ``--map`` without a file path, place it **before** the input file
+   (e.g., ``--map -b file.geojson``) so that argparse does not consume the input
+   as the map path.
+
+Save to a Specific File
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Provide a path after ``--map`` to choose where the PNG is saved::
+
+   geoextent -b --map extent.png tests/testdata/geojson/muenster_ring_zeit.geojson
+
+The saved image includes a semi-transparent attribution bar at the bottom:
+*"Created with geoextent {version} | (c) OpenStreetMap contributors"*
+
+The path is always printed to stderr unless ``--quiet`` is used.
+
+Display in Terminal
+^^^^^^^^^^^^^^^^^^^
+
+Use ``--preview`` to render the map and display it directly in the terminal::
+
+   geoextent -b --preview tests/testdata/geojson/muenster_ring_zeit.geojson
+
+geoextent displays the image using the following fallback chain:
+
+1. **term-image** (Python library, included in ``[preview]``) — auto-detects Kitty graphics protocol, iTerm2 inline images, or Sixel, falls back to Unicode block characters. Works in any terminal without external tools.
+2. **External CLI tools**: ``chafa``, ``timg``, ``catimg`` — used if term-image is unavailable or fails
+3. **File path** — printed as a last resort so you can open the image manually
+
+Save and Display
+^^^^^^^^^^^^^^^^
+
+Combine both flags to save to a specific path **and** display in the terminal::
+
+   geoextent -b --map extent.png --preview tests/testdata/geojson/muenster_ring_zeit.geojson
+
+Custom Dimensions
+^^^^^^^^^^^^^^^^^
+
+Use ``--map-dim`` to set the image size in pixels (default: 600x400)::
+
+   geoextent -b --map extent.png --map-dim 800x600 tests/testdata/geojson/muenster_ring_zeit.geojson
+
+Combining with Other Options
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Map preview works with convex hulls, legacy coordinate order, and remote repositories::
+
+   # Convex hull overlay
+   geoextent -b --convex-hull --map hull.png tests/testdata/geojson/muenster_ring_zeit.geojson
+
+   # Legacy coordinate order
+   geoextent -b --legacy --map extent.png tests/testdata/geojson/muenster_ring_zeit.geojson
+
+   # Remote repository
+   geoextent -b --map zenodo_extent.png https://doi.org/10.5281/zenodo.4593540
+
+   # Preview from a directory
+   geoextent -b --preview tests/testdata/geojson/
+
+   # Quick map to temp file from a repository
+   geoextent --map -b https://doi.org/10.5281/zenodo.4593540
+
+.. note::
+
+   Map preview requires a spatial extent (``-b``). If no bounding box is extracted
+   (e.g., only ``-t`` is used, or the file has no spatial data), the map is silently
+   skipped and extraction proceeds normally. If ``staticmap`` is not installed, a
+   message is printed to stderr and extraction continues.
+
+Flag Summary
+^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 65
+
+   * - Flags
+     - Behaviour
+   * - ``--map``
+     - Save to a temporary file, print path to stderr
+   * - ``--map extent.png``
+     - Save to ``extent.png``, print path to stderr
+   * - ``--preview``
+     - Save to a temporary file, display in terminal
+   * - ``--map extent.png --preview``
+     - Save to ``extent.png``, display in terminal
+   * - ``--map --preview``
+     - Save to a temporary file, print path to stderr, display in terminal
+   * - any of the above + ``--quiet``
+     - Suppress the stderr path message
+
 Quiet Mode
 ----------
 

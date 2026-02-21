@@ -579,6 +579,43 @@ or time box (tbox).
    import geoextent.lib.extent as geoextent
    geoextent.from_directory('../tests/testdata/folders/folder_one_file', True, True, True)
 
+Map preview
+^^^^^^^^^^^
+
+Generate a map preview to a temporary file (requires ``pip install geoextent[preview]``):
+
+::
+
+   geoextent --map -b muenster_ring_zeit.geojson
+
+Save the map to a specific file:
+
+::
+
+   geoextent -b --map extent.png muenster_ring_zeit.geojson
+
+Display the map directly in the terminal:
+
+::
+
+   geoextent -b --preview muenster_ring_zeit.geojson
+
+Save to a specific file and display in the terminal:
+
+::
+
+   geoextent -b --map extent.png --preview muenster_ring_zeit.geojson
+
+Customize the image dimensions (default: 600x400):
+
+::
+
+   geoextent -b --map extent.png --map-dim 800x600 muenster_ring_zeit.geojson
+
+The path of the saved map is always printed to stderr (suppressed by ``--quiet``).
+
+For more details on map preview options, see :doc:`../core-features`.
+
 Export function
 ^^^^^^^^^^^^^^^
 You can export the result of Geoextent to a Geopackage file. This file contains the output of all files within the

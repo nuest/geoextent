@@ -279,6 +279,32 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--map",
+        nargs="?",
+        const=True,
+        default=None,
+        metavar="FILE",
+        help="save a map preview image of the spatial extent as PNG. "
+        "If FILE is given, saves to that path; otherwise saves to a temporary file. "
+        "(requires: pip install geoextent[preview])",
+    )
+
+    parser.add_argument(
+        "--preview",
+        action="store_true",
+        default=False,
+        help="display a map preview of the spatial extent in the terminal (requires: pip install geoextent[preview])",
+    )
+
+    parser.add_argument(
+        "--map-dim",
+        action="store",
+        default="600x400",
+        metavar="WxH",
+        help="dimensions of the map preview image in pixels (default: 600x400)",
+    )
+
+    parser.add_argument(
         "--no-metadata",
         action="store_true",
         default=False,
@@ -449,6 +475,17 @@ def _parse_additional_extensions(ext_string):
             extensions.add(ext.lower())
 
     return extensions
+
+
+def _parse_map_dimensions(dim_str):
+    """Parse 'WxH' string to (width, height) tuple."""
+    try:
+        w, h = dim_str.lower().split("x")
+        return (int(w), int(h))
+    except (ValueError, AttributeError):
+        raise argparse.ArgumentTypeError(
+            f"Invalid map dimensions '{dim_str}'. Expected format: WxH (e.g., 800x600)"
+        )
 
 
 def _call_from_remote_with_size_prompt(kwargs):
@@ -821,6 +858,36 @@ def main():
             geojsonio_url = hf.generate_geojsonio_url(
                 output, native_order=native_order, inputs=files
             )
+
+        # Generate map preview if --map or --preview was requested (before format conversion)
+        # args["map"] is None (not given), True (--map without path), or a string (--map PATH)
+        map_requested = args.get("map") is not None
+        if (map_requested or args.get("preview")) and output and "bbox" in output:
+            try:
+                from geoextent.lib.preview import (
+                    save_map,
+                    display_in_terminal,
+                    format_map_saved_message,
+                )
+
+                dim = _parse_map_dimensions(args["map_dim"])
+                map_path = args["map"] if isinstance(args.get("map"), str) else None
+                saved_path = save_map(output, map_path, dim, native_order=native_order)
+                if not args.get("quiet"):
+                    print(
+                        format_map_saved_message(saved_path, stream=sys.stderr),
+                        file=sys.stderr,
+                    )
+                if args.get("preview"):
+                    display_in_terminal(saved_path)
+            except ImportError as e:
+                if not args.get("quiet"):
+                    print(f"Map preview unavailable: {e}", file=sys.stderr)
+            except Exception as e:
+                logger.warning("Failed to generate map preview: %s", e)
+            else:
+                if not args.get("quiet"):
+                    print(file=sys.stderr)
 
         # Apply output format conversion
         output = hf.format_extent_output(

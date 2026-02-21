@@ -266,7 +266,8 @@
       "WebFetch(domain:docs.softwareheritage.org)",
       "WebFetch(domain:archive.softwareheritage.org)",
       "WebFetch(domain:developmentseed.org)",
-      "WebFetch(domain:storage.googleapis.com)"
+      "WebFetch(domain:storage.googleapis.com)",
+      "WebFetch(domain:gist.github.com)"
     ],
     "deny": [],
     "ask": []

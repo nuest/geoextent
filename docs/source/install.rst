@@ -162,6 +162,25 @@ Recommended installation using virtual environment:
    # Then install geoextent
    pip install geoextent
 
+Optional Extras
+----------------
+
+Install optional feature groups as needed:
+
+::
+
+   # Map preview (--map and --preview CLI flags)
+   pip install geoextent[preview]
+
+   # Development tools
+   pip install geoextent[dev]
+
+   # Testing
+   pip install geoextent[test]
+
+   # Documentation building
+   pip install geoextent[docs]
+
 Development Installation
 ------------------------
 
@@ -173,7 +192,7 @@ For development, install with additional dependencies:
    cd geoextent
 
    # Install in development mode with all dependencies
-   pip install -e .[dev,test,docs]
+   pip install -e .[dev,test,docs,preview]
 
 Docker Installation
 -------------------
