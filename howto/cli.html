@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g429d6274e documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g004f9e673 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=7aef6616"></script>
+    <script src="../_static/documentation_options.js?v=50b3ac34"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -447,6 +447,9 @@ Supported data repositories:
 - SEANOE (seanoe.org)
 - UKCEH (catalogue.ceh.ac.uk)
 - STAC (stacspec.org)
+- GitHub (github.com)
+- GitLab (gitlab.com)
+- Software Heritage (softwareheritage.org)
 
 </pre></div>
 </div>
@@ -541,7 +544,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:   0%|          | 0/2 [00:00&lt;?, ?task/s, Spatial extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 140.18task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 155.96task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                  </pre>
@@ -605,7 +608,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 23.57task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing districtes.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 26.71task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -621,7 +624,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 13.83item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 14.44item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -648,7 +651,7 @@ Supported data repositories:
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 118.98task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 126.96task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -664,7 +667,7 @@ Supported data repositories:
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 22.07item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files: 100%|██████████| 2/2 [00:00&lt;00:00, 23.21item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">
@@ -712,7 +715,7 @@ Supported data repositories:
 </section>
 <section id="remote-repositories">
 <h2>Remote Repositories<a class="headerlink" href="#remote-repositories" title="Link to this heading">¶</a></h2>
-<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, NFDI4Earth, GBIF, Dataverse, and Pensoft.</p>
+<p>Geoextent supports extracting geospatial extent from multiple research data repositories including Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, RADAR, Arctic Data Center, 4TU.ResearchData, B2SHARE, BAW, MDI-DE, GDI-DE, DEIMS-SDR, NFDI4Earth, GBIF, Dataverse, Pensoft, and GitHub repositories.</p>
 <section id="extract-from-zenodo">
 <h3>Extract from Zenodo<a class="headerlink" href="#extract-from-zenodo" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
@@ -914,6 +917,30 @@ Supported data repositories:
 </pre></div>
 </div>
 </section>
+<section id="extract-from-github">
+<h3>Extract from GitHub<a class="headerlink" href="#extract-from-github" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">fraxen</span><span class="o">/</span><span class="n">tectonicplates</span>
+</pre></div>
+</div>
+<p>Extract from a specific subdirectory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">Nowosad</span><span class="o">/</span><span class="n">spDataLarge</span><span class="o">/</span><span class="n">tree</span><span class="o">/</span><span class="n">master</span><span class="o">/</span><span class="n">inst</span><span class="o">/</span><span class="n">raster</span>
+</pre></div>
+</div>
+<p>Skip non-geospatial files (recommended for repos with many non-geo files):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">download</span><span class="o">-</span><span class="n">skip</span><span class="o">-</span><span class="n">nogeo</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">fraxen</span><span class="o">/</span><span class="n">tectonicplates</span>
+</pre></div>
+</div>
+</section>
+<section id="extract-from-software-heritage">
+<h3>Extract from Software Heritage<a class="headerlink" href="#extract-from-software-heritage" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">download</span><span class="o">-</span><span class="n">skip</span><span class="o">-</span><span class="n">nogeo</span> <span class="s2">&quot;https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/AWMC/geodata&amp;path=Cultural-Data/political_shading/hasmonean&quot;</span>
+</pre></div>
+</div>
+<p>Extract from a directory SWHID:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">download</span><span class="o">-</span><span class="n">skip</span><span class="o">-</span><span class="n">nogeo</span> <span class="n">swh</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="nb">dir</span><span class="p">:</span><span class="mi">92890</span><span class="n">dbe77bbe36ccba724673bc62c2764df4f5a</span>
+</pre></div>
+</div>
+</section>
 <section id="smart-metadata-first-extraction">
 <h3>Smart metadata-first extraction<a class="headerlink" href="#smart-metadata-first-extraction" title="Link to this heading">¶</a></h3>
 <p>Use <code class="docutils literal notranslate"><span class="pre">--metadata-first</span></code> to try metadata-only extraction first, falling back to data download if the provider has no metadata or the metadata didn’t yield results. This is useful for batch extractions across multiple providers:</p>
@@ -1071,7 +1098,7 @@ or time box (tbox).</p>
 </pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 120.37task/s, Temporal extent extracted]</pre>
+<pre class="stderr literal-block">Processing muenster_ring_zeit.geojson:  50%|█████     | 1/2 [00:00&lt;00:00, 116.47task/s, Temporal extent extracted]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">[A</pre>
@@ -1087,7 +1114,7 @@ or time box (tbox).</p>
 <pre class="stderr literal-block">[A</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 55.28item/s, Processing muenster_ring_zeit.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_one_file: 100%|██████████| 1/1 [00:00&lt;00:00, 56.12item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">

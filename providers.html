@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Content Providers &#8212; geoextent 0.1.dev1+g429d6274e documentation</title>
+    <title>Content Providers &#8212; geoextent 0.1.dev1+g004f9e673 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=7aef6616"></script>
+    <script src="_static/documentation_options.js?v=50b3ac34"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -46,7 +46,7 @@
             
   <section id="content-providers">
 <h1>Content Providers<a class="headerlink" href="#content-providers" title="Link to this heading">¶</a></h1>
-<p>Geoextent supports extracting geospatial data from 30 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, and any CKAN instance. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
+<p>Geoextent supports extracting geospatial data from 32 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, any CKAN instance, GitHub and GitLab repositories (including self-hosted GitLab instances), and the Software Heritage archive. All providers support URL-based extraction, and return merged geometries when processing multiple resources.</p>
 <section id="overview">
 <h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
 <p>All content providers support:</p>
@@ -933,6 +933,190 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p>Complex GeoJSON geometries are preserved for convex hull calculations (not simplified to bounding box rectangles)</p></li>
 <li><p>Automatic metadata fallback: if downloaded data files have no geospatial content, automatically falls back to catalogue metadata</p></li>
 <li><p>Senckenberg (<code class="docutils literal notranslate"><span class="pre">dataportal.senckenberg.de</span></code>) has a dedicated provider and is excluded from generic CKAN matching</p></li>
+</ul>
+<p><strong>Description:</strong> GitHub is the most widely used platform for hosting research code and data, including research compendia that bundle geospatial data alongside analysis scripts. This provider downloads geospatial files from public GitHub repositories and extracts their spatial and temporal extent. It uses the Git Trees API (2 API calls per repo) and raw file downloads, preserving directory structure for co-located files (e.g. shapefile components).</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://github.com/">https://github.com/</a></p>
+<p><strong>Identifier Format:</strong> Repository URLs (no DOIs)</p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>Repository: <code class="docutils literal notranslate"><span class="pre">https://github.com/{owner}/{repo}</span></code></p></li>
+<li><p>Branch/tag: <code class="docutils literal notranslate"><span class="pre">https://github.com/{owner}/{repo}/tree/{ref}</span></code></p></li>
+<li><p>Subdirectory: <code class="docutils literal notranslate"><span class="pre">https://github.com/{owner}/{repo}/tree/{ref}/{path}</span></code></p></li>
+</ul>
+<p><strong>Example (CLI):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract bbox from entire repository (GeoJSON tectonic plates — global extent)</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://github.com/fraxen/tectonicplates
+
+<span class="c1"># Extract from a specific subdirectory</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://github.com/Nowosad/spDataLarge/tree/master/inst/raster
+
+<span class="c1"># Skip non-geospatial files</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--download-skip-nogeo<span class="w"> </span>https://github.com/fraxen/tectonicplates
+</pre></div>
+</div>
+<p><strong>Python API Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Extract bbox from GitHub repository</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://github.com/fraxen/tectonicplates&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">download_skip_nogeo</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Extract from a specific subdirectory</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://github.com/Nowosad/spDataLarge/tree/master/inst/raster&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p><strong>Data-download provider</strong>: Downloads actual files from the repository — no metadata-only extraction (git repositories don’t have structured spatial metadata)</p></li>
+<li><p><strong>Rate limits</strong>: Unauthenticated: 60 API requests/hour. Set the <code class="docutils literal notranslate"><span class="pre">GITHUB_TOKEN</span></code> environment variable for 5000 requests/hour.</p></li>
+<li><p><strong>Directory structure preservation</strong>: Files are downloaded preserving their path structure, which is essential for shapefile components (<code class="docutils literal notranslate"><span class="pre">.shp</span></code> + <code class="docutils literal notranslate"><span class="pre">.shx</span></code> + <code class="docutils literal notranslate"><span class="pre">.dbf</span></code> + <code class="docutils literal notranslate"><span class="pre">.prj</span></code>) and world files</p></li>
+<li><p><strong>Recommended</strong>: Use <code class="docutils literal notranslate"><span class="pre">--download-skip-nogeo</span></code> for repositories with many non-geospatial files</p></li>
+</ul>
+<p><strong>Description:</strong> GitLab is a platform for hosting and collaborating on code and data. This provider downloads geospatial files from public GitLab repositories on gitlab.com and self-hosted instances, and extracts their spatial and temporal extent. It uses the paginated Repository Tree API and raw file API, preserving directory structure for co-located files (e.g. shapefile components).</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://gitlab.com/">https://gitlab.com/</a></p>
+<p><strong>Identifier Format:</strong> Repository URLs (no DOIs)</p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>Repository: <code class="docutils literal notranslate"><span class="pre">https://gitlab.com/{namespace}/{project}</span></code></p></li>
+<li><p>Branch/tag: <code class="docutils literal notranslate"><span class="pre">https://gitlab.com/{namespace}/{project}/-/tree/{ref}</span></code></p></li>
+<li><p>Subdirectory: <code class="docutils literal notranslate"><span class="pre">https://gitlab.com/{namespace}/{project}/-/tree/{ref}/{path}</span></code></p></li>
+<li><p>Nested namespace: <code class="docutils literal notranslate"><span class="pre">https://gitlab.com/{group}/{subgroup}/{project}</span></code></p></li>
+<li><p>Self-hosted: <code class="docutils literal notranslate"><span class="pre">https://{gitlab-host}/{namespace}/{project}</span></code></p></li>
+<li><p>Git suffix: <code class="docutils literal notranslate"><span class="pre">https://gitlab.com/{namespace}/{project}.git</span></code></p></li>
+</ul>
+<p><strong>Known Self-Hosted Instances:</strong></p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Instance</p></th>
+<th class="head"><p>Organization</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>git.rwth-aachen.de</p></td>
+<td><p>RWTH Aachen University</p></td>
+</tr>
+<tr class="row-odd"><td><p>zivgitlab.uni-muenster.de</p></td>
+<td><p>University of Münster</p></td>
+</tr>
+<tr class="row-even"><td><p>git.gfz-potsdam.de</p></td>
+<td><p>GFZ Helmholtz Potsdam</p></td>
+</tr>
+<tr class="row-odd"><td><p>codebase.helmholtz.cloud</p></td>
+<td><p>Helmholtz Association</p></td>
+</tr>
+<tr class="row-even"><td><p>gitlab.opencode.de</p></td>
+<td><p>German Government</p></td>
+</tr>
+<tr class="row-odd"><td><p>gitlab.ethz.ch</p></td>
+<td><p>ETH Zurich</p></td>
+</tr>
+<tr class="row-even"><td><p>git.wur.nl</p></td>
+<td><p>Wageningen University &amp; Research</p></td>
+</tr>
+<tr class="row-odd"><td><p>gitlab.eumetsat.int</p></td>
+<td><p>EUMETSAT</p></td>
+</tr>
+<tr class="row-even"><td><p>forge.inrae.fr</p></td>
+<td><p>INRAE France</p></td>
+</tr>
+<tr class="row-odd"><td><p>framagit.org</p></td>
+<td><p>Framasoft</p></td>
+</tr>
+</tbody>
+</table>
+<p>Unknown self-hosted instances are detected automatically if the hostname contains “gitlab” or via API probe fallback.</p>
+<p><strong>Example (CLI):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># European avalanche warning regions (GeoJSON files)</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://gitlab.com/eaws/eaws-regions/-/tree/master/public/outline
+
+<span class="c1"># Upper Silesia seismicity data — CSV with coordinates and dates</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>https://gitlab.com/bazylizon/seismicity
+
+<span class="c1"># DWD radar network — GeoPackage in EPSG:3035 (reprojected to WGS84)</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://gitlab.com/Weatherman_/radolan2map/-/tree/master/example/shapes/RadarNetwork
+
+<span class="c1"># Self-hosted GitLab (RWTH Aachen) — NFDI4Earth datasets</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://git.rwth-aachen.de/nfdi4earth/crosstopics/knowledgehub-maps/-/tree/main/maps/200_datasets/data
+
+<span class="c1"># Skip non-geospatial files</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--download-skip-nogeo<span class="w"> </span>https://gitlab.com/bazylizon/seismicity
+</pre></div>
+</div>
+<p><strong>Python API Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Extract bbox from GitLab repository</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://gitlab.com/bazylizon/seismicity&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">download_skip_nogeo</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Extract from a specific subdirectory</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://gitlab.com/eaws/eaws-regions/-/tree/master/public/outline&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+
+<span class="c1"># Self-hosted GitLab instance</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;https://git.rwth-aachen.de/nfdi4earth/crosstopics/knowledgehub-maps/-/tree/main/maps/200_datasets/data&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">download_skip_nogeo</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p><strong>Data-download provider</strong>: Downloads actual files from the repository — no metadata-only extraction (git repositories don’t have structured spatial metadata)</p></li>
+<li><p><strong>Rate limits</strong>: Unauthenticated on gitlab.com: ~400 API requests/10 min. Set the <code class="docutils literal notranslate"><span class="pre">GITLAB_TOKEN</span></code> environment variable for higher limits.</p></li>
+<li><p><strong>Self-hosted instances</strong>: Supports any GitLab instance — known hosts are matched instantly, unknown hosts with “gitlab” in the hostname are detected heuristically, and all other hosts are verified via API probe</p></li>
+<li><p><strong>Nested namespaces</strong>: Supports GitLab’s group/subgroup/project hierarchy (e.g. <code class="docutils literal notranslate"><span class="pre">nfdi4earth/crosstopics/knowledgehub-maps</span></code>)</p></li>
+<li><p><strong>Directory structure preservation</strong>: Files are downloaded preserving their path structure, which is essential for shapefile components (<code class="docutils literal notranslate"><span class="pre">.shp</span></code> + <code class="docutils literal notranslate"><span class="pre">.shx</span></code> + <code class="docutils literal notranslate"><span class="pre">.dbf</span></code> + <code class="docutils literal notranslate"><span class="pre">.prj</span></code>) and world files</p></li>
+<li><p><strong>Recommended</strong>: Use <code class="docutils literal notranslate"><span class="pre">--download-skip-nogeo</span></code> for repositories with many non-geospatial files</p></li>
+</ul>
+<p><strong>Description:</strong> Software Heritage is a non-profit archive (Inria + UNESCO) of all publicly available source code, assigning persistent identifiers (SWHIDs) to every software artifact. This provider downloads geospatial files from archived repositories and extracts their spatial and temporal extent. It resolves SWHIDs through the SWH API chain (origin/snapshot/revision/directory) and downloads files by content hash.</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://www.softwareheritage.org/">https://www.softwareheritage.org/</a></p>
+<p><strong>Identifier Format:</strong> SWHIDs and browse URLs (no DOIs)</p>
+<p><strong>Supported Identifier Formats:</strong></p>
+<ul class="simple">
+<li><p>Bare SWHID: <code class="docutils literal notranslate"><span class="pre">swh:1:dir:&lt;40-hex&gt;</span></code></p></li>
+<li><p>Origin SWHID: <code class="docutils literal notranslate"><span class="pre">swh:1:ori:&lt;40-hex&gt;</span></code></p></li>
+<li><p>SWHID with qualifiers: <code class="docutils literal notranslate"><span class="pre">swh:1:dir:&lt;hash&gt;;origin=&lt;url&gt;;path=/subdir</span></code></p></li>
+<li><p>Browse origin URL: <code class="docutils literal notranslate"><span class="pre">https://archive.softwareheritage.org/browse/origin/directory/?origin_url=&lt;url&gt;</span></code></p></li>
+<li><p>Browse origin URL with path: <code class="docutils literal notranslate"><span class="pre">https://archive.softwareheritage.org/browse/origin/directory/?origin_url=&lt;url&gt;&amp;path=&lt;path&gt;</span></code></p></li>
+<li><p>Browse directory URL: <code class="docutils literal notranslate"><span class="pre">https://archive.softwareheritage.org/browse/directory/&lt;sha&gt;/</span></code></p></li>
+<li><p>Browse revision URL: <code class="docutils literal notranslate"><span class="pre">https://archive.softwareheritage.org/browse/revision/&lt;sha&gt;/</span></code></p></li>
+</ul>
+<p><strong>Example (CLI):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Extract bbox from an archived repository subdirectory</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--download-skip-nogeo<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="s2">&quot;https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/AWMC/geodata&amp;path=Cultural-Data/political_shading/hasmonean&quot;</span>
+
+<span class="c1"># Extract from a directory SWHID</span>
+python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>--download-skip-nogeo<span class="w"> </span>swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a
+</pre></div>
+</div>
+<p><strong>Python API Examples:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="c1"># Extract bbox from Software Heritage archive</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+    <span class="s1">&#39;swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">download_skip_nogeo</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p><strong>Data-download provider</strong>: Downloads actual files from the archive – no metadata-only extraction</p></li>
+<li><p><strong>Rate limits</strong>: Anonymous: 120 API requests/hour. Set the <code class="docutils literal notranslate"><span class="pre">SWH_TOKEN</span></code> environment variable for 1200 requests/hour.</p></li>
+<li><p><strong>Sequential downloads</strong>: Downloads are sequential due to strict API rate limits</p></li>
+<li><p><strong>Subpath optimization</strong>: When a path is specified, only the targeted subdirectory is traversed</p></li>
+<li><p><strong>Recommended</strong>: Use <code class="docutils literal notranslate"><span class="pre">--download-skip-nogeo</span></code> to skip non-geospatial files and <code class="docutils literal notranslate"><span class="pre">&amp;path=</span></code> to target specific subdirectories</p></li>
 </ul>
 </section>
 <section id="usage-examples">

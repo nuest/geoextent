@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 30 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, and any CKAN instance. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 32 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, any CKAN instance, GitHub and GitLab repositories (including self-hosted GitLab instances), and the Software Heritage archive. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -128,6 +128,12 @@ Quick Reference
 | STAC              | Collection URLs     | https://{host}/collections/{id}        |
 +-------------------+---------------------+----------------------------------------+
 | CKAN (any)        | Dataset URLs        | https://{host}/dataset/{id}            |
++-------------------+---------------------+----------------------------------------+
+| GitHub            | Repository URLs     | https://github.com/{owner}/{repo}      |
++-------------------+---------------------+----------------------------------------+
+| GitLab            | Repository URLs     | https://gitlab.com/{ns}/{project}      |
++-------------------+---------------------+----------------------------------------+
+| Software Heritage | SWHIDs / URLs       | swh:1:dir:<40-hex>                     |
 +-------------------+---------------------+----------------------------------------+
 
 Provider Details
@@ -1139,6 +1145,207 @@ Unknown CKAN hosts are automatically detected by probing the ``/api/3/action/sta
 - Complex GeoJSON geometries are preserved for convex hull calculations (not simplified to bounding box rectangles)
 - Automatic metadata fallback: if downloaded data files have no geospatial content, automatically falls back to catalogue metadata
 - Senckenberg (``dataportal.senckenberg.de``) has a dedicated provider and is excluded from generic CKAN matching
+
+GitHub
+^^^^^^
+
+**Description:** GitHub is the most widely used platform for hosting research code and data, including research compendia that bundle geospatial data alongside analysis scripts. This provider downloads geospatial files from public GitHub repositories and extracts their spatial and temporal extent. It uses the Git Trees API (2 API calls per repo) and raw file downloads, preserving directory structure for co-located files (e.g. shapefile components).
+
+**Website:** https://github.com/
+
+**Identifier Format:** Repository URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- Repository: ``https://github.com/{owner}/{repo}``
+- Branch/tag: ``https://github.com/{owner}/{repo}/tree/{ref}``
+- Subdirectory: ``https://github.com/{owner}/{repo}/tree/{ref}/{path}``
+
+**Example (CLI):**
+
+.. code-block:: bash
+
+   # Extract bbox from entire repository (GeoJSON tectonic plates — global extent)
+   python -m geoextent -b https://github.com/fraxen/tectonicplates
+
+   # Extract from a specific subdirectory
+   python -m geoextent -b https://github.com/Nowosad/spDataLarge/tree/master/inst/raster
+
+   # Skip non-geospatial files
+   python -m geoextent -b --download-skip-nogeo https://github.com/fraxen/tectonicplates
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Extract bbox from GitHub repository
+   result = geoextent.fromRemote(
+       'https://github.com/fraxen/tectonicplates',
+       bbox=True, tbox=False, download_skip_nogeo=True
+   )
+
+   # Extract from a specific subdirectory
+   result = geoextent.fromRemote(
+       'https://github.com/Nowosad/spDataLarge/tree/master/inst/raster',
+       bbox=True, tbox=True
+   )
+
+**Special Notes:**
+
+- **Data-download provider**: Downloads actual files from the repository — no metadata-only extraction (git repositories don't have structured spatial metadata)
+- **Rate limits**: Unauthenticated: 60 API requests/hour. Set the ``GITHUB_TOKEN`` environment variable for 5000 requests/hour.
+- **Directory structure preservation**: Files are downloaded preserving their path structure, which is essential for shapefile components (``.shp`` + ``.shx`` + ``.dbf`` + ``.prj``) and world files
+- **Recommended**: Use ``--download-skip-nogeo`` for repositories with many non-geospatial files
+
+GitLab
+^^^^^^
+
+**Description:** GitLab is a platform for hosting and collaborating on code and data. This provider downloads geospatial files from public GitLab repositories on gitlab.com and self-hosted instances, and extracts their spatial and temporal extent. It uses the paginated Repository Tree API and raw file API, preserving directory structure for co-located files (e.g. shapefile components).
+
+**Website:** https://gitlab.com/
+
+**Identifier Format:** Repository URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- Repository: ``https://gitlab.com/{namespace}/{project}``
+- Branch/tag: ``https://gitlab.com/{namespace}/{project}/-/tree/{ref}``
+- Subdirectory: ``https://gitlab.com/{namespace}/{project}/-/tree/{ref}/{path}``
+- Nested namespace: ``https://gitlab.com/{group}/{subgroup}/{project}``
+- Self-hosted: ``https://{gitlab-host}/{namespace}/{project}``
+- Git suffix: ``https://gitlab.com/{namespace}/{project}.git``
+
+**Known Self-Hosted Instances:**
+
++----------------------------------------------+-------------------------------------------+
+| Instance                                     | Organization                              |
++==============================================+===========================================+
+| git.rwth-aachen.de                           | RWTH Aachen University                    |
++----------------------------------------------+-------------------------------------------+
+| zivgitlab.uni-muenster.de                    | University of Münster                     |
++----------------------------------------------+-------------------------------------------+
+| git.gfz-potsdam.de                           | GFZ Helmholtz Potsdam                     |
++----------------------------------------------+-------------------------------------------+
+| codebase.helmholtz.cloud                     | Helmholtz Association                     |
++----------------------------------------------+-------------------------------------------+
+| gitlab.opencode.de                           | German Government                         |
++----------------------------------------------+-------------------------------------------+
+| gitlab.ethz.ch                               | ETH Zurich                                |
++----------------------------------------------+-------------------------------------------+
+| git.wur.nl                                   | Wageningen University & Research          |
++----------------------------------------------+-------------------------------------------+
+| gitlab.eumetsat.int                          | EUMETSAT                                  |
++----------------------------------------------+-------------------------------------------+
+| forge.inrae.fr                               | INRAE France                              |
++----------------------------------------------+-------------------------------------------+
+| framagit.org                                 | Framasoft                                 |
++----------------------------------------------+-------------------------------------------+
+
+Unknown self-hosted instances are detected automatically if the hostname contains "gitlab" or via API probe fallback.
+
+**Example (CLI):**
+
+.. code-block:: bash
+
+   # European avalanche warning regions (GeoJSON files)
+   python -m geoextent -b https://gitlab.com/eaws/eaws-regions/-/tree/master/public/outline
+
+   # Upper Silesia seismicity data — CSV with coordinates and dates
+   python -m geoextent -b -t https://gitlab.com/bazylizon/seismicity
+
+   # DWD radar network — GeoPackage in EPSG:3035 (reprojected to WGS84)
+   python -m geoextent -b https://gitlab.com/Weatherman_/radolan2map/-/tree/master/example/shapes/RadarNetwork
+
+   # Self-hosted GitLab (RWTH Aachen) — NFDI4Earth datasets
+   python -m geoextent -b https://git.rwth-aachen.de/nfdi4earth/crosstopics/knowledgehub-maps/-/tree/main/maps/200_datasets/data
+
+   # Skip non-geospatial files
+   python -m geoextent -b --download-skip-nogeo https://gitlab.com/bazylizon/seismicity
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Extract bbox from GitLab repository
+   result = geoextent.fromRemote(
+       'https://gitlab.com/bazylizon/seismicity',
+       bbox=True, tbox=True, download_skip_nogeo=True
+   )
+
+   # Extract from a specific subdirectory
+   result = geoextent.fromRemote(
+       'https://gitlab.com/eaws/eaws-regions/-/tree/master/public/outline',
+       bbox=True, tbox=False
+   )
+
+   # Self-hosted GitLab instance
+   result = geoextent.fromRemote(
+       'https://git.rwth-aachen.de/nfdi4earth/crosstopics/knowledgehub-maps/-/tree/main/maps/200_datasets/data',
+       bbox=True, tbox=False, download_skip_nogeo=True
+   )
+
+**Special Notes:**
+
+- **Data-download provider**: Downloads actual files from the repository — no metadata-only extraction (git repositories don't have structured spatial metadata)
+- **Rate limits**: Unauthenticated on gitlab.com: ~400 API requests/10 min. Set the ``GITLAB_TOKEN`` environment variable for higher limits.
+- **Self-hosted instances**: Supports any GitLab instance — known hosts are matched instantly, unknown hosts with "gitlab" in the hostname are detected heuristically, and all other hosts are verified via API probe
+- **Nested namespaces**: Supports GitLab's group/subgroup/project hierarchy (e.g. ``nfdi4earth/crosstopics/knowledgehub-maps``)
+- **Directory structure preservation**: Files are downloaded preserving their path structure, which is essential for shapefile components (``.shp`` + ``.shx`` + ``.dbf`` + ``.prj``) and world files
+- **Recommended**: Use ``--download-skip-nogeo`` for repositories with many non-geospatial files
+
+Software Heritage
+^^^^^^^^^^^^^^^^^
+
+**Description:** Software Heritage is a non-profit archive (Inria + UNESCO) of all publicly available source code, assigning persistent identifiers (SWHIDs) to every software artifact. This provider downloads geospatial files from archived repositories and extracts their spatial and temporal extent. It resolves SWHIDs through the SWH API chain (origin/snapshot/revision/directory) and downloads files by content hash.
+
+**Website:** https://www.softwareheritage.org/
+
+**Identifier Format:** SWHIDs and browse URLs (no DOIs)
+
+**Supported Identifier Formats:**
+
+- Bare SWHID: ``swh:1:dir:<40-hex>``
+- Origin SWHID: ``swh:1:ori:<40-hex>``
+- SWHID with qualifiers: ``swh:1:dir:<hash>;origin=<url>;path=/subdir``
+- Browse origin URL: ``https://archive.softwareheritage.org/browse/origin/directory/?origin_url=<url>``
+- Browse origin URL with path: ``https://archive.softwareheritage.org/browse/origin/directory/?origin_url=<url>&path=<path>``
+- Browse directory URL: ``https://archive.softwareheritage.org/browse/directory/<sha>/``
+- Browse revision URL: ``https://archive.softwareheritage.org/browse/revision/<sha>/``
+
+**Example (CLI):**
+
+.. code-block:: bash
+
+   # Extract bbox from an archived repository subdirectory
+   python -m geoextent -b --download-skip-nogeo \
+       "https://archive.softwareheritage.org/browse/origin/directory/?origin_url=https://github.com/AWMC/geodata&path=Cultural-Data/political_shading/hasmonean"
+
+   # Extract from a directory SWHID
+   python -m geoextent -b --download-skip-nogeo swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Extract bbox from Software Heritage archive
+   result = geoextent.fromRemote(
+       'swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a',
+       bbox=True, tbox=False, download_skip_nogeo=True
+   )
+
+**Special Notes:**
+
+- **Data-download provider**: Downloads actual files from the archive -- no metadata-only extraction
+- **Rate limits**: Anonymous: 120 API requests/hour. Set the ``SWH_TOKEN`` environment variable for 1200 requests/hour.
+- **Sequential downloads**: Downloads are sequential due to strict API rate limits
+- **Subpath optimization**: When a path is specified, only the targeted subdirectory is traversed
+- **Recommended**: Use ``--download-skip-nogeo`` to skip non-geospatial files and ``&path=`` to target specific subdirectories
 
 Usage Examples
 --------------
