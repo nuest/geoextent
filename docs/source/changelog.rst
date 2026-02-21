@@ -44,6 +44,7 @@ Unreleased
   - Extract temporal extent from raster files: NetCDF CF time dimensions, GeoTIFF ``TIFFTAG_DATETIME``, ACDD ``time_coverage_start/end`` global attributes, and band-level ``ACQUISITIONDATETIME`` (IMAGERY domain) (:issue:`22`)
   - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
   - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
+  - Add support for Zarr format (``.zarr``) via GDAL's Zarr driver (V2 and V3), including directory-based dataset handling in CLI and directory extraction (:issue:`9`)
   - All content providers now support interactive download size confirmation via ``--max-download-size``. When the total download exceeds the limit, the CLI prompts for confirmation instead of silently truncating. API: ``download_size_soft_limit=True`` in ``from_remote()``.
   - Add ``-p`` / ``--parallel`` CLI flag and ``workers`` API parameter for parallel file extraction within directories using thread-based parallelism. ``-p`` auto-detects CPU count, ``-p N`` uses N workers. API: ``from_directory(..., workers=N)`` and ``from_remote(..., workers=N)``. (:issue:`34`)
 

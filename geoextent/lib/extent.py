@@ -500,6 +500,8 @@ def from_directory(
         elif os.path.isdir(absolute_path):
             if absolute_path.rstrip(os.sep).endswith(".gdb"):
                 other_items.append((filename, absolute_path, "gdb"))
+            elif absolute_path.rstrip(os.sep).endswith(".zarr"):
+                other_items.append((filename, absolute_path, "zarr"))
             else:
                 other_items.append((filename, absolute_path, "directory"))
         else:
@@ -621,6 +623,22 @@ def from_directory(
                 logger.info("Skipping archive {} (recursive=False)".format(filename))
         elif item_type == "gdb":
             logger.info("Processing File Geodatabase: {}".format(filename))
+            metadata_file = from_file(
+                absolute_path,
+                bbox,
+                tbox,
+                convex_hull,
+                show_progress=show_progress,
+                include_geojsonio=include_geojsonio,
+                placename=placename,
+                placename_escape=placename_escape,
+                assume_wgs84=assume_wgs84,
+                time_format=time_format,
+                _internal=True,
+            )
+            metadata_directory[str(filename)] = metadata_file
+        elif item_type == "zarr":
+            logger.info("Processing Zarr store: {}".format(filename))
             metadata_file = from_file(
                 absolute_path,
                 bbox,
@@ -851,7 +869,9 @@ def from_file(
         )
         raise Exception("No extraction options enabled!")
 
-    if os.path.isdir(filepath) and not filepath.rstrip(os.sep).endswith(".gdb"):
+    if os.path.isdir(filepath) and not filepath.rstrip(os.sep).endswith(
+        (".gdb", ".zarr")
+    ):
         logger.info("{} is a directory, not a file".format(filepath))
         return None
 

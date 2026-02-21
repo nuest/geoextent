@@ -601,7 +601,9 @@ def main():
             rfd_instance = readable_file_or_dir(None, None)
             is_repository = rfd_instance._is_supported_repository(single_input)
 
-            if is_file and not is_zipfile:
+            if (is_file and not is_zipfile) or (
+                is_directory and single_input.rstrip(os.sep).endswith(".zarr")
+            ):
                 output = extent.from_file(
                     single_input,
                     bbox=args["bounding_box"],
