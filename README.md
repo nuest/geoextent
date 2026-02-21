@@ -45,6 +45,12 @@ python -m geoextent -b 10.5281/zenodo.123 10.25532/OPARA-456
 
 # Extract convex hull from multiple Wikidata items and open in geojson.io
 python -m geoextent -b --convex-hull --geojsonio Q64 Q35 Q60786916
+
+# Parallel extraction from a directory (auto-detect CPU cores)
+geoextent -p -b -t path/to/geodata_directory
+
+# Parallel extraction with 4 workers
+geoextent -p 4 -b -t path/to/geodata_directory
 ```
 
 See the [CLI guide](https://nuest.github.io/geoextent/howto/cli.html) for all options.
@@ -59,6 +65,9 @@ result = geoextent.fromFile('data.geojson', bbox=True, tbox=True)
 
 # From directory
 result = geoextent.fromDirectory('data/', bbox=True, tbox=True)
+
+# From directory with parallel extraction (0 = auto-detect CPU cores)
+result = geoextent.from_directory('data/', bbox=True, tbox=True, workers=0)
 
 # From repository (single or multiple)
 result = geoextent.fromRemote('10.5281/zenodo.4593540', bbox=True)

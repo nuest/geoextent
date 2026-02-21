@@ -45,6 +45,7 @@ Unreleased
   - Add ``--assume-wgs84`` CLI flag and ``assume_wgs84`` API parameter to explicitly enable WGS84 fallback for ungeoreferenced rasters (disabled by default)
   - Add support for Esri File Geodatabase (``.gdb``) format via GDAL's OpenFileGDB driver
   - All content providers now support interactive download size confirmation via ``--max-download-size``. When the total download exceeds the limit, the CLI prompts for confirmation instead of silently truncating. API: ``download_size_soft_limit=True`` in ``from_remote()``.
+  - Add ``-p`` / ``--parallel`` CLI flag and ``workers`` API parameter for parallel file extraction within directories using thread-based parallelism. ``-p`` auto-detects CPU count, ``-p N`` uses N workers. API: ``from_directory(..., workers=N)`` and ``from_remote(..., workers=N)``. (:issue:`34`)
 
 - **Breaking Changes**
 

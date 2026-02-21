@@ -385,6 +385,20 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "-p",
+        "--parallel",
+        type=int,
+        nargs="?",
+        const=0,
+        default=1,
+        metavar="WORKERS",
+        help="enable parallel file extraction within directories. "
+        "Without a number, uses all available CPU cores. "
+        "Specify a number (e.g., -p 4) to set worker count. "
+        "Default: sequential processing.",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs="+",
@@ -494,6 +508,9 @@ def main():
     additional_extensions = _parse_additional_extensions(
         args["download_skip_nogeo_exts"]
     )
+
+    # Resolve workers: 0 means auto-detect, pass through to API functions
+    workers = args["parallel"]
 
     if files is None or len(files) == 0:
         raise Exception("Invalid command, input file missing")
@@ -611,6 +628,7 @@ def main():
                     legacy=args["legacy"],
                     assume_wgs84=args["assume_wgs84"],
                     time_format=args["time_format"],
+                    workers=workers,
                 )
             elif is_url or is_doi or is_repository:
                 output = _call_from_remote_with_size_prompt(
@@ -642,6 +660,7 @@ def main():
                         "time_format": args["time_format"],
                         "follow": args["follow"],
                         "download_size_soft_limit": True,
+                        "workers": workers,
                     }
                 )
         else:
@@ -693,6 +712,7 @@ def main():
                                 "time_format": args["time_format"],
                                 "follow": args["follow"],
                                 "download_size_soft_limit": True,
+                                "workers": workers,
                             }
                         )
                         if repo_output is not None:
@@ -730,6 +750,7 @@ def main():
                             legacy=args["legacy"],
                             assume_wgs84=args["assume_wgs84"],
                             time_format=args["time_format"],
+                            workers=workers,
                         )
                         if dir_output is not None:
                             output["details"][file_path] = dir_output

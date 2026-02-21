@@ -19,8 +19,8 @@ This project is currently in version 0.x, which means:
 ### Current API Functions
 
 1. **from_file()** - Extract extent from individual files
-2. **from_directory()** - Extract extent from directories
-3. **from_remote()** - Extract extent from remote sources (repositories, journals, preprint servers)
+2. **from_directory()** - Extract extent from directories (supports `workers` parameter for parallel extraction)
+3. **from_remote()** - Extract extent from remote sources (repositories, journals, preprint servers; supports `workers` parameter)
 
 ### Function Naming Convention
 

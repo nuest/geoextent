@@ -7,6 +7,8 @@ import threading
 import time
 import tempfile
 import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import TimeoutError as FuturesTimeoutError
 from .content_providers import Dryad
 from .content_providers import Figshare
 from .content_providers import Zenodo
@@ -396,6 +398,18 @@ def _is_auxiliary_file(filename: str) -> bool:
     return False
 
 
+def _extract_file_worker(args_tuple):
+    """Worker for parallel file extraction."""
+    filepath, kwargs = args_tuple
+    filename = os.path.basename(filepath)
+    try:
+        result = from_file(filepath, **kwargs)
+        return (filename, result)
+    except Exception as e:
+        logger.warning("Error extracting from %s: %s", filepath, e)
+        return (filename, None)
+
+
 def from_directory(
     path: str,
     bbox: bool = False,
@@ -412,6 +426,7 @@ def from_directory(
     legacy: bool = False,
     assume_wgs84: bool = False,
     time_format: str | None = None,
+    workers: int = 1,
     _internal: bool = False,
 ):
     """Extracts geoextent from a directory/archive
@@ -425,6 +440,7 @@ def from_directory(
     include_geojsonio -- True if geojson.io URL should be included in output (default False)
     placename -- gazetteer to use for placename lookup (geonames, nominatim, photon) (default None)
     assume_wgs84 -- True to assume WGS84 for ungeoreferenced rasters (default False)
+    workers -- number of parallel workers for file extraction (default 1 = sequential, 0 = auto-detect)
     """
 
     from tqdm import tqdm
@@ -464,6 +480,33 @@ def from_directory(
         random.seed(0)
         random.shuffle(files)
 
+    # Resolve workers=0 → auto-detect CPU count
+    if workers == 0:
+        workers = os.cpu_count() or 1
+
+    # Phase 1: Categorize items
+    regular_files = []  # (filename, absolute_path)
+    other_items = []  # (filename, absolute_path, item_type)
+
+    for filename in files:
+        if _is_auxiliary_file(filename):
+            logger.debug(f"Skipping auxiliary file: {filename}")
+            continue
+
+        absolute_path = os.path.join(path, filename)
+
+        if patoolib.is_archive(absolute_path):
+            other_items.append((filename, absolute_path, "archive"))
+        elif os.path.isdir(absolute_path):
+            if absolute_path.rstrip(os.sep).endswith(".gdb"):
+                other_items.append((filename, absolute_path, "gdb"))
+            else:
+                other_items.append((filename, absolute_path, "directory"))
+        else:
+            regular_files.append((filename, absolute_path))
+
+    total_items = len(regular_files) + len(other_items)
+
     # Create progress bar for directory processing (only at top level)
     dir_name = os.path.basename(path) or "root"
     show_progress_bar = (
@@ -472,40 +515,90 @@ def from_directory(
 
     if show_progress_bar:
         pbar = tqdm(
-            total=len(files), desc=f"Processing directory: {dir_name}", unit="item"
+            total=total_items, desc=f"Processing directory: {dir_name}", unit="item"
         )
 
-    for i, filename in enumerate(files):
-        elapsed_time = time.time() - start_time
-        if timeout and elapsed_time > timeout:
-            if level == 0:
-                logger.warning(
-                    f"Timeout reached after {timeout} seconds, returning partial results."
-                )
+    # Phase 2: Process regular files (parallel or sequential)
+    parallel_mode = workers > 1 and len(regular_files) > 1
+    file_kwargs = dict(
+        bbox=bbox,
+        tbox=tbox,
+        convex_hull=convex_hull,
+        show_progress=False if parallel_mode else show_progress,
+        include_geojsonio=include_geojsonio,
+        placename=placename,
+        placename_escape=placename_escape,
+        assume_wgs84=assume_wgs84,
+        time_format=time_format,
+        _internal=True,
+    )
+
+    if parallel_mode:
+        remaining_time = timeout - (time.time() - start_time) if timeout else None
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            future_to_filename = {
+                pool.submit(_extract_file_worker, (abs_path, file_kwargs)): fname
+                for fname, abs_path in regular_files
+            }
+            try:
+                for future in as_completed(future_to_filename, timeout=remaining_time):
+                    fname = future_to_filename[future]
+                    try:
+                        result_name, result = future.result()
+                        metadata_directory[str(result_name)] = result
+                    except Exception as e:
+                        logger.warning("Error extracting from %s: %s", fname, e)
+                    if show_progress_bar:
+                        pbar.update(1)
+            except FuturesTimeoutError:
+                if level == 0:
+                    logger.warning(
+                        f"Timeout reached after {timeout} seconds, returning partial results."
+                    )
                 timeout_flag = True
+    else:
+        for filename, absolute_path in regular_files:
+            if timeout:
+                elapsed_time = time.time() - start_time
+                if elapsed_time > timeout:
+                    if level == 0:
+                        logger.warning(
+                            f"Timeout reached after {timeout} seconds, returning partial results."
+                        )
+                    timeout_flag = True
+                    break
+
+            if show_progress_bar:
+                pbar.set_postfix_str(f"Processing {filename}")
+
+            logger.info("Processing file: {}".format(filename))
+            metadata_file = from_file(absolute_path, **file_kwargs)
+            metadata_directory[str(filename)] = metadata_file
+
+            if show_progress_bar:
+                pbar.update(1)
+
+    # Phase 3: Process subdirectories and archives (always sequential, pass workers through)
+    for filename, absolute_path, item_type in other_items:
+        if timeout_flag:
             break
+        if timeout:
+            elapsed_time = time.time() - start_time
+            if elapsed_time > timeout:
+                if level == 0:
+                    logger.warning(
+                        f"Timeout reached after {timeout} seconds, returning partial results."
+                    )
+                timeout_flag = True
+                break
 
         if show_progress_bar:
             pbar.set_postfix_str(f"Processing {filename}")
 
-        logger.info("path {}, folder/archive {}".format(path, filename))
+        remaining_time = timeout - (time.time() - start_time) if timeout else None
 
-        # Skip GDAL auxiliary files
-        if _is_auxiliary_file(filename):
-            logger.debug(f"Skipping auxiliary file: {filename}")
-            continue
-
-        absolute_path = os.path.join(path, filename)
-        is_archive = patoolib.is_archive(absolute_path)
-
-        remaining_time = timeout - elapsed_time if timeout else None
-
-        if is_archive:
-            logger.info(
-                "**Inspecting folder {}, is archive ? {}**".format(
-                    filename, str(is_archive)
-                )
-            )
+        if item_type == "archive":
+            logger.info("**Inspecting archive {}**".format(filename))
             if recursive:
                 metadata_directory[filename] = from_directory(
                     absolute_path,
@@ -521,72 +614,53 @@ def from_directory(
                     placename=placename,
                     placename_escape=placename_escape,
                     time_format=time_format,
+                    workers=workers,
                     _internal=True,
                 )
             else:
                 logger.info("Skipping archive {} (recursive=False)".format(filename))
-        else:
-            logger.info(
-                "Inspecting folder {}, is archive ? {}".format(
-                    filename, str(is_archive)
-                )
+        elif item_type == "gdb":
+            logger.info("Processing File Geodatabase: {}".format(filename))
+            metadata_file = from_file(
+                absolute_path,
+                bbox,
+                tbox,
+                convex_hull,
+                show_progress=show_progress,
+                include_geojsonio=include_geojsonio,
+                placename=placename,
+                placename_escape=placename_escape,
+                assume_wgs84=assume_wgs84,
+                time_format=time_format,
+                _internal=True,
             )
-            if os.path.isdir(absolute_path):
-                if absolute_path.rstrip(os.sep).endswith(".gdb"):
-                    # ESRI File Geodatabase — treat as a dataset, not a directory
-                    metadata_file = from_file(
-                        absolute_path,
-                        bbox,
-                        tbox,
-                        convex_hull,
-                        show_progress=show_progress,
-                        include_geojsonio=include_geojsonio,
-                        placename=placename,
-                        placename_escape=placename_escape,
-                        assume_wgs84=assume_wgs84,
-                        time_format=time_format,
-                        _internal=True,
-                    )
-                    metadata_directory[str(filename)] = metadata_file
-                elif recursive:
-                    metadata_directory[filename] = from_directory(
-                        absolute_path,
-                        bbox,
-                        tbox,
-                        convex_hull,
-                        details=True,
-                        timeout=remaining_time,
-                        level=level + 1,
-                        show_progress=show_progress,
-                        recursive=recursive,
-                        include_geojsonio=include_geojsonio,
-                        placename=placename,
-                        placename_escape=placename_escape,
-                        assume_wgs84=assume_wgs84,
-                        time_format=time_format,
-                        _internal=True,
-                    )
-                else:
-                    logger.info(
-                        "Skipping subdirectory {} (recursive=False)".format(filename)
-                    )
-            else:
-                metadata_file = from_file(
+            metadata_directory[str(filename)] = metadata_file
+        elif item_type == "directory":
+            logger.info("Processing subdirectory: {}".format(filename))
+            if recursive:
+                metadata_directory[filename] = from_directory(
                     absolute_path,
                     bbox,
                     tbox,
                     convex_hull,
+                    details=True,
+                    timeout=remaining_time,
+                    level=level + 1,
                     show_progress=show_progress,
+                    recursive=recursive,
                     include_geojsonio=include_geojsonio,
                     placename=placename,
                     placename_escape=placename_escape,
                     assume_wgs84=assume_wgs84,
                     time_format=time_format,
+                    workers=workers,
                     _internal=True,
                 )
-                metadata_directory[str(filename)] = metadata_file
+            else:
+                logger.info(
+                    "Skipping subdirectory {} (recursive=False)".format(filename)
+                )
 
-        # Update progress bar
         if show_progress_bar:
             pbar.update(1)
 
@@ -1005,6 +1079,7 @@ def from_remote(
     time_format: str | None = None,
     follow: bool = True,
     download_size_soft_limit: bool = False,
+    workers: int = 1,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -1170,6 +1245,7 @@ def from_remote(
                 time_format=time_format,
                 follow=follow,
                 download_size_soft_limit=download_size_soft_limit,
+                workers=workers,
             )
             if resource_output is not None:
                 resource_output["format"] = "remote"
@@ -1299,6 +1375,7 @@ def _process_remote_download(
     time_format=None,
     follow=True,
     download_size_soft_limit=False,
+    workers=1,
 ):
     """
     Shared logic for processing remote downloads and extracting metadata.
@@ -1439,6 +1516,7 @@ def _process_remote_download(
         placename_escape=placename_escape,
         assume_wgs84=assume_wgs84,
         time_format=time_format,
+        workers=workers,
         _internal=True,
     )
 
@@ -1503,6 +1581,7 @@ def _process_remote_download(
             placename_escape=placename_escape,
             assume_wgs84=assume_wgs84,
             time_format=time_format,
+            workers=workers,
             _internal=True,
         )
 
@@ -1552,6 +1631,7 @@ def _metadata_first_extract(
     time_format=None,
     follow=True,
     download_size_soft_limit=False,
+    workers=1,
 ):
     """Try metadata-only extraction first, fall back to data download if needed.
 
@@ -1587,6 +1667,7 @@ def _metadata_first_extract(
         time_format=time_format,
         follow=follow,
         download_size_soft_limit=download_size_soft_limit,
+        workers=workers,
     )
 
     # Phase 1: Try metadata-only extraction if the provider supports it
@@ -1696,6 +1777,7 @@ def _extract_from_remote(
     time_format=None,
     follow=True,
     download_size_soft_limit=False,
+    workers=1,
 ):
     """
     Internal method to extract extent from a single remote identifier.
@@ -1750,6 +1832,7 @@ def _extract_from_remote(
                 time_format=time_format,
                 follow=follow,
                 download_size_soft_limit=download_size_soft_limit,
+                workers=workers,
             )
             return metadata
 
@@ -1787,6 +1870,7 @@ def _extract_from_remote(
                         time_format=time_format,
                         follow=follow,
                         download_size_soft_limit=download_size_soft_limit,
+                        workers=workers,
                     )
 
                     # Explicitly clean up temporary directory
@@ -1834,6 +1918,7 @@ def _extract_from_remote(
                     time_format=time_format,
                     follow=follow,
                     download_size_soft_limit=download_size_soft_limit,
+                    workers=workers,
                 )
 
                 logger.info(f"Files kept in: {tmp}")

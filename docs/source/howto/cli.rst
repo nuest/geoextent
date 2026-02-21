@@ -529,6 +529,28 @@ The output of this function is the combined bbox or tbox resulting from merging 
 
 For comprehensive examples including all supported repositories and advanced features, see :doc:`../examples`.
 
+Parallel extraction
+^^^^^^^^^^^^^^^^^^^^
+
+Use ``-p`` / ``--parallel`` to extract extents from files within a directory in parallel using multiple threads. This speeds up processing of directories with many geodata files:
+
+::
+
+   # Auto-detect CPU count
+   geoextent -p -b -t path/to/directory
+
+   # Use 4 workers
+   geoextent -p 4 -b -t path/to/directory
+
+   # Parallel extraction from a remote repository
+   geoextent -p -b -t https://doi.org/10.5281/zenodo.4593540
+
+Without ``-p``, files are processed sequentially (the default).
+
+.. note::
+
+   geoextent extracts spatial extents by reading file headers, which is very fast (a few milliseconds per file regardless of file size). Parallel extraction helps most when a directory contains **many files** (tens or more), where the per-file I/O latency adds up. For directories with only a few files, sequential processing is already fast and ``-p`` provides little benefit.
+
 Debugging
 ^^^^^^^^^
 

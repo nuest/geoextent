@@ -99,6 +99,7 @@ Folders or ZIP file(s)
    - ``bbox``: a boolean value to extract spatial extent (bounding box)
    - ``time``: a boolean value to extract temporal extent ( at "day" precision '%Y-%m-%d')
    - ``details``: a boolean value to return details (geoextent) of individual files (default **False**)
+   - ``workers``: number of parallel workers for file extraction (default **1** = sequential, **0** = auto-detect CPU count). Parallel extraction uses threads and helps most with directories containing many files (tens or more), where per-file I/O latency adds up.
 
 The output of this function is the combined bbox or tbox resulting from merging all results of individual files (see: :doc:`../supportedformats/index_supportedformats`) inside the folder or zipfile. The resulting coordinate reference system  ``CRS`` of the combined bbox is always in the `EPSG: 4326 <https://epsg.io/4326>`_ system.
 

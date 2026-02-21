@@ -264,7 +264,9 @@
       "WebFetch(domain:nowosad.r-universe.dev)",
       "Bash(/home/daniel/git/geoextent/.venv/bin/python3:*)",
       "WebFetch(domain:docs.softwareheritage.org)",
-      "WebFetch(domain:archive.softwareheritage.org)"
+      "WebFetch(domain:archive.softwareheritage.org)",
+      "WebFetch(domain:developmentseed.org)",
+      "WebFetch(domain:storage.googleapis.com)"
     ],
     "deny": [],
     "ask": []
