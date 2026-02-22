@@ -1,7 +1,7 @@
 Content Providers
 ==================
 
-Geoextent supports extracting geospatial data from 32 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, any CKAN instance, GitHub and GitLab repositories (including self-hosted GitLab instances), and the Software Heritage archive. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
+Geoextent supports extracting geospatial data from 33 research data repositories (including 10 Dataverse instances), Wikidata, any STAC catalog, any CKAN instance, GitHub and GitLab repositories (including self-hosted GitLab instances), and the Software Heritage archive. All providers support URL-based extraction, and return merged geometries when processing multiple resources.
 
 Overview
 --------
@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, NFDI4Earth, HALO DB, GDI-DE, STAC, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, DataONE, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, NFDI4Earth, HALO DB, GDI-DE, STAC, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -116,6 +116,8 @@ Quick Reference
 | RADAR             | 10.35097            | 10.35097/tvn5vujqfvf99f32              |
 +-------------------+---------------------+----------------------------------------+
 | Arctic Data Center| 10.18739            | 10.18739/A2Z892H2J                     |
++-------------------+---------------------+----------------------------------------+
+| DataONE           | 10.5063, 10.6085    | 10.5063/F1Z60M87                       |
 +-------------------+---------------------+----------------------------------------+
 | SEANOE            | 10.17882            | 10.17882/105467                        |
 +-------------------+---------------------+----------------------------------------+
@@ -761,6 +763,72 @@ Arctic Data Center
 - Supports both DOI and URN UUID identifiers
 - Individual file downloads via DataONE object endpoint
 - Parallel downloads supported
+
+DataONE
+^^^^^^^
+
+**Description:** DataONE (Data Observation Network for Earth) is a federated cyberinfrastructure for Earth observation data, aggregating metadata from ~38 member nodes (including KNB, PISCO, and others) into a unified Coordinating Node (CN) Solr index with ~1.2 million records. Geoextent queries the CN Solr API to extract pre-computed bounding boxes and temporal ranges from structured EML metadata.
+
+**Website:** https://www.dataone.org/
+
+**DOI Prefixes:** ``10.5063/`` (KNB), ``10.6085/`` (PISCO)
+
+**Supported Identifier Formats:**
+
+- DOI: ``10.5063/F1Z60M87``
+- DOI URL: ``https://doi.org/10.5063/F1Z60M87``
+- Search URL: ``https://search.dataone.org/view/doi%3A10.5063%2FF1Z60M87``
+- Hash URL: ``https://search.dataone.org/#view/doi:10.5063/F1Z60M87``
+- Datasets URL: ``https://dataone.org/datasets/doi%3A10.5063%2FF1Z60M87``
+- CN object URL: ``https://cn.dataone.org/cn/v2/object/doi%3A10.5063%2FF1Z60M87``
+- CN resolve URL: ``https://cn.dataone.org/cn/v2/resolve/doi%3A10.5063%2FF1Z60M87``
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # KNB Alaska elevation — bbox and temporal extent from DataONE CN metadata
+   python -m geoextent -b -t --no-download-data 10.5063/F1Z60M87
+
+   # PISCO Kelp Forest Community Surveys — US West Coast
+   python -m geoextent -b -t --no-download-data 10.6085/AA/PISCO_kelpforest.1.11
+
+   # Using search.dataone.org URL
+   python -m geoextent -b --no-download-data https://search.dataone.org/view/doi%3A10.5063%2FF1Z60M87
+
+   # Open in geojson.io
+   python -m geoextent -b -t --geojsonio --no-download-data 10.5063/F1Z60M87
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: uses DataONE CN Solr API for bbox and temporal extent
+   result = geoextent.from_remote(
+       '10.5063/F1Z60M87',
+       bbox=True, tbox=True, download_data=False
+   )
+   print(result['bbox'])   # Alaska region: [54.3, -166.4, 71.3, -130.1]
+   print(result['tbox'])   # ['2017-01-01', '2017-01-01']
+
+   # PISCO dataset: US West Coast kelp forest surveys
+   result = geoextent.from_remote(
+       '10.6085/AA/PISCO_kelpforest.1.11',
+       bbox=True, tbox=True, download_data=False
+   )
+   print(result['bbox'])   # West Coast: [33.0, -125.0, 45.0, -118.0]
+   print(result['tbox'])   # ['1999-09-07', '2024-12-07']
+
+**Special Notes:**
+
+- **Metadata-only provider**: Extracts pre-computed bounding boxes and temporal ranges from the DataONE CN Solr index — no data files are downloaded
+- The ``--no-download-data`` flag is accepted but has no effect (there are no data files)
+- Supports both DOI-based and URL-based identifiers (7 URL patterns)
+- DOI prefixes ``10.5063/`` (KNB) and ``10.6085/`` (PISCO) are recognized automatically
+- Datasets from member nodes with dedicated providers (Arctic Data Center, PANGAEA, Dryad) are skipped to avoid duplicate handling
+- Temporal metadata is extracted from ``beginDate``/``endDate`` fields in the Solr index
 
 SEANOE
 ^^^^^^
