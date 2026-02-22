@@ -1,0 +1,47 @@
+{
+  "title": "geoextent",
+  "description": "Python library for extracting geospatial extent of files and directories with multiple data formats. This project is developed as part of the DFG-funded research project Opening Reproducible Research (o2r, https://o2r.info).",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Nüst, Daniel",
+      "affiliation": "TU Dresden, Dresden, Germany",
+      "orcid": "0000-0002-0024-5046"
+    },
+    {
+      "name": "Garzón, Sebastian",
+      "orcid": "0000-0002-8335-9312"
+    },
+    {
+      "name": "Drechsler, Lars"
+    },
+    {
+      "name": "Qamaz, Yousef"
+    }
+  ],
+  "keywords": [
+    "spatial",
+    "metadata",
+    "geospatial",
+    "location",
+    "bounding box",
+    "temporal extent",
+    "reproducible research",
+    "open science"
+  ],
+  "notes": "This work has been supported in part by the German Research Foundation (DFG) through the project NFDI4Earth (DFG project no. 460036893, https://nfdi4earth.de/) and in part by the DFG through the project Opening Reproducible Research (o2r, DFG project no. PE 1632/10-1 and PE 1632/17-1, https://o2r.info).",
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/nuest/geoextent",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://pypi.org/project/geoextent/",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ]
+}
