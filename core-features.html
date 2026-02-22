@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Core Features &#8212; geoextent 0.1.dev1+g004f9e673 documentation</title>
+    <title>Core Features &#8212; geoextent 0.1.dev1+g8b6c7d5c2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=50b3ac34"></script>
+    <script src="_static/documentation_options.js?v=3e179473"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -108,17 +108,17 @@ while spatial extent extraction proceeds independently.</p>
 <p><strong>GeoTIFF with TIFFTAG_DATETIME:</strong></p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">extent</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s2">&quot;satellite_image.tif&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;satellite_image.tif&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># result[&quot;tbox&quot;] == [&quot;2019-03-21&quot;, &quot;2019-03-21&quot;]</span>
 </pre></div>
 </div>
 <p><strong>NetCDF with CF time dimension:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s2">&quot;climate_model.nc&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;climate_model.nc&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># result[&quot;tbox&quot;] == [&quot;2015-01-01&quot;, &quot;2016-01-01&quot;]</span>
 </pre></div>
 </div>
 <p><strong>NetCDF with ACDD global attributes:</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s2">&quot;ocean_temp.nc&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;ocean_temp.nc&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># result[&quot;tbox&quot;] == [&quot;2018-04-01&quot;, &quot;2018-09-30&quot;]</span>
 </pre></div>
 </div>
@@ -172,15 +172,15 @@ midnight (<code class="docutils literal notranslate"><span class="pre">00:00:00<
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">extent</span>
 
 <span class="c1"># Default (date only)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s2">&quot;image.tif&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;image.tif&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># result[&quot;tbox&quot;] == [&quot;2019-03-21&quot;, &quot;2019-03-21&quot;]</span>
 
 <span class="c1"># ISO 8601 with full time</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s2">&quot;image.tif&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">time_format</span><span class="o">=</span><span class="s2">&quot;iso8601&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;image.tif&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">time_format</span><span class="o">=</span><span class="s2">&quot;iso8601&quot;</span><span class="p">)</span>
 <span class="c1"># result[&quot;tbox&quot;] == [&quot;2019-03-21T08:15:00Z&quot;, &quot;2019-03-21T08:15:00Z&quot;]</span>
 
 <span class="c1"># Custom strftime format</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromFile</span><span class="p">(</span><span class="s2">&quot;image.tif&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">time_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y %H:%M&quot;</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;image.tif&quot;</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">time_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">.%m.%Y %H:%M&quot;</span><span class="p">)</span>
 <span class="c1"># result[&quot;tbox&quot;] == [&quot;21.03.2019 08:15&quot;, &quot;21.03.2019 08:15&quot;]</span>
 </pre></div>
 </div>
@@ -202,7 +202,7 @@ profile commonly used on the web.</p>
 <h2>Multiple Remote Resource Extraction<a class="headerlink" href="#multiple-remote-resource-extraction" title="Link to this heading">¶</a></h2>
 <section id="overview">
 <h3>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">fromRemote()</span></code> function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a <strong>merged geometry</strong> (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">from_remote()</span></code> function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a <strong>merged geometry</strong> (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:</p>
 <ul class="simple">
 <li><p>Processing multiple datasets from different repositories</p></li>
 <li><p>Comparing spatial coverage across multiple sources</p></li>
@@ -221,7 +221,7 @@ profile commonly used on the web.</p>
     <span class="s1">&#39;https://osf.io/abc123/&#39;</span>
 <span class="p">]</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_remote</span><span class="p">(</span>
     <span class="n">identifiers</span><span class="p">,</span>
     <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -246,7 +246,7 @@ profile commonly used on the web.</p>
 </pre></div>
 </div>
 <p><strong>Extract from single remote resource (string):</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_remote</span><span class="p">(</span>
     <span class="s1">&#39;10.5281/zenodo.4593540&#39;</span><span class="p">,</span>
     <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span>
@@ -273,7 +273,7 @@ profile commonly used on the web.</p>
 </section>
 <section id="supported-parameters">
 <h3>Supported Parameters<a class="headerlink" href="#supported-parameters" title="Link to this heading">¶</a></h3>
-<p>All standard <code class="docutils literal notranslate"><span class="pre">fromRemote()</span></code> parameters are supported:</p>
+<p>All standard <code class="docutils literal notranslate"><span class="pre">from_remote()</span></code> parameters are supported:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bbox</span></code>, <code class="docutils literal notranslate"><span class="pre">tbox</span></code>, <code class="docutils literal notranslate"><span class="pre">convex_hull</span></code> - Extraction options</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_download_size</span></code>, <code class="docutils literal notranslate"><span class="pre">max_download_method</span></code> - Download control</p></li>
@@ -388,9 +388,373 @@ profile commonly used on the web.</p>
 </div>
 </section>
 </section>
+<section id="map-preview">
+<h2>Map Preview<a class="headerlink" href="#map-preview" title="Link to this heading">¶</a></h2>
+<p>Generate a static map image showing the extracted spatial extent overlaid on OpenStreetMap tiles. This is useful for quick visual verification of extraction results, inclusion in reports, or embedding in notebooks.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Map preview requires the <code class="docutils literal notranslate"><span class="pre">preview</span></code> optional dependency group:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">geoextent</span><span class="p">[</span><span class="n">preview</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This installs <a class="reference external" href="https://github.com/komoot/staticmap">staticmap</a>, <a class="reference external" href="https://github.com/AnonymouX47/term-image">term-image</a>, and Pillow.</p>
+</div>
+<section id="quick-start">
+<h3>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading">¶</a></h3>
+<p>The simplest way to get a map preview is <code class="docutils literal notranslate"><span class="pre">--map</span></code> with no arguments. A temporary PNG file is created automatically and its path is printed to stderr:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">--</span><span class="nb">map</span> <span class="o">-</span><span class="n">b</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span><span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
+<span class="c1"># stderr: Map preview saved to: /tmp/geoextent_map_abc12345.png</span>
+</pre></div>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When using <code class="docutils literal notranslate"><span class="pre">--map</span></code> without a file path, place it <strong>before</strong> the input file
+(e.g., <code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">-b</span> <span class="pre">file.geojson</span></code>) so that argparse does not consume the input
+as the map path.</p>
+</div>
+</section>
+<section id="save-to-a-specific-file">
+<h3>Save to a Specific File<a class="headerlink" href="#save-to-a-specific-file" title="Link to this heading">¶</a></h3>
+<p>Provide a path after <code class="docutils literal notranslate"><span class="pre">--map</span></code> to choose where the PNG is saved:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">map</span> <span class="n">extent</span><span class="o">.</span><span class="n">png</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span><span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
+</pre></div>
+</div>
+<p>The saved image includes a semi-transparent attribution bar at the bottom:
+<em>“Created with geoextent {version} | (c) OpenStreetMap contributors”</em></p>
+<p>The path is always printed to stderr unless <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> is used.</p>
+</section>
+<section id="display-in-terminal">
+<h3>Display in Terminal<a class="headerlink" href="#display-in-terminal" title="Link to this heading">¶</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--preview</span></code> to render the map and display it directly in the terminal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">preview</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span><span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
+</pre></div>
+</div>
+<p>geoextent displays the image using the following fallback chain:</p>
+<ol class="arabic simple">
+<li><p><strong>term-image</strong> (Python library, included in <code class="docutils literal notranslate"><span class="pre">[preview]</span></code>) — auto-detects Kitty graphics protocol, iTerm2 inline images, or Sixel, falls back to Unicode block characters. Works in any terminal without external tools.</p></li>
+<li><p><strong>External CLI tools</strong>: <code class="docutils literal notranslate"><span class="pre">chafa</span></code>, <code class="docutils literal notranslate"><span class="pre">timg</span></code>, <code class="docutils literal notranslate"><span class="pre">catimg</span></code> — used if term-image is unavailable or fails</p></li>
+<li><p><strong>File path</strong> — printed as a last resort so you can open the image manually</p></li>
+</ol>
+</section>
+<section id="save-and-display">
+<h3>Save and Display<a class="headerlink" href="#save-and-display" title="Link to this heading">¶</a></h3>
+<p>Combine both flags to save to a specific path <strong>and</strong> display in the terminal:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">map</span> <span class="n">extent</span><span class="o">.</span><span class="n">png</span> <span class="o">--</span><span class="n">preview</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span><span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-dimensions">
+<h3>Custom Dimensions<a class="headerlink" href="#custom-dimensions" title="Link to this heading">¶</a></h3>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--map-dim</span></code> to set the image size in pixels (default: 600x400):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">map</span> <span class="n">extent</span><span class="o">.</span><span class="n">png</span> <span class="o">--</span><span class="nb">map</span><span class="o">-</span><span class="n">dim</span> <span class="mi">800</span><span class="n">x600</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span><span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
+</pre></div>
+</div>
+</section>
+<section id="combining-with-other-options">
+<h3>Combining with Other Options<a class="headerlink" href="#combining-with-other-options" title="Link to this heading">¶</a></h3>
+<p>Map preview works with convex hulls, legacy coordinate order, and remote repositories:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Convex hull overlay</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">convex</span><span class="o">-</span><span class="n">hull</span> <span class="o">--</span><span class="nb">map</span> <span class="n">hull</span><span class="o">.</span><span class="n">png</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span><span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
+
+<span class="c1"># Legacy coordinate order</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">legacy</span> <span class="o">--</span><span class="nb">map</span> <span class="n">extent</span><span class="o">.</span><span class="n">png</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span><span class="n">muenster_ring_zeit</span><span class="o">.</span><span class="n">geojson</span>
+
+<span class="c1"># Remote repository</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">map</span> <span class="n">zenodo_extent</span><span class="o">.</span><span class="n">png</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+
+<span class="c1"># Preview from a directory</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">preview</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span>
+
+<span class="c1"># Quick map to temp file from a repository</span>
+<span class="n">geoextent</span> <span class="o">--</span><span class="nb">map</span> <span class="o">-</span><span class="n">b</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">doi</span><span class="o">.</span><span class="n">org</span><span class="o">/</span><span class="mf">10.5281</span><span class="o">/</span><span class="n">zenodo</span><span class="mf">.4593540</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Map preview requires a spatial extent (<code class="docutils literal notranslate"><span class="pre">-b</span></code>). If no bounding box is extracted
+(e.g., only <code class="docutils literal notranslate"><span class="pre">-t</span></code> is used, or the file has no spatial data), the map is silently
+skipped and extraction proceeds normally. If <code class="docutils literal notranslate"><span class="pre">staticmap</span></code> is not installed, a
+message is printed to stderr and extraction continues.</p>
+</div>
+</section>
+<section id="flag-summary">
+<h3>Flag Summary<a class="headerlink" href="#flag-summary" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Flags</p></th>
+<th class="head"><p>File saved?</p></th>
+<th class="head"><p>Message shown?</p></th>
+<th class="head"><p>Terminal display?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span></code></p></td>
+<td><p>Yes (temp)</p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">extent.png</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--preview</span></code></p></td>
+<td><p>Yes (temp)</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">extent.png</span> <span class="pre">--preview</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">--quiet</span></code></p></td>
+<td><p>No (skipped)</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">extent.png</span> <span class="pre">--quiet</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--preview</span> <span class="pre">--quiet</span></code></p></td>
+<td><p>No (skipped)</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">extent.png</span> <span class="pre">--preview</span> <span class="pre">--quiet</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>No</p></td>
+<td><p>No</p></td>
+</tr>
+</tbody>
+</table>
+<p>When <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> is used, all sidecar output (the “saved to” message and the terminal image
+display) is suppressed. If <code class="docutils literal notranslate"><span class="pre">--map</span></code> specifies an explicit file path, the image is still
+generated and saved silently. When no file path is given (temporary file), the map is
+skipped entirely since the path would not be visible.</p>
+</section>
+</section>
+<section id="file-export">
+<h2>File Export<a class="headerlink" href="#file-export" title="Link to this heading">¶</a></h2>
+<p>Export extraction results to a file using <code class="docutils literal notranslate"><span class="pre">--output</span></code>. The format is auto-detected from the
+file extension.</p>
+<section id="id1">
+<h3>Supported Formats<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 15.0%" />
+<col style="width: 20.0%" />
+<col style="width: 25.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Extension</p></th>
+<th class="head"><p>Format</p></th>
+<th class="head"><p>Geometry</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.gpkg</span></code></p></td>
+<td><p>GeoPackage</p></td>
+<td><p>Native polygon</p></td>
+<td><p>Layer <code class="docutils literal notranslate"><span class="pre">&quot;files&quot;</span></code> with per-file features</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">.geojson</span></code> / <code class="docutils literal notranslate"><span class="pre">.json</span></code></p></td>
+<td><p>GeoJSON</p></td>
+<td><p>RFC 7946 <code class="docutils literal notranslate"><span class="pre">[lon,</span> <span class="pre">lat]</span></code> polygon</p></td>
+<td><p>FeatureCollection</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">.csv</span></code></p></td>
+<td><p>CSV</p></td>
+<td><p>WKT (or WKB via <code class="docutils literal notranslate"><span class="pre">--format</span> <span class="pre">wkb</span></code>) in <code class="docutils literal notranslate"><span class="pre">geometry</span></code> column</p></td>
+<td><p>Geometry format controlled by <code class="docutils literal notranslate"><span class="pre">--format</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Other</p></td>
+<td><p>GeoPackage (fallback)</p></td>
+<td><p>Native polygon</p></td>
+<td><p>Warning printed for unrecognised extensions</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="single-file-vs-directory">
+<h3>Single File vs Directory<a class="headerlink" href="#single-file-vs-directory" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p><strong>Single file</strong>: one feature with the file’s extent</p></li>
+<li><p><strong>Directory / multi-file</strong>: one feature per file plus one summary feature with the merged extent</p></li>
+</ul>
+</section>
+<section id="id2">
+<h3>CLI Examples<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Single file</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">output</span> <span class="n">result</span><span class="o">.</span><span class="n">gpkg</span> <span class="n">file</span><span class="o">.</span><span class="n">geojson</span>
+
+<span class="c1"># Directory to GeoJSON</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">output</span> <span class="n">result</span><span class="o">.</span><span class="n">geojson</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">directory</span>
+
+<span class="c1"># Multiple files to CSV</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">-</span><span class="n">t</span> <span class="o">--</span><span class="n">output</span> <span class="n">result</span><span class="o">.</span><span class="n">csv</span> <span class="n">file1</span><span class="o">.</span><span class="n">shp</span> <span class="n">file2</span><span class="o">.</span><span class="n">geojson</span>
+
+<span class="c1"># With convex hull</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="n">convex</span><span class="o">-</span><span class="n">hull</span> <span class="o">--</span><span class="n">output</span> <span class="n">hull</span><span class="o">.</span><span class="n">gpkg</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">directory</span>
+
+<span class="c1"># CSV with WKB geometry</span>
+<span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="o">--</span><span class="nb">format</span> <span class="n">wkb</span> <span class="o">--</span><span class="n">output</span> <span class="n">result</span><span class="o">.</span><span class="n">csv</span> <span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">directory</span>
+</pre></div>
+</div>
+</section>
+<section id="id3">
+<h3>Python API<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;data.geojson&quot;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">geoextent</span><span class="o">.</span><span class="n">export_to_file</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="s2">&quot;output.gpkg&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="temporal-fields">
+<h3>Temporal Fields<a class="headerlink" href="#temporal-fields" title="Link to this heading">¶</a></h3>
+<p>Each exported feature includes <code class="docutils literal notranslate"><span class="pre">tbox_start</span></code> and <code class="docutils literal notranslate"><span class="pre">tbox_end</span></code> fields:</p>
+<ul class="simple">
+<li><p><strong>GeoPackage</strong>: proper OGR Date fields (<code class="docutils literal notranslate"><span class="pre">OFTDate</span></code>)</p></li>
+<li><p><strong>GeoJSON / CSV</strong>: ISO 8601 date strings (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;2020-01-15&quot;</span></code>)</p></li>
+</ul>
+<p>When no temporal extent was extracted, these fields are <code class="docutils literal notranslate"><span class="pre">NULL</span></code> (GeoPackage) or
+empty / <code class="docutils literal notranslate"><span class="pre">null</span></code> (CSV / GeoJSON).</p>
+</section>
+<section id="coordinate-order">
+<h3>Coordinate Order<a class="headerlink" href="#coordinate-order" title="Link to this heading">¶</a></h3>
+<p>All three output formats use <code class="docutils literal notranslate"><span class="pre">[longitude,</span> <span class="pre">latitude]</span></code> order:</p>
+<ul class="simple">
+<li><p><strong>GeoPackage</strong>: traditional GIS axis order</p></li>
+<li><p><strong>GeoJSON</strong>: per RFC 7946</p></li>
+<li><p><strong>CSV (WKT/WKB)</strong>: traditional GIS axis order</p></li>
+</ul>
+</section>
+<section id="interaction-with-format">
+<h3>Interaction with <code class="docutils literal notranslate"><span class="pre">--format</span></code><a class="headerlink" href="#interaction-with-format" title="Link to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">--format</span></code> flag is respected for CSV output (<code class="docutils literal notranslate"><span class="pre">--format</span> <span class="pre">wkb</span></code> writes hex-encoded
+WKB instead of WKT in the geometry column). For GeoPackage and GeoJSON output, geometry
+is stored natively and <code class="docutils literal notranslate"><span class="pre">--format</span></code> is ignored with a warning.</p>
+</section>
+<section id="interaction-with-quiet">
+<h3>Interaction with <code class="docutils literal notranslate"><span class="pre">--quiet</span></code><a class="headerlink" href="#interaction-with-quiet" title="Link to this heading">¶</a></h3>
+<p>The export file is still written; only the “Exporting result into: …” message is
+suppressed.</p>
+</section>
+</section>
+<section id="joining-export-files">
+<h2>Joining Export Files<a class="headerlink" href="#joining-export-files" title="Link to this heading">¶</a></h2>
+<p>Merge multiple export files (from <code class="docutils literal notranslate"><span class="pre">--output</span></code>) into a single file. This is useful when
+you process many directories or sources in separate runs and want to combine the results.</p>
+<section id="behaviour">
+<h3>Behaviour<a class="headerlink" href="#behaviour" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>Concatenates all <strong>individual-file features</strong> from each input file</p></li>
+<li><p><strong>Excludes summary rows</strong> (features where <code class="docutils literal notranslate"><span class="pre">handler</span></code> starts with <code class="docutils literal notranslate"><span class="pre">&quot;geoextent:&quot;</span></code>)</p></li>
+<li><p>Input files can be any supported format (GPKG, GeoJSON, CSV); the output format is
+auto-detected from the extension — cross-format joins work</p></li>
+<li><p>No re-merging of bounding boxes or temporal extents — just concatenation</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>CLI Examples<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Merge two GPKG exports</span>
+<span class="n">geoextent</span> <span class="o">--</span><span class="n">join</span> <span class="o">--</span><span class="n">output</span> <span class="n">merged</span><span class="o">.</span><span class="n">gpkg</span> <span class="n">run1</span><span class="o">.</span><span class="n">gpkg</span> <span class="n">run2</span><span class="o">.</span><span class="n">gpkg</span>
+
+<span class="c1"># Merge all GPKG files into GeoJSON</span>
+<span class="n">geoextent</span> <span class="o">--</span><span class="n">join</span> <span class="o">--</span><span class="n">output</span> <span class="nb">all</span><span class="o">.</span><span class="n">geojson</span> <span class="o">*.</span><span class="n">gpkg</span>
+
+<span class="c1"># Cross-format: GeoJSON + GPKG -&gt; CSV</span>
+<span class="n">geoextent</span> <span class="o">--</span><span class="n">join</span> <span class="o">--</span><span class="n">output</span> <span class="n">combined</span><span class="o">.</span><span class="n">csv</span> <span class="n">run1</span><span class="o">.</span><span class="n">geojson</span> <span class="n">run2</span><span class="o">.</span><span class="n">gpkg</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">--join</span></code> requires <code class="docutils literal notranslate"><span class="pre">--output</span></code> but does <strong>not</strong> require <code class="docutils literal notranslate"><span class="pre">-b</span></code>/<code class="docutils literal notranslate"><span class="pre">-t</span></code> flags.
+It bypasses the extraction pipeline entirely.</p>
+</div>
+</section>
+<section id="id5">
+<h3>Python API<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="n">geoextent</span><span class="o">.</span><span class="n">join_files</span><span class="p">([</span><span class="s2">&quot;run1.gpkg&quot;</span><span class="p">,</span> <span class="s2">&quot;run2.gpkg&quot;</span><span class="p">],</span> <span class="s2">&quot;merged.gpkg&quot;</span><span class="p">)</span>
+
+<span class="c1"># Cross-format join with WKB geometry for CSV output</span>
+<span class="n">geoextent</span><span class="o">.</span><span class="n">join_files</span><span class="p">([</span><span class="s2">&quot;run1.geojson&quot;</span><span class="p">,</span> <span class="s2">&quot;run2.gpkg&quot;</span><span class="p">],</span> <span class="s2">&quot;combined.csv&quot;</span><span class="p">,</span> <span class="n">geometry_format</span><span class="o">=</span><span class="s2">&quot;wkb&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
 <section id="quiet-mode">
 <h2>Quiet Mode<a class="headerlink" href="#quiet-mode" title="Link to this heading">¶</a></h2>
-<p>Use the <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option to suppress all console messages including warnings and progress bars. This is particularly useful for scripting, automation, or when you only want the final result.</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> option to suppress all console messages including warnings, progress bars, map preview messages, and terminal display. This is particularly useful for scripting, automation, or when you only want the final result. File output (<code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">FILE</span></code>, <code class="docutils literal notranslate"><span class="pre">--output</span></code>) is still written silently.</p>
+<p>The following table summarises how <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> interacts with other flags:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 35.0%" />
+<col style="width: 35.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>With <code class="docutils literal notranslate"><span class="pre">--quiet</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Progress bars</p></td>
+<td><p>Shown</p></td>
+<td><p>Hidden (implies <code class="docutils literal notranslate"><span class="pre">--no-progress</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Warnings / log messages</p></td>
+<td><p>Shown</p></td>
+<td><p>Hidden</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">FILE</span></code></p></td>
+<td><p>Image saved, path printed</p></td>
+<td><p>Image saved, path hidden</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span></code> (no path)</p></td>
+<td><p>Temp image saved, path printed</p></td>
+<td><p>Skipped entirely</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--preview</span></code></p></td>
+<td><p>Image displayed in terminal</p></td>
+<td><p>Skipped entirely</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">FILE</span> <span class="pre">--preview</span></code></p></td>
+<td><p>Image saved and displayed</p></td>
+<td><p>Image saved, display hidden</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--geojsonio</span></code></p></td>
+<td><p>URL printed</p></td>
+<td><p>URL printed</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--browse</span></code></p></td>
+<td><p>Browser opened, status printed</p></td>
+<td><p>Browser opened, status hidden</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--output</span> <span class="pre">FILE</span></code></p></td>
+<td><p>File written, status printed</p></td>
+<td><p>File written, status hidden</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--debug</span></code></p></td>
+<td><p>N/A (conflicts with <code class="docutils literal notranslate"><span class="pre">--quiet</span></code>)</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">--debug</span></code> wins, <code class="docutils literal notranslate"><span class="pre">--quiet</span></code> disabled</p></td>
+</tr>
+</tbody>
+</table>
 <section id="basic-usage">
 <h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Normal output (shows progress bars and warnings)</span>
@@ -431,8 +795,8 @@ echo &quot;Bounding box: $BBOX&quot;
 <section id="convex-hull-vs-bounding-box">
 <h2>Convex Hull vs Bounding Box<a class="headerlink" href="#convex-hull-vs-bounding-box" title="Link to this heading">¶</a></h2>
 <p>By default, geoextent extracts a rectangular bounding box. For vector data, you can extract a more precise convex hull that better represents the actual spatial extent.</p>
-<section id="id1">
-<h3>Basic Usage<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
+<section id="id6">
+<h3>Basic Usage<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h3>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default bounding box extraction</span>
 <span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">tests</span><span class="o">/</span><span class="n">testdata</span><span class="o">/</span><span class="n">geojson</span><span class="o">/</span><span class="n">muenster_ring</span><span class="o">.</span><span class="n">geojson</span>
 

@@ -90,7 +90,7 @@ Import functions::
 
 **Validate remote identifiers:**
 
-Validate a DOI, URL, or identifier before calling ``fromRemote()``:
+Validate a DOI, URL, or identifier before calling ``from_remote()``:
 
 .. code-block:: python
 
@@ -104,7 +104,7 @@ Validate a DOI, URL, or identifier before calling ``fromRemote()``:
 
 **Validate file formats:**
 
-Check if a file format is supported before calling ``fromFile()``:
+Check if a file format is supported before calling ``from_file()``:
 
 .. code-block:: python
 
@@ -129,7 +129,7 @@ Use Cases
 
    if validation['valid']:
        # Process with geoextent
-       extent = geoextent.fromRemote(user_input, bbox=True)
+       extent = geoextent.from_remote(user_input, bbox=True)
    else:
        # Show error to user
        return {"error": validation['message']}
@@ -207,7 +207,7 @@ Multiple Remote Resource Extraction
 Overview
 ^^^^^^^^
 
-The ``fromRemote()`` function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a **merged geometry** (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:
+The ``from_remote()`` function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a **merged geometry** (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:
 
 - Processing multiple datasets from different repositories
 - Comparing spatial coverage across multiple sources
@@ -229,7 +229,7 @@ Python API
        'https://osf.io/abc123/'
    ]
 
-   result = extent.fromRemote(
+   result = extent.from_remote(
        identifiers,
        bbox=True,
        tbox=True,
@@ -256,7 +256,7 @@ Python API
 
 .. code-block:: python
 
-   result = extent.fromRemote(
+   result = extent.from_remote(
        '10.5281/zenodo.4593540',
        bbox=True,
        tbox=True
@@ -282,7 +282,7 @@ The CLI supports multiple inputs including remote resources::
 Features
 ^^^^^^^^
 
-All standard ``fromRemote()`` parameters are supported:
+All standard ``from_remote()`` parameters are supported:
 
 - ``bbox``, ``tbox``, ``convex_hull`` - Extraction options
 - ``max_download_size``, ``max_download_method`` - Download control

@@ -11,7 +11,7 @@ geoextent supports a wide range of geospatial file formats and can extract data 
 - **Repository integration**: Direct extraction from Zenodo, PANGAEA, OSF, Figshare, Dryad, GFZ Data Services, and other research repositories
 - **Flexible extent types**: Bounding boxes, temporal extents, and convex hulls
 - **Advanced filtering**: Size limits, file type filtering, and parallel downloads
-- **Rich output options**: GeoJSON, WKT, WKB formats with optional geojson.io visualization
+- **Rich output options**: GeoJSON, WKT, WKB formats with optional geojson.io visualization and static map preview
 - **Geographic context**: Placename lookup using multiple gazetteer services
 - **Docker support**: Containerized execution for easy deployment
 
@@ -23,9 +23,9 @@ geoextent supports a wide range of geospatial file formats and can extract data 
 
 **Current API Functions:**
 
-- ``fromFile()`` - Extract extent from individual files
-- ``fromDirectory()`` - Extract extent from directories
-- ``fromRemote()`` - Extract extent from remote sources (repositories, journals, preprint servers)
+- ``from_file()`` - Extract extent from individual files
+- ``from_directory()`` - Extract extent from directories
+- ``from_remote()`` - Extract extent from remote sources (repositories, journals, preprint servers)
 
 This project was originally developed as part of the `DFG-funded <https://o2r.info/about/#funding>`_ research project Opening Reproducible Research `o2r <https://o2r.info>`_.
 

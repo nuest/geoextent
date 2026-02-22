@@ -59,21 +59,21 @@ Examples
 
    from geoextent.lib import extent
 
-   result = extent.fromFile("satellite_image.tif", tbox=True)
+   result = extent.from_file("satellite_image.tif", tbox=True)
    # result["tbox"] == ["2019-03-21", "2019-03-21"]
 
 **NetCDF with CF time dimension:**
 
 .. code-block:: python
 
-   result = extent.fromFile("climate_model.nc", tbox=True)
+   result = extent.from_file("climate_model.nc", tbox=True)
    # result["tbox"] == ["2015-01-01", "2016-01-01"]
 
 **NetCDF with ACDD global attributes:**
 
 .. code-block:: python
 
-   result = extent.fromFile("ocean_temp.nc", tbox=True)
+   result = extent.from_file("ocean_temp.nc", tbox=True)
    # result["tbox"] == ["2018-04-01", "2018-09-30"]
 
 CLI usage::
@@ -123,15 +123,15 @@ Python API Examples
    from geoextent.lib import extent
 
    # Default (date only)
-   result = extent.fromFile("image.tif", tbox=True)
+   result = extent.from_file("image.tif", tbox=True)
    # result["tbox"] == ["2019-03-21", "2019-03-21"]
 
    # ISO 8601 with full time
-   result = extent.fromFile("image.tif", tbox=True, time_format="iso8601")
+   result = extent.from_file("image.tif", tbox=True, time_format="iso8601")
    # result["tbox"] == ["2019-03-21T08:15:00Z", "2019-03-21T08:15:00Z"]
 
    # Custom strftime format
-   result = extent.fromFile("image.tif", tbox=True, time_format="%d.%m.%Y %H:%M")
+   result = extent.from_file("image.tif", tbox=True, time_format="%d.%m.%Y %H:%M")
    # result["tbox"] == ["21.03.2019 08:15", "21.03.2019 08:15"]
 
 CLI Examples
@@ -154,7 +154,7 @@ Multiple Remote Resource Extraction
 Overview
 ^^^^^^^^
 
-The ``fromRemote()`` function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a **merged geometry** (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:
+The ``from_remote()`` function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a **merged geometry** (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:
 
 - Processing multiple datasets from different repositories
 - Comparing spatial coverage across multiple sources
@@ -176,7 +176,7 @@ Python API
        'https://osf.io/abc123/'
    ]
 
-   result = extent.fromRemote(
+   result = extent.from_remote(
        identifiers,
        bbox=True,
        tbox=True,
@@ -203,7 +203,7 @@ Python API
 
 .. code-block:: python
 
-   result = extent.fromRemote(
+   result = extent.from_remote(
        '10.5281/zenodo.4593540',
        bbox=True,
        tbox=True
@@ -229,7 +229,7 @@ The CLI supports multiple inputs including remote resources::
 Supported Parameters
 ^^^^^^^^^^^^^^^^^^^^
 
-All standard ``fromRemote()`` parameters are supported:
+All standard ``from_remote()`` parameters are supported:
 
 - ``bbox``, ``tbox``, ``convex_hull`` - Extraction options
 - ``max_download_size``, ``max_download_method`` - Download control
@@ -355,10 +355,341 @@ Works with Remote Repositories
    # Combine with other options
    python -m geoextent -b --convex-hull --browse --quiet https://doi.org/10.1594/PANGAEA.734969
 
+Map Preview
+-----------
+
+Generate a static map image showing the extracted spatial extent overlaid on OpenStreetMap tiles. This is useful for quick visual verification of extraction results, inclusion in reports, or embedding in notebooks.
+
+.. note::
+
+   Map preview requires the ``preview`` optional dependency group::
+
+      pip install geoextent[preview]
+
+   This installs `staticmap <https://github.com/komoot/staticmap>`_, `term-image <https://github.com/AnonymouX47/term-image>`_, and Pillow.
+
+Quick Start
+^^^^^^^^^^^
+
+The simplest way to get a map preview is ``--map`` with no arguments. A temporary PNG file is created automatically and its path is printed to stderr::
+
+   geoextent --map -b tests/testdata/geojson/muenster_ring_zeit.geojson
+   # stderr: Map preview saved to: /tmp/geoextent_map_abc12345.png
+
+.. tip::
+
+   When using ``--map`` without a file path, place it **before** the input file
+   (e.g., ``--map -b file.geojson``) so that argparse does not consume the input
+   as the map path.
+
+Save to a Specific File
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Provide a path after ``--map`` to choose where the PNG is saved::
+
+   geoextent -b --map extent.png tests/testdata/geojson/muenster_ring_zeit.geojson
+
+The saved image includes a semi-transparent attribution bar at the bottom:
+*"Created with geoextent {version} | (c) OpenStreetMap contributors"*
+
+The path is always printed to stderr unless ``--quiet`` is used.
+
+Display in Terminal
+^^^^^^^^^^^^^^^^^^^
+
+Use ``--preview`` to render the map and display it directly in the terminal::
+
+   geoextent -b --preview tests/testdata/geojson/muenster_ring_zeit.geojson
+
+geoextent displays the image using the following fallback chain:
+
+1. **term-image** (Python library, included in ``[preview]``) — auto-detects Kitty graphics protocol, iTerm2 inline images, or Sixel, falls back to Unicode block characters. Works in any terminal without external tools.
+2. **External CLI tools**: ``chafa``, ``timg``, ``catimg`` — used if term-image is unavailable or fails
+3. **File path** — printed as a last resort so you can open the image manually
+
+Save and Display
+^^^^^^^^^^^^^^^^
+
+Combine both flags to save to a specific path **and** display in the terminal::
+
+   geoextent -b --map extent.png --preview tests/testdata/geojson/muenster_ring_zeit.geojson
+
+Custom Dimensions
+^^^^^^^^^^^^^^^^^
+
+Use ``--map-dim`` to set the image size in pixels (default: 600x400)::
+
+   geoextent -b --map extent.png --map-dim 800x600 tests/testdata/geojson/muenster_ring_zeit.geojson
+
+Combining with Other Options
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Map preview works with convex hulls, legacy coordinate order, and remote repositories::
+
+   # Convex hull overlay
+   geoextent -b --convex-hull --map hull.png tests/testdata/geojson/muenster_ring_zeit.geojson
+
+   # Legacy coordinate order
+   geoextent -b --legacy --map extent.png tests/testdata/geojson/muenster_ring_zeit.geojson
+
+   # Remote repository
+   geoextent -b --map zenodo_extent.png https://doi.org/10.5281/zenodo.4593540
+
+   # Preview from a directory
+   geoextent -b --preview tests/testdata/geojson/
+
+   # Quick map to temp file from a repository
+   geoextent --map -b https://doi.org/10.5281/zenodo.4593540
+
+.. note::
+
+   Map preview requires a spatial extent (``-b``). If no bounding box is extracted
+   (e.g., only ``-t`` is used, or the file has no spatial data), the map is silently
+   skipped and extraction proceeds normally. If ``staticmap`` is not installed, a
+   message is printed to stderr and extraction continues.
+
+Flag Summary
+^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 20 20 20
+
+   * - Flags
+     - File saved?
+     - Message shown?
+     - Terminal display?
+   * - ``--map``
+     - Yes (temp)
+     - Yes
+     - No
+   * - ``--map extent.png``
+     - Yes
+     - Yes
+     - No
+   * - ``--preview``
+     - Yes (temp)
+     - Yes
+     - Yes
+   * - ``--map extent.png --preview``
+     - Yes
+     - Yes
+     - Yes
+   * - ``--map --quiet``
+     - No (skipped)
+     - No
+     - No
+   * - ``--map extent.png --quiet``
+     - Yes
+     - No
+     - No
+   * - ``--preview --quiet``
+     - No (skipped)
+     - No
+     - No
+   * - ``--map extent.png --preview --quiet``
+     - Yes
+     - No
+     - No
+
+When ``--quiet`` is used, all sidecar output (the "saved to" message and the terminal image
+display) is suppressed. If ``--map`` specifies an explicit file path, the image is still
+generated and saved silently. When no file path is given (temporary file), the map is
+skipped entirely since the path would not be visible.
+
+File Export
+----------
+
+Export extraction results to a file using ``--output``. The format is auto-detected from the
+file extension.
+
+Supported Formats
+^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 15 20 25 40
+
+   * - Extension
+     - Format
+     - Geometry
+     - Notes
+   * - ``.gpkg``
+     - GeoPackage
+     - Native polygon
+     - Layer ``"files"`` with per-file features
+   * - ``.geojson`` / ``.json``
+     - GeoJSON
+     - RFC 7946 ``[lon, lat]`` polygon
+     - FeatureCollection
+   * - ``.csv``
+     - CSV
+     - WKT (or WKB via ``--format wkb``) in ``geometry`` column
+     - Geometry format controlled by ``--format``
+   * - Other
+     - GeoPackage (fallback)
+     - Native polygon
+     - Warning printed for unrecognised extensions
+
+Single File vs Directory
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **Single file**: one feature with the file's extent
+- **Directory / multi-file**: one feature per file plus one summary feature with the merged extent
+
+CLI Examples
+^^^^^^^^^^^^
+
+::
+
+   # Single file
+   geoextent -b -t --output result.gpkg file.geojson
+
+   # Directory to GeoJSON
+   geoextent -b -t --output result.geojson path/to/directory
+
+   # Multiple files to CSV
+   geoextent -b -t --output result.csv file1.shp file2.geojson
+
+   # With convex hull
+   geoextent -b --convex-hull --output hull.gpkg path/to/directory
+
+   # CSV with WKB geometry
+   geoextent -b --format wkb --output result.csv path/to/directory
+
+Python API
+^^^^^^^^^^
+
+.. code-block:: python
+
+   import geoextent
+
+   result = geoextent.from_file("data.geojson", bbox=True, tbox=True)
+   geoextent.export_to_file(result, "output.gpkg")
+
+Temporal Fields
+^^^^^^^^^^^^^^^
+
+Each exported feature includes ``tbox_start`` and ``tbox_end`` fields:
+
+- **GeoPackage**: proper OGR Date fields (``OFTDate``)
+- **GeoJSON / CSV**: ISO 8601 date strings (e.g. ``"2020-01-15"``)
+
+When no temporal extent was extracted, these fields are ``NULL`` (GeoPackage) or
+empty / ``null`` (CSV / GeoJSON).
+
+Coordinate Order
+^^^^^^^^^^^^^^^^
+
+All three output formats use ``[longitude, latitude]`` order:
+
+- **GeoPackage**: traditional GIS axis order
+- **GeoJSON**: per RFC 7946
+- **CSV (WKT/WKB)**: traditional GIS axis order
+
+Interaction with ``--format``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``--format`` flag is respected for CSV output (``--format wkb`` writes hex-encoded
+WKB instead of WKT in the geometry column). For GeoPackage and GeoJSON output, geometry
+is stored natively and ``--format`` is ignored with a warning.
+
+Interaction with ``--quiet``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The export file is still written; only the "Exporting result into: ..." message is
+suppressed.
+
+Joining Export Files
+--------------------
+
+Merge multiple export files (from ``--output``) into a single file. This is useful when
+you process many directories or sources in separate runs and want to combine the results.
+
+Behaviour
+^^^^^^^^^
+
+- Concatenates all **individual-file features** from each input file
+- **Excludes summary rows** (features where ``handler`` starts with ``"geoextent:"``)
+- Input files can be any supported format (GPKG, GeoJSON, CSV); the output format is
+  auto-detected from the extension — cross-format joins work
+- No re-merging of bounding boxes or temporal extents — just concatenation
+
+CLI Examples
+^^^^^^^^^^^^
+
+::
+
+   # Merge two GPKG exports
+   geoextent --join --output merged.gpkg run1.gpkg run2.gpkg
+
+   # Merge all GPKG files into GeoJSON
+   geoextent --join --output all.geojson *.gpkg
+
+   # Cross-format: GeoJSON + GPKG -> CSV
+   geoextent --join --output combined.csv run1.geojson run2.gpkg
+
+.. note::
+
+   ``--join`` requires ``--output`` but does **not** require ``-b``/``-t`` flags.
+   It bypasses the extraction pipeline entirely.
+
+Python API
+^^^^^^^^^^
+
+.. code-block:: python
+
+   import geoextent
+
+   geoextent.join_files(["run1.gpkg", "run2.gpkg"], "merged.gpkg")
+
+   # Cross-format join with WKB geometry for CSV output
+   geoextent.join_files(["run1.geojson", "run2.gpkg"], "combined.csv", geometry_format="wkb")
+
 Quiet Mode
 ----------
 
-Use the ``--quiet`` option to suppress all console messages including warnings and progress bars. This is particularly useful for scripting, automation, or when you only want the final result.
+Use the ``--quiet`` option to suppress all console messages including warnings, progress bars, map preview messages, and terminal display. This is particularly useful for scripting, automation, or when you only want the final result. File output (``--map FILE``, ``--output``) is still written silently.
+
+The following table summarises how ``--quiet`` interacts with other flags:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 35 30
+
+   * - Feature
+     - Default
+     - With ``--quiet``
+   * - Progress bars
+     - Shown
+     - Hidden (implies ``--no-progress``)
+   * - Warnings / log messages
+     - Shown
+     - Hidden
+   * - ``--map FILE``
+     - Image saved, path printed
+     - Image saved, path hidden
+   * - ``--map`` (no path)
+     - Temp image saved, path printed
+     - Skipped entirely
+   * - ``--preview``
+     - Image displayed in terminal
+     - Skipped entirely
+   * - ``--map FILE --preview``
+     - Image saved and displayed
+     - Image saved, display hidden
+   * - ``--geojsonio``
+     - URL printed
+     - URL printed
+   * - ``--browse``
+     - Browser opened, status printed
+     - Browser opened, status hidden
+   * - ``--output FILE``
+     - File written, status printed
+     - File written, status hidden
+   * - ``--debug``
+     - N/A (conflicts with ``--quiet``)
+     - ``--debug`` wins, ``--quiet`` disabled
 
 Basic Usage
 ^^^^^^^^^^^

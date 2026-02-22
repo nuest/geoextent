@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Installing geoextent &#8212; geoextent 0.1.dev1+g004f9e673 documentation</title>
+    <title>Installing geoextent &#8212; geoextent 0.1.dev1+g8b6c7d5c2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=50b3ac34"></script>
+    <script src="_static/documentation_options.js?v=3e179473"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -185,6 +185,93 @@ pip install geoextent
 </pre></div>
 </div>
 </section>
+<section id="installing-with-uv">
+<h2>Installing with uv<a class="headerlink" href="#installing-with-uv" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://docs.astral.sh/uv/">uv</a> is a fast Python package manager that can replace pip and venv. It handles virtual environments automatically and resolves dependencies significantly faster than pip.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># Create a venv and install GDAL + geoextent
+GDAL_VERSION=$(gdal-config --version)
+uv venv .venv
+uv pip install &quot;GDAL==$GDAL_VERSION&quot; geoextent
+
+# Activate and use
+source .venv/bin/activate
+geoextent -b file.geojson
+</pre></div>
+</div>
+<p>To install geoextent as a CLI tool (similar to pipx):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>GDAL_VERSION=$(gdal-config --version)
+uv tool install geoextent --with &quot;gdal==$GDAL_VERSION&quot;
+
+# Now available globally
+geoextent -b file.geojson
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--with</span> <span class="pre">&quot;gdal==...&quot;</span></code> flag is required because uv’s dependency resolver would otherwise install the latest GDAL Python bindings from PyPI, which may not match the system GDAL library.</p>
+</div>
+</section>
+<section id="installing-with-conda-mamba">
+<h2>Installing with conda / mamba<a class="headerlink" href="#installing-with-conda-mamba" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://docs.conda.io/">conda</a> and <a class="reference external" href="https://mamba.readthedocs.io/">mamba</a> (a faster drop-in replacement for conda) can install GDAL and its Python bindings together from conda-forge, avoiding version mismatch issues entirely. This is particularly useful on <strong>Windows</strong> and <strong>macOS</strong> where system GDAL installation can be more involved.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create environment (use &#39;mamba&#39; instead of &#39;conda&#39; for faster resolution)</span>
+<span class="n">conda</span> <span class="n">create</span> <span class="o">-</span><span class="n">n</span> <span class="n">geoextent</span> <span class="n">python</span><span class="o">=</span><span class="mf">3.12</span> <span class="o">-</span><span class="n">y</span>
+<span class="n">conda</span> <span class="n">activate</span> <span class="n">geoextent</span>
+
+<span class="c1"># Install GDAL from conda-forge (includes matching Python bindings)</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">gdal</span> <span class="o">-</span><span class="n">y</span>
+
+<span class="c1"># Install geoextent via pip</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">geoextent</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Always activate the conda environment (<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">geoextent</span></code>) before running geoextent. This sets environment variables like <code class="docutils literal notranslate"><span class="pre">PROJ_DATA</span></code> that GDAL needs for coordinate transformations.</p>
+</div>
+</section>
+<section id="installing-with-poetry">
+<h2>Installing with Poetry<a class="headerlink" href="#installing-with-poetry" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://python-poetry.org/">Poetry</a> manages Python dependencies with a lockfile for reproducible installs. Because Poetry resolves all dependencies together, you must pin the GDAL version to match your system:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">poetry</span> <span class="n">init</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">interaction</span>
+<span class="n">poetry</span> <span class="n">add</span> <span class="s2">&quot;gdal==$(gdal-config --version)&quot;</span> <span class="n">geoextent</span>
+<span class="n">poetry</span> <span class="n">run</span> <span class="n">geoextent</span> <span class="o">-</span><span class="n">b</span> <span class="n">file</span><span class="o">.</span><span class="n">geojson</span>
+</pre></div>
+</div>
+<p>Without the explicit GDAL version pin, Poetry will resolve to the latest GDAL on PyPI, which will fail to build if it does not match the system GDAL library.</p>
+</section>
+<section id="installing-with-pipx">
+<h2>Installing with pipx<a class="headerlink" href="#installing-with-pipx" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://pipx.pypa.io/">pipx</a> installs Python CLI tools in isolated environments. Use <code class="docutils literal notranslate"><span class="pre">--preinstall</span></code> to install the correct GDAL bindings before geoextent:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>GDAL_VERSION=$(gdal-config --version)
+pipx install geoextent --preinstall &quot;gdal==$GDAL_VERSION&quot;
+
+# Now available globally
+geoextent -b file.geojson
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A plain <code class="docutils literal notranslate"><span class="pre">pipx</span> <span class="pre">install</span> <span class="pre">geoextent</span></code> will fail because pipx resolves to the latest GDAL on PyPI. The <code class="docutils literal notranslate"><span class="pre">--preinstall</span></code> flag ensures the correct GDAL version is installed first.</p>
+</div>
+</section>
+<section id="optional-extras">
+<h2>Optional Extras<a class="headerlink" href="#optional-extras" title="Link to this heading">¶</a></h2>
+<p>Install optional feature groups as needed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Map preview (--map and --preview CLI flags)</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">geoextent</span><span class="p">[</span><span class="n">preview</span><span class="p">]</span>
+
+<span class="c1"># Development tools</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">geoextent</span><span class="p">[</span><span class="n">dev</span><span class="p">]</span>
+
+<span class="c1"># Testing</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">geoextent</span><span class="p">[</span><span class="n">test</span><span class="p">]</span>
+
+<span class="c1"># Documentation building</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="n">geoextent</span><span class="p">[</span><span class="n">docs</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
 <section id="development-installation">
 <h2>Development Installation<a class="headerlink" href="#development-installation" title="Link to this heading">¶</a></h2>
 <p>For development, install with additional dependencies:</p>
@@ -192,7 +279,7 @@ pip install geoextent
 <span class="n">cd</span> <span class="n">geoextent</span>
 
 <span class="c1"># Install in development mode with all dependencies</span>
-<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span><span class="p">[</span><span class="n">dev</span><span class="p">,</span><span class="n">test</span><span class="p">,</span><span class="n">docs</span><span class="p">]</span>
+<span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">e</span> <span class="o">.</span><span class="p">[</span><span class="n">dev</span><span class="p">,</span><span class="n">test</span><span class="p">,</span><span class="n">docs</span><span class="p">,</span><span class="n">preview</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>
@@ -297,6 +384,11 @@ pip install geoextent
 <li class="toctree-l2"><a class="reference internal" href="#system-requirements">System Requirements</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-gdal-python-bindings">Installing GDAL Python Bindings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#installing-with-pip">Installing with pip</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-with-uv">Installing with uv</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-with-conda-mamba">Installing with conda / mamba</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-with-poetry">Installing with Poetry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installing-with-pipx">Installing with pipx</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#optional-extras">Optional Extras</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#development-installation">Development Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#docker-installation">Docker Installation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#verification">Verification</a></li>

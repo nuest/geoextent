@@ -162,6 +162,103 @@ Recommended installation using virtual environment:
    # Then install geoextent
    pip install geoextent
 
+Installing with uv
+-------------------
+
+`uv <https://docs.astral.sh/uv/>`_ is a fast Python package manager that can replace pip and venv. It handles virtual environments automatically and resolves dependencies significantly faster than pip.
+
+::
+
+   # Create a venv and install GDAL + geoextent
+   GDAL_VERSION=$(gdal-config --version)
+   uv venv .venv
+   uv pip install "GDAL==$GDAL_VERSION" geoextent
+
+   # Activate and use
+   source .venv/bin/activate
+   geoextent -b file.geojson
+
+To install geoextent as a CLI tool (similar to pipx):
+
+::
+
+   GDAL_VERSION=$(gdal-config --version)
+   uv tool install geoextent --with "gdal==$GDAL_VERSION"
+
+   # Now available globally
+   geoextent -b file.geojson
+
+.. note::
+   The ``--with "gdal==..."`` flag is required because uv's dependency resolver would otherwise install the latest GDAL Python bindings from PyPI, which may not match the system GDAL library.
+
+Installing with conda / mamba
+------------------------------
+
+`conda <https://docs.conda.io/>`_ and `mamba <https://mamba.readthedocs.io/>`_ (a faster drop-in replacement for conda) can install GDAL and its Python bindings together from conda-forge, avoiding version mismatch issues entirely. This is particularly useful on **Windows** and **macOS** where system GDAL installation can be more involved.
+
+::
+
+   # Create environment (use 'mamba' instead of 'conda' for faster resolution)
+   conda create -n geoextent python=3.12 -y
+   conda activate geoextent
+
+   # Install GDAL from conda-forge (includes matching Python bindings)
+   conda install -c conda-forge gdal -y
+
+   # Install geoextent via pip
+   pip install geoextent
+
+.. note::
+   Always activate the conda environment (``conda activate geoextent``) before running geoextent. This sets environment variables like ``PROJ_DATA`` that GDAL needs for coordinate transformations.
+
+Installing with Poetry
+-----------------------
+
+`Poetry <https://python-poetry.org/>`_ manages Python dependencies with a lockfile for reproducible installs. Because Poetry resolves all dependencies together, you must pin the GDAL version to match your system:
+
+::
+
+   poetry init --no-interaction
+   poetry add "gdal==$(gdal-config --version)" geoextent
+   poetry run geoextent -b file.geojson
+
+Without the explicit GDAL version pin, Poetry will resolve to the latest GDAL on PyPI, which will fail to build if it does not match the system GDAL library.
+
+Installing with pipx
+---------------------
+
+`pipx <https://pipx.pypa.io/>`_ installs Python CLI tools in isolated environments. Use ``--preinstall`` to install the correct GDAL bindings before geoextent:
+
+::
+
+   GDAL_VERSION=$(gdal-config --version)
+   pipx install geoextent --preinstall "gdal==$GDAL_VERSION"
+
+   # Now available globally
+   geoextent -b file.geojson
+
+.. note::
+   A plain ``pipx install geoextent`` will fail because pipx resolves to the latest GDAL on PyPI. The ``--preinstall`` flag ensures the correct GDAL version is installed first.
+
+Optional Extras
+----------------
+
+Install optional feature groups as needed:
+
+::
+
+   # Map preview (--map and --preview CLI flags)
+   pip install geoextent[preview]
+
+   # Development tools
+   pip install geoextent[dev]
+
+   # Testing
+   pip install geoextent[test]
+
+   # Documentation building
+   pip install geoextent[docs]
+
 Development Installation
 ------------------------
 
@@ -173,7 +270,7 @@ For development, install with additional dependencies:
    cd geoextent
 
    # Install in development mode with all dependencies
-   pip install -e .[dev,test,docs]
+   pip install -e .[dev,test,docs,preview]
 
 Docker Installation
 -------------------

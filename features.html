@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Advanced Features &#8212; geoextent 0.1.dev1+g004f9e673 documentation</title>
+    <title>Advanced Features &#8212; geoextent 0.1.dev1+g8b6c7d5c2 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=50b3ac34"></script>
+    <script src="_static/documentation_options.js?v=3e179473"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -128,7 +128,7 @@
 </pre></div>
 </div>
 <p><strong>Validate remote identifiers:</strong></p>
-<p>Validate a DOI, URL, or identifier before calling <code class="docutils literal notranslate"><span class="pre">fromRemote()</span></code>:</p>
+<p>Validate a DOI, URL, or identifier before calling <code class="docutils literal notranslate"><span class="pre">from_remote()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_remote_identifier</span><span class="p">(</span><span class="s2">&quot;10.25532/OPARA-581&quot;</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]:</span>
@@ -139,7 +139,7 @@
 </pre></div>
 </div>
 <p><strong>Validate file formats:</strong></p>
-<p>Check if a file format is supported before calling <code class="docutils literal notranslate"><span class="pre">fromFile()</span></code>:</p>
+<p>Check if a file format is supported before calling <code class="docutils literal notranslate"><span class="pre">from_file()</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_file_format</span><span class="p">(</span><span class="s2">&quot;data.geojson&quot;</span><span class="p">)</span>
 
 <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]:</span>
@@ -158,7 +158,7 @@
 
 <span class="k">if</span> <span class="n">validation</span><span class="p">[</span><span class="s1">&#39;valid&#39;</span><span class="p">]:</span>
     <span class="c1"># Process with geoextent</span>
-    <span class="n">extent</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span><span class="n">user_input</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">extent</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">from_remote</span><span class="p">(</span><span class="n">user_input</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">else</span><span class="p">:</span>
     <span class="c1"># Show error to user</span>
     <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">validation</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]}</span>
@@ -226,7 +226,7 @@
 <h2>Multiple Remote Resource Extraction<a class="headerlink" href="#multiple-remote-resource-extraction" title="Link to this heading">¶</a></h2>
 <section id="id1">
 <h3>Overview<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
-<p>The <code class="docutils literal notranslate"><span class="pre">fromRemote()</span></code> function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a <strong>merged geometry</strong> (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">from_remote()</span></code> function accepts either a single identifier (string) or multiple identifiers (list) for extracting geospatial and temporal extents. When multiple identifiers are provided, the function returns a <strong>merged geometry</strong> (bounding box or convex hull) covering all resources, similar to directory extraction. This is useful for:</p>
 <ul class="simple">
 <li><p>Processing multiple datasets from different repositories</p></li>
 <li><p>Comparing spatial coverage across multiple sources</p></li>
@@ -245,7 +245,7 @@
     <span class="s1">&#39;https://osf.io/abc123/&#39;</span>
 <span class="p">]</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_remote</span><span class="p">(</span>
     <span class="n">identifiers</span><span class="p">,</span>
     <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -270,7 +270,7 @@
 </pre></div>
 </div>
 <p><strong>Extract from single remote resource (string):</strong></p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">fromRemote</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_remote</span><span class="p">(</span>
     <span class="s1">&#39;10.5281/zenodo.4593540&#39;</span><span class="p">,</span>
     <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span>
@@ -297,7 +297,7 @@
 </section>
 <section id="features">
 <h3>Features<a class="headerlink" href="#features" title="Link to this heading">¶</a></h3>
-<p>All standard <code class="docutils literal notranslate"><span class="pre">fromRemote()</span></code> parameters are supported:</p>
+<p>All standard <code class="docutils literal notranslate"><span class="pre">from_remote()</span></code> parameters are supported:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">bbox</span></code>, <code class="docutils literal notranslate"><span class="pre">tbox</span></code>, <code class="docutils literal notranslate"><span class="pre">convex_hull</span></code> - Extraction options</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">max_download_size</span></code>, <code class="docutils literal notranslate"><span class="pre">max_download_method</span></code> - Download control</p></li>
