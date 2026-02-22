@@ -82,7 +82,7 @@ See the [API documentation](https://nuest.github.io/geoextent/howto/api.html) an
 ## What Can I Do With geoextent?
 
 - **Extract Spatial Extents** - Get bounding boxes or convex hulls from geospatial files
-- **Process Research Data** - Extract extents from Zenodo, Figshare, Dryad, PANGAEA, OSF, SEANOE, UKCEH, GBIF, DEIMS-SDR, NFDI4Earth, GitHub, GitLab, any STAC catalog, and more
+- **Process Research Data** - Extract extents from Zenodo, Figshare, Dryad, PANGAEA, OSF, DataONE, SEANOE, UKCEH, GBIF, DEIMS-SDR, NFDI4Earth, GitHub, GitLab, any STAC catalog, and more
 - **Batch Processing** - Process directories or multiple repositories in one call
 - **Add Location Context** - Automatic placename lookup for your data
 - **Flexible Output** - Export as GeoJSON, WKT, or WKB for use in other tools

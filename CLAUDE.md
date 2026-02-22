@@ -234,6 +234,7 @@ The project follows a modular handler-based architecture:
    - `handle_csv.py` - CSV file processing with coordinate detection
    - `handle_raster.py` - Raster data (GeoTIFF, Zarr, world files) processing using GDAL. Zarr stores (V2 and V3) are directory-based datasets handled like `.gdb` — routed to `from_file()` instead of being recursed into. Temporal extraction supports: NetCDF CF time dimensions, ACDD `time_coverage_start/end`, GeoTIFF `TIFFTAG_DATETIME`, and band-level `ACQUISITIONDATETIME` (IMAGERY domain)
    - `handle_vector.py` - Vector data (Shapefile, GeoJSON) processing using OGR
+   - `handle_pointcloud.py` - Point cloud data (LAS/LAZ) processing using laspy. Header-only bounding box extraction (no point loading). Temporal extent from LAS header creation date. CRS via GeoTIFF VLR keys (`parse_crs()`).
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):
@@ -322,6 +323,7 @@ geoextent/
 │   ├── handle_csv.py       # CSV format handler
 │   ├── handle_raster.py    # Raster format handler
 │   ├── handle_vector.py    # Vector format handler
+│   ├── handle_pointcloud.py # Point cloud format handler (LAS/LAZ)
 │   ├── helpfunctions.py    # Utility functions
 │   └── content_providers/  # Repository integrations
 tests/                      # Test files organized by format

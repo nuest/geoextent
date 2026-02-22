@@ -49,7 +49,8 @@ dependencies = [
     "humanfriendly",
     "crossref-commons",
     "datacite",
-    "owslib"
+    "owslib",
+    "laspy[lazrs]"
 ]
 
 [project.optional-dependencies]

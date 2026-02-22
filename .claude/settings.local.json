@@ -267,7 +267,22 @@
       "WebFetch(domain:archive.softwareheritage.org)",
       "WebFetch(domain:developmentseed.org)",
       "WebFetch(domain:storage.googleapis.com)",
-      "WebFetch(domain:gist.github.com)"
+      "WebFetch(domain:gist.github.com)",
+      "Bash(conda install:*)",
+      "Bash(conda create:*)",
+      "WebFetch(domain:www.fatiando.org)",
+      "WebFetch(domain:pypi.org)",
+      "Bash(conda run:*)",
+      "Bash(uv pip install:*)",
+      "Bash(/tmp/tmp.08aoQXDr9m/.venv/bin/python:*)",
+      "WebFetch(domain:www.dataone.org)",
+      "WebFetch(domain:cn.dataone.org)",
+      "WebFetch(domain:coref.project.re3data.org)",
+      "WebFetch(domain:support.datacite.org)",
+      "WebFetch(domain:datacite.org)",
+      "Bash(geoextent:*)",
+      "WebFetch(domain:o2r.info)",
+      "WebFetch(domain:cogeo.org)"
     ],
     "deny": [],
     "ask": []

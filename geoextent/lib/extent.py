@@ -44,11 +44,17 @@ from .content_providers import SoftwareHeritage
 from . import handle_csv
 from . import handle_raster
 from . import handle_vector
+from . import handle_pointcloud
 from . import helpfunctions as hf
 from . import external_metadata
 
 logger = logging.getLogger("geoextent")
-handle_modules = {"CSV": handle_csv, "raster": handle_raster, "vector": handle_vector}
+handle_modules = {
+    "CSV": handle_csv,
+    "pointcloud": handle_pointcloud,
+    "raster": handle_raster,
+    "vector": handle_vector,
+}
 
 
 def _get_content_providers():

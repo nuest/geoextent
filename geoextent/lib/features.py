@@ -69,7 +69,7 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     - Capabilities (bbox, temporal extent, convex hull)
     - Example file extensions (derived from GDAL driver support)
     """
-    from . import handle_csv, handle_raster, handle_vector
+    from . import handle_csv, handle_raster, handle_vector, handle_pointcloud
 
     handlers = []
 
@@ -153,6 +153,24 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
         "notes": "Uses GDAL for raster format support. Temporal extraction from NetCDF CF time dimensions, ACDD time_coverage attributes, GeoTIFF TIFFTAG_DATETIME, and band-level ACQUISITIONDATETIME. World file support for images without embedded georeferencing.",
     }
     handlers.append(raster_info)
+
+    # Point Cloud Handler
+    pointcloud_info = {
+        "handler": handle_pointcloud.get_handler_name(),
+        "display_name": handle_pointcloud.get_handler_display_name(),
+        "description": "Point cloud formats (LAS/LAZ)",
+        "capabilities": {
+            "bounding_box": True,
+            "temporal_extent": True,
+            "convex_hull": False,
+        },
+        "file_extensions": [
+            ".las",  # LAS point cloud
+            ".laz",  # LAZ compressed point cloud
+        ],
+        "notes": "Uses laspy for header-only bounding box extraction. Temporal extent from LAS header creation date. Phase 2 will add PDAL for E57, PLY, PCD, COPC.",
+    }
+    handlers.append(pointcloud_info)
 
     return handlers
 
@@ -249,10 +267,11 @@ def validate_file_format(filepath: str) -> Dict[str, Any]:
             - handler: str or None, name of the supporting handler
             - message: str, description of the result
     """
-    from . import handle_csv, handle_raster, handle_vector
+    from . import handle_csv, handle_raster, handle_vector, handle_pointcloud
 
     handlers = [
         ("CSV", handle_csv),
+        ("Point cloud", handle_pointcloud),
         ("Vector", handle_vector),
         ("Raster", handle_raster),
     ]

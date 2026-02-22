@@ -74,6 +74,7 @@ _PROVIDER_FILES = {
     "test_cli_parameter_combinations.py",
     "test_doi_url_support.py",
     "test_download_size_limit.py",
+    "test_api_pointcloud_providers.py",
 }
 
 # Test name patterns that are fast (validation-only, no network)
@@ -152,6 +153,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_github_metadata_only_extraction",
     "test_gitlab_metadata_only_extraction",
     "test_swh_metadata_only_extraction",
+    "test_zenodo_laz_utm32n_asiago",
 }
 
 

@@ -220,6 +220,8 @@ class DoiProvider(ContentProvider):
             ".rar",  # Archives that might contain geospatial data
             ".sqlite",
             ".db",  # Spatial databases (might be GeoPackage or SpatiaLite)
+            ".las",
+            ".laz",  # Point cloud (LAS/LAZ)
         }
 
         # Add any additional extensions provided by user
