@@ -23,6 +23,7 @@ from . import Wikidata
 from . import FourTU
 from . import RADAR
 from . import ArcticDataCenter
+from . import DataOne
 from . import DEIMSSDR
 from . import BAW
 from . import MDIDE
@@ -58,6 +59,7 @@ __all__ = [
     "FourTU",
     "RADAR",
     "ArcticDataCenter",
+    "DataOne",
     "DEIMSSDR",
     "BAW",
     "MDIDE",

@@ -26,6 +26,7 @@ from .content_providers import Wikidata
 from .content_providers import FourTU
 from .content_providers import RADAR
 from .content_providers import ArcticDataCenter
+from .content_providers import DataOne
 from .content_providers import DEIMSSDR
 from .content_providers import BAW
 from .content_providers import MDIDE
@@ -65,6 +66,7 @@ def _get_content_providers():
         GFZ.GFZ,
         RADAR.RADAR,
         ArcticDataCenter.ArcticDataCenter,
+        DataOne.DataOne,  # After Arctic Data Center: generic DataONE CN covers KNB, PISCO, etc.
         GBIF.GBIF,  # Before Pensoft: both may match 10.3897/ but GBIF excludes it
         Pensoft.Pensoft,
         BGR.BGR,  # BGR before Opara because both accept UUIDs
