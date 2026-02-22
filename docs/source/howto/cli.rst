@@ -616,11 +616,43 @@ The path of the saved map is always printed to stderr (suppressed by ``--quiet``
 
 For more details on map preview options, see :doc:`../core-features`.
 
-Export function
-^^^^^^^^^^^^^^^
-You can export the result of Geoextent to a Geopackage file. This file contains the output of all files within the
-folder or repository.
+Export to file
+^^^^^^^^^^^^^^
+Export extraction results to a file. The format is auto-detected from the file extension:
 
-::
+Single file to GeoPackage::
 
-    geoextent -b -t --output path/to/output/geopackage_file.gpkg folder_path
+    geoextent -b -t --output result.gpkg tests/testdata/geojson/muenster_ring_zeit.geojson
+
+Directory to GeoJSON::
+
+    geoextent -b -t --output result.geojson tests/testdata/folders/folder_two_files
+
+Multiple files to CSV::
+
+    geoextent -b -t --output result.csv file1.shp file2.geojson
+
+Convex hull geometry::
+
+    geoextent -b --convex-hull --output hull.gpkg tests/testdata/folders/folder_two_files
+
+CSV with WKB geometry (via --format)::
+
+    geoextent -b --format wkb --output result.csv tests/testdata/folders/folder_two_files
+
+For more details on export options, see :doc:`../core-features`.
+
+Join export files
+^^^^^^^^^^^^^^^^^
+
+Merge multiple exported files into a single file. Summary rows are excluded —
+only individual-file features are kept. Input files can be any supported format;
+the output format is auto-detected from the extension::
+
+    geoextent --join --output merged.gpkg run1.gpkg run2.gpkg
+
+Cross-format join (GeoJSON + GPKG -> CSV)::
+
+    geoextent --join --output combined.csv run1.geojson run2.gpkg
+
+For more details, see :doc:`../core-features`.

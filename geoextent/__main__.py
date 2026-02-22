@@ -134,7 +134,7 @@ def get_arg_parser():
         add_help=False,
         prog="geoextent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [-b] [-t] [--convex-hull] [--no-download-data] [--no-metadata-fallback] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]",
+        usage="geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--details] [--output] [output file] [--join] [-b] [-t] [--convex-hull] [--no-download-data] [--no-metadata-fallback] [--no-progress] [--quiet] [--format {geojson,wkt,wkb}] [--no-subdirs] [--geojsonio] [--browse] [--placename] [--placename-service GAZETTEER] [--placename-escape] [--max-download-size SIZE] [--max-download-method {ordered,random,smallest,largest}] [--max-download-method-seed SEED] [--download-skip-nogeo] [--download-skip-nogeo-exts EXTS] [--max-download-workers WORKERS] [--keep-files] [--assume-wgs84] input1 [input2 ...]",
     )
 
     parser.add_argument(
@@ -168,7 +168,9 @@ def get_arg_parser():
         "--output",
         action="store",
         default=None,
-        help="Creates geopackage with geoextent output",
+        help="Export results to a file. Format is auto-detected from extension: "
+        ".gpkg (GeoPackage), .geojson/.json (GeoJSON), .csv (CSV). "
+        "Works with single files, directories, and remote sources.",
     )
 
     parser.add_argument(
@@ -426,6 +428,14 @@ def get_arg_parser():
     )
 
     parser.add_argument(
+        "--join",
+        action="store_true",
+        default=False,
+        help="Join multiple exported files (from --output) into a single file. "
+        "Requires --output to specify the destination.",
+    )
+
+    parser.add_argument(
         "files",
         action=readable_file_or_dir,
         nargs="+",
@@ -611,6 +621,18 @@ def main():
             hf.resolve_time_format(args["time_format"])
         except ValueError as e:
             arg_parser.error(str(e))
+
+    # Handle --join early — bypasses extraction pipeline entirely
+    if args["join"]:
+        if not args["output"]:
+            arg_parser.error("--join requires --output to specify the destination file")
+        from geoextent.lib.export import join_files
+
+        csv_geom_fmt = "wkb" if args["format"].lower() == "wkb" else "wkt"
+        join_files(files, args["output"], geometry_format=csv_geom_fmt)
+        if not args.get("quiet"):
+            logger.info("Joined %d file(s) into: %s", len(files), args["output"])
+        sys.exit(0)
 
     # Validate that at least one extraction option is enabled
     if not args["bounding_box"] and not args["time_box"]:
@@ -835,12 +857,33 @@ def main():
         raise Exception("Did not find supported files at {}".format(files))
     else:
 
-        if export and not multiple_files:
-            logger.warning("Exporting result does not apply to single files")
-        elif export and multiple_files:
-            logger.warning("Exporting result into: {}".format(args["output"]))
-            df = hf.extract_output(output, files, get_version())
-            hf.create_geopackage(df, filename)
+        if export:
+            if not args.get("quiet"):
+                logger.info("Exporting result into: %s", args["output"])
+            # --format affects CSV geometry column
+            csv_geom_fmt = "wkb" if args["format"].lower() == "wkb" else "wkt"
+            # Warn if --format is set for fixed-format outputs
+            out_ext = os.path.splitext(filename)[1].lower()
+            if args["format"].lower() != "geojson" and out_ext in (
+                ".gpkg",
+                ".geojson",
+                ".json",
+            ):
+                logger.warning(
+                    "--format %s is ignored for %s output (geometry is stored natively)",
+                    args["format"],
+                    out_ext,
+                )
+            from geoextent.lib.export import export_results
+
+            export_results(
+                output,
+                filename,
+                inputs=files,
+                version=get_version(),
+                geometry_format=csv_geom_fmt,
+                native_order=not args["legacy"],
+            )
 
         # Create extraction metadata before removing details (unless --no-metadata is set)
         extraction_metadata = None

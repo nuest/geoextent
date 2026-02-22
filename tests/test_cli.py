@@ -585,7 +585,7 @@ def test_export_relative_path(script_runner):
 
     assert is_valid, "Check that the figure is valid ()"
     assert bbox == pytest.approx(
-        [41.317038, 2.052333, 51.974624, 7.647256], abs=tolerance
+        [2.052333, 41.317038, 7.647256, 51.974624], abs=tolerance
     )
 
 

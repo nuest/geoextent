@@ -177,7 +177,7 @@ class TestCLIOutputFormats:
     """Test CLI output handling with different parameter combinations"""
 
     def test_cli_output_geopackage_with_single_file(self, script_runner):
-        """Test CLI output to geopackage with single file (export not created)"""
+        """Test CLI output to geopackage with single file"""
         with tempfile.NamedTemporaryFile(suffix=".gpkg", delete=False) as tmp_file:
             output_path = tmp_file.name
 
@@ -196,10 +196,10 @@ class TestCLIOutputFormats:
                 ]
             )
             if ret.success:
-                # Export should not be created for single file
-                assert not os.path.exists(
+                # Export should now be created for single file input
+                assert os.path.exists(
                     output_path
-                ), "Geopackage should not be created for single file input"
+                ), "Geopackage should be created for single file input"
         finally:
             if os.path.exists(output_path):
                 os.unlink(output_path)

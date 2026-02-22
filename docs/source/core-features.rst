@@ -497,6 +497,155 @@ display) is suppressed. If ``--map`` specifies an explicit file path, the image 
 generated and saved silently. When no file path is given (temporary file), the map is
 skipped entirely since the path would not be visible.
 
+File Export
+----------
+
+Export extraction results to a file using ``--output``. The format is auto-detected from the
+file extension.
+
+Supported Formats
+^^^^^^^^^^^^^^^^^
+
+.. list-table::
+   :header-rows: 1
+   :widths: 15 20 25 40
+
+   * - Extension
+     - Format
+     - Geometry
+     - Notes
+   * - ``.gpkg``
+     - GeoPackage
+     - Native polygon
+     - Layer ``"files"`` with per-file features
+   * - ``.geojson`` / ``.json``
+     - GeoJSON
+     - RFC 7946 ``[lon, lat]`` polygon
+     - FeatureCollection
+   * - ``.csv``
+     - CSV
+     - WKT (or WKB via ``--format wkb``) in ``geometry`` column
+     - Geometry format controlled by ``--format``
+   * - Other
+     - GeoPackage (fallback)
+     - Native polygon
+     - Warning printed for unrecognised extensions
+
+Single File vs Directory
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+- **Single file**: one feature with the file's extent
+- **Directory / multi-file**: one feature per file plus one summary feature with the merged extent
+
+CLI Examples
+^^^^^^^^^^^^
+
+::
+
+   # Single file
+   geoextent -b -t --output result.gpkg file.geojson
+
+   # Directory to GeoJSON
+   geoextent -b -t --output result.geojson path/to/directory
+
+   # Multiple files to CSV
+   geoextent -b -t --output result.csv file1.shp file2.geojson
+
+   # With convex hull
+   geoextent -b --convex-hull --output hull.gpkg path/to/directory
+
+   # CSV with WKB geometry
+   geoextent -b --format wkb --output result.csv path/to/directory
+
+Python API
+^^^^^^^^^^
+
+.. code-block:: python
+
+   import geoextent
+
+   result = geoextent.from_file("data.geojson", bbox=True, tbox=True)
+   geoextent.export_to_file(result, "output.gpkg")
+
+Temporal Fields
+^^^^^^^^^^^^^^^
+
+Each exported feature includes ``tbox_start`` and ``tbox_end`` fields:
+
+- **GeoPackage**: proper OGR Date fields (``OFTDate``)
+- **GeoJSON / CSV**: ISO 8601 date strings (e.g. ``"2020-01-15"``)
+
+When no temporal extent was extracted, these fields are ``NULL`` (GeoPackage) or
+empty / ``null`` (CSV / GeoJSON).
+
+Coordinate Order
+^^^^^^^^^^^^^^^^
+
+All three output formats use ``[longitude, latitude]`` order:
+
+- **GeoPackage**: traditional GIS axis order
+- **GeoJSON**: per RFC 7946
+- **CSV (WKT/WKB)**: traditional GIS axis order
+
+Interaction with ``--format``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``--format`` flag is respected for CSV output (``--format wkb`` writes hex-encoded
+WKB instead of WKT in the geometry column). For GeoPackage and GeoJSON output, geometry
+is stored natively and ``--format`` is ignored with a warning.
+
+Interaction with ``--quiet``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The export file is still written; only the "Exporting result into: ..." message is
+suppressed.
+
+Joining Export Files
+--------------------
+
+Merge multiple export files (from ``--output``) into a single file. This is useful when
+you process many directories or sources in separate runs and want to combine the results.
+
+Behaviour
+^^^^^^^^^
+
+- Concatenates all **individual-file features** from each input file
+- **Excludes summary rows** (features where ``handler`` starts with ``"geoextent:"``)
+- Input files can be any supported format (GPKG, GeoJSON, CSV); the output format is
+  auto-detected from the extension — cross-format joins work
+- No re-merging of bounding boxes or temporal extents — just concatenation
+
+CLI Examples
+^^^^^^^^^^^^
+
+::
+
+   # Merge two GPKG exports
+   geoextent --join --output merged.gpkg run1.gpkg run2.gpkg
+
+   # Merge all GPKG files into GeoJSON
+   geoextent --join --output all.geojson *.gpkg
+
+   # Cross-format: GeoJSON + GPKG -> CSV
+   geoextent --join --output combined.csv run1.geojson run2.gpkg
+
+.. note::
+
+   ``--join`` requires ``--output`` but does **not** require ``-b``/``-t`` flags.
+   It bypasses the extraction pipeline entirely.
+
+Python API
+^^^^^^^^^^
+
+.. code-block:: python
+
+   import geoextent
+
+   geoextent.join_files(["run1.gpkg", "run2.gpkg"], "merged.gpkg")
+
+   # Cross-format join with WKB geometry for CSV output
+   geoextent.join_files(["run1.geojson", "run2.gpkg"], "combined.csv", geometry_format="wkb")
+
 Quiet Mode
 ----------
 

@@ -34,6 +34,8 @@ Unreleased
 
 - **New Features**
 
+  - Add ``--join`` CLI flag and ``join_files()`` Python API to merge multiple export files (from ``--output``) into a single file, dropping summary rows and keeping only individual-file features; supports cross-format joins (GPKG, GeoJSON, CSV)
+  - Enhanced ``--output`` export: support single-file input, auto-detect GeoJSON/CSV format from extension, ``export_to_file()`` Python API, proper date fields (``tbox_start``/``tbox_end``), convex hull geometry export, ``--format`` interaction for CSV (:issue:`21`)
   - Add metadata-only extraction for InvenioRDM instances (``metadata.locations`` GeoJSON, ``metadata.dates``)
   - Implement metadata-only extraction for Figshare provider (``download_data=False`` / ``--no-data-download``), supporting ``--metadata-first`` strategy (:issue:`68`)
   - Expand Figshare provider to support institutional portal URLs (``*.figshare.com``, e.g. ``springernature.figshare.com``, ``monash.figshare.com``)
@@ -68,6 +70,7 @@ Unreleased
 
 - **Improvements**
 
+  - Document installation with uv, conda/mamba, Poetry, and pipx (:issue:`4`, :issue:`5`, :issue:`41`)
   - Fix and enable skipped multi-input CLI tests, add convex hull geometry tests for 2–5 file inputs, and add documentation for multiple input processing
   - Use GDAL CSV driver open options for coordinate column detection, supporting GDAL column naming conventions (``X``/``Y``, ``Easting``/``Northing``) and CSVT sidecar files (:issue:`53`)
   - Add GeoCSV format support: recognise ``CoordX``/``CoordY`` column names (giswiki.ch GeoCSV spec), ``.prj`` sidecar files for CRS information, WKT polygon geometry columns, and EarthScope GeoCSV ``#``-prefixed metadata header lines (:issue:`52`)
