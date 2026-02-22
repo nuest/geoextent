@@ -128,6 +128,14 @@ class TestMapPreviewCLI:
         assert os.path.isfile(out_png)
         assert "Map preview saved to" not in ret.stderr
 
+    def test_quiet_suppresses_preview(self, script_runner):
+        """--quiet should suppress --preview display entirely."""
+        ret = script_runner.run(
+            ["geoextent", "-b", "--quiet", "--preview", GEOJSON_FILE]
+        )
+        assert ret.success, f"stderr: {ret.stderr}"
+        assert "Map preview" not in ret.stderr
+
 
 class TestRenderMapUnit:
     """Unit tests for preview rendering functions."""

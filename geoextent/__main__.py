@@ -247,7 +247,8 @@ def get_arg_parser():
         "--quiet",
         action="store_true",
         default=False,
-        help="suppress all console messages including warnings and progress bars",
+        help="suppress all console messages including warnings, progress bars, "
+        "map preview messages, and terminal display (--map FILE still saves the image silently)",
     )
 
     parser.add_argument(
@@ -861,8 +862,15 @@ def main():
 
         # Generate map preview if --map or --preview was requested (before format conversion)
         # args["map"] is None (not given), True (--map without path), or a string (--map PATH)
+        quiet = args.get("quiet")
         map_requested = args.get("map") is not None
-        if (map_requested or args.get("preview")) and output and "bbox" in output:
+        map_path_explicit = isinstance(args.get("map"), str)
+        # --quiet suppresses --preview display entirely; --map with an explicit
+        # path still saves the file silently, but --map without a path (temp
+        # file) is skipped since the user won't see the path.
+        preview_wanted = args.get("preview") and not quiet
+        map_wanted = map_path_explicit or (map_requested and not quiet)
+        if (map_wanted or preview_wanted) and output and "bbox" in output:
             try:
                 from geoextent.lib.preview import (
                     save_map,
@@ -871,22 +879,22 @@ def main():
                 )
 
                 dim = _parse_map_dimensions(args["map_dim"])
-                map_path = args["map"] if isinstance(args.get("map"), str) else None
+                map_path = args["map"] if map_path_explicit else None
                 saved_path = save_map(output, map_path, dim, native_order=native_order)
-                if not args.get("quiet"):
+                if not quiet:
                     print(
                         format_map_saved_message(saved_path, stream=sys.stderr),
                         file=sys.stderr,
                     )
-                if args.get("preview"):
+                if preview_wanted:
                     display_in_terminal(saved_path)
             except ImportError as e:
-                if not args.get("quiet"):
+                if not quiet:
                     print(f"Map preview unavailable: {e}", file=sys.stderr)
             except Exception as e:
                 logger.warning("Failed to generate map preview: %s", e)
             else:
-                if not args.get("quiet"):
+                if not quiet:
                     print(file=sys.stderr)
 
         # Apply output format conversion

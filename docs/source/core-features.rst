@@ -453,27 +453,94 @@ Flag Summary
 
 .. list-table::
    :header-rows: 1
-   :widths: 35 65
+   :widths: 40 20 20 20
 
    * - Flags
-     - Behaviour
+     - File saved?
+     - Message shown?
+     - Terminal display?
    * - ``--map``
-     - Save to a temporary file, print path to stderr
+     - Yes (temp)
+     - Yes
+     - No
    * - ``--map extent.png``
-     - Save to ``extent.png``, print path to stderr
+     - Yes
+     - Yes
+     - No
    * - ``--preview``
-     - Save to a temporary file, display in terminal
+     - Yes (temp)
+     - Yes
+     - Yes
    * - ``--map extent.png --preview``
-     - Save to ``extent.png``, display in terminal
-   * - ``--map --preview``
-     - Save to a temporary file, print path to stderr, display in terminal
-   * - any of the above + ``--quiet``
-     - Suppress the stderr path message
+     - Yes
+     - Yes
+     - Yes
+   * - ``--map --quiet``
+     - No (skipped)
+     - No
+     - No
+   * - ``--map extent.png --quiet``
+     - Yes
+     - No
+     - No
+   * - ``--preview --quiet``
+     - No (skipped)
+     - No
+     - No
+   * - ``--map extent.png --preview --quiet``
+     - Yes
+     - No
+     - No
+
+When ``--quiet`` is used, all sidecar output (the "saved to" message and the terminal image
+display) is suppressed. If ``--map`` specifies an explicit file path, the image is still
+generated and saved silently. When no file path is given (temporary file), the map is
+skipped entirely since the path would not be visible.
 
 Quiet Mode
 ----------
 
-Use the ``--quiet`` option to suppress all console messages including warnings and progress bars. This is particularly useful for scripting, automation, or when you only want the final result.
+Use the ``--quiet`` option to suppress all console messages including warnings, progress bars, map preview messages, and terminal display. This is particularly useful for scripting, automation, or when you only want the final result. File output (``--map FILE``, ``--output``) is still written silently.
+
+The following table summarises how ``--quiet`` interacts with other flags:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 35 35 30
+
+   * - Feature
+     - Default
+     - With ``--quiet``
+   * - Progress bars
+     - Shown
+     - Hidden (implies ``--no-progress``)
+   * - Warnings / log messages
+     - Shown
+     - Hidden
+   * - ``--map FILE``
+     - Image saved, path printed
+     - Image saved, path hidden
+   * - ``--map`` (no path)
+     - Temp image saved, path printed
+     - Skipped entirely
+   * - ``--preview``
+     - Image displayed in terminal
+     - Skipped entirely
+   * - ``--map FILE --preview``
+     - Image saved and displayed
+     - Image saved, display hidden
+   * - ``--geojsonio``
+     - URL printed
+     - URL printed
+   * - ``--browse``
+     - Browser opened, status printed
+     - Browser opened, status hidden
+   * - ``--output FILE``
+     - File written, status printed
+     - File written, status hidden
+   * - ``--debug``
+     - N/A (conflicts with ``--quiet``)
+     - ``--debug`` wins, ``--quiet`` disabled
 
 Basic Usage
 ^^^^^^^^^^^
