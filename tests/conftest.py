@@ -62,6 +62,7 @@ _PROVIDER_FILES = {
     "test_api_nfdi4earth.py",
     "test_api_github.py",
     "test_api_gitlab.py",
+    "test_api_forgejo.py",
     "test_api_software_heritage.py",
     "test_metadata_fallback.py",
     "test_metadata_first.py",
@@ -152,6 +153,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_nfdi4earth_metadata_only_extraction",
     "test_github_metadata_only_extraction",
     "test_gitlab_metadata_only_extraction",
+    "test_forgejo_metadata_only_extraction",
     "test_swh_metadata_only_extraction",
     "test_zenodo_laz_utm32n_asiago",
 }

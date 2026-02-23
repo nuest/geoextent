@@ -38,6 +38,7 @@ from . import STAC
 from . import GitHostProvider
 from . import GitHub
 from . import GitLab
+from . import Forgejo
 from . import SoftwareHeritage
 
 __all__ = [
@@ -74,5 +75,6 @@ __all__ = [
     "GitHostProvider",
     "GitHub",
     "GitLab",
+    "Forgejo",
     "SoftwareHeritage",
 ]
