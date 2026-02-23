@@ -1,0 +1,42 @@
+# Codecov configuration for geoextent
+# https://docs.codecov.io/docs/codecov-yaml
+
+codecov:
+  require_ci_to_pass: false  # Report coverage even if CI has failures
+
+coverage:
+  status:
+    project:
+      default:
+        # Don't block PRs on coverage — just inform
+        informational: true
+        target: auto  # Compare against base commit
+        threshold: 2%  # Allow up to 2% drop without failing
+    patch:
+      default:
+        # New code should have reasonable coverage
+        informational: true
+        target: 60%
+
+  # Exclude files that are inherently hard to test (network-only code)
+  ignore:
+    - "geoextent/lib/gazetteer.py"
+    - "docs/**"
+    - "scripts/**"
+    - "setup.py"
+
+flags:
+  unittests:
+    paths:
+      - geoextent/
+    carryforward: true
+
+  provider-sample:
+    paths:
+      - geoextent/lib/content_providers/
+    carryforward: true
+
+comment:
+  layout: "reach,diff,flags,files"
+  behavior: default
+  require_changes: true  # Only comment when coverage changes
