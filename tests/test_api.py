@@ -421,3 +421,37 @@ def test_snake_case_api_works():
     result = geoextent.from_file("tests/testdata/geojson/muenster_ring_zeit.geojson")
     assert "bbox" in result
     assert "tbox" in result
+
+
+# --- CSV edge case tests ---
+
+
+def test_csv_unparseable_time_bbox_still_works():
+    """CSV with unparseable dates should still extract bbox successfully."""
+    result = geoextent.from_file(
+        "tests/testdata/csv/cities_NL_unparseable_time.csv", bbox=True, tbox=True
+    )
+    assert result is not None
+    assert "bbox" in result
+    assert result["crs"] == "4326"
+    # Temporal extent should be absent (dates are garbage)
+    assert "tbox" not in result
+
+
+def test_csv_header_only():
+    """CSV with only a header row and no data should have no bbox or tbox."""
+    result = geoextent.from_file(
+        "tests/testdata/csv/header_only.csv", bbox=True, tbox=True
+    )
+    # File is recognized as CSV but contains no data rows
+    assert result is not None
+    assert "bbox" not in result
+    assert "tbox" not in result
+
+
+def test_csv_single_row():
+    """CSV with a single data row should produce a valid result (degenerate point bbox)."""
+    result = geoextent.from_file("tests/testdata/csv/single_row.csv", bbox=True)
+    assert result is not None
+    assert "bbox" in result
+    assert result["crs"] == "4326"
