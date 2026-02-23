@@ -40,6 +40,7 @@ from . import GitHub
 from . import GitLab
 from . import Forgejo
 from . import SoftwareHeritage
+from . import RemoteRaster
 
 __all__ = [
     "providers",
@@ -77,4 +78,5 @@ __all__ = [
     "GitLab",
     "Forgejo",
     "SoftwareHeritage",
+    "RemoteRaster",
 ]

@@ -36,6 +36,7 @@ Unreleased
 
 - **New Features**
 
+  - Add Cloud Optimized GeoTIFF (COG) support: direct HTTP(S) URLs to GeoTIFF files are opened via GDAL ``/vsicurl/`` for efficient header-only metadata extraction without downloading the full file (:issue:`11`)
   - Add point cloud support for LAS/LAZ files via laspy, extracting bounding boxes from file headers and temporal extent from creation dates (:issue:`10`)
   - Add ``--join`` CLI flag and ``join_files()`` Python API to merge multiple export files (from ``--output``) into a single file, dropping summary rows and keeping only individual-file features; supports cross-format joins (GPKG, GeoJSON, CSV)
   - Enhanced ``--output`` export: support single-file input, auto-detect GeoJSON/CSV format from extension, ``export_to_file()`` Python API, proper date fields (``tbox_start``/``tbox_end``), convex hull geometry export, ``--format`` interaction for CSV (:issue:`21`)

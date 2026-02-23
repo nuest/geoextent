@@ -42,6 +42,7 @@ from .content_providers import GitHub
 from .content_providers import GitLab
 from .content_providers import Forgejo
 from .content_providers import SoftwareHeritage
+from .content_providers import RemoteRaster
 from . import handle_csv
 from . import handle_raster
 from . import handle_vector
@@ -93,7 +94,8 @@ def _get_content_providers():
         GitHub.GitHub,  # Very late: github.com URLs are unambiguous, no DOI collision
         GitLab.GitLab,  # After GitHub: broad hostname matching, API probe fallback
         Forgejo.Forgejo,  # After GitLab: Gitea/Forgejo instances, API probe fallback
-        SoftwareHeritage.SoftwareHeritage,  # Last: SWHIDs and archive.softwareheritage.org URLs
+        SoftwareHeritage.SoftwareHeritage,  # Late: SWHIDs and archive.softwareheritage.org URLs
+        RemoteRaster.RemoteRaster,  # Last: catch-all for direct .tif/.tiff URLs
     ]
 
 

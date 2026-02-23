@@ -76,6 +76,7 @@ _PROVIDER_FILES = {
     "test_doi_url_support.py",
     "test_download_size_limit.py",
     "test_api_pointcloud_providers.py",
+    "test_api_remote_raster.py",
 }
 
 # Test name patterns that are fast (validation-only, no network)
@@ -156,6 +157,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_forgejo_metadata_only_extraction",
     "test_swh_metadata_only_extraction",
     "test_zenodo_laz_utm32n_asiago",
+    "test_remote_raster_metadata_only_extraction",
 }
 
 

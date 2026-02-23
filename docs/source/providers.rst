@@ -137,6 +137,8 @@ Quick Reference
 +-------------------+---------------------+----------------------------------------+
 | Software Heritage | SWHIDs / URLs       | swh:1:dir:<40-hex>                     |
 +-------------------+---------------------+----------------------------------------+
+| Remote Raster     | HTTP(S) URLs        | https://\*/\*.tif                      |
++-------------------+---------------------+----------------------------------------+
 
 Provider Details
 ----------------
@@ -1414,6 +1416,43 @@ Software Heritage
 - **Sequential downloads**: Downloads are sequential due to strict API rate limits
 - **Subpath optimization**: When a path is specified, only the targeted subdirectory is traversed
 - **Recommended**: Use ``--download-skip-nogeo`` to skip non-geospatial files and ``&path=`` to target specific subdirectories
+
+Remote Raster (COG)
+^^^^^^^^^^^^^^^^^^^^
+
+**Description:** Direct HTTP(S) URLs to GeoTIFF/COG files. Reads raster headers via GDAL ``/vsicurl/`` without downloading the full file. Works best with Cloud Optimized GeoTIFFs (COG) but supports any HTTP-accessible GeoTIFF.
+
+**Website:** https://www.cogeo.org/
+
+**Identifier Format:** Direct HTTP(S) URLs ending in ``.tif`` or ``.tiff``
+
+**Examples:**
+
+- ``https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif``
+- ``https://zenodo.org/records/14711942/files/FSM_1-km_MED-epsg.4326_v01.tif``
+
+**CLI:**
+
+.. code-block:: bash
+
+   geoextent -b https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif
+
+**Python:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   result = geoextent.from_remote(
+       'https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif',
+       bbox=True, tbox=True,
+   )
+
+**Special Notes:**
+
+- **Metadata-only provider**: Only reads the raster header via HTTP range requests; no full file download
+- **Catch-all**: Positioned last in the provider list — URLs that match another provider (e.g. Zenodo) are handled by that provider instead
+- **Performance**: COGs are most efficient (~16 KB transferred); regular GeoTIFFs also work but may require more HTTP requests
 
 Usage Examples
 --------------
