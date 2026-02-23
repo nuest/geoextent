@@ -408,6 +408,17 @@ Extract from a directory SWHID::
 
    geoextent -b --download-skip-nogeo swh:1:dir:92890dbe77bbe36ccba724673bc62c2764df4f5a
 
+Extract from a Remote GeoTIFF (COG)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Extract extent directly from a remote Cloud Optimized GeoTIFF (COG) URL — only the file header is downloaded::
+
+   geoextent -b https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif
+
+Extract with temporal extent::
+
+   geoextent -b -t https://zenodo.org/records/14711942/files/FSM_1-km_MED-epsg.4326_v01.tif
+
 Smart metadata-first extraction
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

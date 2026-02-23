@@ -497,6 +497,43 @@ display) is suppressed. If ``--map`` specifies an explicit file path, the image 
 generated and saved silently. When no file path is given (temporary file), the map is
 skipped entirely since the path would not be visible.
 
+Remote Raster / COG Support
+---------------------------
+
+Pass a direct HTTP(S) URL to a GeoTIFF (especially a Cloud Optimized GeoTIFF) and
+geoextent extracts its spatial and temporal extent without downloading the full file.
+
+**How it works**: Uses GDAL's ``/vsicurl/`` virtual filesystem for HTTP range-request
+access. For a COG, only ~16 KB is typically transferred to read the file header.
+
+CLI examples::
+
+   # Extract bbox from a remote COG
+   geoextent -b https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif
+
+   # Extract both spatial and temporal extent
+   geoextent -b -t https://example.com/satellite_image.tif
+
+Python API::
+
+   import geoextent.lib.extent as geoextent
+
+   result = geoextent.from_remote(
+       "https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif",
+       bbox=True, tbox=True,
+   )
+
+.. note::
+
+   Cloud Optimized GeoTIFFs (tiled with overviews at the start of the file) are most
+   efficient. Regular GeoTIFFs also work but may require more HTTP requests.
+
+.. note::
+
+   For GeoTIFF files hosted on a supported repository (e.g. Zenodo), using the DOI
+   triggers the full repository provider instead. Use the direct file URL for
+   COG-style header-only access.
+
 File Export
 ----------
 

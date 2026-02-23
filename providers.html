@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Content Providers &#8212; geoextent 0.1.dev1+g6ed08b65c documentation</title>
+    <title>Content Providers &#8212; geoextent 0.1.dev1+g477e90f6a documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
-    <script src="_static/documentation_options.js?v=2024dab1"></script>
+    <script src="_static/documentation_options.js?v=43073548"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/thebelab-helper.js"></script>
@@ -1173,6 +1173,33 @@ python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"
 <li><p><strong>Sequential downloads</strong>: Downloads are sequential due to strict API rate limits</p></li>
 <li><p><strong>Subpath optimization</strong>: When a path is specified, only the targeted subdirectory is traversed</p></li>
 <li><p><strong>Recommended</strong>: Use <code class="docutils literal notranslate"><span class="pre">--download-skip-nogeo</span></code> to skip non-geospatial files and <code class="docutils literal notranslate"><span class="pre">&amp;path=</span></code> to target specific subdirectories</p></li>
+</ul>
+<p><strong>Description:</strong> Direct HTTP(S) URLs to GeoTIFF/COG files. Reads raster headers via GDAL <code class="docutils literal notranslate"><span class="pre">/vsicurl/</span></code> without downloading the full file. Works best with Cloud Optimized GeoTIFFs (COG) but supports any HTTP-accessible GeoTIFF.</p>
+<p><strong>Website:</strong> <a class="reference external" href="https://www.cogeo.org/">https://www.cogeo.org/</a></p>
+<p><strong>Identifier Format:</strong> Direct HTTP(S) URLs ending in <code class="docutils literal notranslate"><span class="pre">.tif</span></code> or <code class="docutils literal notranslate"><span class="pre">.tiff</span></code></p>
+<p><strong>Examples:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">https://zenodo.org/records/14711942/files/FSM_1-km_MED-epsg.4326_v01.tif</span></code></p></li>
+</ul>
+<p><strong>CLI:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif
+</pre></div>
+</div>
+<p><strong>Python:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">from_remote</span><span class="p">(</span>
+    <span class="s1">&#39;https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif&#39;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Special Notes:</strong></p>
+<ul class="simple">
+<li><p><strong>Metadata-only provider</strong>: Only reads the raster header via HTTP range requests; no full file download</p></li>
+<li><p><strong>Catch-all</strong>: Positioned last in the provider list — URLs that match another provider (e.g. Zenodo) are handled by that provider instead</p></li>
+<li><p><strong>Performance</strong>: COGs are most efficient (~16 KB transferred); regular GeoTIFFs also work but may require more HTTP requests</p></li>
 </ul>
 </section>
 <section id="usage-examples">

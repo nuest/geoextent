@@ -61,6 +61,13 @@ Or use the short DOI format::
 
 Supported repositories include Zenodo, Figshare, Dryad, PANGAEA, OSF, Dataverse, GFZ Data Services, Pensoft, and TU Dresden Opara. See :doc:`providers` for complete list.
 
+Extract from a Remote GeoTIFF
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Extract extent directly from a remote Cloud Optimized GeoTIFF (COG) URL — only the file header is downloaded::
+
+   python -m geoextent -b https://raw.githubusercontent.com/GeoTIFF/test-data/main/files/gfw-azores.tif
+
 Extract from Multiple Repositories
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
