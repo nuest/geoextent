@@ -133,7 +133,9 @@ class OSF(DoiProvider):
         except requests.RequestException as e:
             raise Exception(f"Failed to fetch OSF API metadata: {e}")
 
-    def _get_files_via_osfclient(self, target_folder, show_progress=True):
+    def _get_files_via_osfclient(
+        self, target_folder, show_progress=True, progress_callback=None
+    ):
         """Download files using osfclient library"""
         from osfclient import OSF as OSFClient
         from tqdm import tqdm
@@ -284,7 +286,9 @@ class OSF(DoiProvider):
         except requests.RequestException as e:
             raise Exception(f"Failed to get file metadata via OSF API: {e}")
 
-    def _get_files_via_api(self, target_folder, show_progress=True, file_list=None):
+    def _get_files_via_api(
+        self, target_folder, show_progress=True, file_list=None, progress_callback=None
+    ):
         """Download files via OSF API with optional pre-filtered file list"""
         if file_list is None:
             # Get all files if no pre-filtered list provided
@@ -308,7 +312,11 @@ class OSF(DoiProvider):
         # Use the batch download method from parent class
         if hasattr(self, "_download_files_batch"):
             results = self._download_files_batch(
-                file_list, target_folder, show_progress=show_progress, max_workers=4
+                file_list,
+                target_folder,
+                show_progress=show_progress,
+                max_workers=4,
+                progress_callback=progress_callback,
             )
             downloaded_files = [
                 os.path.join(target_folder, f["name"]) for f in file_list
@@ -376,6 +384,7 @@ class OSF(DoiProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """
         Extract geospatial metadata from OSF project.
@@ -426,7 +435,9 @@ class OSF(DoiProvider):
                             "Downloading all files via osfclient."
                         )
                     downloaded_files = self._get_files_via_osfclient(
-                        target_folder, show_progress
+                        target_folder,
+                        show_progress,
+                        progress_callback=progress_callback,
                     )
                     self.log.info(
                         f"OSF data downloaded via osfclient for project {self.project_id}"
@@ -488,7 +499,10 @@ class OSF(DoiProvider):
             try:
                 # Try API download first (more control over individual files)
                 downloaded_files = self._get_files_via_api(
-                    target_folder, show_progress, file_info
+                    target_folder,
+                    show_progress,
+                    file_info,
+                    progress_callback=progress_callback,
                 )
                 self.log.info(
                     f"OSF data downloaded via API for project {self.project_id}"
@@ -502,7 +516,9 @@ class OSF(DoiProvider):
                         "All files in the project will be downloaded."
                     )
                 downloaded_files = self._get_files_via_osfclient(
-                    target_folder, show_progress
+                    target_folder,
+                    show_progress,
+                    progress_callback=progress_callback,
                 )
                 self.log.info(
                     f"OSF data downloaded via osfclient for project {self.project_id}"

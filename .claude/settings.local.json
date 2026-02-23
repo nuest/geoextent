@@ -282,7 +282,14 @@
       "WebFetch(domain:datacite.org)",
       "Bash(geoextent:*)",
       "WebFetch(domain:o2r.info)",
-      "WebFetch(domain:cogeo.org)"
+      "WebFetch(domain:cogeo.org)",
+      "WebFetch(domain:guide.cloudnativegeo.org)",
+      "WebFetch(domain:docs.gitea.com)",
+      "WebFetch(domain:codeberg.org)",
+      "WebFetch(domain:datahub.hcdc.hereon.de)",
+      "WebFetch(domain:forgejo.org)",
+      "WebFetch(domain:hub.datalad.org)",
+      "WebFetch(domain:appimage-builder.readthedocs.io)"
     ],
     "deny": [],
     "ask": []

@@ -429,6 +429,7 @@ class STAC(ContentProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """Extract metadata from STAC and create GeoJSON.
 

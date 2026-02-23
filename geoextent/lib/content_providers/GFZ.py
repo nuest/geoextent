@@ -87,6 +87,7 @@ class GFZ(DoiProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """Download data from GFZ Data Services
 
@@ -165,6 +166,7 @@ class GFZ(DoiProvider):
                 max_size_bytes=max_size_bytes,
                 max_download_method=max_download_method,
                 max_download_method_seed=max_download_method_seed,
+                progress_callback=progress_callback,
             )
 
             return download_dir
@@ -240,6 +242,7 @@ class GFZ(DoiProvider):
         max_size_bytes=None,
         max_download_method="ordered",
         max_download_method_seed=None,
+        progress_callback=None,
         **kwargs,
     ):
         """Download files from the GFZ download URL
@@ -264,6 +267,7 @@ class GFZ(DoiProvider):
                     max_size_bytes=max_size_bytes,
                     max_download_method=max_download_method,
                     max_download_method_seed=max_download_method_seed,
+                    progress_callback=progress_callback,
                     **kwargs,
                 )
             else:
@@ -288,6 +292,7 @@ class GFZ(DoiProvider):
                     file_path,
                     show_progress,
                     max_size_bytes=max_size_bytes,
+                    progress_callback=progress_callback,
                     **kwargs,
                 )
 
@@ -303,6 +308,7 @@ class GFZ(DoiProvider):
         max_size_bytes=None,
         max_download_method="ordered",
         max_download_method_seed=None,
+        progress_callback=None,
         **kwargs,
     ):
         """Download files from a directory listing page
@@ -388,6 +394,7 @@ class GFZ(DoiProvider):
                     file_path,
                     show_progress,
                     max_size_bytes=max_size_bytes,
+                    progress_callback=progress_callback,
                     **kwargs,
                 )
 
@@ -396,7 +403,13 @@ class GFZ(DoiProvider):
                 continue
 
     def _download_single_file(
-        self, response, file_path, show_progress=True, max_size_bytes=None, **kwargs
+        self,
+        response,
+        file_path,
+        show_progress=True,
+        max_size_bytes=None,
+        progress_callback=None,
+        **kwargs,
     ):
         """Download a single file from response stream
 
@@ -404,6 +417,7 @@ class GFZ(DoiProvider):
             response: HTTP response object
             file_path (str): Path to save file
             show_progress (bool): Whether to show progress bar
+            progress_callback: Optional ProgressCallback for structured progress events
             **kwargs: Additional arguments
         """
         total_size = int(response.headers.get("content-length", 0))

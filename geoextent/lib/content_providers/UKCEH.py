@@ -449,6 +449,7 @@ class UKCEH(DoiProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """Download data from UKCEH.
 
@@ -544,6 +545,7 @@ class UKCEH(DoiProvider):
                 folder,
                 show_progress=show_progress,
                 max_workers=max_download_workers,
+                progress_callback=progress_callback,
             )
 
             logger.info(

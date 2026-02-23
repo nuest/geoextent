@@ -404,6 +404,7 @@ class Pangaea(DoiProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """
         Extract geospatial metadata from Pangaea dataset.
@@ -430,9 +431,12 @@ class Pangaea(DoiProvider):
                     max_size_bytes,
                     max_download_method,
                     max_download_method_seed,
+                    progress_callback=progress_callback,
                 )
             else:
-                self._download_metadata_only(target_folder)
+                self._download_metadata_only(
+                    target_folder, progress_callback=progress_callback
+                )
 
             self.log.info(
                 f"Pangaea {'data' if download_data else 'metadata'} extracted for dataset {self.dataset_id}"
@@ -442,7 +446,7 @@ class Pangaea(DoiProvider):
             self.log.error(f"Error processing Pangaea dataset: {e}")
             raise
 
-    def _download_metadata_only(self, target_folder):
+    def _download_metadata_only(self, target_folder, progress_callback=None):
         """Extract metadata without downloading actual data files"""
         from tqdm import tqdm
 
@@ -515,6 +519,7 @@ class Pangaea(DoiProvider):
         max_size_bytes=None,
         max_download_method="ordered",
         max_download_method_seed=None,
+        progress_callback=None,
     ):
         """Download actual data files from Pangaea for local GDAL-based extraction"""
         if max_download_method_seed is None:
@@ -611,7 +616,9 @@ class Pangaea(DoiProvider):
                 )
 
             # Final fallback to metadata-only extraction
-            self._download_metadata_only(target_folder)
+            self._download_metadata_only(
+                target_folder, progress_callback=progress_callback
+            )
 
     def _download_files_fallback(
         self,

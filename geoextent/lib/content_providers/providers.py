@@ -363,7 +363,12 @@ class DoiProvider(ContentProvider):
         return total_size > 10 * 1024 * 1024 or avg_size > 1024 * 1024
 
     def _download_files_batch(
-        self, file_list, target_folder, show_progress=True, max_workers=4
+        self,
+        file_list,
+        target_folder,
+        show_progress=True,
+        max_workers=4,
+        progress_callback=None,
     ):
         """
         Download multiple files with automatic parallel/sequential selection.
@@ -373,6 +378,7 @@ class DoiProvider(ContentProvider):
             target_folder: Target directory
             show_progress: Whether to show progress bars
             max_workers: Maximum number of parallel workers
+            progress_callback: Optional ProgressCallback for structured progress events
 
         Returns:
             Download statistics and results
@@ -416,10 +422,37 @@ class DoiProvider(ContentProvider):
             self.log.info(f"Using sequential downloads for {len(download_tasks)} files")
 
         # Progress tracking
-        if show_progress:
+        total_bytes = sum(task[2] for task in download_tasks)
+
+        if progress_callback:
+            from geoextent.lib.progress import ProgressEvent, ProgressPhase
+
+            completed_count = 0
+            bytes_so_far = 0
+
+            def _internal_progress_cb(task, result):
+                nonlocal completed_count, bytes_so_far
+                if result["success"]:
+                    bytes_so_far += result["bytes_downloaded"]
+                completed_count += 1
+                progress_callback(
+                    ProgressEvent(
+                        phase=ProgressPhase.DOWNLOAD,
+                        message="Downloading files",
+                        current=completed_count,
+                        total=len(download_tasks),
+                        detail=os.path.basename(task[1]),
+                        bytes_current=bytes_so_far,
+                        bytes_total=total_bytes,
+                    )
+                )
+
+            results = self.parallel_manager.download_files_parallel(
+                download_tasks, _internal_progress_cb
+            )
+        elif show_progress:
             from tqdm import tqdm
 
-            total_bytes = sum(task[2] for task in download_tasks)
             progress_bar = tqdm(
                 total=total_bytes,
                 desc="Downloading files",
@@ -429,7 +462,7 @@ class DoiProvider(ContentProvider):
 
             completed_count = 0
 
-            def progress_callback(task, result):
+            def _tqdm_progress_cb(task, result):
                 nonlocal completed_count
                 if result["success"]:
                     progress_bar.update(result["bytes_downloaded"])
@@ -441,7 +474,7 @@ class DoiProvider(ContentProvider):
                 )
 
             results = self.parallel_manager.download_files_parallel(
-                download_tasks, progress_callback
+                download_tasks, _tqdm_progress_cb
             )
             progress_bar.close()
         else:

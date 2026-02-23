@@ -178,6 +178,7 @@ class RADAR(DoiProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """Download data from RADAR.
 

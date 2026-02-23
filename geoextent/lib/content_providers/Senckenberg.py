@@ -307,6 +307,7 @@ class Senckenberg(CKANProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """
         Download files from Senckenberg dataset.
@@ -336,4 +337,5 @@ class Senckenberg(CKANProvider):
             download_skip_nogeo=download_skip_nogeo,
             download_skip_nogeo_exts=download_skip_nogeo_exts,
             max_download_workers=max_download_workers,
+            progress_callback=progress_callback,
         )

@@ -331,7 +331,9 @@ class MDIDE(DoiProvider):
 
         return classified
 
-    def _download_direct_urls(self, resources, download_dir, show_progress=True):
+    def _download_direct_urls(
+        self, resources, download_dir, show_progress=True, progress_callback=None
+    ):
         """Download pre-built WFS GetFeature URLs (Phase 2).
 
         Args:
@@ -385,6 +387,7 @@ class MDIDE(DoiProvider):
                 download_dir,
                 show_progress=show_progress,
                 max_workers=4,
+                progress_callback=progress_callback,
             )
 
         return len(file_list)
@@ -599,6 +602,7 @@ class MDIDE(DoiProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """Download data from MDI-DE.
 
@@ -659,6 +663,7 @@ class MDIDE(DoiProvider):
                 classified["direct_download"],
                 download_dir,
                 show_progress=show_progress,
+                progress_callback=progress_callback,
             )
 
         # Phase 3: Try WFS endpoints

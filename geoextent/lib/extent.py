@@ -439,6 +439,7 @@ def from_directory(
     assume_wgs84: bool = False,
     time_format: str | None = None,
     workers: int = 1,
+    progress_callback=None,
     _internal: bool = False,
 ):
     """Extracts geoextent from a directory/archive
@@ -455,7 +456,15 @@ def from_directory(
     workers -- number of parallel workers for file extraction (default 1 = sequential, 0 = auto-detect)
     """
 
-    from tqdm import tqdm
+    from .progress import ProgressEvent, ProgressPhase, TqdmProgressCallback
+
+    # Resolve progress callback for directory processing
+    _cb = progress_callback
+    if _cb is None and show_progress and level == 0:
+        _cb = TqdmProgressCallback(leave=False)
+        _auto_tqdm_dir = True
+    else:
+        _auto_tqdm_dir = False
 
     logger.info(
         "Extracting bbox={} tbox={} convex_hull={} from Directory {}".format(
@@ -521,24 +530,34 @@ def from_directory(
 
     total_items = len(regular_files) + len(other_items)
 
-    # Create progress bar for directory processing (only at top level)
+    # Directory-level progress: emit events via callback
     dir_name = os.path.basename(path) or "root"
-    show_progress_bar = (
-        show_progress and level == 0
-    )  # Only show progress bar at top level to avoid nested bars
+    _dir_progress_counter = 0
 
-    if show_progress_bar:
-        pbar = tqdm(
-            total=total_items, desc=f"Processing directory: {dir_name}", unit="item"
-        )
+    def _emit_dir_progress(filename):
+        nonlocal _dir_progress_counter
+        _dir_progress_counter += 1
+        if _cb:
+            _cb(
+                ProgressEvent(
+                    phase=ProgressPhase.PROCESS_DIR,
+                    message=f"Processing directory: {dir_name}",
+                    current=_dir_progress_counter,
+                    total=total_items,
+                    detail=f"Processing {filename}",
+                )
+            )
 
     # Phase 2: Process regular files (parallel or sequential)
     parallel_mode = workers > 1 and len(regular_files) > 1
+    # When we have a callback, suppress show_progress for child from_file calls
+    # to avoid nested tqdm bars; the callback handles progress instead.
+    _child_show_progress = False if (_cb or parallel_mode) else show_progress
     file_kwargs = dict(
         bbox=bbox,
         tbox=tbox,
         convex_hull=convex_hull,
-        show_progress=False if parallel_mode else show_progress,
+        show_progress=_child_show_progress,
         include_geojsonio=include_geojsonio,
         placename=placename,
         placename_escape=placename_escape,
@@ -562,8 +581,7 @@ def from_directory(
                         metadata_directory[str(result_name)] = result
                     except Exception as e:
                         logger.warning("Error extracting from %s: %s", fname, e)
-                    if show_progress_bar:
-                        pbar.update(1)
+                    _emit_dir_progress(fname)
             except FuturesTimeoutError:
                 if level == 0:
                     logger.warning(
@@ -582,15 +600,11 @@ def from_directory(
                     timeout_flag = True
                     break
 
-            if show_progress_bar:
-                pbar.set_postfix_str(f"Processing {filename}")
-
             logger.info("Processing file: {}".format(filename))
             metadata_file = from_file(absolute_path, **file_kwargs)
             metadata_directory[str(filename)] = metadata_file
 
-            if show_progress_bar:
-                pbar.update(1)
+            _emit_dir_progress(filename)
 
     # Phase 3: Process subdirectories and archives (always sequential, pass workers through)
     for filename, absolute_path, item_type in other_items:
@@ -606,9 +620,6 @@ def from_directory(
                 timeout_flag = True
                 break
 
-        if show_progress_bar:
-            pbar.set_postfix_str(f"Processing {filename}")
-
         remaining_time = timeout - (time.time() - start_time) if timeout else None
 
         if item_type == "archive":
@@ -622,13 +633,14 @@ def from_directory(
                     details=True,
                     timeout=remaining_time,
                     level=level + 1,
-                    show_progress=show_progress,
+                    show_progress=_child_show_progress,
                     recursive=recursive,
                     include_geojsonio=include_geojsonio,
                     placename=placename,
                     placename_escape=placename_escape,
                     time_format=time_format,
                     workers=workers,
+                    progress_callback=_cb if not _auto_tqdm_dir else None,
                     _internal=True,
                 )
             else:
@@ -640,7 +652,7 @@ def from_directory(
                 bbox,
                 tbox,
                 convex_hull,
-                show_progress=show_progress,
+                show_progress=_child_show_progress,
                 include_geojsonio=include_geojsonio,
                 placename=placename,
                 placename_escape=placename_escape,
@@ -656,7 +668,7 @@ def from_directory(
                 bbox,
                 tbox,
                 convex_hull,
-                show_progress=show_progress,
+                show_progress=_child_show_progress,
                 include_geojsonio=include_geojsonio,
                 placename=placename,
                 placename_escape=placename_escape,
@@ -676,7 +688,7 @@ def from_directory(
                     details=True,
                     timeout=remaining_time,
                     level=level + 1,
-                    show_progress=show_progress,
+                    show_progress=_child_show_progress,
                     recursive=recursive,
                     include_geojsonio=include_geojsonio,
                     placename=placename,
@@ -684,6 +696,7 @@ def from_directory(
                     assume_wgs84=assume_wgs84,
                     time_format=time_format,
                     workers=workers,
+                    progress_callback=_cb if not _auto_tqdm_dir else None,
                     _internal=True,
                 )
             else:
@@ -691,12 +704,21 @@ def from_directory(
                     "Skipping subdirectory {} (recursive=False)".format(filename)
                 )
 
-        if show_progress_bar:
-            pbar.update(1)
+        _emit_dir_progress(filename)
 
-    # Close progress bar at top level
-    if show_progress_bar:
-        pbar.close()
+    # Emit MERGE event
+    if _cb:
+        _cb(
+            ProgressEvent(
+                phase=ProgressPhase.MERGE,
+                message="Merging results",
+                detail=dir_name,
+            )
+        )
+
+    # Close auto-created tqdm bars
+    if _auto_tqdm_dir:
+        _cb.close()
 
     file_format = "archive" if is_archive else "folder"
     metadata["format"] = file_format
@@ -852,6 +874,7 @@ def from_file(
     legacy=False,
     assume_wgs84=False,
     time_format=None,
+    progress_callback=None,
     _internal=False,
 ):
     """Extracts geoextent from a file
@@ -865,7 +888,16 @@ def from_file(
     placename -- gazetteer to use for placename lookup (geonames, nominatim, photon) (default None)
     assume_wgs84 -- True to assume WGS84 for ungeoreferenced rasters (default False)
     """
-    from tqdm import tqdm
+    from .progress import ProgressEvent, ProgressPhase, TqdmProgressCallback
+
+    # Resolve progress callback: if none provided but show_progress is True,
+    # auto-create TqdmProgressCallback for backward compatibility.
+    _cb = progress_callback
+    if _cb is None and show_progress:
+        _cb = TqdmProgressCallback(leave=False)
+        _auto_tqdm = True
+    else:
+        _auto_tqdm = False
 
     logger.info(
         "Extracting bbox={} tbox={} convex_hull={} from file {}".format(
@@ -992,32 +1024,52 @@ def from_file(
     total_tasks = (1 if bbox else 0) + (1 if tbox else 0)
     filename = os.path.basename(filepath)
 
-    if show_progress:
-        with tqdm(
-            total=total_tasks, desc=f"Processing {filename}", unit="task", leave=False
-        ) as pbar:
-            thread_bbox_except.start()
-            thread_temp_except.start()
+    # Emit PROCESS_FILE start event
+    if _cb:
+        _cb(
+            ProgressEvent(
+                phase=ProgressPhase.PROCESS_FILE,
+                message=f"Processing {filename}",
+                total=total_tasks,
+                detail=filepath,
+            )
+        )
 
-            # Wait for threads to complete while updating progress
-            if bbox:
-                thread_bbox_except.join()
-                pbar.set_postfix_str("Spatial extent extracted")
-                pbar.update(1)
+    thread_bbox_except.start()
+    thread_temp_except.start()
 
-            if tbox:
-                thread_temp_except.join()
-                pbar.set_postfix_str("Temporal extent extracted")
-                pbar.update(1)
-    else:
-        # Run threads without progress bar
-        thread_bbox_except.start()
-        thread_temp_except.start()
+    task_counter = 0
+    if bbox:
+        thread_bbox_except.join()
+        task_counter += 1
+        if _cb:
+            _cb(
+                ProgressEvent(
+                    phase=ProgressPhase.SPATIAL,
+                    message=f"Processing {filename}",
+                    current=task_counter,
+                    total=total_tasks,
+                    detail="Spatial extent extracted",
+                )
+            )
 
-        if bbox:
-            thread_bbox_except.join()
-        if tbox:
-            thread_temp_except.join()
+    if tbox:
+        thread_temp_except.join()
+        task_counter += 1
+        if _cb:
+            _cb(
+                ProgressEvent(
+                    phase=ProgressPhase.TEMPORAL,
+                    message=f"Processing {filename}",
+                    current=task_counter,
+                    total=total_tasks,
+                    detail="Temporal extent extracted",
+                )
+            )
+
+    # Close auto-created tqdm bars
+    if _auto_tqdm:
+        _cb.close()
 
     # Emit deferred warnings after progress bar is closed
     for t in [thread_bbox_except, thread_temp_except]:
@@ -1112,6 +1164,7 @@ def from_remote(
     follow: bool = True,
     download_size_soft_limit: bool = False,
     workers: int = 1,
+    progress_callback=None,
 ):
     """
     Extract geospatial and temporal extent from one or more remote resources.
@@ -1278,6 +1331,7 @@ def from_remote(
                 follow=follow,
                 download_size_soft_limit=download_size_soft_limit,
                 workers=workers,
+                progress_callback=progress_callback,
             )
             if resource_output is not None:
                 resource_output["format"] = "remote"
@@ -1408,6 +1462,7 @@ def _process_remote_download(
     follow=True,
     download_size_soft_limit=False,
     workers=1,
+    progress_callback=None,
 ):
     """
     Shared logic for processing remote downloads and extracting metadata.
@@ -1484,18 +1539,22 @@ def _process_remote_download(
             repository.name,
         )
 
+    # Suppress show_progress for children when callback handles progress
+    _child_show_progress = show_progress if progress_callback is None else False
+
     # Download files from repository
     repository.download(
         tmp,
         throttle,
         download_data,
-        show_progress,
+        _child_show_progress,
         max_size_bytes=max_size_bytes,
         max_download_method=max_download_method,
         max_download_method_seed=max_download_method_seed,
         download_skip_nogeo=download_skip_nogeo,
         download_skip_nogeo_exts=download_skip_nogeo_exts,
         max_download_workers=max_download_workers,
+        progress_callback=progress_callback,
         **_follow_kwargs,
     )
 
@@ -1522,13 +1581,14 @@ def _process_remote_download(
             tmp,
             throttle,
             False,  # download_data=False
-            show_progress,
+            _child_show_progress,
             max_size_bytes=max_size_bytes,
             max_download_method=max_download_method,
             max_download_method_seed=max_download_method_seed,
             download_skip_nogeo=download_skip_nogeo,
             download_skip_nogeo_exts=download_skip_nogeo_exts,
             max_download_workers=max_download_workers,
+            progress_callback=progress_callback,
             **_fallback_follow_kwargs,
         )
         _used_metadata_fallback = True
@@ -1541,7 +1601,7 @@ def _process_remote_download(
         convex_hull,
         details,
         timeout,
-        show_progress=show_progress,
+        show_progress=_child_show_progress,
         recursive=recursive,
         include_geojsonio=include_geojsonio,
         placename=placename,
@@ -1549,6 +1609,7 @@ def _process_remote_download(
         assume_wgs84=assume_wgs84,
         time_format=time_format,
         workers=workers,
+        progress_callback=progress_callback,
         _internal=True,
     )
 
@@ -1588,13 +1649,14 @@ def _process_remote_download(
             tmp,
             throttle,
             False,  # download_data=False
-            show_progress,
+            _child_show_progress,
             max_size_bytes=max_size_bytes,
             max_download_method=max_download_method,
             max_download_method_seed=max_download_method_seed,
             download_skip_nogeo=download_skip_nogeo,
             download_skip_nogeo_exts=download_skip_nogeo_exts,
             max_download_workers=max_download_workers,
+            progress_callback=progress_callback,
             **_fallback_follow_kwargs,
         )
         _used_metadata_fallback = True
@@ -1606,7 +1668,7 @@ def _process_remote_download(
             convex_hull,
             details,
             timeout,
-            show_progress=show_progress,
+            show_progress=_child_show_progress,
             recursive=recursive,
             include_geojsonio=include_geojsonio,
             placename=placename,
@@ -1614,6 +1676,7 @@ def _process_remote_download(
             assume_wgs84=assume_wgs84,
             time_format=time_format,
             workers=workers,
+            progress_callback=progress_callback,
             _internal=True,
         )
 
@@ -1664,6 +1727,7 @@ def _metadata_first_extract(
     follow=True,
     download_size_soft_limit=False,
     workers=1,
+    progress_callback=None,
 ):
     """Try metadata-only extraction first, fall back to data download if needed.
 
@@ -1700,6 +1764,7 @@ def _metadata_first_extract(
         follow=follow,
         download_size_soft_limit=download_size_soft_limit,
         workers=workers,
+        progress_callback=progress_callback,
     )
 
     # Phase 1: Try metadata-only extraction if the provider supports it
@@ -1810,6 +1875,7 @@ def _extract_from_remote(
     follow=True,
     download_size_soft_limit=False,
     workers=1,
+    progress_callback=None,
 ):
     """
     Internal method to extract extent from a single remote identifier.
@@ -1833,9 +1899,21 @@ def _extract_from_remote(
     supported_by_geoextent = repository is not None
 
     if supported_by_geoextent:
+        from .progress import ProgressEvent, ProgressPhase
+
         logger.debug(
             "Using {} to extract {}".format(repository.name, remote_identifier)
         )
+
+        # Emit RESOLVE event
+        if progress_callback:
+            progress_callback(
+                ProgressEvent(
+                    phase=ProgressPhase.RESOLVE,
+                    message=f"Resolved provider: {repository.name}",
+                    detail=remote_identifier,
+                )
+            )
 
         # Metadata-first strategy: try metadata-only extraction, then fall back
         if metadata_first:
@@ -1865,6 +1943,7 @@ def _extract_from_remote(
                 follow=follow,
                 download_size_soft_limit=download_size_soft_limit,
                 workers=workers,
+                progress_callback=progress_callback,
             )
             return metadata
 
@@ -1903,6 +1982,7 @@ def _extract_from_remote(
                         follow=follow,
                         download_size_soft_limit=download_size_soft_limit,
                         workers=workers,
+                        progress_callback=progress_callback,
                     )
 
                     # Explicitly clean up temporary directory
@@ -1951,6 +2031,7 @@ def _extract_from_remote(
                     follow=follow,
                     download_size_soft_limit=download_size_soft_limit,
                     workers=workers,
+                    progress_callback=progress_callback,
                 )
 
                 logger.info(f"Files kept in: {tmp}")

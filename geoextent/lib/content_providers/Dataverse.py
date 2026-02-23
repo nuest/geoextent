@@ -387,6 +387,7 @@ class Dataverse(DoiProvider):
         download_skip_nogeo=False,
         download_skip_nogeo_exts=None,
         max_download_workers=4,
+        progress_callback=None,
     ):
         """
         Download files from the Dataverse dataset.
@@ -506,6 +507,7 @@ class Dataverse(DoiProvider):
                 file_info_list,
                 folder,
                 max_workers=max_download_workers,
+                progress_callback=progress_callback,
             )
 
         except Exception as e:
