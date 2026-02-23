@@ -121,6 +121,10 @@ class TestSeanoeProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or SEANOE unreachable")
+        except Exception as e:
+            if "Connection" in str(e) or "Max retries" in str(e) or "Timeout" in str(e):
+                pytest.skip(f"SEANOE unreachable: {e}")
+            raise
 
         assert result is not None
         bbox = result.get("bbox")
@@ -148,6 +152,10 @@ class TestSeanoeProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or SEANOE unreachable")
+        except Exception as e:
+            if "Connection" in str(e) or "Max retries" in str(e) or "Timeout" in str(e):
+                pytest.skip(f"SEANOE unreachable: {e}")
+            raise
 
         assert result is not None
         bbox = result.get("bbox")
@@ -177,6 +185,10 @@ class TestSeanoeProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or SEANOE unreachable")
+        except Exception as e:
+            if "Connection" in str(e) or "Max retries" in str(e) or "Timeout" in str(e):
+                pytest.skip(f"SEANOE unreachable: {e}")
+            raise
 
         assert result is not None
         bbox = result.get("bbox")
@@ -200,6 +212,10 @@ class TestSeanoeProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or SEANOE unreachable")
+        except Exception as e:
+            if "Connection" in str(e) or "Max retries" in str(e) or "Timeout" in str(e):
+                pytest.skip(f"SEANOE unreachable: {e}")
+            raise
 
         assert result is not None
         bbox = result.get("bbox")
@@ -226,6 +242,10 @@ class TestSeanoeProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or SEANOE unreachable")
+        except Exception as e:
+            if "Connection" in str(e) or "Max retries" in str(e) or "Timeout" in str(e):
+                pytest.skip(f"SEANOE unreachable: {e}")
+            raise
 
         assert result is not None
         bbox = result.get("bbox")
@@ -249,6 +269,10 @@ class TestSeanoeProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or SEANOE unreachable")
+        except Exception as e:
+            if "Connection" in str(e) or "Max retries" in str(e) or "Timeout" in str(e):
+                pytest.skip(f"SEANOE unreachable: {e}")
+            raise
 
         assert result is not None
         bbox = result.get("bbox")

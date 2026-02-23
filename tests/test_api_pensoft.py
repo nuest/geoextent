@@ -4,6 +4,7 @@ from help_functions_test import tolerance
 from conftest import NETWORK_SKIP_EXCEPTIONS
 from geojson_validator import validate_structure
 import subprocess
+import sys
 import json
 
 
@@ -356,7 +357,7 @@ class TestPensoftProvider:
         try:
             # Run geoextent CLI with --quiet flag to get clean JSON output
             result = subprocess.run(
-                ["python", "-m", "geoextent", "-b", "--quiet", test_doi],
+                [sys.executable, "-m", "geoextent", "-b", "--quiet", test_doi],
                 capture_output=True,
                 text=True,
                 timeout=120,  # 2 minute timeout for network operations

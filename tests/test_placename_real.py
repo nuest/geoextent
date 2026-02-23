@@ -8,6 +8,7 @@ with real gazetteer services. Reference values were extracted on the day of impl
 import pytest
 import json
 import subprocess
+import sys
 import os
 from unittest.mock import patch
 
@@ -241,7 +242,7 @@ class TestPlacenameLocalFiles:
             # Test normal placename
             result = subprocess.run(
                 [
-                    "python",
+                    sys.executable,
                     "-m",
                     "geoextent",
                     "-b",
@@ -272,7 +273,7 @@ class TestPlacenameLocalFiles:
             # Test escaped placename
             result_escaped = subprocess.run(
                 [
-                    "python",
+                    sys.executable,
                     "-m",
                     "geoextent",
                     "-b",
@@ -318,7 +319,7 @@ class TestPlacenameLocalFiles:
         # Test invalid gazetteer
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "geoextent",
                 "-b",
@@ -337,7 +338,7 @@ class TestPlacenameLocalFiles:
         # Test placename-escape without placename
         result = subprocess.run(
             [
-                "python",
+                sys.executable,
                 "-m",
                 "geoextent",
                 "-b",
@@ -365,7 +366,7 @@ class TestPlacenameLocalFiles:
         try:
             result = subprocess.run(
                 [
-                    "python",
+                    sys.executable,
                     "-m",
                     "geoextent",
                     "-b",

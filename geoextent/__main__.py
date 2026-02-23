@@ -934,6 +934,9 @@ def main():
             except ImportError as e:
                 if not quiet:
                     print(f"Map preview unavailable: {e}", file=sys.stderr)
+            except argparse.ArgumentTypeError as e:
+                if not quiet:
+                    print(str(e), file=sys.stderr)
             except Exception as e:
                 logger.warning("Failed to generate map preview: %s", e)
             else:

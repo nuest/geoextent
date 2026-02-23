@@ -243,16 +243,21 @@ class TestDisplayFallbackChain:
 class TestOSC8Hyperlinks:
     """Tests for OSC 8 clickable path support."""
 
-    def test_file_uri_absolute_path(self):
+    def test_file_uri_absolute_path(self, tmp_path):
         from geoextent.lib.preview import file_uri
 
-        uri = file_uri("/tmp/test.png")
-        assert uri == "file:///tmp/test.png"
+        test_file = tmp_path / "test.png"
+        test_file.touch()
+        uri = file_uri(str(test_file))
+        assert uri.startswith("file:///")
+        assert "test.png" in uri
 
-    def test_file_uri_encodes_spaces(self):
+    def test_file_uri_encodes_spaces(self, tmp_path):
         from geoextent.lib.preview import file_uri
 
-        uri = file_uri("/tmp/my file.png")
+        test_file = tmp_path / "my file.png"
+        test_file.touch()
+        uri = file_uri(str(test_file))
         assert "my%20file.png" in uri
         assert uri.startswith("file:///")
 

@@ -13,6 +13,7 @@ import pytest
 import tempfile
 import json
 import subprocess
+import sys
 import time
 from unittest.mock import patch, MagicMock, mock_open
 from geoextent.lib.helpfunctions import DEFAULT_DOWNLOAD_SAMPLE_SEED
@@ -36,7 +37,7 @@ class TestDownloadSizeIntegration:
             # Test with small size limit (should process only first file)
             result_small = subprocess.run(
                 [
-                    "python",
+                    sys.executable,
                     "-m",
                     "geoextent",
                     "-b",
@@ -52,7 +53,7 @@ class TestDownloadSizeIntegration:
 
             # Test with large size limit (should process all files)
             result_large = subprocess.run(
-                ["python", "-m", "geoextent", "-b", "--format", "wkt", temp_dir],
+                [sys.executable, "-m", "geoextent", "-b", "--format", "wkt", temp_dir],
                 capture_output=True,
                 text=True,
             )

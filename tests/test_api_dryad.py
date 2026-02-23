@@ -4,6 +4,7 @@ from help_functions_test import tolerance
 from geojson_validator import validate_structure
 import geoextent.lib.helpfunctions as hf
 import subprocess
+import sys
 import json
 from conftest import NETWORK_SKIP_EXCEPTIONS
 
@@ -396,7 +397,7 @@ class TestDryadEdgeCases:
         try:
             # Run geoextent CLI with --quiet flag to get clean JSON output
             result = subprocess.run(
-                ["python", "-m", "geoextent", "-b", "--quiet", test_url],
+                [sys.executable, "-m", "geoextent", "-b", "--quiet", test_url],
                 capture_output=True,
                 text=True,
                 timeout=180,  # 3 minute timeout for Dryad (can be slow)

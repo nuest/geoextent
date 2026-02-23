@@ -1,5 +1,6 @@
 import pytest
 import subprocess
+import sys
 import json
 import os
 from osgeo import ogr
@@ -15,7 +16,7 @@ def run_geoextent_cli(*args):
     - tbox from features[0].properties
     - details from top-level if present
     """
-    cmd = ["python", "-m", "geoextent", "--quiet"] + list(args)
+    cmd = [sys.executable, "-m", "geoextent", "--quiet"] + list(args)
     result = subprocess.run(cmd, capture_output=True, text=True, cwd=os.getcwd())
     if result.returncode != 0:
         pytest.fail(f"CLI command failed: {result.stderr}")
@@ -236,7 +237,7 @@ _KNOWN_BBOXES = [
 def _run_convex_hull(*file_paths):
     """Run geoextent --convex-hull on given files and return parsed JSON."""
     cmd = [
-        "python",
+        sys.executable,
         "-m",
         "geoextent",
         "-b",
@@ -403,7 +404,7 @@ class TestMultipleFilesConvexHull:
 
         # Get bounding box for same files
         cmd = [
-            "python",
+            sys.executable,
             "-m",
             "geoextent",
             "-b",

@@ -22,6 +22,7 @@ import tempfile
 import os
 import shutil
 import subprocess
+import sys
 import json
 from unittest.mock import patch, MagicMock
 
@@ -568,7 +569,7 @@ class TestDataverseProvider:
         try:
             # Run geoextent CLI with the test DOI
             result = subprocess.run(
-                ["python", "-m", "geoextent", "-b", test_doi],
+                [sys.executable, "-m", "geoextent", "-b", test_doi],
                 capture_output=True,
                 text=True,
                 timeout=120,  # 2 minute timeout for network operations
@@ -737,7 +738,7 @@ class TestDataverseProvider:
         try:
             # Test CLI
             cli_result = subprocess.run(
-                ["python", "-m", "geoextent", "-b", test_doi],
+                [sys.executable, "-m", "geoextent", "-b", test_doi],
                 capture_output=True,
                 text=True,
                 timeout=120,

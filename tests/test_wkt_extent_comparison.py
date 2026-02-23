@@ -13,6 +13,7 @@ import pytest
 import tempfile
 import json
 import subprocess
+import sys
 from geoextent.lib import extent
 
 
@@ -194,7 +195,7 @@ class TestWKTExtentComparison:
             # Test GeoJSON format
             result_geojson = subprocess.run(
                 [
-                    "python",
+                    sys.executable,
                     "-m",
                     "geoextent",
                     "-b",
@@ -208,7 +209,7 @@ class TestWKTExtentComparison:
 
             # Test WKT format
             result_wkt = subprocess.run(
-                ["python", "-m", "geoextent", "-b", "--format", "wkt", files[0]],
+                [sys.executable, "-m", "geoextent", "-b", "--format", "wkt", files[0]],
                 capture_output=True,
                 text=True,
             )
