@@ -113,7 +113,7 @@ class OSF(DoiProvider):
         self.log.debug(f"Fetching OSF metadata from {api_url}")
 
         try:
-            response = requests.get(api_url, timeout=30)
+            response = requests.get(api_url, timeout=60)
             response.raise_for_status()
             data = response.json()
 
@@ -213,14 +213,14 @@ class OSF(DoiProvider):
         self.log.debug(f"Fetching file list from {files_url}")
 
         try:
-            response = requests.get(files_url, timeout=30)
+            response = requests.get(files_url, timeout=60)
             response.raise_for_status()
             data = response.json()
 
             # Recursively collect all files with metadata
             def collect_files_recursive(url, path_prefix=""):
                 files = []
-                response = requests.get(url, timeout=30)
+                response = requests.get(url, timeout=60)
                 response.raise_for_status()
                 data = response.json()
 
@@ -342,7 +342,7 @@ class OSF(DoiProvider):
                     # Download file
                     import requests
 
-                    file_response = requests.get(download_url, timeout=30, stream=True)
+                    file_response = requests.get(download_url, timeout=60, stream=True)
                     file_response.raise_for_status()
 
                     with open(local_path, "wb") as f:

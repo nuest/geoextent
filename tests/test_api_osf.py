@@ -145,6 +145,14 @@ class TestOSFProvider:
 
         except NETWORK_SKIP_EXCEPTIONS as e:
             pytest.skip(f"Network error: {e}")
+        except Exception as e:
+            # _get_metadata_via_api wraps network errors in generic Exception
+            if any(
+                kw in str(e).lower()
+                for kw in ("timed out", "timeout", "connection", "network")
+            ):
+                pytest.skip(f"Network error: {e}")
+            raise
 
     @pytest.mark.skip(reason="Requires network access and may be slow")
     def test_osf_file_download_osfclient(self):
