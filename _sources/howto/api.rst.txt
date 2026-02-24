@@ -236,3 +236,220 @@ To avoid the size check entirely, use ``download_data=False`` for metadata-only 
    # Fast, no download — uses provider API metadata
    result = geoextent.from_remote('10.15468/6bleia', bbox=True, tbox=True,
                                   download_data=False)
+
+Progress callbacks
+------------------
+
+All three public API functions (``from_file``, ``from_directory``, ``from_remote``)
+accept a ``progress_callback`` parameter for structured progress reporting.
+This is useful for web applications, Jupyter notebooks, and other programmatic
+consumers that need to display progress without depending on tqdm.
+
+The callback receives :class:`~geoextent.lib.progress.ProgressEvent` instances
+-- frozen dataclasses describing what geoextent is doing at each step.
+
+Quick start
+^^^^^^^^^^^
+
+::
+
+   from geoextent.lib.progress import CollectingProgressCallback
+   from geoextent.lib import extent
+
+   cb = CollectingProgressCallback()
+   result = extent.from_file(
+       'data.tif',
+       bbox=True,
+       tbox=True,
+       progress_callback=cb,
+   )
+
+   for event in cb.events:
+       print(f'{event.phase.value}: {event.message} [{event.current}/{event.total}]')
+
+Output::
+
+   process_file: Processing data.tif [0/2]
+   spatial: Processing data.tif [1/2]
+   temporal: Processing data.tif [2/2]
+
+ProgressEvent
+^^^^^^^^^^^^^
+
+Each event is a frozen (immutable) dataclass with these fields:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 15 65
+
+   * - Field
+     - Type
+     - Description
+   * - ``phase``
+     - ``ProgressPhase``
+     - Which processing phase emitted this event (see table below).
+   * - ``message``
+     - ``str``
+     - Human-readable description (e.g. ``"Processing directory: mydata"``).
+   * - ``current``
+     - ``int``
+     - Current step number (0 when phase starts).
+   * - ``total``
+     - ``int``
+     - Total number of steps (0 if unknown).
+   * - ``detail``
+     - ``str | None``
+     - Optional extra context (filename, provider name, etc.).
+   * - ``bytes_current``
+     - ``int``
+     - Bytes processed so far (download phase only).
+   * - ``bytes_total``
+     - ``int``
+     - Total bytes to download (download phase only).
+
+Two computed properties are available:
+
+- ``event.fraction`` -- progress as a float in ``[0.0, 1.0]``, or ``-1.0`` if
+  indeterminate (``total <= 0``).
+- ``event.is_indeterminate`` -- ``True`` when ``total`` is unknown.
+
+ProgressPhase
+^^^^^^^^^^^^^
+
+Events are tagged with a phase indicating which part of the pipeline emitted them:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 20 30 50
+
+   * - Phase
+     - Emitted by
+     - Description
+   * - ``PROCESS_FILE``
+     - ``from_file``
+     - Starting to process a single file.
+   * - ``SPATIAL``
+     - ``from_file``
+     - Spatial extent extraction completed for a file.
+   * - ``TEMPORAL``
+     - ``from_file``
+     - Temporal extent extraction completed for a file.
+   * - ``PROCESS_DIR``
+     - ``from_directory``
+     - Processing the *n*-th item in a directory. ``current``/``total`` track progress.
+   * - ``MERGE``
+     - ``from_directory``
+     - Merging individual file results into a combined extent.
+   * - ``RESOLVE``
+     - ``from_remote``
+     - A content provider has been identified for the remote identifier.
+   * - ``DOWNLOAD``
+     - ``from_remote``
+     - Downloading files from a remote repository. ``bytes_current``/``bytes_total`` track byte-level progress.
+   * - ``EXTRACT``
+     - --
+     - Extracting an archive.
+   * - ``PLACENAME``
+     - --
+     - Reverse-geocoding coordinates to a placename.
+
+Built-in callbacks
+^^^^^^^^^^^^^^^^^^
+
+Three callback implementations are provided in ``geoextent.lib.progress``:
+
+**CollectingProgressCallback** -- appends every event to a list. Useful for
+testing and post-hoc analysis.
+
+::
+
+   from geoextent.lib.progress import CollectingProgressCallback
+
+   cb = CollectingProgressCallback()
+   result = extent.from_directory('mydata/', bbox=True, progress_callback=cb)
+   print(f'{len(cb.events)} events captured')
+
+**LoggingProgressCallback** -- logs each event to the ``geoextent`` logger. The
+log level is configurable (default ``INFO``).
+
+::
+
+   from geoextent.lib.progress import LoggingProgressCallback
+
+   cb = LoggingProgressCallback()  # or LoggingProgressCallback(level=logging.DEBUG)
+   result = extent.from_file('data.shp', bbox=True, progress_callback=cb)
+
+**TqdmProgressCallback** -- renders tqdm progress bars, one per phase. This is
+what geoextent uses internally when ``show_progress=True`` and no callback is
+provided.
+
+::
+
+   from geoextent.lib.progress import TqdmProgressCallback
+
+   cb = TqdmProgressCallback(leave=True)  # leave=True keeps bars on screen
+   result = extent.from_directory('mydata/', bbox=True, progress_callback=cb)
+   cb.close()  # close any open bars
+
+Writing a custom callback
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A callback is any callable that accepts a single ``ProgressEvent`` argument.
+Here is an example that pushes progress to a web API:
+
+::
+
+   import requests
+   from geoextent.lib.progress import ProgressEvent
+
+   def webhook_callback(event: ProgressEvent) -> None:
+       requests.post('https://example.com/progress', json={
+           'phase': event.phase.value,
+           'message': event.message,
+           'fraction': event.fraction,
+           'detail': event.detail,
+       }, timeout=5)
+
+   result = extent.from_remote(
+       '10.5281/zenodo.820562',
+       bbox=True,
+       tbox=True,
+       progress_callback=webhook_callback,
+   )
+
+Here is an example that updates a Jupyter notebook widget:
+
+::
+
+   import ipywidgets as widgets
+   from IPython.display import display
+   from geoextent.lib.progress import ProgressEvent
+
+   progress_bar = widgets.FloatProgress(min=0, max=1, description='Extracting...')
+   status_label = widgets.Label()
+   display(widgets.HBox([progress_bar, status_label]))
+
+   def jupyter_callback(event: ProgressEvent) -> None:
+       if not event.is_indeterminate:
+           progress_bar.value = event.fraction
+       status_label.value = event.message
+
+   result = extent.from_directory(
+       'mydata/',
+       bbox=True,
+       progress_callback=jupyter_callback,
+   )
+   progress_bar.value = 1.0
+   status_label.value = 'Done'
+
+Interaction with show_progress
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- When ``progress_callback`` is provided, geoextent automatically suppresses
+  internal tqdm bars (equivalent to ``show_progress=False``) to avoid duplicate
+  output.
+- When ``progress_callback`` is ``None`` and ``show_progress=True`` (the
+  default), geoextent auto-creates a ``TqdmProgressCallback`` internally for
+  backward compatibility. The CLI uses this path.
+- To disable all progress output, pass both ``show_progress=False`` and omit
+  ``progress_callback``.

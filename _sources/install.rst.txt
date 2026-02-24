@@ -272,6 +272,32 @@ For development, install with additional dependencies:
    # Install in development mode with all dependencies
    pip install -e .[dev,test,docs,preview]
 
+AppImage (Linux)
+-----------------
+
+On Linux, the easiest way to use geoextent is the AppImage — a single portable executable that bundles Python, GDAL, PROJ, and all dependencies. No installation required.
+
+Download the latest AppImage from the `GitHub Releases page <https://github.com/nuest/geoextent/releases>`_:
+
+::
+
+   # Download and make executable (replace VERSION with the latest release)
+   wget https://github.com/nuest/geoextent/releases/download/vVERSION/geoextent-VERSION-x86_64.AppImage
+   chmod +x geoextent-*-x86_64.AppImage
+
+   # Run directly
+   ./geoextent-*-x86_64.AppImage -b file.geojson
+
+.. tip::
+   Rename the AppImage to ``geoextent`` and place it on your ``PATH`` for convenient usage:
+
+   ::
+
+      mv geoextent-*-x86_64.AppImage ~/.local/bin/geoextent
+      geoextent -b file.geojson
+
+If a pre-built AppImage is not available, you can build it yourself — see :doc:`howto/appimage` for build instructions and detailed usage.
+
 Docker Installation
 -------------------
 
