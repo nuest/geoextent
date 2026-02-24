@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=geoextent
+Comment=Extract geospatial extent from files, directories, DOIs, and online repositories
+Exec=geoextent
+Icon=geoextent
+Categories=Science;Geography;
+Terminal=true
+NoDisplay=true

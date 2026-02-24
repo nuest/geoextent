@@ -1,0 +1,33 @@
+#!/bin/bash
+# AppRun — runtime bootstrap for the geoextent AppImage
+# Sets environment variables so that the bundled Python, GDAL, PROJ, and
+# SSL certificates are found inside the AppDir, then launches geoextent.
+
+set -euo pipefail
+
+HERE="$(dirname "$(readlink -f "$0")")"
+
+# Python environment
+export PYTHONHOME="${HERE}/usr"
+export PYTHONDONTWRITEBYTECODE=1
+
+# Library search path — bundled shared libraries
+export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH:-}"
+
+# GDAL / PROJ data files
+export GDAL_DATA="${HERE}/usr/share/gdal"
+export PROJ_DATA="${HERE}/usr/share/proj"
+
+# SSL certificates — conda bundles its own CA bundle
+export SSL_CERT_FILE="${HERE}/usr/ssl/cacert.pem"
+if [ ! -f "${SSL_CERT_FILE}" ]; then
+    # Fallback: certifi location inside conda env
+    SSL_CERT_FILE="$(find "${HERE}/usr/lib" -path "*/certifi/cacert.pem" 2>/dev/null | head -1)"
+    export SSL_CERT_FILE
+fi
+
+# setuptools-scm: no .git directory inside the AppImage, so the version
+# must be provided explicitly (same pattern as Dockerfile:46)
+export SETUPTOOLS_SCM_PRETEND_VERSION="__GEOEXTENT_VERSION__"
+
+exec "${HERE}/usr/bin/python" -m geoextent "$@"
