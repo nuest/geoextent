@@ -11,7 +11,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-from urllib.parse import quote
+
 from pathlib import Path
 
 logger = logging.getLogger("geoextent")
@@ -42,9 +42,7 @@ def _osc8_link(url, text):
 
 def file_uri(path):
     """Convert a filesystem path to a ``file://`` URI."""
-    abs_path = Path(path).resolve()
-    # quote() encodes special characters but leaves '/' intact
-    return "file://" + quote(str(abs_path), safe="/:")
+    return Path(path).resolve().as_uri()
 
 
 def render_map(bbox, convex_hull_coords=None, width=600, height=400):

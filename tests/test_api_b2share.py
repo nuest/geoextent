@@ -47,9 +47,12 @@ class TestB2SHAREProvider:
 
         for name, ds in self.TEST_DATASETS.items():
             p = InvenioRDM()
-            assert (
-                p.validate_provider(ds["url"]) is True
-            ), f"Should validate B2SHARE URL for {name}"
+            try:
+                assert (
+                    p.validate_provider(ds["url"]) is True
+                ), f"Should validate B2SHARE URL for {name}"
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error during URL validation: {e}")
 
     def test_b2share_doi_validation(self):
         """Test that B2SHARE DOIs are correctly validated"""
@@ -57,9 +60,12 @@ class TestB2SHAREProvider:
 
         for name, ds in self.TEST_DATASETS.items():
             p = InvenioRDM()
-            assert (
-                p.validate_provider(ds["doi"]) is True
-            ), f"Should validate B2SHARE DOI for {name}"
+            try:
+                assert (
+                    p.validate_provider(ds["doi"]) is True
+                ), f"Should validate B2SHARE DOI for {name}"
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error during DOI resolution: {e}")
 
     def test_b2share_invalid_identifiers(self):
         """Test that non-B2SHARE identifiers are not matched"""
@@ -73,9 +79,12 @@ class TestB2SHAREProvider:
 
         for identifier in invalid:
             p = InvenioRDM()
-            if p.validate_provider(identifier):
-                # If it validates, it should not be B2SHARE
-                assert "b2share" not in (p.name or "").lower() or True
+            try:
+                if p.validate_provider(identifier):
+                    # If it validates, it should not be B2SHARE
+                    assert "b2share" not in (p.name or "").lower() or True
+            except NETWORK_SKIP_EXCEPTIONS as e:
+                pytest.skip(f"Network error during validation: {e}")
 
     def test_b2share_provider_can_be_used(self):
         """Test that B2SHARE is registered as an InvenioRDM instance"""

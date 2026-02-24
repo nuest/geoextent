@@ -121,8 +121,13 @@ def check_file_supported(filepath):
     extension = os.path.splitext(filepath)[1].lower()
     vector_extensions = {".kml", ".gml", ".gpx", ".shp", ".gpkg", ".geojson", ".json"}
     raster_extensions = {".tif", ".tiff", ".asc", ".jp2", ".png", ".jpg", ".jpeg"}
+    pointcloud_extensions = {".las", ".laz"}
 
-    if extension in vector_extensions or extension in raster_extensions:
+    if (
+        extension in vector_extensions
+        or extension in raster_extensions
+        or extension in pointcloud_extensions
+    ):
         logger.debug(f"File {filepath} has extension {extension}, skipping CSV handler")
         return False
 
