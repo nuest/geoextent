@@ -19,7 +19,7 @@ All content providers support:
 Metadata-First Extraction
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some providers (Arctic Data Center, DataONE, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, UKCEH, GBIF, DEIMS-SDR, NFDI4Earth, HALO DB, GDI-DE, STAC, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
+Some providers (Arctic Data Center, DataONE, Figshare, 4TU.ResearchData, Senckenberg, PANGAEA, BGR, SEANOE, GeoScienceWorld, UKCEH, GBIF, DEIMS-SDR, NFDI4Earth, HALO DB, GDI-DE, STAC, CKAN, Wikidata) can extract geospatial extents directly from repository metadata without downloading data files. The ``--metadata-first`` flag leverages this for a smart two-phase strategy:
 
 1. **Phase 1 (metadata):** If the provider supports metadata extraction, try metadata-only extraction first (fast, no file downloads).
 2. **Phase 2 (fallback):** If metadata didn't yield the requested extents, or if the provider doesn't support metadata, fall back to downloading and processing data files.
@@ -889,6 +889,163 @@ SEANOE
 - Data files can be downloaded and processed for more precise extent extraction
 - Only open-access files are downloaded; restricted files are automatically skipped
 - Full support for download size limiting, geospatial file filtering, and parallel downloads
+
+GeoScienceWorld
+^^^^^^^^^^^^^^^^
+
+**Description:** GeoScienceWorld is a publishing platform hosting geoscience journals from
+multiple publishers (SEG, GSL, Mineralogical Society, etc.). Articles include GeoRef metadata
+with geographic coordinates embedded as WKT (POLYGON/POINT) in the article HTML.
+
+**Website:** https://pubs.geoscienceworld.org/
+
+**DOI Prefix:** Various publisher prefixes (10.1190, 10.1144, 10.1180, ...)
+
+**Supported Identifier Formats:**
+
+- Article URL: ``https://pubs.geoscienceworld.org/{pub}/{journal}/article-abstract/{vol}/{issue}/{page}/{id}/{slug}``
+- Article URL: ``https://pubs.geoscienceworld.org/{journal}/article/{vol}/{issue}/{page}/{id}/{slug}``
+- GeoRef record URL: ``https://pubs.geoscienceworld.org/georef/record/{type}/{id}/{slug}``
+- DOI: ``10.1190/tle44120952.1`` (resolves to GSW)
+- DOI: ``10.1144/petgeo2024-095`` (resolves to GSW)
+
+**Example (Metadata Only):**
+
+.. code-block:: bash
+
+   # Mozambique Channel seismic article — bbox and date from GeoRef metadata
+   python -m geoextent -b -t --no-download-data \
+       "https://pubs.geoscienceworld.org/seg/tle/article-abstract/44/12/952/721805/Diagenesis-and-pore-pressure-induced-dim-spots-on"
+
+   # Via DOI
+   python -m geoextent -b -t --no-download-data 10.1190/tle44120952.1
+
+**Python API Examples:**
+
+.. code-block:: python
+
+   import geoextent.lib.extent as geoextent
+
+   # Metadata-only: extracts coordinates from GeoRef metadata in article HTML
+   result = geoextent.from_remote(
+       'https://pubs.geoscienceworld.org/seg/tle/article-abstract/44/12/952/721805/'
+       'Diagenesis-and-pore-pressure-induced-dim-spots-on',
+       bbox=True, tbox=True, download_data=False
+   )
+
+   # Convex hull from multiple articles across different journals
+   result = geoextent.from_remote(
+       ['https://pubs.geoscienceworld.org/seg/tle/article-abstract/44/12/952/721805/'
+        'Diagenesis-and-pore-pressure-induced-dim-spots-on',
+        'https://pubs.geoscienceworld.org/gsl/pg/article/32/1/petgeo2024-095/722925/'
+        'Combined-geophysical-and-tectonostratigraphic'],
+       bbox=True, tbox=True, download_data=False, convex_hull=True
+   )
+
+**GeoRef Coordinate Structure:**
+
+GeoRef metadata embeds coordinates in ``<coordinates points='...'>`` HTML elements as a JSON
+object containing WKT geometries. Two types of geographic metadata appear:
+
+*Bounding box articles* — Regional studies have an axis-aligned rectangular POLYGON (the study
+area bounding box) plus a POINT at the exact centroid:
+
+.. code-block:: html
+
+   <coordinates points='{"Polygon":"POLYGON((43 -25.6667,50.5 -25.6667,
+     50.5 -11.8667,43 -11.8667,43 -25.6667))",
+     "Point":"POINT(46.75 -18.7667)"}'>
+
+*Point-only articles* — Single-site studies (mineral localities, craters, mines) have only a
+POINT with no bounding polygon.
+
+.. code-block:: html
+
+   <coordinates points='{"Point":"POINT(-118.3547 34.0631)"}'>
+
+**Illustrative Examples by Scale:**
+
+GeoRef bounding boxes span vastly different spatial scales depending on the study type.
+These real articles illustrate the range of polygon metadata:
+
+.. list-table:: Example GeoRef polygon scales
+   :header-rows: 1
+   :widths: 35 20 15 15 15
+
+   * - Article / Study Area
+     - Journal
+     - Width
+     - Height
+     - Area
+   * - Continental-scale seismic survey (Mozambique Channel)
+     - SEG *The Leading Edge*
+     - 791 km
+     - 1,536 km
+     - ~1.2M km²
+   * - Tectonic extension zone (Western California)
+     - GSA *Geology*
+     - 908 km
+     - 1,058 km
+     - ~970K km²
+   * - Cratonic mantle study (Eastern Tibet)
+     - GSA *Geology*
+     - 741 km
+     - 297 km
+     - ~221K km²
+   * - Porphyry copper district (N Greece, Chalkidiki)
+     - *Economic Geology*
+     - 135 km
+     - 130 km
+     - ~18K km²
+   * - Volcanic complex (Erongo, Namibia)
+     - GSSA *S. Afr. J. Geol.*
+     - 52 km
+     - 46 km
+     - ~2,400 km²
+   * - Single volcano (Torfajökull, Iceland)
+     - GSA *Geology*
+     - 12 km
+     - 19 km
+     - ~228 km²
+   * - Point-only: mineral locality (Monte Somma, Italy)
+     - MinSoc *Min. Mag.*
+     - —
+     - —
+     - point
+   * - Point-only: impact crater (Lonar, India)
+     - *J. Geol. Soc. India*
+     - —
+     - —
+     - point
+   * - Point-only: mine site (Sangdong, Korea)
+     - *Economic Geology*
+     - —
+     - —
+     - point
+
+The POINT coordinate in bounding-box articles is always the arithmetic centroid of the
+POLYGON: ``POINT((W+E)/2, (S+N)/2)``. It carries no independent spatial information
+beyond what the POLYGON already provides.
+
+**Special Notes:**
+
+- Metadata-only provider — coordinates are extracted from GeoRef metadata in article HTML; no data files are downloaded
+- The ``download_data`` parameter is accepted for API compatibility but has no effect
+- Uses ``curl_cffi`` with Chrome TLS fingerprint impersonation to bypass Cloudflare protection on ``pubs.geoscienceworld.org``; works for most articles but some older content may still be blocked — see :ref:`gsw-cloudflare-note` below
+- No single DOI prefix — GSW hosts journals from many publishers (SEG: 10.1190, GSL: 10.1144, etc.)
+- DOIs are supported via resolution: the DOI is resolved and the redirect URL is checked for ``pubs.geoscienceworld.org``
+- Coordinates use WKT ``(lon lat)`` order, which is standard; no coordinate swap is needed internally
+- Temporal extent is the article publication date from ``<meta name="citation_publication_date">``
+
+.. _gsw-cloudflare-note:
+
+.. note:: **Cloudflare protection status**
+
+   GeoScienceWorld uses Cloudflare's "managed challenge" (Turnstile) protection.
+   geoextent uses ``curl_cffi`` with Chrome TLS fingerprint impersonation to bypass
+   this without requiring a real browser. This works for the majority of articles,
+   but some older content served from different backends may still return empty results.
+   See `issue #109 <https://github.com/nuest/geoextent/issues/109>`_ for updates.
 
 UKCEH (EIDC)
 ^^^^^^^^^^^^^
