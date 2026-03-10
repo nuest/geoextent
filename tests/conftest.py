@@ -56,6 +56,7 @@ _PROVIDER_FILES = {
     "test_api_halodb.py",
     "test_api_gbif.py",
     "test_api_seanoe.py",
+    "test_api_geoscienceworld.py",
     "test_api_ukceh.py",
     "test_api_ckan.py",
     "test_api_stac.py",
@@ -113,6 +114,8 @@ _FAST_PATTERNS = {
     "collection_id_extraction",
     "non_http_rejected",
     "swhid",
+    "wkt_parsing",
+    "normalize_date",
 }
 
 # One representative real-network test per provider for smoke-testing.
@@ -148,6 +151,7 @@ _PROVIDER_SAMPLE_TESTS = {
     "test_halodb_metadata_only_extraction",
     "test_gbif_metadata_only_extraction",
     "test_seanoe_metadata_only_extraction",
+    "test_gsw_metadata_only_extraction",
     "test_ukceh_metadata_only_extraction",
     "test_ckan_metadata_only_extraction",
     "test_stac_metadata_only_extraction",

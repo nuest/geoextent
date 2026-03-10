@@ -31,6 +31,7 @@ from . import GDIDE
 from . import HALODB
 from . import GBIF
 from . import SEANOE
+from . import GeoScienceWorld
 from . import UKCEH
 from . import CKAN
 from . import NFDI4Earth
@@ -69,6 +70,7 @@ __all__ = [
     "HALODB",
     "GBIF",
     "SEANOE",
+    "GeoScienceWorld",
     "UKCEH",
     "CKAN",
     "NFDI4Earth",

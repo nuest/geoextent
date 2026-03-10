@@ -34,6 +34,7 @@ from .content_providers import GDIDE
 from .content_providers import HALODB
 from .content_providers import GBIF
 from .content_providers import SEANOE
+from .content_providers import GeoScienceWorld
 from .content_providers import UKCEH
 from .content_providers import CKAN
 from .content_providers import NFDI4Earth
@@ -89,6 +90,7 @@ def _get_content_providers():
         NFDI4Earth.NFDI4Earth,  # After DEIMS-SDR: URL-based, no DOIs, no collision risk
         HALODB.HALODB,
         SEANOE.SEANOE,
+        GeoScienceWorld.GeoScienceWorld,  # After SEANOE: no DOI prefix, validates via URL
         UKCEH.UKCEH,
         STAC.STAC,  # Late: broad /collections/ URL pattern could false-match
         GitHub.GitHub,  # Very late: github.com URLs are unambiguous, no DOI collision

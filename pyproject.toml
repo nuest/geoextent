@@ -50,7 +50,8 @@ dependencies = [
     "crossref-commons",
     "datacite",
     "owslib",
-    "laspy[lazrs]"
+    "laspy[lazrs]",
+    "curl_cffi"
 ]
 
 [project.optional-dependencies]

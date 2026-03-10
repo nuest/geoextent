@@ -289,7 +289,8 @@
       "WebFetch(domain:datahub.hcdc.hereon.de)",
       "WebFetch(domain:forgejo.org)",
       "WebFetch(domain:hub.datalad.org)",
-      "WebFetch(domain:appimage-builder.readthedocs.io)"
+      "WebFetch(domain:appimage-builder.readthedocs.io)",
+      "WebFetch(domain:pubs.geoscienceworld.org)"
     ],
     "deny": [],
     "ask": []
