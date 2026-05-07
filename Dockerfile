@@ -40,7 +40,13 @@ RUN pip3 install --break-system-packages \
     beautifulsoup4 \
     geopy \
     python-dotenv \
-    bottleneck>=1.3.6
+    bottleneck>=1.3.6 \
+    humanfriendly \
+    crossref-commons \
+    datacite \
+    owslib \
+    "laspy[lazrs]" \
+    curl_cffi
 
 # Set version for setuptools-scm
 ENV SETUPTOOLS_SCM_PRETEND_VERSION=0.9.0

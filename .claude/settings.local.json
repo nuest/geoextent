@@ -290,7 +290,12 @@
       "WebFetch(domain:forgejo.org)",
       "WebFetch(domain:hub.datalad.org)",
       "WebFetch(domain:appimage-builder.readthedocs.io)",
-      "WebFetch(domain:pubs.geoscienceworld.org)"
+      "WebFetch(domain:pubs.geoscienceworld.org)",
+      "Bash(git -C /home/daniel/git/geoextent log --oneline -5 -- Dockerfile pyproject.toml)",
+      "Bash(git -C /home/daniel/git/geoextent log --all --oneline --source -- Dockerfile)",
+      "Bash(docker --version)",
+      "Bash(docker info *)",
+      "Bash(docker build *)"
     ],
     "deny": [],
     "ask": []
