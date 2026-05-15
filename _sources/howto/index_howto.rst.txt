@@ -8,5 +8,7 @@ How-to Guides
 
    cli
    api
+   text-extraction
+   highlighting
    docker
    appimage

@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Extracting extents from free text &#8212; geoextent 0.1.dev1+gabc257ad4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
+    <script src="../_static/documentation_options.js?v=1fa22bee"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Highlighting matches from the text/NER source" href="highlighting.html" />
+    <link rel="prev" title="API Docs" href="api.html" />
+
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+<!-- Favicon variants for better cross-browser and device support -->
+<link rel="icon" type="image/png" sizes="16x16" href="../_static/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="../_static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="../_static/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../_static/favicon-192x192.png">
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="extracting-extents-from-free-text">
+<h1>Extracting extents from free text<a class="headerlink" href="#extracting-extents-from-free-text" title="Link to this heading">¶</a></h1>
+<p>geoextent can pull spatial and temporal extents out of unstructured English
+prose using <a class="reference external" href="https://spacy.io/">spaCy</a> named entity recognition together
+with a place-name gazetteer and a bundled time-period gazetteer (ICS
+GTS2020). This page is a tour of the feature: setup, place names, calendar
+dates, named time periods, the signed ISO 8601 output format, match
+highlighting, ambiguity policy, and how to turn the source off.</p>
+<p>For the offset contract that underpins highlighting and tool integration,
+see <a class="reference internal" href="highlighting.html"><span class="doc">Highlighting matches from the text/NER source</span></a>. Issue <a class="reference external" href="https://github.com/nuest/geoextent/issues/112">#112</a> tracks the feature; follow-ups
+<a class="reference external" href="https://github.com/nuest/geoextent/issues/113">#113</a> (Wikidata period gazetteer) and <a class="reference external" href="https://github.com/nuest/geoextent/issues/114">#114</a> (HTML and Web
+Annotation export) are open.</p>
+<section id="one-time-setup">
+<h2>One-time setup<a class="headerlink" href="#one-time-setup" title="Link to this heading">¶</a></h2>
+<p>Install the optional <code class="docutils literal notranslate"><span class="pre">[nlp]</span></code> extra and a spaCy English model:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;geoextent[nlp]&#39;</span>
+python<span class="w"> </span>-m<span class="w"> </span>spacy<span class="w"> </span>download<span class="w"> </span>en_core_web_sm
+</pre></div>
+</div>
+<p>The default forward-gazetteer is <strong>Nominatim</strong> (no API key required); the
+default model is <code class="docutils literal notranslate"><span class="pre">en_core_web_sm</span></code> (auto-downloaded on first use unless
+<code class="docutils literal notranslate"><span class="pre">--no-auto-download</span></code> is passed). Without the <code class="docutils literal notranslate"><span class="pre">[nlp]</span></code> extra the text
+handler silently declines, so a directory containing <code class="docutils literal notranslate"><span class="pre">README.md</span></code> is not
+suddenly NER-ed just because you upgraded geoextent.</p>
+</section>
+<section id="place-names-from-text">
+<h2>Place names from text<a class="headerlink" href="#place-names-from-text" title="Link to this heading">¶</a></h2>
+<p>The defaults make place-name extraction work out of the box:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Berlin and Paris&quot;</span>
+</pre></div>
+</div>
+<p>That prints a GeoJSON <code class="docutils literal notranslate"><span class="pre">FeatureCollection</span></code> with each resolved place under
+<code class="docutils literal notranslate"><span class="pre">place_names</span></code>. Note that by default geoextent <strong>drops</strong> ambiguous mentions
+— “Paris” has many homonyms (Paris/France, Paris/Texas, Paris/Ontario, …),
+so Nominatim returns several candidates and the safe default refuses to
+guess. To keep the top-ranked match:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Berlin and Paris&quot;</span>
+</pre></div>
+</div>
+<p>Other input modes:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Stdin</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Workshops in Tokyo and London&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-
+
+<span class="c1"># A single text file</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>tests/testdata/text/cities.txt
+
+<span class="c1"># A whole directory of text files</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>tests/testdata/text/
+
+<span class="c1"># Mixed text + geospatial in one call</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>tests/testdata/text/mixed_dir/cities.txt<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>tests/testdata/text/mixed_dir/point.geojson
+
+<span class="c1"># Different gazetteer (Nominatim is already the default; GeoNames needs</span>
+<span class="c1"># the GEONAMES_USERNAME env var or a .env file)</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>--ner-gazetteer<span class="w"> </span>photon<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Saxony, Bavaria, and Brandenburg&quot;</span>
+</pre></div>
+</div>
+<section id="boundary-geometries">
+<h3>Boundary geometries<a class="headerlink" href="#boundary-geometries" title="Link to this heading">¶</a></h3>
+<p>Some gazetteers can return more than a centroid for areal features. By
+default, geoextent uses an administrative boundary or other areal polygon
+when one is available, and falls back to the centroid point otherwise. The
+classic case is a state name like <em>Saxony</em>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Field campaign in Saxony&quot;</span>
+</pre></div>
+</div>
+<p>With Nominatim (the default gazetteer), Saxony resolves to OSM relation
+<code class="docutils literal notranslate"><span class="pre">62467</span></code> and the gazetteer returns the state’s <code class="docutils literal notranslate"><span class="pre">MultiPolygon</span></code>. The
+emitted <code class="docutils literal notranslate"><span class="pre">bbox</span></code> is the polygon’s envelope (roughly
+<code class="docutils literal notranslate"><span class="pre">[11.87,</span> <span class="pre">50.17,</span> <span class="pre">15.04,</span> <span class="pre">51.69]</span></code>) and the place provenance carries the
+geometry under <code class="docutils literal notranslate"><span class="pre">boundary</span></code>:</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>&quot;place_names&quot;: [{
+  &quot;name&quot;: &quot;Saxony&quot;,
+  &quot;gazetteer_id&quot;: &quot;osm:relation:62467&quot;,
+  &quot;gazetteer_url&quot;: &quot;https://www.openstreetmap.org/relation/62467&quot;,
+  &quot;lat&quot;: 50.93, &quot;lon&quot;: 13.46,         // centroid, still emitted
+  &quot;boundary&quot;: {&quot;type&quot;: &quot;MultiPolygon&quot;, &quot;coordinates&quot;: [...]}
+}]
+</pre></div>
+</div>
+<p>Force a centroid (e.g. for sensors that expect single-point geometry) with
+<code class="docutils literal notranslate"><span class="pre">--place-geometry</span> <span class="pre">point</span></code>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--place-geometry<span class="w"> </span>point<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Field campaign in Saxony&quot;</span>
+<span class="c1"># → bbox is the centroid (degenerate point envelope)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--place-geometry</span> <span class="pre">auto</span></code> (default) uses the boundary when present and
+silently falls back to the point when absent. <code class="docutils literal notranslate"><span class="pre">boundary</span></code> is the same as
+<code class="docutils literal notranslate"><span class="pre">auto</span></code> today; a future release may make it stricter (warn / error on
+fallback). <strong>GeoNames and Photon return only centroid points</strong> for the
+geopy interface geoextent uses, so this knob has no effect with those
+backends — the spatial extent will always be the point envelope.</p>
+</section>
+<section id="convex-hull-on-mixed-geometries">
+<h3>Convex hull on mixed geometries<a class="headerlink" href="#convex-hull-on-mixed-geometries" title="Link to this heading">¶</a></h3>
+<p>With <code class="docutils literal notranslate"><span class="pre">--convex-hull</span></code> the spatial extent is the convex hull of all
+matched gazetteer hits — polygon hits contribute their boundary vertices,
+point hits contribute their centroid, and the union is hulled together.
+This makes <code class="docutils literal notranslate"><span class="pre">--convex-hull</span></code> useful for three distinct shapes of input:</p>
+<p><strong>Single polygon hit — polygon simplification.</strong> If only one place is
+matched and it has a boundary, the result is the convex hull of that
+polygon’s vertices. For an already-convex shape the result equals the
+boundary; for an irregular shape it acts as a simplification:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--convex-hull<span class="w"> </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Field campaign in Saxony&quot;</span>
+<span class="c1"># → &quot;bbox&quot; is a closed polygon ring covering the Saxony outline</span>
+</pre></div>
+</div>
+<p><strong>Polygon + outside point — extended hull.</strong> A polygon plus a far-away
+point extends the hull to enclose both. The hull of “Saxony” (covering
+~11.9–15.0°E, 50.2–51.7°N) and “Berlin” (~13.4°E, 52.5°N) reaches north
+beyond Saxony to include Berlin:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--convex-hull<span class="w"> </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Saxony and Berlin&quot;</span>
+<span class="c1"># → &quot;bbox&quot; is a closed polygon ring whose northern boundary touches Berlin</span>
+</pre></div>
+</div>
+<p><strong>Multiple point hits.</strong> Two or three point hits (cities) produce a line
+segment or polygon hull — the same behaviour as before:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--convex-hull<span class="w"> </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Berlin, Paris, and Tokyo&quot;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--place-geometry</span> <span class="pre">point</span></code> forces the hull to be computed from centroids
+even when polygons are available, which can be useful if you want a
+city-to-city skeleton and not a country-wide hull.</p>
+</section>
+<section id="viewing-the-extent-on-geojson-io-and-the-150-kb-payload-limit">
+<h3>Viewing the extent on geojson.io and the 150 KB payload limit<a class="headerlink" href="#viewing-the-extent-on-geojson-io-and-the-150-kb-payload-limit" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">--geojsonio</span></code> produces a clickable URL that opens the extracted extent
+on <a class="reference external" href="https://geojson.io">https://geojson.io</a>. The URL embeds the GeoJSON directly in its
+<code class="docutils literal notranslate"><span class="pre">#data=…</span></code> fragment, so the only practical limit is how much GeoJSON
+fits in a URL:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--convex-hull<span class="w"> </span>--geojsonio<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Berlin and Reykjavik&quot;</span>
+<span class="c1"># → http://geojson.io/#data=data:application/json,%7B%22type%22%…</span>
+</pre></div>
+</div>
+<p><strong>The 150 KB threshold.</strong> geojson.io itself does not document a maximum
+payload size — see the upstream <a class="reference external" href="https://github.com/mapbox/geojson.io/blob/main/API.md">URL API reference</a>.
+The limit comes from the <a class="reference external" href="https://github.com/jwass/geojsonio.py">geojsonio Python wrapper</a>
+that geoextent uses to build the URL: it defines
+<code class="docutils literal notranslate"><span class="pre">MAX_URL_LEN</span> <span class="pre">=</span> <span class="pre">150e3</span></code> (150 000 bytes of GeoJSON content) and, for
+anything larger, falls back to <em>uploading the GeoJSON as an anonymous
+GitHub Gist</em> and embedding the gist ID in the URL instead.</p>
+<p><strong>Why the fallback fails today.</strong> GitHub no longer permits anonymous
+gist creation (the API returns <code class="docutils literal notranslate"><span class="pre">401</span> <span class="pre">Requires</span> <span class="pre">authentication</span></code>), so the
+fallback always fails for oversize payloads. geoextent surfaces this as:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>geojson.io URL could not be generated — geojson.io service call
+failed: geojsonio.make_url → GitHub Gist API (anonymous gist
+fallback for GeoJSON &gt; ~150 KB): 401 Requires authentication
+(payload size 331222 bytes) — try --convex-hull to reduce geometry
+complexity, or drop optional fields that bloat properties
+</pre></div>
+</div>
+<p><strong>What pushes a text-NER extent over 150 KB.</strong> The geometry itself is
+usually small (a convex hull or a 4-corner envelope is a few hundred
+bytes). The bloat comes from the <code class="docutils literal notranslate"><span class="pre">place_names[*].boundary</span></code> polygons
+that Nominatim returns for administrative areas — a single <code class="docutils literal notranslate"><span class="pre">Berlin</span></code>
+or <code class="docutils literal notranslate"><span class="pre">Saxony</span></code> boundary is 50–200 KB of coordinates. <code class="docutils literal notranslate"><span class="pre">--convex-hull</span></code>
+already strips boundaries from the provenance once it has consumed them
+for the hull, so the common fix is:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Was 324 KB → 401 from the gist fallback</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>--geojsonio<span class="w"> </span>--placename<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Workshops in Berlin&quot;</span>
+
+<span class="c1"># 2.5 KB → URL-fragment path, no gist, works</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>--convex-hull<span class="w"> </span>--geojsonio<span class="w"> </span>--placename<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Workshops in Berlin&quot;</span>
+</pre></div>
+</div>
+<p>Other ways to shrink the payload below 150 KB:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--place-geometry</span> <span class="pre">point</span></code> also drops boundaries from provenance.</p></li>
+<li><p>Cap the number of mentions (<code class="docutils literal notranslate"><span class="pre">--ner-ambiguity</span> <span class="pre">drop</span></code> skips ambiguous
+ones; you can also write tighter input text).</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">--ner-gazetteer</span> <span class="pre">photon</span></code> or <code class="docutils literal notranslate"><span class="pre">--ner-gazetteer</span> <span class="pre">geonames</span></code> —
+neither returns admin polygons, so the provenance stays small.</p></li>
+<li><p>Save the GeoJSON to a file (<code class="docutils literal notranslate"><span class="pre">geoextent</span> <span class="pre">-b</span> <span class="pre">&gt;</span> <span class="pre">extent.geojson</span></code>) and
+upload via the geojson.io GUI’s “Open → File” instead.</p></li>
+</ul>
+<p>If you need to render a &gt; 150 KB extent and don’t want to depend on
+external services, <code class="docutils literal notranslate"><span class="pre">--map</span> <span class="pre">FILE</span></code> writes a local PNG preview without
+involving geojson.io at all.</p>
+</section>
+<section id="combining-a-text-input-with-a-local-geospatial-file">
+<h3>Combining a text input with a local geospatial file<a class="headerlink" href="#combining-a-text-input-with-a-local-geospatial-file" title="Link to this heading">¶</a></h3>
+<p>The CLI accepts <code class="docutils literal notranslate"><span class="pre">--text</span></code> together with positional file or directory
+inputs in a single call. <code class="docutils literal notranslate"><span class="pre">--text</span></code> (and <code class="docutils literal notranslate"><span class="pre">-</span></code> stdin) is treated as one
+more source, peer to the positional inputs, and <strong>all sources are
+merged into a single envelope / convex hull by default</strong> — the same
+behaviour you get from multiple positional files. Use <code class="docutils literal notranslate"><span class="pre">--details</span></code> to
+inspect each source separately; the merged top-level extent is kept
+either way:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Mix a free-text mention with a GeoJSON file. The bbox spans Berlin</span>
+<span class="c1"># (from --text) and Tokyo (from the file).</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Berlin&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>tests/testdata/text/mixed_dir/point.geojson
+
+<span class="c1"># Convex hull across text + file, with temporal extent merged too.</span>
+<span class="c1"># Denmark + Belgium (from --text), Berlin + Reykjavik (from cities.txt);</span>
+<span class="c1"># tbox spans 2021–2023.</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--convex-hull<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Travelling from Denmark to Belgium in 2021 and 2023&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>tests/testdata/text/mixed_dir/cities.txt
+
+<span class="c1"># Same as above, with --geojsonio appended to also print a clickable</span>
+<span class="c1"># geojson.io URL covering the four-country hull. Stays well under the</span>
+<span class="c1"># 150 KB URL-fragment limit because --convex-hull strips per-place</span>
+<span class="c1"># boundary polygons from the provenance.</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--convex-hull<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Travelling from Denmark to Belgium in 2021 and 2023&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--geojsonio<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>tests/testdata/text/mixed_dir/cities.txt
+
+<span class="c1"># Add --details to inspect the per-source extents under</span>
+<span class="c1"># geoextent_extraction.details.</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>--details<span class="w"> </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Berlin&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>tests/testdata/text/mixed_dir/point.geojson
+</pre></div>
+</div>
+<p>The same shape works for any positional input: a Shapefile, a GeoTIFF, a
+directory of geospatial files, a DOI / repository URL, or stdin (<code class="docutils literal notranslate"><span class="pre">-</span></code>).
+Mixed runs through the Python API use the multi-input call:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">extent</span>
+
+<span class="c1"># 1) Inline text alone</span>
+<span class="n">text_result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_text</span><span class="p">(</span>
+    <span class="s2">&quot;Field campaigns in Berlin&quot;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ner_ambiguity</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># 2) A local file alone</span>
+<span class="n">file_result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;path/to/point.geojson&quot;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># 3) Merge in the application layer if you need a combined envelope.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">helpfunctions</span> <span class="k">as</span> <span class="n">hf</span>
+<span class="n">merged</span> <span class="o">=</span> <span class="n">hf</span><span class="o">.</span><span class="n">bbox_merge</span><span class="p">(</span>
+    <span class="p">{</span><span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">text_result</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">file_result</span><span class="p">},</span>
+    <span class="s2">&quot;multi-input&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">merged</span><span class="p">[</span><span class="s2">&quot;bbox&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Tuning what spaCy picks up:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Only keep GPE (geo-political entities) — countries, cities, regions</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>--ner-labels<span class="w"> </span>GPE<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Hiking in the Alps near Munich and along the Rhine&quot;</span>
+
+<span class="c1"># Use a larger model (must be installed separately):</span>
+<span class="c1">#   python -m spacy download en_core_web_md</span>
+geoextent<span class="w"> </span>-b<span class="w"> </span>--ner-model<span class="w"> </span>en_core_web_md<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--text<span class="w"> </span><span class="s2">&quot;Berlin and Paris&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="calendar-dates-from-text">
+<h2>Calendar dates from text<a class="headerlink" href="#calendar-dates-from-text" title="Link to this heading">¶</a></h2>
+<p>The temporal pipeline understands four shapes of date expressions:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-t<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Field measurements in May 2024&quot;</span>
+<span class="c1"># → &quot;tbox&quot;: [&quot;2024-05-01&quot;, &quot;2024-05-31&quot;]   (month envelope)</span>
+
+geoextent<span class="w"> </span>-t<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Records from the 1990s&quot;</span>
+<span class="c1"># → &quot;tbox&quot;: [&quot;1990-01-01&quot;, &quot;1999-12-31&quot;]   (decade envelope)</span>
+
+geoextent<span class="w"> </span>-t<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Records from the 19th century&quot;</span>
+<span class="c1"># → &quot;tbox&quot;: [&quot;1801-01-01&quot;, &quot;1900-12-31&quot;]   (century envelope)</span>
+
+geoextent<span class="w"> </span>-t<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Monitoring ran between 2010 and 2015&quot;</span>
+<span class="c1"># → &quot;tbox&quot;: [&quot;2010-01-01&quot;, &quot;2015-12-31&quot;]   (range splitter)</span>
+</pre></div>
+</div>
+<p>Range detection handles <code class="docutils literal notranslate"><span class="pre">between</span> <span class="pre">X</span> <span class="pre">and</span> <span class="pre">Y</span></code>, <code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">X</span> <span class="pre">to</span> <span class="pre">Y</span></code>, en-dashes
+(<code class="docutils literal notranslate"><span class="pre">X–Y</span></code>), em-dashes (<code class="docutils literal notranslate"><span class="pre">X—Y</span></code>), plain ASCII hyphens (<code class="docutils literal notranslate"><span class="pre">X-Y</span></code>), and
+<code class="docutils literal notranslate"><span class="pre">to</span></code>/<code class="docutils literal notranslate"><span class="pre">until</span></code>/<code class="docutils literal notranslate"><span class="pre">through</span></code>/<code class="docutils literal notranslate"><span class="pre">and</span></code> connectors.</p>
+<section id="two-phrasings-two-provenance-paths-same-envelope">
+<h3>Two phrasings, two provenance paths, same envelope<a class="headerlink" href="#two-phrasings-two-provenance-paths-same-envelope" title="Link to this heading">¶</a></h3>
+<p>A useful comparison — the same time window expressed two ways yields
+identical <code class="docutils literal notranslate"><span class="pre">tbox</span></code> envelopes but very different mention provenance:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-t<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Berlin and Paris ending in March 2022 and beginning in June 2021&quot;</span>
+</pre></div>
+</div>
+<p>Result (extract):</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>&quot;tbox&quot;: [&quot;2021-06-01&quot;, &quot;2022-03-31&quot;],
+&quot;date_entities&quot;: [
+  {&quot;text&quot;: &quot;March 2022&quot;, &quot;kind&quot;: &quot;date&quot;,
+   &quot;start&quot;: &quot;2022-03-01&quot;, &quot;end&quot;: &quot;2022-03-31&quot;},
+  {&quot;text&quot;: &quot;June 2021&quot;,  &quot;kind&quot;: &quot;date&quot;,
+   &quot;start&quot;: &quot;2021-06-01&quot;, &quot;end&quot;: &quot;2021-06-30&quot;}
+]
+</pre></div>
+</div>
+<p>spaCy emits <strong>two</strong> independent <code class="docutils literal notranslate"><span class="pre">DATE</span></code> entities; each is parsed
+independently (each into a month envelope), and <code class="docutils literal notranslate"><span class="pre">tbox</span></code> is the envelope of
+the envelopes.</p>
+<p>Now the same window in a single phrase:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-t<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--text<span class="w"> </span><span class="s2">&quot;Field campaigns in Berlin and Paris from June 2021 to March 2022&quot;</span>
+</pre></div>
+</div>
+<p>Result (extract):</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>&quot;tbox&quot;: [&quot;2021-06-01&quot;, &quot;2022-03-31&quot;],
+&quot;date_entities&quot;: [
+  {&quot;text&quot;: &quot;June 2021 to March 2022&quot;, &quot;kind&quot;: &quot;date&quot;,
+   &quot;start&quot;: &quot;2021-06-01&quot;, &quot;end&quot;: &quot;2022-03-31&quot;}
+]
+</pre></div>
+</div>
+<p>spaCy emits <strong>one</strong> <code class="docutils literal notranslate"><span class="pre">DATE</span></code> span spanning both endpoints; geoextent’s
+range splitter recognises the <code class="docutils literal notranslate"><span class="pre">to</span></code> connector, parses each side, and
+returns the merged envelope as a single mention.</p>
+<p>Both phrasings produce the same <code class="docutils literal notranslate"><span class="pre">tbox</span></code> because the envelope-of-envelopes
+and the explicit-range computations converge. The difference shows up in
+<code class="docutils literal notranslate"><span class="pre">date_entities</span></code>: the first phrasing carries two mentions, the second
+carries one. For downstream tools that highlight matches in the source,
+this distinction matters — the second phrasing yields a single span to
+underline (<code class="docutils literal notranslate"><span class="pre">&quot;June</span> <span class="pre">2021</span> <span class="pre">to</span> <span class="pre">March</span> <span class="pre">2022&quot;</span></code>); the first yields two
+non-contiguous spans.</p>
+</section>
+</section>
+<section id="named-time-periods">
+<h2>Named time periods<a class="headerlink" href="#named-time-periods" title="Link to this heading">¶</a></h2>
+<p>Beyond calendar dates, geoextent recognises geological time periods using
+the bundled International Chronostratigraphic Chart (ICS GTS2020, CC0,
+~178 eons / eras / periods / epochs / ages). Period detection runs as a
+spaCy <code class="docutils literal notranslate"><span class="pre">PhraseMatcher</span></code> over the gazetteer’s label index — which means it
+catches mentions that <code class="docutils literal notranslate"><span class="pre">en_core_web_sm</span></code> mislabels (Holocene as <code class="docutils literal notranslate"><span class="pre">ORG</span></code>,
+Mesozoic Era as <code class="docutils literal notranslate"><span class="pre">ORG</span></code>, Bronze Age as <code class="docutils literal notranslate"><span class="pre">PERSON</span></code>) or misses entirely
+(Pleistocene, Late Cretaceous):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-t<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Sediment cores from the Holocene&quot;</span>
+<span class="c1"># → &quot;tbox&quot;: [&quot;-9750-01-01&quot;, &quot;1950-01-01&quot;]</span>
+
+geoextent<span class="w"> </span>-t<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Late Cretaceous fossils dominate the section&quot;</span>
+<span class="c1"># → &quot;tbox&quot;: [&quot;-100498050-01-01&quot;, &quot;-65998050-01-01&quot;]</span>
+
+geoextent<span class="w"> </span>-t<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Pleistocene cores below the modern surface&quot;</span>
+<span class="c1"># → &quot;tbox&quot;: [&quot;-2578050-01-01&quot;, &quot;-9750-01-01&quot;]</span>
+</pre></div>
+</div>
+<p>Resolved periods carry the same provenance shape as places — a
+<code class="docutils literal notranslate"><span class="pre">gazetteer_id</span></code> (<code class="docutils literal notranslate"><span class="pre">ics:Holocene</span></code>) and <code class="docutils literal notranslate"><span class="pre">gazetteer_url</span></code> pointing to the
+canonical resource on <code class="docutils literal notranslate"><span class="pre">resource.geosciml.org</span></code>. Disable period matching
+with <code class="docutils literal notranslate"><span class="pre">--no-period-resolution</span></code> if you only want calendar-date parsing.</p>
+<section id="combining-periods-and-dates">
+<h3>Combining periods and dates<a class="headerlink" href="#combining-periods-and-dates" title="Link to this heading">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-t<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--text<span class="w"> </span><span class="s2">&quot;Pleistocene cores near Berlin re-surveyed on 2024-05-12&quot;</span>
+<span class="c1"># → &quot;tbox&quot;: [&quot;-2578050-01-01&quot;, &quot;2024-05-12&quot;]</span>
+</pre></div>
+</div>
+<p>The deep-time start and the CE-date end coexist in the same envelope; the
+<code class="docutils literal notranslate"><span class="pre">tbox</span></code> merge falls back to numeric signed-year comparison when any
+mention is pre-CE.</p>
+</section>
+</section>
+<section id="signed-iso-8601-dates-for-pre-ce-deep-time">
+<h2>Signed ISO 8601 dates for pre-CE / deep time<a class="headerlink" href="#signed-iso-8601-dates-for-pre-ce-deep-time" title="Link to this heading">¶</a></h2>
+<p>Python’s stdlib <code class="docutils literal notranslate"><span class="pre">datetime</span></code> cannot represent year 0 or negative years, so
+geological periods are emitted as <strong>signed ISO 8601 extended year</strong>
+strings:</p>
+<ul class="simple">
+<li><p>Holocene start: <code class="docutils literal notranslate"><span class="pre">-9750-01-01</span></code></p></li>
+<li><p>Pleistocene start: <code class="docutils literal notranslate"><span class="pre">-2578050-01-01</span></code></p></li>
+<li><p>Mesozoic Era start: <code class="docutils literal notranslate"><span class="pre">-251900050-01-01</span></code></p></li>
+</ul>
+<p>The sign and the at-least-four-digit year width are fixed; larger years
+extend the width as needed. <code class="docutils literal notranslate"><span class="pre">--time-format</span></code> is <strong>not</strong> applied to
+deep-time mentions (those rely on the signed-ISO contract); CE-only output
+continues to honour the format flag exactly as before, byte-for-byte.</p>
+</section>
+<section id="highlighting-matches">
+<h2>Highlighting matches<a class="headerlink" href="#highlighting-matches" title="Link to this heading">¶</a></h2>
+<p>The CLI can render the source string with matched spans wrapped for
+display:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--annotate<span class="w"> </span>brackets<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--text<span class="w"> </span><span class="s2">&quot;Sediment cores in Berlin span the Holocene; resurvey on 2024-05-12&quot;</span>
+</pre></div>
+</div>
+<p>Output (after the JSON):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span><span class="n">annotated</span> <span class="n">source</span> <span class="p">(</span><span class="n">brackets</span><span class="p">)</span><span class="o">---</span>
+<span class="n">Sediment</span> <span class="n">cores</span> <span class="ow">in</span> <span class="p">[[</span><span class="n">Berlin</span><span class="o">|</span><span class="n">place</span><span class="p">]]</span> <span class="n">span</span> <span class="n">the</span> <span class="p">[[</span><span class="n">Holocene</span><span class="o">|</span><span class="n">period</span><span class="p">]];</span> <span class="n">resurvey</span> <span class="n">on</span> <span class="p">[[</span><span class="mi">2024</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">12</span><span class="o">|</span><span class="n">date</span><span class="p">]]</span>
+</pre></div>
+</div>
+<p>Modes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--annotate</span> <span class="pre">auto</span></code> (default) — ANSI colour when stdout is a TTY,
+brackets otherwise, mirroring <code class="docutils literal notranslate"><span class="pre">grep</span> <span class="pre">--color=auto</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--annotate</span> <span class="pre">ansi</span></code> — force ANSI SGR colours (terminal preview).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--annotate</span> <span class="pre">brackets</span></code> — force <code class="docutils literal notranslate"><span class="pre">[[surface|kind]]</span></code> markers (pipelines,
+log capture, chat clients).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--annotate</span> <span class="pre">off</span></code> — suppress.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--annotate-classes</span> <span class="pre">&quot;place=cyan,date=yellow,period=magenta&quot;</span></code> —
+override colours per kind.</p></li>
+</ul>
+<p>Each mention also carries <code class="docutils literal notranslate"><span class="pre">char_start</span></code> / <code class="docutils literal notranslate"><span class="pre">char_end</span></code> offsets into the
+echoed <code class="docutils literal notranslate"><span class="pre">source_text</span></code> so consumers can render their own highlights. See
+<a class="reference internal" href="highlighting.html"><span class="doc">Highlighting matches from the text/NER source</span></a> for the contract details and a JavaScript / Java
+re-encoding recipe.</p>
+</section>
+<section id="ambiguity-policy">
+<h2>Ambiguity policy<a class="headerlink" href="#ambiguity-policy" title="Link to this heading">¶</a></h2>
+<p>Both gazetteers (place-name and time-period) have an <code class="docutils literal notranslate"><span class="pre">--ner-ambiguity</span></code>
+/ <code class="docutils literal notranslate"><span class="pre">--period-ambiguity</span></code> knob with the same two values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">drop</span></code> (default) — refuse to choose when more than one candidate is
+returned. Defensive: a “Paris” mention without disambiguating context
+is dropped rather than silently bound to the wrong city. The first
+time a name is dropped, geoextent logs a WARNING to <code class="docutils literal notranslate"><span class="pre">stderr</span></code> naming
+the place, the gazetteer candidates that triggered the drop, and the
+exact flag (<code class="docutils literal notranslate"><span class="pre">--ner-ambiguity</span> <span class="pre">top</span></code>) to flip the policy.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">top</span></code> — keep the highest-ranked candidate.</p></li>
+</ul>
+<p>Repeat drops of the same name in one run only warn once, to keep the log
+quiet when a long directory mentions the same ambiguous town many times.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>--ner-ambiguity<span class="w"> </span>top<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;We met in Paris and Berlin&quot;</span>
+geoextent<span class="w"> </span>-t<span class="w"> </span>--period-ambiguity<span class="w"> </span>top<span class="w"> </span>--text<span class="w"> </span><span class="s2">&quot;Iron Age burials&quot;</span>
+</pre></div>
+</div>
+<p>The drop policy preserves provenance: dropped mentions still appear in
+<code class="docutils literal notranslate"><span class="pre">place_names</span></code> / <code class="docutils literal notranslate"><span class="pre">date_entities</span></code> with <code class="docutils literal notranslate"><span class="pre">matched:</span> <span class="pre">false</span></code> and the full
+<code class="docutils literal notranslate"><span class="pre">candidate_count</span></code>.</p>
+</section>
+<section id="turning-text-extraction-off">
+<h2>Turning text extraction off<a class="headerlink" href="#turning-text-extraction-off" title="Link to this heading">¶</a></h2>
+<p>If you process a directory of structured data and want to be sure no
+<code class="docutils literal notranslate"><span class="pre">README.md</span></code> (or similar) is fed to spaCy:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--text-method<span class="w"> </span>none<span class="w"> </span>path/to/data_dir
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">--text-method</span> <span class="pre">none</span></code> disables the text handler entirely; <code class="docutils literal notranslate"><span class="pre">.txt</span></code> and
+<code class="docutils literal notranslate"><span class="pre">.md</span></code> files then fall back to other handlers (e.g. tab-delimited
+Darwin Core occurrence files via the CSV handler) or are skipped.</p>
+</section>
+<section id="python-api">
+<h2>Python API<a class="headerlink" href="#python-api" title="Link to this heading">¶</a></h2>
+<p>The same surface is available as <code class="xref py py-func docutils literal notranslate"><span class="pre">geoextent.lib.extent.from_text()</span></code>
+for in-memory strings and as the standard handler for
+<code class="xref py py-func docutils literal notranslate"><span class="pre">from_file()</span></code> /
+<code class="xref py py-func docutils literal notranslate"><span class="pre">from_directory()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib</span><span class="w"> </span><span class="kn">import</span> <span class="n">extent</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">extent</span><span class="o">.</span><span class="n">from_text</span><span class="p">(</span>
+    <span class="s2">&quot;Sediment cores in Berlin span the Holocene; resurvey on 2024-05-12.&quot;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">ner_ambiguity</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>        <span class="c1"># keep top hit (Berlin is unambiguous, but</span>
+                                <span class="c1"># &quot;Paris&quot; or &quot;Springfield&quot; would otherwise drop)</span>
+    <span class="n">period_ambiguity</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span>     <span class="c1"># same idea for the ICS gazetteer</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;bbox&quot;</span><span class="p">])</span>   <span class="c1"># → [13.41, 52.52, 13.41, 52.52]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;tbox&quot;</span><span class="p">])</span>   <span class="c1"># → [&quot;-9750-01-01&quot;, &quot;2024-05-12&quot;]</span>
+
+<span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;place_names&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;place &quot;</span><span class="p">,</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="s2">&quot;→&quot;</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gazetteer_url&quot;</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;date_entities&quot;</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">],</span> <span class="s2">&quot;→&quot;</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">),</span> <span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</section>
+<section id="listing-the-bundled-period-gazetteer">
+<h2>Listing the bundled period gazetteer<a class="headerlink" href="#listing-the-bundled-period-gazetteer" title="Link to this heading">¶</a></h2>
+<p>Downstream tools (UIs, autocomplete widgets, reference docs) often need
+the full list of periods that geoextent recognises, together with the
+licence and provenance of the underlying data. Two paths are provided:</p>
+<p><strong>CLI</strong> — <code class="docutils literal notranslate"><span class="pre">--list-periods</span></code> prints the bundled gazetteer to stdout:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Full JSON output with metadata block + 178 period records</span>
+geoextent<span class="w"> </span>--list-periods
+
+<span class="c1"># Plain-text table for terminal scanning</span>
+geoextent<span class="w"> </span>--list-periods<span class="w"> </span>--list-periods-format<span class="w"> </span>text
+
+<span class="c1"># Filter by substring (case-insensitive, matches name and aliases)</span>
+geoextent<span class="w"> </span>--list-periods<span class="w"> </span>--list-periods-filter<span class="w"> </span>Holo
+geoextent<span class="w"> </span>--list-periods<span class="w"> </span>--list-periods-format<span class="w"> </span>text<span class="w"> </span>--list-periods-filter<span class="w"> </span>Mesozoic
+</pre></div>
+</div>
+<p>The header of the output carries the provenance: source repository, the
+exact upstream commit SHA, the build timestamp, the licence URL, and an
+attribution string suitable for embedding in a UI footer.</p>
+<p><strong>Python</strong> — <code class="xref py py-func docutils literal notranslate"><span class="pre">geoextent.lib.period_gazetteer.list_periods()</span></code> returns
+the same data as a dict:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geoextent.lib.period_gazetteer</span><span class="w"> </span><span class="kn">import</span> <span class="n">list_periods</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">list_periods</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;source_revision&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;built_at&quot;</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;periods&quot;</span><span class="p">][:</span><span class="mi">3</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="s2">&quot;..&quot;</span><span class="p">,</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;url&quot;</span><span class="p">])</span>
+
+<span class="c1"># Narrow the list (substring on name or any alias)</span>
+<span class="n">holos</span> <span class="o">=</span> <span class="n">list_periods</span><span class="p">(</span><span class="n">name_filter</span><span class="o">=</span><span class="s2">&quot;holocene&quot;</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">holos</span><span class="p">[</span><span class="s2">&quot;period_count&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+
+<span class="c1"># Drop the metadata block — useful when the consumer already knows the</span>
+<span class="c1"># provenance and only needs the records themselves.</span>
+<span class="n">bare</span> <span class="o">=</span> <span class="n">list_periods</span><span class="p">(</span><span class="n">include_metadata</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">bare</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;periods&quot;</span><span class="p">,</span> <span class="s2">&quot;period_count&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The dict shape matches the on-disk <code class="docutils literal notranslate"><span class="pre">geoextent/lib/data/periods.json</span></code>;
+<code class="docutils literal notranslate"><span class="pre">schema_version</span></code> lets consumers detect a future layout shift. The
+file’s metadata block is reproduced here in full:</p>
+<div class="highlight-jsonc notranslate"><div class="highlight"><pre><span></span>{
+  &quot;name&quot;: &quot;geoextent bundled period gazetteer&quot;,
+  &quot;schema_version&quot;: &quot;1.0&quot;,
+  &quot;source&quot;: &quot;ICS International Chronostratigraphic Chart (GTS2020)&quot;,
+  &quot;source_url&quot;: &quot;https://github.com/CGI-IUGS/timescale-data&quot;,
+  &quot;source_file&quot;: &quot;.../rdf/isc2020.ttl&quot;,
+  &quot;source_revision&quot;: &quot;&lt;upstream commit SHA&gt;&quot;,
+  &quot;source_revision_date&quot;: &quot;&lt;commit date, ISO 8601 UTC&gt;&quot;,
+  &quot;license&quot;: &quot;CC0-1.0&quot;,
+  &quot;license_url&quot;: &quot;https://creativecommons.org/publicdomain/zero/1.0/&quot;,
+  &quot;attribution&quot;: &quot;International Chronostratigraphic Chart ... CC0-1.0 ...&quot;,
+  &quot;built_at&quot;: &quot;&lt;build timestamp, ISO 8601 UTC&gt;&quot;,
+  &quot;built_by&quot;: &quot;geoextent tools/build_periods_data.py&quot;,
+  &quot;ma_bp_origin_year&quot;: 1950,
+  &quot;period_count&quot;: 178,
+  &quot;periods&quot;: [ ... ]
+}
+</pre></div>
+</div>
+<p>To refresh the bundled data from upstream, run
+<code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">tools/build_periods_data.py</span></code> and commit the regenerated
+<code class="docutils literal notranslate"><span class="pre">periods.json</span></code>.</p>
+</section>
+<section id="performance-notes">
+<h2>Performance notes<a class="headerlink" href="#performance-notes" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>spaCy + <code class="docutils literal notranslate"><span class="pre">en_core_web_sm</span></code> is loaded <strong>once</strong> per process and reused.</p></li>
+<li><p>The forward gazetteer keeps an in-memory <code class="docutils literal notranslate"><span class="pre">(service,</span> <span class="pre">query)</span></code> cache for
+the run, so duplicate mentions within a directory only hit the network
+once.</p></li>
+<li><p>Public Nominatim has a 1 req/s rate limit; large batches may benefit
+from Photon or a self-hosted Nominatim. Set <code class="docutils literal notranslate"><span class="pre">NOMINATIM_USER_AGENT</span></code>
+(env var) to identify your application.</p></li>
+</ul>
+</section>
+<section id="limitations-and-roadmap">
+<h2>Limitations and roadmap<a class="headerlink" href="#limitations-and-roadmap" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>English only out of the box (<code class="docutils literal notranslate"><span class="pre">en_core_web_sm</span></code>). Multi-language models
+exist on spaCy’s hub but are not exercised by geoextent’s tests.</p></li>
+<li><p>Historical / archaeological periods (Bronze Age, Iron Age, Medieval,
+Roman, …) are not in the bundled ICS chart. Online Wikidata-backed
+resolution is tracked in <a class="reference external" href="https://github.com/nuest/geoextent/issues/113">#113</a>.</p></li>
+<li><p>HTML rendering for notebooks and Web Annotation Data Model JSON-LD
+export are tracked in <a class="reference external" href="https://github.com/nuest/geoextent/issues/114">#114</a>.</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/geoextent-logo.svg" alt="Logo of geoextent"/>
+            </a></p>
+<h1 class="logo"><a href="../index.html">geoextent</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installing geoextent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../external-metadata.html">External Metadata Retrieval</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index_howto.html">How-to Guides</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cli.html">Command-Line Interface (CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html">API Docs</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Extracting extents from free text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlighting.html">Highlighting matches from the text/NER source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="docker.html">Docker Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="appimage.html">AppImage Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../supportedformats/index_supportedformats.html">Supported file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../development.html">Development</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index_howto.html">How-to Guides</a><ul>
+      <li>Previous: <a href="api.html" title="previous chapter">API Docs</a></li>
+      <li>Next: <a href="highlighting.html" title="next chapter">Highlighting matches from the text/NER source</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, o2rproject and all contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../_sources/howto/text-extraction.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -5,13 +5,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+g356972339 documentation</title>
+    <title>Command-Line Interface (CLI) &#8212; geoextent 0.1.dev1+gabc257ad4 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=5ecbeea2" />
     <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=686e5160" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=27fed22d" />
     <link rel="stylesheet" type="text/css" href="../_static/jupyter-sphinx.css" />
     <link rel="stylesheet" type="text/css" href="../_static/thebelab.css" />
-    <script src="../_static/documentation_options.js?v=e81484ab"></script>
+    <script src="../_static/documentation_options.js?v=1fa22bee"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/thebelab-helper.js"></script>
@@ -59,7 +59,7 @@
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-arg-files">
 <span class="sig-name descname"><span class="pre">files</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-arg-files" title="Link to this definition">¶</a></dt>
-<dd><p>input file, directory, DOI, or repository URL (supports multiple inputs including mixed types)</p>
+<dd><p>input file, directory, DOI, or repository URL (supports multiple inputs including mixed types). Use ‘-’ to read text from stdin (requires –text-method). May be empty when –text STRING is used.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -78,6 +78,24 @@
 <dt class="sig sig-object std" id="cmdoption-list-features">
 <span class="sig-name descname"><span class="pre">--list-features</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-list-features" title="Link to this definition">¶</a></dt>
 <dd><p>output machine-readable JSON with all supported file formats and content providers</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-list-periods">
+<span class="sig-name descname"><span class="pre">--list-periods</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-list-periods" title="Link to this definition">¶</a></dt>
+<dd><p>output the bundled named-time-period gazetteer (ICS GTS2020) with licensing and provenance metadata. Useful for downstream UIs and autocomplete widgets. Default format is JSON; use –list-periods-format to switch to a plain-text table.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-list-periods-format">
+<span class="sig-name descname"><span class="pre">--list-periods-format</span></span><span class="sig-prename descclassname"> <span class="pre">{json,text}</span></span><a class="headerlink" href="#cmdoption-list-periods-format" title="Link to this definition">¶</a></dt>
+<dd><p>output format for –list-periods (default: json)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-list-periods-filter">
+<span class="sig-name descname"><span class="pre">--list-periods-filter</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;substr&gt;</span></span><a class="headerlink" href="#cmdoption-list-periods-filter" title="Link to this definition">¶</a></dt>
+<dd><p>case-insensitive substring match on period name or alias; only matching periods are listed</p>
 </dd></dl>
 
 <dl class="std option">
@@ -179,7 +197,7 @@
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-geojsonio">
 <span class="sig-name descname"><span class="pre">--geojsonio</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-geojsonio" title="Link to this definition">¶</a></dt>
-<dd><p>generate and print a clickable geojson.io URL for the extracted spatial extent</p>
+<dd><p>generate and print a clickable geojson.io URL for the extracted spatial extent. GeoJSON payloads up to ~150 KB are embedded in the URL fragment; larger payloads attempt an anonymous GitHub Gist upload which now requires auth (geojsonio limitation, not geojson.io). Pair with –convex-hull to keep the payload small.</p>
 </dd></dl>
 
 <dl class="std option">
@@ -233,19 +251,109 @@
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-placename">
 <span class="sig-name descname"><span class="pre">--placename</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-placename" title="Link to this definition">¶</a></dt>
-<dd><p>enable placename lookup using default gazetteer (geonames). Use –placename-service to specify a different gazetteer</p>
+<dd><p>enable placename lookup using default gazetteer (nominatim — no API key required). Use –placename-service to specify a different gazetteer (geonames requires GEONAMES_USERNAME)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-placename-service">
 <span class="sig-name descname"><span class="pre">--placename-service</span></span><span class="sig-prename descclassname"> <span class="pre">{geonames,nominatim,photon}</span></span><a class="headerlink" href="#cmdoption-placename-service" title="Link to this definition">¶</a></dt>
-<dd><p>specify gazetteer service for placename lookup (requires –placename)</p>
+<dd><p>specify gazetteer service for placename lookup (default: nominatim; requires –placename)</p>
 </dd></dl>
 
 <dl class="std option">
 <dt class="sig sig-object std" id="cmdoption-placename-escape">
 <span class="sig-name descname"><span class="pre">--placename-escape</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-placename-escape" title="Link to this definition">¶</a></dt>
 <dd><p>escape Unicode characters in placename output (requires –placename)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-text-method">
+<span class="sig-name descname"><span class="pre">--text-method</span></span><span class="sig-prename descclassname"> <span class="pre">{ner,none}</span></span><a class="headerlink" href="#cmdoption-text-method" title="Link to this definition">¶</a></dt>
+<dd><p>text-extraction method for plain-text files (.txt, .md, …) and the –text/stdin inputs. ‘ner’ (default) uses spaCy NER to detect place names, calendar dates, and named time periods, resolving them via the configured place and period gazetteers. ‘none’ disables text extraction (text files fall back to other handlers or are skipped). Requires: pip install geoextent[nlp] for any value other than ‘none’; if spaCy is not installed, the text handler silently declines so existing workflows that happen to include text files keep working.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-text">
+<span class="sig-name descname"><span class="pre">--text</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;string&gt;</span></span><a class="headerlink" href="#cmdoption-text" title="Link to this definition">¶</a></dt>
+<dd><p>run text extraction on this literal string (requires –text-method)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-ner-model">
+<span class="sig-name descname"><span class="pre">--ner-model</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;model&gt;</span></span><a class="headerlink" href="#cmdoption-ner-model" title="Link to this definition">¶</a></dt>
+<dd><p>spaCy model name for NER (default: en_core_web_sm). The model is auto-downloaded on first use unless –no-auto-download is set.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-ner-labels">
+<span class="sig-name descname"><span class="pre">--ner-labels</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;labels&gt;</span></span><a class="headerlink" href="#cmdoption-ner-labels" title="Link to this definition">¶</a></dt>
+<dd><p>comma-separated entity labels to keep as places (default: LOC,GPE)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-ner-score-threshold">
+<span class="sig-name descname"><span class="pre">--ner-score-threshold</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;float&gt;</span></span><a class="headerlink" href="#cmdoption-ner-score-threshold" title="Link to this definition">¶</a></dt>
+<dd><p>drop NER mentions with score below FLOAT (only used if the model emits per-entity scores; otherwise ignored)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-ner-gazetteer">
+<span class="sig-name descname"><span class="pre">--ner-gazetteer</span></span><span class="sig-prename descclassname"> <span class="pre">{geonames,nominatim,photon}</span></span><a class="headerlink" href="#cmdoption-ner-gazetteer" title="Link to this definition">¶</a></dt>
+<dd><p>gazetteer used to forward-geocode detected place names (default: same as –placename-service if set, else nominatim, which works without an API key or login). Use ‘geonames’ for the GeoNames service (requires GEONAMES_USERNAME env var or .env).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-ner-ambiguity">
+<span class="sig-name descname"><span class="pre">--ner-ambiguity</span></span><span class="sig-prename descclassname"> <span class="pre">{drop,top}</span></span><a class="headerlink" href="#cmdoption-ner-ambiguity" title="Link to this definition">¶</a></dt>
+<dd><p>how to handle ambiguous gazetteer hits: ‘drop’ (skip mentions with multiple candidates, default, defensive) or ‘top’ (keep the highest-ranked candidate)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-auto-download">
+<span class="sig-name descname"><span class="pre">--no-auto-download</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-auto-download" title="Link to this definition">¶</a></dt>
+<dd><p>disable automatic spaCy model download on first use</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-period-gazetteer">
+<span class="sig-name descname"><span class="pre">--period-gazetteer</span></span><span class="sig-prename descclassname"> <span class="pre">{bundled,none}</span></span><a class="headerlink" href="#cmdoption-period-gazetteer" title="Link to this definition">¶</a></dt>
+<dd><p>gazetteer used to resolve named time periods (e.g. ‘Holocene’, ‘Mesozoic Era’) to signed ISO date ranges. ‘bundled’ uses the ICS GTS2020 chronostratigraphic chart shipped with geoextent (default). ‘none’ disables period matching.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-period-ambiguity">
+<span class="sig-name descname"><span class="pre">--period-ambiguity</span></span><span class="sig-prename descclassname"> <span class="pre">{drop,top}</span></span><a class="headerlink" href="#cmdoption-period-ambiguity" title="Link to this definition">¶</a></dt>
+<dd><p>how to handle ambiguous period gazetteer hits: ‘drop’ (default, defensive) or ‘top’ (keep the highest-ranked candidate)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-period-resolution">
+<span class="sig-name descname"><span class="pre">--no-period-resolution</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-period-resolution" title="Link to this definition">¶</a></dt>
+<dd><p>disable named time-period matching entirely (still parses DATE/TIME entities via dateutil)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-source-text">
+<span class="sig-name descname"><span class="pre">--no-source-text</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-source-text" title="Link to this definition">¶</a></dt>
+<dd><p>omit the NFC-normalised source string from text/NER results (opt-out for privacy or to shrink output size; offsets in place_names and date_entities still index into the normalised source the extractor used internally)</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-place-geometry">
+<span class="sig-name descname"><span class="pre">--place-geometry</span></span><span class="sig-prename descclassname"> <span class="pre">{auto,boundary,point}</span></span><a class="headerlink" href="#cmdoption-place-geometry" title="Link to this definition">¶</a></dt>
+<dd><p>how to use the gazetteer geometry for matched place names in the spatial extent. ‘auto’ (default) uses the administrative boundary or other areal polygon when the gazetteer provides one (Nominatim does for administrative regions; GeoNames and Photon are point-only), and falls back to the centroid point otherwise. ‘boundary’ is the same but logs a debug message on point-only fallback. ‘point’ forces the centroid lat/lon even when a boundary is available.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-annotate">
+<span class="sig-name descname"><span class="pre">--annotate</span></span><span class="sig-prename descclassname"> <span class="pre">{auto,ansi,brackets,off}</span></span><a class="headerlink" href="#cmdoption-annotate" title="Link to this definition">¶</a></dt>
+<dd><p>when text/NER inputs are processed, print the source text after the JSON result with matched place names and dates highlighted. ‘ansi’ uses terminal colour, ‘brackets’ uses textual markers (<code class="docutils literal notranslate"><span class="pre">[[Berlin|place]]</span></code>), ‘auto’ picks based on TTY, ‘off’ disables. Default: auto.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-annotate-classes">
+<span class="sig-name descname"><span class="pre">--annotate-classes</span></span><span class="sig-prename descclassname"> <span class="pre">&lt;map&gt;</span></span><a class="headerlink" href="#cmdoption-annotate-classes" title="Link to this definition">¶</a></dt>
+<dd><p>comma-separated overrides for –annotate colours/markers. Example: ‘place=cyan,date=yellow,period=magenta’. Recognised ANSI names: black, red, green, yellow, blue, magenta, cyan, white (bright_* prefix for bold variants).</p>
 </dd></dl>
 
 <dl class="std option">
@@ -332,13 +440,25 @@ usage: geoextent [-h] [--formats] [--list-features] [--version] [--debug] [--det
 
 positional arguments:
   files                 input file, directory, DOI, or repository URL
-                        (supports multiple inputs including mixed types)
+                        (supports multiple inputs including mixed types). Use
+                        &#39;-&#39; to read text from stdin (requires --text-method).
+                        May be empty when --text STRING is used.
 
 options:
   -h, --help            show help message and exit
   --formats             show supported formats
   --list-features       output machine-readable JSON with all supported file
                         formats and content providers
+  --list-periods        output the bundled named-time-period gazetteer (ICS
+                        GTS2020) with licensing and provenance metadata.
+                        Useful for downstream UIs and autocomplete widgets.
+                        Default format is JSON; use --list-periods-format to
+                        switch to a plain-text table.
+  --list-periods-format {json,text}
+                        output format for --list-periods (default: json)
+  --list-periods-filter SUBSTR
+                        case-insensitive substring match on period name or
+                        alias; only matching periods are listed
   --version             show installed version
   --debug               turn on debug logging, alternatively set environment
                         variable GEOEXTENT_DEBUG=1
@@ -379,7 +499,11 @@ options:
   --no-subdirs          only process files in the top-level directory, ignore
                         subdirectories
   --geojsonio           generate and print a clickable geojson.io URL for the
-                        extracted spatial extent
+                        extracted spatial extent. GeoJSON payloads up to ~150
+                        KB are embedded in the URL fragment; larger payloads
+                        attempt an anonymous GitHub Gist upload which now
+                        requires auth (geojsonio limitation, not geojson.io).
+                        Pair with --convex-hull to keep the payload small.
   --browse              open the geojson.io URL in the default web browser
                         (use with --geojsonio to also print URL)
   --map [FILE]          save a map preview image of the spatial extent as PNG.
@@ -404,13 +528,88 @@ options:
                         seed for random file selection when using --max-
                         download-method random (default: 42)
   --placename           enable placename lookup using default gazetteer
-                        (geonames). Use --placename-service to specify a
-                        different gazetteer
+                        (nominatim — no API key required). Use --placename-
+                        service to specify a different gazetteer (geonames
+                        requires GEONAMES_USERNAME)
   --placename-service GAZETTEER
                         specify gazetteer service for placename lookup
-                        (requires --placename)
+                        (default: nominatim; requires --placename)
   --placename-escape    escape Unicode characters in placename output
                         (requires --placename)
+  --text-method {ner,none}
+                        text-extraction method for plain-text files (.txt,
+                        .md, ...) and the --text/stdin inputs. &#39;ner&#39; (default)
+                        uses spaCy NER to detect place names, calendar dates,
+                        and named time periods, resolving them via the
+                        configured place and period gazetteers. &#39;none&#39;
+                        disables text extraction (text files fall back to
+                        other handlers or are skipped). Requires: pip install
+                        geoextent[nlp] for any value other than &#39;none&#39;; if
+                        spaCy is not installed, the text handler silently
+                        declines so existing workflows that happen to include
+                        text files keep working.
+  --text STRING         run text extraction on this literal string (requires
+                        --text-method)
+  --ner-model MODEL     spaCy model name for NER (default: en_core_web_sm).
+                        The model is auto-downloaded on first use unless --no-
+                        auto-download is set.
+  --ner-labels LABELS   comma-separated entity labels to keep as places
+                        (default: LOC,GPE)
+  --ner-score-threshold FLOAT
+                        drop NER mentions with score below FLOAT (only used if
+                        the model emits per-entity scores; otherwise ignored)
+  --ner-gazetteer GAZETTEER
+                        gazetteer used to forward-geocode detected place names
+                        (default: same as --placename-service if set, else
+                        nominatim, which works without an API key or login).
+                        Use &#39;geonames&#39; for the GeoNames service (requires
+                        GEONAMES_USERNAME env var or .env).
+  --ner-ambiguity {drop,top}
+                        how to handle ambiguous gazetteer hits: &#39;drop&#39; (skip
+                        mentions with multiple candidates, default, defensive)
+                        or &#39;top&#39; (keep the highest-ranked candidate)
+  --no-auto-download    disable automatic spaCy model download on first use
+  --period-gazetteer {bundled,none}
+                        gazetteer used to resolve named time periods (e.g.
+                        &#39;Holocene&#39;, &#39;Mesozoic Era&#39;) to signed ISO date ranges.
+                        &#39;bundled&#39; uses the ICS GTS2020 chronostratigraphic
+                        chart shipped with geoextent (default). &#39;none&#39;
+                        disables period matching.
+  --period-ambiguity {drop,top}
+                        how to handle ambiguous period gazetteer hits: &#39;drop&#39;
+                        (default, defensive) or &#39;top&#39; (keep the highest-ranked
+                        candidate)
+  --no-period-resolution
+                        disable named time-period matching entirely (still
+                        parses DATE/TIME entities via dateutil)
+  --no-source-text      omit the NFC-normalised source string from text/NER
+                        results (opt-out for privacy or to shrink output size;
+                        offsets in place_names and date_entities still index
+                        into the normalised source the extractor used
+                        internally)
+  --place-geometry {auto,boundary,point}
+                        how to use the gazetteer geometry for matched place
+                        names in the spatial extent. &#39;auto&#39; (default) uses the
+                        administrative boundary or other areal polygon when
+                        the gazetteer provides one (Nominatim does for
+                        administrative regions; GeoNames and Photon are point-
+                        only), and falls back to the centroid point otherwise.
+                        &#39;boundary&#39; is the same but logs a debug message on
+                        point-only fallback. &#39;point&#39; forces the centroid
+                        lat/lon even when a boundary is available.
+  --annotate {auto,ansi,brackets,off}
+                        when text/NER inputs are processed, print the source
+                        text after the JSON result with matched place names
+                        and dates highlighted. &#39;ansi&#39; uses terminal colour,
+                        &#39;brackets&#39; uses textual markers
+                        (``[[Berlin|place]]``), &#39;auto&#39; picks based on TTY,
+                        &#39;off&#39; disables. Default: auto.
+  --annotate-classes MAP
+                        comma-separated overrides for --annotate
+                        colours/markers. Example:
+                        &#39;place=cyan,date=yellow,period=magenta&#39;. Recognised
+                        ANSI names: black, red, green, yellow, blue, magenta,
+                        cyan, white (bright_* prefix for bold variants).
   --ext-metadata        retrieve external metadata for DOIs (title, authors,
                         publisher, publication year, URL, license) from
                         CrossRef and DataCite
@@ -468,6 +667,7 @@ Supported formats:
 - Vector data (.shp, .shx, .dbf, .prj, .geojson, .json, .gpkg, .gdb, .gpx, .kml, .kmz, .gml, .fgb)
 - Raster data (.tif, .tiff, .geotiff, .nc, .netcdf, .asc, .wld, .jgw, .pgw, .pngw, .tfw, .tifw, .bpw, .gfw)
 - Point cloud data (.las, .laz)
+- Text (NER) (.markdown, .md, .rst, .text, .txt)
 
 Supported data repositories:
 - Wikidata (wikidata.org)
@@ -684,7 +884,7 @@ Supported data repositories:
 <pre class="stderr literal-block">Processing directory: folder_two_files:   0%|          | 0/2 [00:00&lt;?, ?item/s, Processing muenster_ring_zeit.geojson]</pre>
 </div>
 <div class="stderr docutils container">
-<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 18.74item/s, Processing districtes.geojson]</pre>
+<pre class="stderr literal-block">Processing directory: folder_two_files:  50%|█████     | 1/2 [00:00&lt;00:00, 18.27item/s, Processing districtes.geojson]</pre>
 </div>
 <div class="stderr docutils container">
 <pre class="stderr literal-block">                                                                                                                      </pre>
@@ -1278,6 +1478,8 @@ the output format is auto-detected from the extension:</p>
 <li class="toctree-l1 current"><a class="reference internal" href="index_howto.html">How-to Guides</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Command-Line Interface (CLI)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html">API Docs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="text-extraction.html">Extracting extents from free text</a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlighting.html">Highlighting matches from the text/NER source</a></li>
 <li class="toctree-l2"><a class="reference internal" href="docker.html">Docker Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="appimage.html">AppImage Usage</a></li>
 </ul>
