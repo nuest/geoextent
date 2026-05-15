@@ -295,7 +295,11 @@
       "Bash(git -C /home/daniel/git/geoextent log --all --oneline --source -- Dockerfile)",
       "Bash(docker --version)",
       "Bash(docker info *)",
-      "Bash(docker build *)"
+      "Bash(docker build *)",
+      "WebFetch(domain:mapscaping.com)",
+      "Bash(ffmpeg -version)",
+      "Read(//home/daniel/Documents/TUD/2023_KOMET_Antrag-BMBF_Verbund-TIB/**)",
+      "Read(//home/daniel/Documents/TUD/2023_KOMET_Antrag-BMBF_Verbund-TIB/62_Natural-Language-Geocoding_Podcast-mapscaping/**)"
     ],
     "deny": [],
     "ask": []

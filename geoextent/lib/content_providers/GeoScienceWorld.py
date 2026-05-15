@@ -25,6 +25,7 @@ from curl_cffi import requests as cffi_requests
 from bs4 import BeautifulSoup
 
 from .providers import DoiProvider
+from .journals._meta import parse_wkt as _parse_wkt
 
 logger = logging.getLogger("geoextent")
 
@@ -44,6 +45,8 @@ def _parse_wkt_coordinates(points_json):
     Returns:
         list of (geometry_type, coordinates) tuples where coordinates are
         ``[[lon, lat], ...]`` for polygons or ``[lon, lat]`` for points.
+        The WKT scalars are parsed by ``journals._meta.parse_wkt``, which is
+        also used by the journal-platform providers.
     """
     try:
         data = json.loads(points_json)
@@ -53,35 +56,20 @@ def _parse_wkt_coordinates(points_json):
 
     geometries = []
 
-    # Parse Polygon WKT: POLYGON((lon lat,lon lat,...))
     polygon_wkt = data.get("Polygon", "")
     if polygon_wkt:
-        match = re.search(r"POLYGON\s*\(\((.+?)\)\)", polygon_wkt)
-        if match:
-            coords = []
-            for pair in match.group(1).split(","):
-                parts = pair.strip().split()
-                if len(parts) == 2:
-                    try:
-                        lon, lat = float(parts[0]), float(parts[1])
-                        coords.append([lon, lat])
-                    except ValueError:
-                        continue
-            if coords:
-                geometries.append(("Polygon", coords))
+        geom = _parse_wkt(polygon_wkt)
+        if geom and geom.get("type") == "Polygon":
+            rings = geom.get("coordinates") or []
+            if rings and rings[0]:
+                # GSW historically returned a flat outer-ring ``[[lon, lat], …]``.
+                geometries.append(("Polygon", rings[0]))
 
-    # Parse Point WKT: POINT(lon lat)
     point_wkt = data.get("Point", "")
     if point_wkt:
-        match = re.search(r"POINT\s*\((.+?)\)", point_wkt)
-        if match:
-            parts = match.group(1).strip().split()
-            if len(parts) == 2:
-                try:
-                    lon, lat = float(parts[0]), float(parts[1])
-                    geometries.append(("Point", [lon, lat]))
-                except ValueError:
-                    pass
+        geom = _parse_wkt(point_wkt)
+        if geom and geom.get("type") == "Point":
+            geometries.append(("Point", geom["coordinates"]))
 
     return geometries
 

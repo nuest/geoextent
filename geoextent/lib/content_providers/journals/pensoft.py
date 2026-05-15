@@ -3,13 +3,12 @@ import re
 import logging
 from bs4 import BeautifulSoup
 from requests import HTTPError
-from .providers import DoiProvider
-from .. import helpfunctions as hf
-from ..extent import *
+from ._base import JournalProvider
 
 
-class Pensoft(DoiProvider):
+class Pensoft(JournalProvider):
     doi_prefixes = ("10.3897/",)
+    name = "Pensoft"
     """
     Content provider for Pensoft journals (e.g., Biodiversity Data Journal).
 
@@ -173,6 +172,11 @@ class Pensoft(DoiProvider):
                         f"Failed to parse JSON-LD in article {self.article_id}: {e}"
                     )
                     continue
+
+            # Stash the extracted DOI so JournalProvider.extracted_doi can
+            # surface it to extent.py's external-metadata enrichment path
+            # when the user passed a Pensoft article URL rather than a DOI.
+            self._record = {"doi": record_data["doi"]}
 
             self.log.info(
                 f"Successfully downloaded Pensoft article {self.article_id} with {len(record_data['coordinates'])} coordinates"

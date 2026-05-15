@@ -72,7 +72,7 @@ class TestPensoftProvider:
 
     def test_pensoft_doi_validation(self):
         """Test that Pensoft DOIs are correctly validated"""
-        from geoextent.lib.content_providers.Pensoft import Pensoft
+        from geoextent.lib.content_providers.journals.pensoft import Pensoft
 
         pensoft = Pensoft()
 
@@ -102,7 +102,7 @@ class TestPensoftProvider:
 
     def test_pensoft_coordinate_extraction(self):
         """Test that coordinates are correctly extracted from Pensoft articles"""
-        from geoextent.lib.content_providers.Pensoft import Pensoft
+        from geoextent.lib.content_providers.journals.pensoft import Pensoft
 
         pensoft = Pensoft()
 
@@ -145,7 +145,7 @@ class TestPensoftProvider:
     def test_pensoft_geojson_generation(self):
         """Test that GeoJSON is correctly generated from Pensoft data"""
         import json
-        from geoextent.lib.content_providers.Pensoft import Pensoft
+        from geoextent.lib.content_providers.journals.pensoft import Pensoft
 
         pensoft = Pensoft()
 
@@ -224,7 +224,7 @@ class TestPensoftProvider:
 
     def test_pensoft_input_variants(self):
         """Test that all input format variants work correctly"""
-        from geoextent.lib.content_providers.Pensoft import Pensoft
+        from geoextent.lib.content_providers.journals.pensoft import Pensoft
 
         # Test with the Vietnam dataset (has all variants)
         test_dataset = self.TEST_DATASETS["amphibians_vietnam"]
@@ -315,7 +315,7 @@ class TestPensoftProvider:
 
     def test_pensoft_error_handling(self):
         """Test error handling for invalid inputs and network issues"""
-        from geoextent.lib.content_providers.Pensoft import Pensoft
+        from geoextent.lib.content_providers.journals.pensoft import Pensoft
 
         pensoft = Pensoft()
 

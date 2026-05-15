@@ -66,6 +66,11 @@ instance/
 # Sphinx documentation
 docs/_build/
 docs/source/_build
+docs/build/
+docs/doc/
+# jupyter-sphinx extension caches executed notebooks here on every build
+docs/jupyter_execute/
+docs/source/jupyter_execute/
 
 # PyBuilder
 target/

@@ -17,7 +17,9 @@ from .content_providers import Pangaea
 from .content_providers import OSF
 from .content_providers import Dataverse
 from .content_providers import GFZ
-from .content_providers import Pensoft
+from .content_providers.journals import OJS as _journals_OJS
+from .content_providers.journals import Janeway as _journals_Janeway
+from .content_providers.journals import Pensoft as _journals_Pensoft
 from .content_providers import Opara
 from .content_providers import Senckenberg
 from .content_providers import BGR
@@ -79,7 +81,7 @@ def _get_content_providers():
         ArcticDataCenter.ArcticDataCenter,
         DataOne.DataOne,  # After Arctic Data Center: generic DataONE CN covers KNB, PISCO, etc.
         GBIF.GBIF,  # Before Pensoft: both may match 10.3897/ but GBIF excludes it
-        Pensoft.Pensoft,
+        _journals_Pensoft,
         BGR.BGR,  # BGR before Opara because both accept UUIDs
         BAW.BAW,  # BAW after BGR: similar CSW-based provider
         MDIDE.MDIDE,  # MDI-DE after BAW: similar CSW-based, no DOIs
@@ -93,6 +95,12 @@ def _get_content_providers():
         HALODB.HALODB,
         SEANOE.SEANOE,
         GeoScienceWorld.GeoScienceWorld,  # After SEANOE: no DOI prefix, validates via URL
+        # journals umbrella: HTML-sniffing journal-platform providers, after
+        # all DOI-prefix-shortcut providers so a publisher that owns a DOI
+        # prefix wins first. OJS goes before Janeway: its generator meta-tag
+        # fingerprint is unambiguous; Janeway's fingerprint is broader.
+        _journals_OJS,
+        _journals_Janeway,
         UKCEH.UKCEH,
         STAC.STAC,  # Late: broad /collections/ URL pattern could false-match
         GitHub.GitHub,  # Very late: github.com URLs are unambiguous, no DOI collision
@@ -101,6 +109,41 @@ def _get_content_providers():
         SoftwareHeritage.SoftwareHeritage,  # Late: SWHIDs and archive.softwareheritage.org URLs
         RemoteRaster.RemoteRaster,  # Last: catch-all for direct .tif/.tiff URLs
     ]
+
+
+def _attach_extracted_doi(metadata, repository):
+    """If ``repository`` lifted a DOI out of the landing-page head, stash it
+    on the per-resource metadata dict so the external-metadata enrichment
+    pass can find it. No-op when the metadata is None or the provider did
+    not extract one.
+    """
+    if not isinstance(metadata, dict):
+        return
+    doi = getattr(repository, "extracted_doi", None)
+    if doi:
+        metadata["_extracted_doi"] = doi
+
+
+def _identifier_for_enrichment(identifier, details_entry):
+    """Pick the right identifier to pass to CrossRef / DataCite.
+
+    Returns the user-supplied ``identifier`` when it already looks like a
+    DOI; otherwise falls back to a DOI the provider lifted out of the
+    landing page (``details_entry["_extracted_doi"]``), so a user can pass
+    a journal article URL with ``--external-metadata`` and still get an
+    enrichment record. Returns ``identifier`` unchanged when nothing
+    better is available — the existing call sites handle "no metadata
+    found" gracefully.
+    """
+    if not isinstance(identifier, str):
+        return identifier
+    if hf.doi_regexp.match(identifier):
+        return identifier
+    if isinstance(details_entry, dict):
+        extracted = details_entry.get("_extracted_doi")
+        if isinstance(extracted, str) and hf.doi_regexp.match(extracted):
+            return extracted
+    return identifier
 
 
 def _swap_coordinate_order(metadata):
@@ -1635,11 +1678,13 @@ def from_remote(
                 identifier in output["details"]
                 and "error" not in output["details"][identifier]
             ):
+                details_entry = output["details"][identifier]
+                lookup_id = _identifier_for_enrichment(identifier, details_entry)
                 metadata = external_metadata.get_external_metadata(
-                    identifier, method=ext_metadata_method
+                    lookup_id, method=ext_metadata_method
                 )
                 # Always include external_metadata as an array (even if empty)
-                output["details"][identifier]["external_metadata"] = metadata
+                details_entry["external_metadata"] = metadata
 
     logger.info(
         f"Extraction complete: {output['extraction_metadata']['successful']} successful, "
@@ -1668,8 +1713,9 @@ def from_remote(
 
             # Retrieve external metadata if requested
             if ext_metadata:
+                lookup_id = _identifier_for_enrichment(identifier, result)
                 metadata = external_metadata.get_external_metadata(
-                    identifier, method=ext_metadata_method
+                    lookup_id, method=ext_metadata_method
                 )
                 # Always include external_metadata as an array (even if empty)
                 result["external_metadata"] = metadata
@@ -2250,6 +2296,7 @@ def _extract_from_remote(
                             f"Failed to explicitly clean up {tmp}: {cleanup_error}. "
                             f"TemporaryDirectory context manager will attempt cleanup."
                         )
+                _attach_extracted_doi(metadata, repository)
                 return metadata
             except ValueError as e:
                 raise Exception(e)
@@ -2290,6 +2337,7 @@ def _extract_from_remote(
                 )
 
                 logger.info(f"Files kept in: {tmp}")
+                _attach_extracted_doi(metadata, repository)
                 return metadata
             except Exception as e:
                 # Even with keep_files, clean up on error

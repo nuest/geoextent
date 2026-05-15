@@ -178,6 +178,23 @@ pytest -n 0 tests/test_api.py::test_specific_function
 - **`provider_sample`** — One representative real-network test per provider (~11 tests). A subset of `slow`.
 - **`large_download`** — Tests that download >100MB of data. Excluded by default.
 
+### Local Demo Servers (Journals)
+
+When working on the ``journals/`` content providers (OJS / Janeway), use the
+local dev servers:
+
+- **OJS demo** (`gmdj` journal, ojsGeo plugin enabled):
+  `http://localhost:8330/index.php/gmdj/`. Article view path:
+  `/article/view/{N}` (e.g. `http://localhost:8330/index.php/gmdj/article/view/44`).
+- **Janeway demo** (`dqj` journal, janeway_geometadata plugin enabled):
+  `http://localhost:8000/dqj/`. Article view path: `/article/id/{N}/`
+  (e.g. `http://localhost:8000/dqj/article/id/251/`). Article IDs drift as
+  the dev DB is reset — list current ones via `curl /dqj/articles/`.
+- Public OJS demo (read-only): `https://service.tib.eu/komet/ojs330/index.php/gmdj/`.
+
+The `WebFetch` tool auto-upgrades HTTP → HTTPS and will fail on localhost;
+use `curl` via Bash for the demo servers.
+
 ### Code Formatting
 
 ```bash
@@ -286,7 +303,7 @@ The project follows a modular handler-based architecture:
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):
-   - Support for extracting data from repositories (Zenodo, InvenioRDM instances, Figshare, 4TU.ResearchData (uses Djehuty platform with Figshare-compatible API, not Figshare itself), Dryad, PANGAEA, OSF, Dataverse, GFZ, Pensoft, Opara, Senckenberg, BGR, BAW, MDI-DE, Mendeley Data, Wikidata, RADAR, Arctic Data Center, DEIMS-SDR (follows external DOIs/URLs to supported providers by default; disable with ``--no-follow``), HALO DB (DLR, metadata-only, flight track geometry from GeoJSON search API), GBIF (metadata-only by default from Registry API; optional DwC-A data download from IPT endpoints), SEANOE (Ifremer/SISMER marine science, REST API metadata extraction and open-access file download; DOI prefix 10.17882), GeoScienceWorld (metadata-only, geoscience journal articles with GeoRef WKT coordinates; uses curl_cffi TLS impersonation for Cloudflare; various publisher DOI prefixes), UKCEH (UK Centre for Ecology & Hydrology EIDC, catalogue JSON API metadata extraction and dual download pattern: Apache datastore listing or data-package ZIP; DOI prefix 10.5285), GDI-DE (Geodateninfrastruktur Deutschland, national SDI catalogue with 771k+ records, metadata-only via CSW 2.0.2; geoportal.de URLs and bare UUIDs), STAC (SpatioTemporal Asset Catalog, metadata-only, extracts extent from STAC Collection JSON; supports known STAC API hosts and /stac/ URL patterns), DataONE (Data Observation Network for Earth, metadata-only via CN Solr API, covers ~20 member nodes including KNB, PISCO, EDI/LTER; DOI prefixes 10.5063/, 10.6085/; defers Arctic Data Center/PANGAEA/Dryad to dedicated providers))
+   - Support for extracting data from repositories (Zenodo, InvenioRDM instances, Figshare, 4TU.ResearchData (uses Djehuty platform with Figshare-compatible API, not Figshare itself), Dryad, PANGAEA, OSF, Dataverse, GFZ, ``journals/`` umbrella package (OJS, Janeway, Pensoft — shared meta-tag + JSON-LD parsing for journal article landing pages with the ``ojsGeo`` / ``janeway_geometadata`` plugins; richer-geometry-first priority that prefers JSON-LD ``spatialCoverage`` over bbox-only encodings; lifts the article DOI from the head for ``--external-metadata`` enrichment when the user passed a URL), Opara, Senckenberg, BGR, BAW, MDI-DE, Mendeley Data, Wikidata, RADAR, Arctic Data Center, DEIMS-SDR (follows external DOIs/URLs to supported providers by default; disable with ``--no-follow``), HALO DB (DLR, metadata-only, flight track geometry from GeoJSON search API), GBIF (metadata-only by default from Registry API; optional DwC-A data download from IPT endpoints), SEANOE (Ifremer/SISMER marine science, REST API metadata extraction and open-access file download; DOI prefix 10.17882), GeoScienceWorld (metadata-only, geoscience journal articles with GeoRef WKT coordinates; uses curl_cffi TLS impersonation for Cloudflare; various publisher DOI prefixes; planned refactor into ``journals/`` tracked in #115), UKCEH (UK Centre for Ecology & Hydrology EIDC, catalogue JSON API metadata extraction and dual download pattern: Apache datastore listing or data-package ZIP; DOI prefix 10.5285), GDI-DE (Geodateninfrastruktur Deutschland, national SDI catalogue with 771k+ records, metadata-only via CSW 2.0.2; geoportal.de URLs and bare UUIDs), STAC (SpatioTemporal Asset Catalog, metadata-only, extracts extent from STAC Collection JSON; supports known STAC API hosts and /stac/ URL patterns), DataONE (Data Observation Network for Earth, metadata-only via CN Solr API, covers ~20 member nodes including KNB, PISCO, EDI/LTER; DOI prefixes 10.5063/, 10.6085/; defers Arctic Data Center/PANGAEA/Dryad to dedicated providers))
    - ``InvenioRDM`` base provider supporting CaltechDATA, TU Wien, Frei-Data, GEO Knowledge Hub, TU Graz, Materials Cloud Archive, FDAT, DataPLANT ARChive, KTH, Prism, NYU Ultraviolet, B2SHARE (EUDAT)
    - Includes abstract ``CKANProvider`` base class for CKAN-based repositories (used by Senckenberg and generic CKAN provider)
    - Generic ``CKAN`` provider for any CKAN instance via dataset URL matching (``https://{host}/dataset/{id}``); known hosts include GeoKur TU Dresden, data.gov.uk, GovData.de, open.canada.ca, data.gov.au, catalog.data.gov; unknown hosts verified via API probe
@@ -355,6 +372,12 @@ When adding a new content provider or file format handler, it must be registered
 4. **`tests/conftest.py`** — add the test file to `_PROVIDER_FILES` and a sample test to `_PROVIDER_SAMPLE_TESTS`
 5. **`docs/source/changelog.rst`** — add changelog entry under "Unreleased"
 6. **`CLAUDE.md`** — update the content providers list in the Architecture Overview section
+
+For **journal-platform** providers (anything that scrapes article landing
+pages), drop the new module into ``geoextent/lib/content_providers/journals/``
+and subclass ``JournalProvider``. Override ``_is_my_platform`` (and, for
+DOI-prefix shortcuts, ``validate_provider``). Reuse the shared meta-tag /
+JSON-LD machinery rather than duplicating HTML parsing.
 
 ### Test Exception Handling
 

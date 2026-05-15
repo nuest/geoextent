@@ -14,7 +14,7 @@ from . import Pangaea
 from . import OSF
 from . import Dataverse
 from . import GFZ
-from . import Pensoft
+from . import journals
 from . import Opara
 from . import BGR
 from . import Senckenberg
@@ -53,7 +53,7 @@ __all__ = [
     "OSF",
     "Dataverse",
     "GFZ",
-    "Pensoft",
+    "journals",
     "Opara",
     "BGR",
     "Senckenberg",
