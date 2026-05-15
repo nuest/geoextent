@@ -38,6 +38,15 @@ class GazetteerService:
         """
         raise NotImplementedError("Subclasses must implement reverse_geocode")
 
+    def geocode(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+        """Forward-geocode a place name to one or more candidate hits.
+
+        Subclasses should return a list of dicts with keys:
+        ``name``, ``lat``, ``lon``, ``id`` (gazetteer-prefixed identifier),
+        and ``url`` (canonical URL for the hit). Empty list if no match.
+        """
+        raise NotImplementedError("Subclasses must implement geocode")
+
     def find_shared_components(self, names: List[str]) -> Optional[str]:
         """
         Find shared components among placenames and return them as a placename.
@@ -114,10 +123,64 @@ class GeoNamesService(GazetteerService):
             if location:
                 return location.address
         except (GeocoderTimedOut, GeocoderServiceError) as e:
-            logger.warning(f"GeoNames geocoding failed for ({lat}, {lon}): {e}")
+            logger.warning(
+                "GeoNames reverse-geocoding via api.geonames.org failed for "
+                "(%s, %s): %s",
+                lat,
+                lon,
+                e,
+            )
         except Exception as e:
-            logger.error(f"Unexpected error in GeoNames geocoding: {e}")
+            logger.error(
+                "Unexpected error in GeoNames reverse-geocoding via "
+                "api.geonames.org for (%s, %s): %s",
+                lat,
+                lon,
+                e,
+            )
         return None
+
+    def geocode(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+        try:
+            results = self.geocoder.geocode(query, exactly_one=False, timeout=10)
+        except (GeocoderTimedOut, GeocoderServiceError) as e:
+            logger.warning(
+                "GeoNames forward geocoding via api.geonames.org failed " "for %r: %s",
+                query,
+                e,
+            )
+            return []
+        except Exception as e:
+            logger.error(
+                "Unexpected error in GeoNames forward geocoding via "
+                "api.geonames.org for %r: %s",
+                query,
+                e,
+            )
+            return []
+        if not results:
+            return []
+        hits = []
+        for loc in results[:limit]:
+            raw = getattr(loc, "raw", {}) or {}
+            geoname_id = raw.get("geonameId")
+            ident = (
+                f"geonames:{geoname_id}" if geoname_id else f"geonames:{loc.address}"
+            )
+            url = f"https://www.geonames.org/{geoname_id}" if geoname_id else None
+            hits.append(
+                {
+                    "name": loc.address,
+                    "lat": float(loc.latitude),
+                    "lon": float(loc.longitude),
+                    "id": ident,
+                    "url": url,
+                    # GeoNames does not supply boundary geometry; downstream
+                    # code falls back to the point.
+                    "boundary": None,
+                }
+            )
+        return hits
 
 
 class NominatimService(GazetteerService):
@@ -136,10 +199,89 @@ class NominatimService(GazetteerService):
             if location:
                 return location.address
         except (GeocoderTimedOut, GeocoderServiceError) as e:
-            logger.warning(f"Nominatim geocoding failed for ({lat}, {lon}): {e}")
+            logger.warning(
+                "Nominatim reverse-geocoding via nominatim.openstreetmap.org "
+                "failed for (%s, %s): %s",
+                lat,
+                lon,
+                e,
+            )
         except Exception as e:
-            logger.error(f"Unexpected error in Nominatim geocoding: {e}")
+            logger.error(
+                "Unexpected error in Nominatim reverse-geocoding via "
+                "nominatim.openstreetmap.org for (%s, %s): %s",
+                lat,
+                lon,
+                e,
+            )
         return None
+
+    def geocode(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+        # Request the boundary geometry as GeoJSON for hits that have one
+        # (administrative areas, parks, lakes, etc.). Nominatim returns a
+        # Point or Polygon/MultiPolygon under the ``geojson`` key on each
+        # raw record; geopy passes through via ``geometry="geojson"``.
+        try:
+            results = self.geocoder.geocode(
+                query,
+                exactly_one=False,
+                timeout=10,
+                limit=limit,
+                geometry="geojson",
+            )
+        except (GeocoderTimedOut, GeocoderServiceError) as e:
+            logger.warning(
+                "Nominatim forward geocoding via nominatim.openstreetmap.org "
+                "failed for %r: %s",
+                query,
+                e,
+            )
+            return []
+        except Exception as e:
+            logger.error(
+                "Unexpected error in Nominatim forward geocoding via "
+                "nominatim.openstreetmap.org for %r: %s",
+                query,
+                e,
+            )
+            return []
+        if not results:
+            return []
+        hits = []
+        for loc in results[:limit]:
+            raw = getattr(loc, "raw", {}) or {}
+            osm_type = raw.get("osm_type")
+            osm_id = raw.get("osm_id")
+            if osm_type and osm_id:
+                ident = f"osm:{osm_type}:{osm_id}"
+                url = f"https://www.openstreetmap.org/{osm_type}/{osm_id}"
+            else:
+                ident = f"nominatim:{raw.get('place_id', loc.address)}"
+                url = None
+            geojson_geom = raw.get("geojson")
+            # Nominatim returns Point even for areal features unless we ask
+            # for the area geometry; only carry the geometry forward when
+            # it is genuinely areal (Polygon / MultiPolygon / LineString),
+            # not a redundant centroid Point that adds noise.
+            boundary = None
+            if isinstance(geojson_geom, dict) and geojson_geom.get("type") in (
+                "Polygon",
+                "MultiPolygon",
+                "LineString",
+                "MultiLineString",
+            ):
+                boundary = geojson_geom
+            hits.append(
+                {
+                    "name": loc.address,
+                    "lat": float(loc.latitude),
+                    "lon": float(loc.longitude),
+                    "id": ident,
+                    "url": url,
+                    "boundary": boundary,
+                }
+            )
+        return hits
 
 
 class PhotonService(GazetteerService):
@@ -158,10 +300,78 @@ class PhotonService(GazetteerService):
             if location:
                 return location.address
         except (GeocoderTimedOut, GeocoderServiceError) as e:
-            logger.warning(f"Photon geocoding failed for ({lat}, {lon}): {e}")
+            logger.warning(
+                "Photon reverse-geocoding via %s failed for (%s, %s): %s",
+                self.geocoder.domain,
+                lat,
+                lon,
+                e,
+            )
         except Exception as e:
-            logger.error(f"Unexpected error in Photon geocoding: {e}")
+            logger.error(
+                "Unexpected error in Photon reverse-geocoding via %s for "
+                "(%s, %s): %s",
+                self.geocoder.domain,
+                lat,
+                lon,
+                e,
+            )
         return None
+
+    def geocode(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
+        try:
+            results = self.geocoder.geocode(
+                query, exactly_one=False, timeout=10, limit=limit
+            )
+        except (GeocoderTimedOut, GeocoderServiceError) as e:
+            logger.warning(
+                "Photon forward geocoding via %s failed for %r: %s",
+                self.geocoder.domain,
+                query,
+                e,
+            )
+            return []
+        except Exception as e:
+            logger.error(
+                "Unexpected error in Photon forward geocoding via %s for " "%r: %s",
+                self.geocoder.domain,
+                query,
+                e,
+            )
+            return []
+        if not results:
+            return []
+        hits = []
+        for loc in results[:limit]:
+            raw = getattr(loc, "raw", {}) or {}
+            props = raw.get("properties", {}) if isinstance(raw, dict) else {}
+            osm_type = props.get("osm_type")
+            osm_id = props.get("osm_id")
+            if osm_type and osm_id:
+                # Photon returns one-letter osm_type (N/W/R); map to full names
+                osm_type_long = {
+                    "N": "node",
+                    "W": "way",
+                    "R": "relation",
+                }.get(osm_type, osm_type)
+                ident = f"osm:{osm_type_long}:{osm_id}"
+                url = f"https://www.openstreetmap.org/{osm_type_long}/{osm_id}"
+            else:
+                ident = f"photon:{loc.address}"
+                url = None
+            hits.append(
+                {
+                    "name": loc.address,
+                    "lat": float(loc.latitude),
+                    "lon": float(loc.longitude),
+                    "id": ident,
+                    "url": url,
+                    # Photon returns geometry only as a point; downstream
+                    # code falls back to lat/lon.
+                    "boundary": None,
+                }
+            )
+        return hits
 
 
 class PlacenameExtractor:
@@ -322,7 +532,11 @@ def get_placename_for_geometry(
         Placename string or None
     """
     if not bbox and not convex_hull_coords:
-        logger.warning("No geometry provided for placename extraction")
+        logger.warning(
+            "No geometry provided for placename extraction via %s "
+            "(both bbox and convex_hull_coords are empty)",
+            service_name,
+        )
         return None
 
     try:
@@ -341,5 +555,109 @@ def get_placename_for_geometry(
         return placename
 
     except Exception as e:
-        logger.error(f"Error extracting placename: {e}")
+        logger.error(
+            "Error extracting placename via %s reverse-geocoding: %s",
+            service_name,
+            e,
+        )
         return None
+
+
+_SERVICE_CLASSES = {
+    "geonames": GeoNamesService,
+    "nominatim": NominatimService,
+    "photon": PhotonService,
+}
+
+# Track which (service, name) pairs we have already warned about so a long
+# directory with the same ambiguous mention in many files doesn't flood the
+# log. Keyed by (service, name.lower()). Bounded by the natural number of
+# unique mentions per run.
+_AMBIGUITY_WARNED = set()
+
+
+def _reset_ambiguity_warnings():
+    """Clear the warned-about set; intended for tests."""
+    _AMBIGUITY_WARNED.clear()
+
+
+def get_gazetteer_service(service_name: str) -> GazetteerService:
+    """Instantiate a gazetteer service by name."""
+    if service_name not in _SERVICE_CLASSES:
+        raise ValueError(
+            f"Unsupported gazetteer service: {service_name}. "
+            f"Supported: {list(_SERVICE_CLASSES.keys())}"
+        )
+    return _SERVICE_CLASSES[service_name]()
+
+
+def forward_geocode_names(
+    names: List[str],
+    service_name: str = "geonames",
+    ambiguity: str = "drop",
+    cache: Optional[Dict[Tuple[str, str], List[Dict[str, Any]]]] = None,
+    limit: int = 5,
+) -> List[Tuple[str, Optional[Dict[str, Any]], List[Dict[str, Any]]]]:
+    """Forward-geocode a list of place names.
+
+    Args:
+        names: place name strings to resolve.
+        service_name: gazetteer service identifier.
+        ambiguity: ``"drop"`` to skip mentions with more than one hit,
+            ``"top"`` to keep the highest-ranked hit when multiple are returned.
+        cache: optional dict for in-memory caching of (service, query) -> hits.
+        limit: max number of hits to request per query.
+
+    Returns:
+        List of ``(name, chosen_hit, all_hits)`` tuples, in input order.
+        ``chosen_hit`` is None when no hit was found or when an ambiguous
+        result was dropped.
+    """
+    if ambiguity not in ("drop", "top"):
+        raise ValueError(f"Invalid ambiguity mode: {ambiguity!r} (use 'drop' or 'top')")
+
+    service = get_gazetteer_service(service_name)
+    if cache is None:
+        cache = {}
+
+    out: List[Tuple[str, Optional[Dict[str, Any]], List[Dict[str, Any]]]] = []
+    for raw_name in names:
+        name = (raw_name or "").strip()
+        if not name:
+            continue
+        key = (service_name, name.lower())
+        if key in cache:
+            hits = cache[key]
+        else:
+            hits = service.geocode(name, limit=limit)
+            cache[key] = hits
+
+        if not hits:
+            out.append((name, None, hits))
+            continue
+        if ambiguity == "drop" and len(hits) > 1:
+            warn_key = (service_name, name.lower())
+            if warn_key not in _AMBIGUITY_WARNED:
+                _AMBIGUITY_WARNED.add(warn_key)
+                # Candidate names from administrative gazetteers contain
+                # commas (e.g. "Paris, Île-de-France, France"); join with
+                # "; " so the boundary between candidates stays readable.
+                logger.warning(
+                    "Dropped ambiguous place name %r — %s returned %d candidates "
+                    "(e.g. %s). To keep the highest-ranked match instead, use "
+                    "--ner-ambiguity top (CLI) or ner_ambiguity='top' (API).",
+                    name,
+                    service_name,
+                    len(hits),
+                    "; ".join(h["name"][:60] for h in hits[:3]),
+                )
+            else:
+                logger.debug(
+                    "Dropping ambiguous mention %r (%d hits, already warned)",
+                    name,
+                    len(hits),
+                )
+            out.append((name, None, hits))
+            continue
+        out.append((name, hits[0], hits))
+    return out

@@ -1,0 +1,2 @@
+The dataset covers two countries: Germany and France.
+Field campaigns took place during the spring of 2024.

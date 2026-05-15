@@ -110,7 +110,7 @@ def get_handler_display_name():
     return "CSV (comma-separated values)"
 
 
-def check_file_supported(filepath):
+def check_file_supported(filepath, **_kwargs):
     """Checks whether it is valid CSV or not. \n
     input "path": type string, path to file which shall be extracted \n
     raise exception if not valid
@@ -130,6 +130,30 @@ def check_file_supported(filepath):
     ):
         logger.debug(f"File {filepath} has extension {extension}, skipping CSV handler")
         return False
+
+    # When text NER extraction is enabled AND spaCy is actually available,
+    # defer plain-text extensions to handle_text. Without text_method or
+    # when spaCy is missing (default ``--text-method ner`` but no
+    # ``[nlp]`` extra), these extensions stay candidates for the CSV
+    # handler (e.g. tab-delimited DwC-A occurrence.txt) so pre-existing
+    # workflows are unaffected. Extension set is the single source of
+    # truth in ``text_extraction.mime``.
+    if _kwargs.get("text_method"):
+        from .text_extraction.mime import TEXT_EXTENSIONS
+
+        if extension in TEXT_EXTENSIONS:
+            _spacy_ok = False
+            try:
+                from .handle_text import _spacy_available
+
+                _spacy_ok = _spacy_available()
+            except Exception:
+                _spacy_ok = False
+            if _spacy_ok:
+                logger.debug(
+                    f"File {filepath} has extension {extension}, deferring to handle_text"
+                )
+                return False
 
     # Strip EarthScope GeoCSV #-header lines so GDAL and csv.reader can parse
     _original_path = filepath
@@ -472,7 +496,7 @@ def _extract_bbox_from_geometry_column(file_path, chunk_size=50000):
             return None
 
 
-def get_bounding_box(file_path, chunk_size=50000):
+def get_bounding_box(file_path, chunk_size=50000, **_kwargs):
     """
     Function purpose: extracts the spatial extent (bounding box) from a csv-file \n
     input "filepath": type string, file path to csv file \n
@@ -704,7 +728,7 @@ def _extract_convex_hull_from_geometry_column(file_path):
         }
 
 
-def get_convex_hull(filepath):
+def get_convex_hull(filepath, **_kwargs):
     """Extract convex hull from CSV file.
 
     Returns dict with 'bbox', 'crs', 'convex_hull_coords', 'convex_hull' keys,
@@ -833,7 +857,7 @@ def _get_convex_hull_impl(filepath):
     return None
 
 
-def get_temporal_extent(filepath, num_sample, time_format=None):
+def get_temporal_extent(filepath, num_sample, time_format=None, **_kwargs):
     """extract time extent from csv string \n
     input "file_path": type string, file path to csv File \n
     returns temporal extent of the file: type list, length = 2, both entries have the type str, temporalExtent[0] <= temporalExtent[1]

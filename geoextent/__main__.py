@@ -86,6 +86,10 @@ class readable_file_or_dir(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         validated_files = []
         for candidate in values:
+            # Stdin sentinel for text input (issue #112)
+            if candidate == "-":
+                validated_files.append(candidate)
+                continue
             # Check if it's a supported repository URL/DOI by testing against content providers
             is_repository = self._is_supported_repository(candidate)
 
@@ -147,6 +151,30 @@ def get_arg_parser():
         "--list-features",
         action="store_true",
         help="output machine-readable JSON with all supported file formats and content providers",
+    )
+
+    parser.add_argument(
+        "--list-periods",
+        action="store_true",
+        help="output the bundled named-time-period gazetteer (ICS GTS2020) "
+        "with licensing and provenance metadata. Useful for downstream UIs "
+        "and autocomplete widgets. Default format is JSON; use "
+        "--list-periods-format to switch to a plain-text table.",
+    )
+
+    parser.add_argument(
+        "--list-periods-format",
+        choices=["json", "text"],
+        default="json",
+        help="output format for --list-periods (default: json)",
+    )
+
+    parser.add_argument(
+        "--list-periods-filter",
+        default=None,
+        metavar="SUBSTR",
+        help="case-insensitive substring match on period name or alias; "
+        "only matching periods are listed",
     )
 
     parser.add_argument("--version", action="store_true", help="show installed version")
@@ -271,7 +299,13 @@ def get_arg_parser():
         "--geojsonio",
         action="store_true",
         default=False,
-        help="generate and print a clickable geojson.io URL for the extracted spatial extent",
+        help=(
+            "generate and print a clickable geojson.io URL for the extracted "
+            "spatial extent. GeoJSON payloads up to ~150 KB are embedded in "
+            "the URL fragment; larger payloads attempt an anonymous GitHub "
+            "Gist upload which now requires auth (geojsonio limitation, not "
+            "geojson.io). Pair with --convex-hull to keep the payload small."
+        ),
     )
 
     parser.add_argument(
@@ -339,7 +373,7 @@ def get_arg_parser():
         "--placename",
         action="store_true",
         default=False,
-        help="enable placename lookup using default gazetteer (geonames). Use --placename-service to specify a different gazetteer",
+        help="enable placename lookup using default gazetteer (nominatim — no API key required). Use --placename-service to specify a different gazetteer (geonames requires GEONAMES_USERNAME)",
     )
 
     parser.add_argument(
@@ -347,7 +381,7 @@ def get_arg_parser():
         choices=["geonames", "nominatim", "photon"],
         default=None,
         metavar="GAZETTEER",
-        help="specify gazetteer service for placename lookup (requires --placename)",
+        help="specify gazetteer service for placename lookup (default: nominatim; requires --placename)",
     )
 
     parser.add_argument(
@@ -355,6 +389,158 @@ def get_arg_parser():
         action="store_true",
         default=False,
         help="escape Unicode characters in placename output (requires --placename)",
+    )
+
+    # --- Text / NER extraction (issue #112) ---------------------------------
+    parser.add_argument(
+        "--text-method",
+        choices=["ner", "none"],
+        default="ner",
+        help="text-extraction method for plain-text files (.txt, .md, ...) "
+        "and the --text/stdin inputs. 'ner' (default) uses spaCy NER to "
+        "detect place names, calendar dates, and named time periods, "
+        "resolving them via the configured place and period gazetteers. "
+        "'none' disables text extraction (text files fall back to other "
+        "handlers or are skipped). Requires: pip install geoextent[nlp] "
+        "for any value other than 'none'; if spaCy is not installed, the "
+        "text handler silently declines so existing workflows that happen "
+        "to include text files keep working.",
+    )
+
+    parser.add_argument(
+        "--text",
+        action="store",
+        default=None,
+        metavar="STRING",
+        help="run text extraction on this literal string (requires --text-method)",
+    )
+
+    parser.add_argument(
+        "--ner-model",
+        action="store",
+        default=None,
+        metavar="MODEL",
+        help="spaCy model name for NER (default: en_core_web_sm). The model is "
+        "auto-downloaded on first use unless --no-auto-download is set.",
+    )
+
+    parser.add_argument(
+        "--ner-labels",
+        action="store",
+        default=None,
+        metavar="LABELS",
+        help="comma-separated entity labels to keep as places (default: LOC,GPE)",
+    )
+
+    parser.add_argument(
+        "--ner-score-threshold",
+        action="store",
+        type=float,
+        default=None,
+        metavar="FLOAT",
+        help="drop NER mentions with score below FLOAT (only used if the model "
+        "emits per-entity scores; otherwise ignored)",
+    )
+
+    parser.add_argument(
+        "--ner-gazetteer",
+        choices=["geonames", "nominatim", "photon"],
+        default=None,
+        metavar="GAZETTEER",
+        help="gazetteer used to forward-geocode detected place names "
+        "(default: same as --placename-service if set, else nominatim, "
+        "which works without an API key or login). Use 'geonames' for "
+        "the GeoNames service (requires GEONAMES_USERNAME env var or .env).",
+    )
+
+    parser.add_argument(
+        "--ner-ambiguity",
+        choices=["drop", "top"],
+        default="drop",
+        help="how to handle ambiguous gazetteer hits: 'drop' (skip mentions "
+        "with multiple candidates, default, defensive) or 'top' (keep the "
+        "highest-ranked candidate)",
+    )
+
+    parser.add_argument(
+        "--no-auto-download",
+        action="store_false",
+        dest="ner_auto_download",
+        default=True,
+        help="disable automatic spaCy model download on first use",
+    )
+
+    parser.add_argument(
+        "--period-gazetteer",
+        choices=["bundled", "none"],
+        default="bundled",
+        help="gazetteer used to resolve named time periods (e.g. 'Holocene', "
+        "'Mesozoic Era') to signed ISO date ranges. 'bundled' uses the "
+        "ICS GTS2020 chronostratigraphic chart shipped with geoextent "
+        "(default). 'none' disables period matching.",
+    )
+
+    parser.add_argument(
+        "--period-ambiguity",
+        choices=["drop", "top"],
+        default="drop",
+        help="how to handle ambiguous period gazetteer hits: 'drop' (default, "
+        "defensive) or 'top' (keep the highest-ranked candidate)",
+    )
+
+    parser.add_argument(
+        "--no-period-resolution",
+        action="store_false",
+        dest="period_resolution",
+        default=True,
+        help="disable named time-period matching entirely (still parses "
+        "DATE/TIME entities via dateutil)",
+    )
+
+    parser.add_argument(
+        "--no-source-text",
+        action="store_false",
+        dest="include_source_text",
+        default=True,
+        help="omit the NFC-normalised source string from text/NER results "
+        "(opt-out for privacy or to shrink output size; offsets in "
+        "place_names and date_entities still index into the normalised "
+        "source the extractor used internally)",
+    )
+
+    parser.add_argument(
+        "--place-geometry",
+        choices=["auto", "boundary", "point"],
+        default="auto",
+        help="how to use the gazetteer geometry for matched place names "
+        "in the spatial extent. 'auto' (default) uses the administrative "
+        "boundary or other areal polygon when the gazetteer provides one "
+        "(Nominatim does for administrative regions; GeoNames and Photon "
+        "are point-only), and falls back to the centroid point otherwise. "
+        "'boundary' is the same but logs a debug message on point-only "
+        "fallback. 'point' forces the centroid lat/lon even when a "
+        "boundary is available.",
+    )
+
+    parser.add_argument(
+        "--annotate",
+        choices=["auto", "ansi", "brackets", "off"],
+        default="auto",
+        help="when text/NER inputs are processed, print the source text after "
+        "the JSON result with matched place names and dates highlighted. "
+        "'ansi' uses terminal colour, 'brackets' uses textual markers "
+        "(``[[Berlin|place]]``), 'auto' picks based on TTY, 'off' disables. "
+        "Default: auto.",
+    )
+
+    parser.add_argument(
+        "--annotate-classes",
+        default=None,
+        metavar="MAP",
+        help="comma-separated overrides for --annotate colours/markers. "
+        "Example: 'place=cyan,date=yellow,period=magenta'. Recognised "
+        "ANSI names: black, red, green, yellow, blue, magenta, cyan, white "
+        "(bright_* prefix for bold variants).",
     )
 
     parser.add_argument(
@@ -438,8 +624,10 @@ def get_arg_parser():
     parser.add_argument(
         "files",
         action=readable_file_or_dir,
-        nargs="+",
-        help="input file, directory, DOI, or repository URL (supports multiple inputs including mixed types)",
+        nargs="*",
+        help="input file, directory, DOI, or repository URL (supports multiple "
+        "inputs including mixed types). Use '-' to read text from stdin "
+        "(requires --text-method). May be empty when --text STRING is used.",
     )
 
     return parser
@@ -468,6 +656,37 @@ def print_features_json():
     print(get_supported_features_json())
 
 
+def print_periods(fmt: str = "json", name_filter: str = None):
+    """Print the bundled named-time-period gazetteer for downstream tools.
+
+    ``fmt="json"`` emits the same metadata + periods list returned by
+    :func:`geoextent.lib.period_gazetteer.list_periods`; ``fmt="text"``
+    prints a human-friendly tab-separated table prefixed by a short
+    attribution comment.
+    """
+    from .lib.period_gazetteer import list_periods
+
+    data = list_periods(name_filter=name_filter)
+    if fmt == "json":
+        print(json.dumps(data, indent=2, ensure_ascii=False))
+        return
+    # Plain-text table.
+    print(f"# {data.get('name')}")
+    print(f"# Source: {data.get('source')} ({data.get('source_url')})")
+    print(f"# Revision: {data.get('source_revision')!s}")
+    print(f"# Built at: {data.get('built_at')}")
+    print(f"# License: {data.get('license')} — {data.get('license_url')}")
+    print(f"# Periods: {data.get('period_count')}")
+    print("#")
+    print("# name\trank\tstart\tend\tid")
+    for rec in data.get("periods", []):
+        print(
+            "\t".join(
+                str(rec.get(k, "")) for k in ("name", "rank", "start", "end", "id")
+            )
+        )
+
+
 arg_parser = get_arg_parser()
 
 
@@ -486,6 +705,40 @@ def _parse_additional_extensions(ext_string):
             extensions.add(ext.lower())
 
     return extensions
+
+
+def _collect_annotate_payload(output):
+    """Pull source_text + standoff spans from a pre-conversion result dict.
+
+    Looks at the top-level keys first (single text input), then walks
+    ``details`` (multi-input runs) and returns a list of payloads so the
+    CLI can emit one annotated block per source.
+    """
+    if not isinstance(output, dict):
+        return None
+    payloads = []
+    if "source_text" in output:
+        payloads.append(
+            {
+                "label": None,
+                "source_text": output.get("source_text"),
+                "place_names": output.get("place_names") or [],
+                "date_entities": output.get("date_entities") or [],
+            }
+        )
+    details = output.get("details") or {}
+    if isinstance(details, dict):
+        for label, entry in details.items():
+            if isinstance(entry, dict) and entry.get("source_text"):
+                payloads.append(
+                    {
+                        "label": label,
+                        "source_text": entry.get("source_text"),
+                        "place_names": entry.get("place_names") or [],
+                        "date_entities": entry.get("date_entities") or [],
+                    }
+                )
+    return payloads or None
 
 
 def _parse_map_dimensions(dim_str):
@@ -548,9 +801,27 @@ def main():
     if "--list-features" in sys.argv:
         print_features_json()
         arg_parser.exit()
+    if "--list-periods" in sys.argv:
+        # Parse early to honour --list-periods-format / --list-periods-filter
+        # without forcing the rest of the argparse contract (which requires
+        # positional inputs or --text).
+        fmt = "json"
+        name_filter = None
+        argv = sys.argv[1:]
+        for i, tok in enumerate(argv):
+            if tok == "--list-periods-format" and i + 1 < len(argv):
+                fmt = argv[i + 1]
+            elif tok.startswith("--list-periods-format="):
+                fmt = tok.split("=", 1)[1]
+            elif tok == "--list-periods-filter" and i + 1 < len(argv):
+                name_filter = argv[i + 1]
+            elif tok.startswith("--list-periods-filter="):
+                name_filter = tok.split("=", 1)[1]
+        print_periods(fmt=fmt, name_filter=name_filter)
+        arg_parser.exit()
 
     args = vars(arg_parser.parse_args())
-    files = args["files"]
+    files = args["files"] or []
 
     # Parse additional file extensions for geospatial detection
     additional_extensions = _parse_additional_extensions(
@@ -560,7 +831,51 @@ def main():
     # Resolve workers: 0 means auto-detect, pass through to API functions
     workers = args["parallel"]
 
-    if files is None or len(files) == 0:
+    # Validate text/NER inputs (issue #112). ``--text-method`` defaults to
+    # ``"ner"``; ``"none"`` (or missing spaCy) disables the text handler.
+    text_method = args.get("text_method")
+    if text_method in (None, "none"):
+        text_method = None
+    inline_text = args.get("text")
+    has_stdin_sentinel = "-" in files
+
+    if (inline_text or has_stdin_sentinel) and text_method is None:
+        arg_parser.error(
+            "--text and stdin (-) require --text-method ner "
+            "(currently disabled via --text-method none)"
+        )
+
+    # Resolve --ner-gazetteer default: fall back to --placename-service if set,
+    # then to nominatim (no API key required, works out of the box).
+    ner_gazetteer = args.get("ner_gazetteer")
+    if text_method and not ner_gazetteer:
+        ner_gazetteer = args.get("placename_service") or "nominatim"
+
+    # Parse --ner-labels CSV
+    ner_labels = None
+    if args.get("ner_labels"):
+        ner_labels = [s.strip() for s in args["ner_labels"].split(",") if s.strip()]
+
+    # Bundle NER kwargs for the API calls below; pass an empty dict when
+    # text extraction is disabled so the existing call sites remain clean.
+    ner_kwargs = {}
+    if text_method:
+        ner_kwargs = {
+            "text_method": text_method,
+            "ner_model": args.get("ner_model"),
+            "ner_labels": ner_labels,
+            "ner_score_threshold": args.get("ner_score_threshold"),
+            "ner_gazetteer": ner_gazetteer,
+            "ner_ambiguity": args.get("ner_ambiguity") or "drop",
+            "ner_auto_download": args.get("ner_auto_download", True),
+            "period_gazetteer": args.get("period_gazetteer") or "bundled",
+            "period_ambiguity": args.get("period_ambiguity") or "drop",
+            "period_resolution": args.get("period_resolution", True),
+            "include_source_text": args.get("include_source_text", True),
+            "place_geometry": args.get("place_geometry") or "auto",
+        }
+
+    if files is None or (len(files) == 0 and not (inline_text or has_stdin_sentinel)):
         raise Exception("Invalid command, input file missing")
 
     # Validate placename options
@@ -570,10 +885,12 @@ def main():
     if args["placename_service"] and not args["placename"]:
         raise ValueError("--placename-service requires --placename to be specified")
 
-    # Determine gazetteer service to use
+    # Determine gazetteer service to use. Default to nominatim because it
+    # works without an API key. geonames is still available via
+    # --placename-service geonames but requires GEONAMES_USERNAME.
     placename_service = None
     if args["placename"]:
-        placename_service = args["placename_service"] or "geonames"
+        placename_service = args["placename_service"] or "nominatim"
 
     logger.debug("Extracting from inputs %s", files)
     # Set logging level and handle conflicting options
@@ -640,11 +957,34 @@ def main():
             "one of extraction options must be selected (-b/--bounding-box or -t/--time-box)"
         )
 
+    # Collect inline/stdin text inputs (issue #112). Each becomes a
+    # separate source labelled "<text>" or "<stdin>" in the details.
+    text_inputs = []  # list of (label, text_string)
+    if inline_text is not None:
+        text_inputs.append(("<text>", inline_text))
+    if has_stdin_sentinel:
+        stdin_text = sys.stdin if isinstance(sys.stdin, str) else sys.stdin.read()
+        text_inputs.append(("<stdin>", stdin_text))
+        # Remove '-' from positional file list before regular dispatch.
+        files = [f for f in files if f != "-"]
+
     output = None
-    multiple_files = len(files) > 1
+    multiple_files = (len(files) + len(text_inputs)) > 1
 
     try:
-        if len(files) == 1:
+        # Single text-only input fast path (no positional files).
+        if len(files) == 0 and len(text_inputs) == 1:
+            _, text_str = text_inputs[0]
+            output = extent.from_text(
+                text_str,
+                bbox=args["bounding_box"],
+                tbox=args["time_box"],
+                convex_hull=args["convex_hull"],
+                legacy=args["legacy"],
+                time_format=args["time_format"],
+                **ner_kwargs,
+            )
+        elif (len(files) + len(text_inputs)) == 1 and len(files) == 1:
             # Single file/directory/URL handling (existing behavior)
             single_input = files[0]
 
@@ -675,6 +1015,7 @@ def main():
                     legacy=args["legacy"],
                     assume_wgs84=args["assume_wgs84"],
                     time_format=args["time_format"],
+                    **ner_kwargs,
                 )
             elif is_directory or is_zipfile:
                 output = extent.from_directory(
@@ -691,6 +1032,7 @@ def main():
                     assume_wgs84=args["assume_wgs84"],
                     time_format=args["time_format"],
                     workers=workers,
+                    **ner_kwargs,
                 )
             elif is_url or is_doi or is_repository:
                 output = _call_from_remote_with_size_prompt(
@@ -794,6 +1136,7 @@ def main():
                             legacy=args["legacy"],
                             assume_wgs84=args["assume_wgs84"],
                             time_format=args["time_format"],
+                            **ner_kwargs,
                         )
                         if file_output is not None:
                             output["details"][file_path] = file_output
@@ -813,6 +1156,7 @@ def main():
                             assume_wgs84=args["assume_wgs84"],
                             time_format=args["time_format"],
                             workers=workers,
+                            **ner_kwargs,
                         )
                         if dir_output is not None:
                             output["details"][file_path] = dir_output
@@ -824,7 +1168,28 @@ def main():
                     )
                     continue
 
-            # Merge spatial extents if bbox is requested
+            # Process inline/stdin text inputs (issue #112)
+            for label, text_str in text_inputs:
+                try:
+                    text_output = extent.from_text(
+                        text_str,
+                        bbox=args["bounding_box"],
+                        tbox=args["time_box"],
+                        convex_hull=args["convex_hull"],
+                        legacy=args["legacy"],
+                        time_format=args["time_format"],
+                        **ner_kwargs,
+                    )
+                    if text_output is not None:
+                        output["details"][label] = text_output
+                except Exception as text_error:
+                    logger.warning("Error processing %s: %s", label, str(text_error))
+                    continue
+
+            # Merge spatial extents if bbox is requested. Multiple positional
+            # inputs and ``--text`` / ``-`` stdin inputs are all treated as
+            # peer sources and merged into a single envelope / convex hull.
+            # Use ``--details`` to also inspect per-source results.
             if args["bounding_box"]:
                 if args["convex_hull"]:
                     bbox_merge = hf.convex_hull_merge(
@@ -896,12 +1261,30 @@ def main():
             output.pop("details", None)
 
         # Generate geojson.io URL if --geojsonio or --browse is requested (before format conversion)
+        # Track failure reason separately so the CLI can emit a precise
+        # message instead of the older lumped "no extent OR not available".
         geojsonio_url = None
+        geojsonio_failure_reason = None
         native_order = not args["legacy"]
-        if (args["geojsonio"] or args["browse"]) and output and "bbox" in output:
-            geojsonio_url = hf.generate_geojsonio_url(
-                output, native_order=native_order, inputs=files
-            )
+        if args["geojsonio"] or args["browse"]:
+            if not output:
+                geojsonio_failure_reason = "extraction returned no output"
+            elif "bbox" not in output:
+                geojsonio_failure_reason = (
+                    "no spatial extent in output (re-run with -b to extract a bbox)"
+                )
+            else:
+                try:
+                    geojsonio_url = hf.generate_geojsonio_url(
+                        output,
+                        native_order=native_order,
+                        inputs=files,
+                        raise_on_error=True,
+                    )
+                except hf.GeojsonioUrlError as e:
+                    # geojsonio.make_url failed (commonly 401 from the
+                    # anonymous-gist fallback used for GeoJSON > ~27 KB).
+                    geojsonio_failure_reason = f"geojson.io service call failed: {e}"
 
         # Generate map preview if --map or --preview was requested (before format conversion)
         # args["map"] is None (not given), True (--map without path), or a string (--map PATH)
@@ -943,6 +1326,18 @@ def main():
                 if not quiet:
                     print(file=sys.stderr)
 
+        # Snapshot the pre-conversion data needed for --annotate so the
+        # GeoJSON/WKT/WKB transformation does not strip the standoff fields.
+        # --quiet suppresses the auto default but honours explicit modes:
+        # users who pass --annotate brackets/ansi/html under --quiet still get
+        # the rendering they asked for.
+        _annotate_payload = None
+        _annotate_mode_arg = args.get("annotate") or "off"
+        if args.get("quiet") and _annotate_mode_arg == "auto":
+            _annotate_mode_arg = "off"
+        if _annotate_mode_arg != "off" and text_method:
+            _annotate_payload = _collect_annotate_payload(output)
+
         # Apply output format conversion
         output = hf.format_extent_output(
             output, args["format"], extraction_metadata, native_order=native_order
@@ -956,14 +1351,34 @@ def main():
     else:
         print(output)
 
+    # Annotated source rendering (issue #112).
+    if _annotate_payload:
+        from geoextent.lib.annotate import (
+            parse_classes,
+            render_annotated_text,
+            resolve_mode,
+        )
+
+        mode = resolve_mode(_annotate_mode_arg)
+        classes = parse_classes(args.get("annotate_classes"))
+        for payload in _annotate_payload:
+            rendered = render_annotated_text(payload, mode=mode, classes=classes)
+            if rendered is None:
+                continue
+            header = f"---annotated source ({mode})"
+            if payload["label"]:
+                header += f" — {payload['label']}"
+            header += "---"
+            print(header)
+            print(rendered)
+
     # Print geojson.io URL if --geojsonio was requested
     if args["geojsonio"]:
         if geojsonio_url:
             print(f"\n🌍 View spatial extent at: {geojsonio_url}")
         elif not args["quiet"]:
-            print(
-                "\ngeojson.io URL could not be generated (no spatial extent found or geojsonio not available)"
-            )
+            reason = geojsonio_failure_reason or "unknown error"
+            print(f"\ngeojson.io URL could not be generated — {reason}")
 
     # Open in browser if --browse flag is set
     if args["browse"]:
@@ -976,9 +1391,8 @@ def main():
                 if not args["quiet"]:
                     print(f"Could not open browser: {e}")
         elif not args["quiet"]:
-            print(
-                "\ngeojson.io URL could not be generated (no spatial extent found or geojsonio not available)"
-            )
+            reason = geojsonio_failure_reason or "unknown error"
+            print(f"\ngeojson.io URL could not be generated — {reason}")
 
 
 if __name__ == "__main__":

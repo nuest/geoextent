@@ -9,6 +9,11 @@ import json
 import logging
 from typing import Dict, List, Any
 
+# Pull the canonical text-extension set from text_extraction.mime so the
+# ``--list-features`` output, the handle_csv deferral rule, and the
+# is_text_file check all stay in lockstep.
+from .text_extraction.mime import TEXT_EXTENSIONS
+
 logger = logging.getLogger("geoextent")
 
 
@@ -70,6 +75,7 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     - Example file extensions (derived from GDAL driver support)
     """
     from . import handle_csv, handle_raster, handle_vector, handle_pointcloud
+    from . import handle_text
 
     handlers = []
 
@@ -172,6 +178,33 @@ def _get_file_format_info() -> List[Dict[str, Any]]:
     }
     handlers.append(pointcloud_info)
 
+    # Text Handler (issue #112)
+    text_info = {
+        "handler": handle_text.get_handler_name(),
+        "display_name": handle_text.get_handler_display_name(),
+        "description": "Plain-text files processed via NER (spaCy), a place "
+        "gazetteer, and a named time-period gazetteer (ICS GTS2020)",
+        "capabilities": {
+            "bounding_box": True,
+            "temporal_extent": True,
+            "convex_hull": True,
+        },
+        "file_extensions": sorted(TEXT_EXTENSIONS),
+        "notes": "Opt-in via --text-method ner (or text_method='ner' in the API). "
+        "Requires the [nlp] extra: pip install geoextent[nlp] and a spaCy model "
+        "(en_core_web_sm by default; auto-downloaded on first use). Forward-"
+        "geocodes detected place names via the configured gazetteer and emits "
+        "per-mention provenance. Ambiguous gazetteer hits are dropped by "
+        "default (--ner-ambiguity drop) and can be kept with --ner-ambiguity top. "
+        "Temporal extraction (with -t) recognises calendar dates, decade and "
+        "century envelopes, range expressions like 'between 2010 and 2015', and "
+        "named time periods (e.g. 'Holocene', 'Mesozoic Era', 'Late Cretaceous') "
+        "resolved via the bundled ICS International Chronostratigraphic Chart "
+        "(GTS2020, CC0). Deep-time / pre-CE dates use signed ISO 8601 year "
+        "strings (e.g. '-9750-01-01' for the start of the Holocene).",
+    }
+    handlers.append(text_info)
+
     return handlers
 
 
@@ -268,12 +301,14 @@ def validate_file_format(filepath: str) -> Dict[str, Any]:
             - message: str, description of the result
     """
     from . import handle_csv, handle_raster, handle_vector, handle_pointcloud
+    from . import handle_text
 
     handlers = [
         ("CSV", handle_csv),
         ("Point cloud", handle_pointcloud),
         ("Vector", handle_vector),
         ("Raster", handle_raster),
+        ("Text (NER)", handle_text),
     ]
 
     for handler_name, handler_module in handlers:

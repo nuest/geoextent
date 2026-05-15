@@ -50,6 +50,74 @@ TIME_FORMAT_PRESETS = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Signed ISO 8601 date helpers (for deep-time / pre-CE temporal extraction)
+# ---------------------------------------------------------------------------
+#
+# Python's stdlib ``datetime`` cannot represent year 0 or negative years, so
+# the text/NER pipeline (issue #112) emits geological and pre-CE dates as
+# signed ISO 8601 extended date strings: ``-YYYY-MM-DD`` for years before
+# 1 BCE and ``YYYY-MM-DD`` for years from 1 CE onward. Year width is at least
+# four digits; longer years (e.g. ``-540998050-01-01`` for the base of the
+# Cambrian) are rendered unpadded. Lexicographic compare is NOT a substitute
+# for numeric compare on these strings — use ``signed_iso_min``/``max`` or
+# parse via :func:`parse_signed_iso`.
+
+_SIGNED_ISO_RE = re.compile(
+    r"^(?P<sign>-?)(?P<year>\d+)-(?P<month>\d{2})-(?P<day>\d{2})"
+    r"(?:T\d{2}:\d{2}:\d{2}Z?)?$"
+)
+
+
+def signed_iso_format(year: int, month: int = 1, day: int = 1) -> str:
+    """Format a signed integer year as an ISO 8601 extended date string.
+
+    Negative years are prefixed with ``-`` and zero-padded to at least four
+    digits (e.g. ``-0042-01-01``); CE years follow the standard
+    ``YYYY-MM-DD`` convention. Years with five or more digits are rendered
+    without further padding.
+    """
+    yr = int(year)
+    if yr < 0:
+        return f"-{abs(yr):04d}-{month:02d}-{day:02d}"
+    return f"{yr:04d}-{month:02d}-{day:02d}"
+
+
+def parse_signed_iso(value: str):
+    """Parse a signed ISO date string into ``(year, month, day)``.
+
+    Accepts ``YYYY-MM-DD``, ``-YYYY-MM-DD`` (with arbitrary year length), and
+    optional ``THH:MM:SSZ`` suffix. Returns ``None`` on parse failure.
+    """
+    if not isinstance(value, str):
+        return None
+    m = _SIGNED_ISO_RE.match(value)
+    if not m:
+        return None
+    year = int(m.group("year"))
+    if m.group("sign") == "-":
+        year = -year
+    return year, int(m.group("month")), int(m.group("day"))
+
+
+def signed_iso_min(values):
+    """Return the chronologically earliest signed ISO date string."""
+    parsed = [(parse_signed_iso(v), v) for v in values if v is not None]
+    parsed = [p for p in parsed if p[0] is not None]
+    if not parsed:
+        return None
+    return min(parsed, key=lambda p: p[0])[1]
+
+
+def signed_iso_max(values):
+    """Return the chronologically latest signed ISO date string."""
+    parsed = [(parse_signed_iso(v), v) for v in values if v is not None]
+    parsed = [p for p in parsed if p[0] is not None]
+    if not parsed:
+        return None
+    return max(parsed, key=lambda p: p[0])[1]
+
+
 def resolve_time_format(time_format):
     """Resolve a time format specification to a strftime format string.
 
@@ -692,14 +760,56 @@ def convex_hull_merge(metadata, origin):
 
                         polygon = ogr.Geometry(ogr.wkbPolygon)
                         polygon.AddGeometry(ring)
-                    elif isinstance(bbox, list) and len(bbox) > 4:
-                        # This is a coordinate array format with actual convex hull coordinates
-                        ring = ogr.Geometry(ogr.wkbLinearRing)
-                        for coord in bbox:
-                            ring.AddPoint(coord[0], coord[1])
-
+                    elif (
+                        isinstance(bbox, list)
+                        and len(bbox) >= 2
+                        and isinstance(bbox[0], list)
+                    ):
+                        # Vertex-list convex hull (typically from handle_text /
+                        # NER, where 2 places ⇒ 2-vertex line, 3+ places ⇒
+                        # polygon ring). The original code only handled
+                        # ``len(bbox) > 4``; 2- and 3- and 4-vertex hulls fell
+                        # through to the catch-all ``continue`` and silently
+                        # dropped the geometry, so a merge of
+                        # ``--text "Denmark to Belgium"`` + a 2-place text
+                        # file produced no merged bbox at all. Promote
+                        # degenerate hulls (point/line) to thin rectangles so
+                        # they survive the union with peer geometries.
+                        epsilon = 1e-10
+                        box = ogr.Geometry(ogr.wkbLinearRing)
+                        if len(bbox) == 2:
+                            (x1, y1), (x2, y2) = bbox[0], bbox[1]
+                            if x1 == x2 and y1 == y2:
+                                # Two identical points — treat as a single
+                                # point hull.
+                                box.AddPoint(x1 - epsilon, y1 - epsilon)
+                                box.AddPoint(x1 + epsilon, y1 - epsilon)
+                                box.AddPoint(x1 + epsilon, y1 + epsilon)
+                                box.AddPoint(x1 - epsilon, y1 + epsilon)
+                                box.AddPoint(x1 - epsilon, y1 - epsilon)
+                            else:
+                                # Line segment hull — thin rectangle around it
+                                # so OGR's union has a valid 2D geometry.
+                                # Offset perpendicular to the segment.
+                                dx, dy = x2 - x1, y2 - y1
+                                length = (dx * dx + dy * dy) ** 0.5 or 1.0
+                                nx, ny = -dy / length * epsilon, dx / length * epsilon
+                                box.AddPoint(x1 + nx, y1 + ny)
+                                box.AddPoint(x2 + nx, y2 + ny)
+                                box.AddPoint(x2 - nx, y2 - ny)
+                                box.AddPoint(x1 - nx, y1 - ny)
+                                box.AddPoint(x1 + nx, y1 + ny)  # close ring
+                        else:
+                            # 3+ vertices — proper polygon ring. The last
+                            # vertex may or may not equal the first (closed
+                            # ring); AddPoint handles either.
+                            for coord in bbox:
+                                box.AddPoint(coord[0], coord[1])
+                            # Ensure the ring closes.
+                            if bbox[0] != bbox[-1]:
+                                box.AddPoint(bbox[0][0], bbox[0][1])
                         polygon = ogr.Geometry(ogr.wkbPolygon)
-                        polygon.AddGeometry(ring)
+                        polygon.AddGeometry(box)
                     elif (
                         isinstance(bbox, list)
                         and len(bbox) == 1
@@ -933,12 +1043,18 @@ def tbox_merge(metadata, path, time_format=None):
 
     else:
         # Parse date strings flexibly (they may be in different formats)
+        # Two paths:
+        # 1) Standard stdlib parses (CE-only, supports time-of-day formats).
+        # 2) Signed ISO fallback for negative years / deep-time mentions
+        #    emitted by the text/NER pipeline (issue #112), which Python's
+        #    datetime cannot represent.
         _parse_formats = [
             "%Y-%m-%dT%H:%M:%SZ",
             "%Y-%m-%dT%H:%M:%S",
             "%Y-%m-%d",
         ]
-        parsed_boxes = []
+        parsed_boxes = []  # CE-range mentions, parsed to datetime
+        signed_boxes = []  # signed-ISO strings (year tuple, original string)
         for date_str in boxes:
             parsed = None
             for fmt in _parse_formats:
@@ -947,25 +1063,47 @@ def tbox_merge(metadata, path, time_format=None):
                     break
                 except ValueError:
                     continue
-            if parsed is None:
-                logger.warning(
-                    "Cannot parse date '{}' in tbox_merge, skipping".format(date_str)
-                )
+            if parsed is not None:
+                parsed_boxes.append(parsed)
                 continue
-            parsed_boxes.append(parsed)
+            signed = parse_signed_iso(date_str)
+            if signed is not None:
+                signed_boxes.append((signed, date_str))
+                continue
+            logger.warning(
+                "Cannot parse date '{}' in tbox_merge, skipping".format(date_str)
+            )
 
-        if not parsed_boxes:
+        if not parsed_boxes and not signed_boxes:
             return None
 
-        out_fmt = resolve_time_format(time_format)
-        min_date = min(parsed_boxes).strftime(out_fmt)
-        max_date = max(parsed_boxes).strftime(out_fmt)
+        # If only CE dates are present, preserve the original behaviour
+        # (honour --time-format, including iso8601 with time-of-day).
+        if not signed_boxes:
+            out_fmt = resolve_time_format(time_format)
+            min_date = min(parsed_boxes).strftime(out_fmt)
+            max_date = max(parsed_boxes).strftime(out_fmt)
+            time_ext = [min_date, max_date]
+        else:
+            # Mixed (or deep-time) — fall back to signed ISO compare. Lift
+            # CE datetimes into signed-ISO tuples to compare uniformly.
+            tuples = list(signed_boxes)
+            for dt in parsed_boxes:
+                key = (dt.year, dt.month, dt.day)
+                tuples.append((key, signed_iso_format(dt.year, dt.month, dt.day)))
+            tuples.sort(key=lambda t: t[0])
+            time_ext = [tuples[0][1], tuples[-1][1]]
+            if time_format is not None:
+                logger.debug(
+                    "tbox_merge: --time-format is not applied when deep-time "
+                    "(pre-CE) mentions are present; signed ISO year format is used."
+                )
+
         logger.debug(
             "Folder {} contains {} files out of {} with identifiable temporal extent".format(
                 path, int(num_time_files), num_files
             )
         )
-        time_ext = [min_date, max_date]
 
     return time_ext
 
@@ -2012,7 +2150,29 @@ def filter_files_by_size(
     return selected_files, total_size, skipped_items
 
 
-def generate_geojsonio_url(extent_output, native_order=False, inputs=None):
+class GeojsonioUrlError(Exception):
+    """Raised by :func:`generate_geojsonio_url` when URL generation fails
+    *and* the caller asked to surface the underlying reason via
+    ``raise_on_error=True``. The default mode keeps the legacy return-None
+    behaviour so existing internal callers don't need to change."""
+
+
+# Threshold above which the ``geojsonio`` library switches from URL-fragment
+# encoding to anonymous-gist upload. Mirrors ``geojsonio.MAX_URL_LEN`` (150e3
+# bytes of GeoJSON content). geojson.io itself doesn't publish a maximum
+# payload size — this is purely the wrapper library's choice. Read from the
+# library at import time so the threshold stays in sync if it's ever bumped.
+try:
+    from geojsonio.geojsonio import MAX_URL_LEN as _GEOJSONIO_URL_FRAGMENT_LIMIT
+
+    _GEOJSONIO_URL_FRAGMENT_LIMIT = int(_GEOJSONIO_URL_FRAGMENT_LIMIT)
+except Exception:  # pragma: no cover - library API hasn't changed in years
+    _GEOJSONIO_URL_FRAGMENT_LIMIT = 150_000
+
+
+def generate_geojsonio_url(
+    extent_output, native_order=False, inputs=None, raise_on_error=False
+):
     """
     Generate a geojson.io URL for the spatial extent
     Always uses GeoJSON format with [lon, lat] coordinates per RFC 7946
@@ -2021,9 +2181,15 @@ def generate_geojsonio_url(extent_output, native_order=False, inputs=None):
         extent_output: Dict containing the geoextent output with bbox data
         native_order: If True, input is in EPSG:4326 native [lat, lon] order
         inputs: Optional list of original input identifiers (files, URLs, DOIs)
+        raise_on_error: If True, raise :class:`GeojsonioUrlError` when the
+            ``geojsonio.make_url`` call fails (e.g. GitHub Gist API rejecting
+            anonymous gist creation for large payloads). The "no bbox" case
+            still returns ``None`` — only network/service errors raise.
 
     Returns:
-        String containing the geojson.io URL, or None if no spatial extent available
+        String containing the geojson.io URL, or None if no spatial extent
+        available (or if the URL service call failed and
+        ``raise_on_error=False``).
     """
 
     if not extent_output or not extent_output.get("bbox"):
@@ -2038,19 +2204,52 @@ def generate_geojsonio_url(extent_output, native_order=False, inputs=None):
 
     # The format_extent_output function will return a FeatureCollection for GeoJSON format
     if geojson_output and geojson_output.get("type") == "FeatureCollection":
+        payload_size = 0
         try:
             # Inject original input identifiers into Feature properties
             if inputs and geojson_output.get("features"):
                 feature = geojson_output["features"][0]
                 feature["properties"]["inputs"] = inputs
 
-            # Generate URL using geojsonio
+            # Generate URL using geojsonio. The library encodes payloads
+            # below ~150 KB into the URL fragment (geojsonio's
+            # ``MAX_URL_LEN = 150e3``); larger payloads are routed to an
+            # anonymous GitHub Gist upload, which now returns 401 because
+            # anonymous gist creation requires auth — the exception below
+            # surfaces that to the caller. geojson.io itself does not
+            # document a maximum payload size in its API docs
+            # (https://github.com/mapbox/geojson.io/blob/main/API.md);
+            # 150 KB is purely the library's choice.
             geojson_string = json.dumps(geojson_output)
+            payload_size = len(geojson_string)
             url = geojsonio.make_url(geojson_string)
             return url
         except Exception as e:
             logger = logging.getLogger("geoextent")
-            logger.warning(f"Error generating geojson.io URL: {e}")
+            too_big = payload_size > _GEOJSONIO_URL_FRAGMENT_LIMIT
+            endpoint = (
+                "geojsonio.make_url → GitHub Gist API "
+                "(anonymous gist fallback for GeoJSON > ~150 KB)"
+                if too_big
+                else "geojsonio.make_url"
+            )
+            hint = (
+                " — try --convex-hull to reduce geometry complexity, or "
+                "drop optional fields that bloat properties"
+                if too_big
+                else ""
+            )
+            logger.warning(
+                "Error from %s: %s (payload size %d bytes)%s",
+                endpoint,
+                e,
+                payload_size,
+                hint,
+            )
+            if raise_on_error:
+                raise GeojsonioUrlError(
+                    f"{endpoint}: {e} (payload size {payload_size} bytes){hint}"
+                ) from e
             return None
 
     # Fallback to original logic for cases where format_extent_output doesn't return FeatureCollection
@@ -2079,6 +2278,7 @@ def generate_geojsonio_url(extent_output, native_order=False, inputs=None):
     if not geojson_geom:
         return None
 
+    payload_size = 0
     try:
         # Create a feature with the geometry
         properties = {
@@ -2097,12 +2297,29 @@ def generate_geojsonio_url(extent_output, native_order=False, inputs=None):
         # Create a feature collection
         feature_collection = {"type": "FeatureCollection", "features": [feature]}
 
-        # Generate URL using geojsonio
+        # Generate URL using geojsonio (see note in main branch above re:
+        # gist fallback for large payloads).
         geojson_string = json.dumps(feature_collection)
+        payload_size = len(geojson_string)
         url = geojsonio.make_url(geojson_string)
 
         return url
     except Exception as e:
         logger = logging.getLogger("geoextent")
-        logger.warning(f"Error generating geojson.io URL: {e}")
+        endpoint = (
+            "geojsonio.make_url → GitHub Gist API "
+            "(anonymous gist fallback for GeoJSON > ~27 KB)"
+            if payload_size > 27000
+            else "geojsonio.make_url"
+        )
+        logger.warning(
+            "Error from %s: %s (payload size %d bytes)",
+            endpoint,
+            e,
+            payload_size,
+        )
+        if raise_on_error:
+            raise GeojsonioUrlError(
+                f"{endpoint}: {e} (payload size {payload_size} bytes)"
+            ) from e
         return None

@@ -20,7 +20,7 @@ def get_handler_display_name():
     return "Raster data"
 
 
-def check_file_supported(filepath):
+def check_file_supported(filepath, **_kwargs):
     """Checks whether it is valid raster file or not. \n
     input "path": type string, path to file which shall be extracted \n
     raise exception if not valid
@@ -53,7 +53,7 @@ def check_file_supported(filepath):
         return False
 
 
-def get_bounding_box(filepath, assume_wgs84=False):
+def get_bounding_box(filepath, assume_wgs84=False, **_kwargs):
     """extracts bounding box from raster \n
     input "filepath": type string, file path to raster file \n
     input "assume_wgs84": type bool, if True assume WGS84 for ungeoreferenced rasters (default False) \n
@@ -341,7 +341,7 @@ def _parse_imagery_acquisition_time(ds, time_format=None):
     return [min_date.strftime(out_fmt), max_date.strftime(out_fmt)]
 
 
-def get_temporal_extent(filepath, time_format=None):
+def get_temporal_extent(filepath, time_format=None, **_kwargs):
     """Extract temporal extent from raster files.
 
     Tries metadata sources in this order, returning the first non-None result:

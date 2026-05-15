@@ -8,7 +8,8 @@ Python library for extracting geospatial and temporal extents from files and dir
 **Key Capabilities:**
 
 - Extract spatial extents (bounding boxes, convex hulls) and temporal extents
-- Support for 10+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf, Esri File Geodatabase) plus world files
+- Support for 10+ file formats (GeoJSON, CSV, Shapefile, GeoTIFF, GeoPackage, GPX, GML, KML, FlatGeobuf, Esri File Geodatabase, LAS/LAZ point clouds) plus world files
+- Plain-text inputs via spaCy named entity recognition + place and time-period gazetteers; recognises calendar dates, decade/century envelopes, ranges, and named geological periods (ICS GTS2020)
 - Direct integration with [35 research repositories](https://nuest.github.io/geoextent/providers.html) ([Zenodo](https://zenodo.org/), [PANGAEA](https://www.pangaea.de/), [OSF](https://osf.io/), [Figshare](https://figshare.com/), [4TU.ResearchData](https://data.4tu.nl/), [Dryad](https://datadryad.org/), [GFZ](https://dataservices.gfz-potsdam.de/), [RADAR](https://www.radar-service.eu/), [Arctic Data Center](https://arcticdata.io/), [DataONE](https://www.dataone.org/), [B2SHARE](https://b2share.eudat.eu/), [MDI-DE](https://www.mdi-de.org/), [GDI-DE](https://www.geoportal.de/), [NFDI4Earth](https://onestop4all.nfdi4earth.de/), [SEANOE](https://www.seanoe.org/), [GeoScienceWorld](https://pubs.geoscienceworld.org/), [UKCEH](https://catalogue.ceh.ac.uk/), [GBIF](https://www.gbif.org/), [DEIMS-SDR](https://deims.org/), [HALO DB](https://halo-db.pa.op.dlr.de/), [GitHub](https://github.com/), [GitLab](https://gitlab.com/), [Software Heritage](https://www.softwareheritage.org/), [Dataverse](https://dataverse.org/) [[Harvard](https://dataverse.harvard.edu/), [DataverseNL](https://dataverse.nl/), [DataverseNO](https://dataverse.no/), [UNC](https://dataverse.unc.edu/), [UVA](https://data.library.virginia.edu/), [Recherche Data Gouv](https://recherche.data.gouv.fr/), [ioerDATA](https://data.fdz.ioer.de/), [heiDATA](https://heidata.uni-heidelberg.de/), [Edmond](https://edmond.mpg.de/)], [Pensoft](https://pensoft.net/), [TU Dresden Opara](https://opara.zih.tu-dresden.de/), [Senckenberg](https://dataportal.senckenberg.de/), [BGR](https://geoportal.bgr.de/), [BAW](https://datenrepository.baw.de/), [Mendeley Data](https://data.mendeley.com/)), [Wikidata](https://www.wikidata.org/), any [STAC](https://stacspec.org/) catalog, and any [CKAN](https://ckan.org/) instance (e.g. [data.gov.uk](https://ckan.publishing.service.gov.uk/), [GovData.de](https://ckan.govdata.de/), [data.gov.au](https://data.gov.au/), [data.gov.ie](https://data.gov.ie/))
 - Process single files, directories, or multiple repositories in one call
 - Command-line interface and Python API
@@ -43,7 +44,11 @@ geoextent -b -t tests/testdata/geojson/muenster_ring_zeit.geojson tests/testdata
 # Extract from multiple repositories (returns merged geometry)
 python -m geoextent -b 10.5281/zenodo.123 10.25532/OPARA-456
 
-# Extract convex hull from multiple Wikidata items and open in geojson.io
+# Extract convex hull from multiple Wikidata items and open in geojson.io.
+# --convex-hull keeps the GeoJSON payload under the 150 KB URL-fragment limit
+# of the geojsonio wrapper; the anonymous-gist fallback for larger payloads
+# is no longer reachable since GitHub requires auth for gist creation.
+# See the text-extraction guide for details.
 python -m geoextent -b --convex-hull --geojsonio Q64 Q35 Q60786916
 
 # Parallel extraction from a directory (auto-detect CPU cores)
@@ -51,7 +56,61 @@ geoextent -p -b -t path/to/geodata_directory
 
 # Parallel extraction with 4 workers
 geoextent -p 4 -b -t path/to/geodata_directory
+
+# Extract place names from free text — spaCy NER + Nominatim by default,
+# no API key required. Install the optional extra and English model once:
+#   pip install geoextent[nlp] && python -m spacy download en_core_web_sm
+geoextent -b --text "Field campaigns in Berlin and Paris"
+echo "Workshops in Tokyo and London" | geoextent -b -
+geoextent -b notes.md
+
+# Keep the highest-ranked gazetteer match instead of dropping ambiguous names
+geoextent -b --ner-ambiguity top --text "Field campaigns in Berlin and Paris"
+
+# Administrative boundaries: Nominatim returns the polygon of areal features,
+# so a state name resolves to its bounding polygon rather than a centroid.
+geoextent -b --ner-ambiguity top --text "Field campaign in Saxony"
+# Force the centroid instead with --place-geometry point
+geoextent -b --ner-ambiguity top --place-geometry point --text "Field campaign in Saxony"
+
+# Extract a temporal extent from text — calendar dates, decades, centuries,
+# ranges, and named geological time periods (ICS GTS2020 bundled gazetteer)
+geoextent -t --text "Monitoring ran between 2010 and 2015"
+# → "tbox": ["2010-01-01", "2015-12-31"]
+geoextent -t --text "Sediment cores from the Holocene"
+# → "tbox": ["-9750-01-01", "1950-01-01"]  (signed ISO 8601: years before 1 BCE
+#    are prefixed with `-`; deep-time periods like the Mesozoic produce
+#    long-year strings such as "-251900050-01-01")
+geoextent -b -t --text "Pleistocene cores near Berlin re-surveyed on 2024-05-12"
+
+# Show the source text with matched place names and periods highlighted
+geoextent -b -t --annotate brackets \
+  --text "Sediment cores in Berlin span the Holocene; resurvey on 2024-05-12"
+# → ...JSON...
+# → ---annotated source (brackets)---
+# → Sediment cores in [[Berlin|place]] span the [[Holocene|period]]; resurvey on [[2024-05-12|date]]
+
+# Disable text extraction (e.g. when processing directories of structured
+# data and you don't want README.md to be NER-ed)
+geoextent -b -t --text-method none path/to/data_dir
 ```
+
+For each matched place / date / period, geoextent also emits standoff
+`char_start` / `char_end` offsets into the (NFC-normalised) source so
+external tools can highlight matches independently:
+
+```python
+from geoextent.lib import extent
+result = extent.from_text("Sediment cores in Berlin span the Holocene.",
+                          bbox=True, tbox=True,
+                          ner_ambiguity="top")
+src = result["source_text"]
+for rec in result["place_names"] + result["date_entities"]:
+    s, e = rec["char_start"], rec["char_end"]
+    print(f"{rec.get('kind', 'place'):6} {src[s:e]!r} → {rec.get('gazetteer_url') or rec.get('start')}")
+```
+
+See [the text-extraction guide](https://nuest.github.io/geoextent/howto/text-extraction.html) for examples and gotchas, or [the highlighting guide](https://nuest.github.io/geoextent/howto/highlighting.html) for the offset contract and a JS/Java re-encoding recipe.
 
 See the [CLI guide](https://nuest.github.io/geoextent/howto/cli.html) for all options.
 
@@ -156,3 +215,18 @@ If you use geoextent in your research, please cite:
 This software is published under the MIT license. See the `LICENSE` file for details.
 
 This documentation is published under a Creative Commons CC0 1.0 Universal License.
+
+### Bundled third-party material
+
+- `geoextent/lib/data/periods.json` — the named-time-period gazetteer used by
+  the text/NER source. Derived from the **International Chronostratigraphic
+  Chart** (ICS / IUGS, GTS2020 vocabulary), distributed by CGI-IUGS at
+  <https://github.com/CGI-IUGS/timescale-data> and dedicated to the public
+  domain under **CC0-1.0**
+  (<https://creativecommons.org/publicdomain/zero/1.0/>). The file embeds the
+  upstream commit SHA, build timestamp, and full attribution string in its
+  metadata block; run `geoextent --list-periods` to read it.
+- The DOI regex and helper functions in `geoextent/lib/helpfunctions.py` are
+  derived from [`idutils`](https://github.com/inveniosoftware/idutils)
+  (© 2015-2018 CERN; © 2018 Alan Rubin) under **BSD-3-Clause**, as noted
+  inline.

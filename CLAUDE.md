@@ -21,13 +21,14 @@ This project is currently in version 0.x, which means:
 1. **from_file()** - Extract extent from individual files
 2. **from_directory()** - Extract extent from directories (supports `workers` parameter for parallel extraction)
 3. **from_remote()** - Extract extent from remote sources (repositories, journals, preprint servers; supports `workers` parameter)
+4. **from_text()** - Extract extent from a free-text string via NER + a gazetteer (issue #112; requires `[nlp]` extra)
 
 ### Function Naming Convention
 
 All functions use **snake_case** per PEP 8:
-- `from_file`, `from_directory`, `from_remote` (public API)
-- `handle_csv`, `handle_raster`, `handle_vector` (handler modules)
-- `check_file_supported`, `get_bounding_box`, `get_temporal_extent`, `get_convex_hull` (handler functions)
+- `from_file`, `from_directory`, `from_remote`, `from_text` (public API)
+- `handle_csv`, `handle_raster`, `handle_vector`, `handle_pointcloud`, `handle_text` (handler modules)
+- `check_file_supported`, `get_bounding_box`, `get_temporal_extent`, `get_convex_hull` (handler functions; all accept `**kwargs` so handler-specific config like `text_method`/NER kwargs can flow through dispatch without each handler having to declare them)
 
 ### Recent Breaking Changes
 
@@ -35,6 +36,52 @@ All functions use **snake_case** per PEP 8:
 - **v0.8.0**: Renamed parameter `repository_identifier` to `remote_identifier`
 - **v0.8.0**: Changed format metadata from `"repository"` to `"remote"`
 - **v0.8.0**: Standardized internal data structures to use GeoJSON format
+
+### Standoff Annotation Contract (text/NER)
+
+Every place / date / period mention emitted by ``handle_text`` carries
+``char_start`` and ``char_end`` indices into the NFC-normalised source
+string. The pipeline echoes that source back as ``source_text`` (suppress
+with ``--no-source-text`` / ``include_source_text=False``) plus two
+contract fields:
+
+- ``source_offset_unit`` — always ``"python_codepoint"``. Indices count
+  Unicode code points (Python ``len(str)`` semantics). UTF-16 (JS/Java)
+  and byte-counting (Rust/Go) consumers must re-encode.
+- ``source_normalisation`` — always ``"nfc"``. Inputs are NFC-normalised
+  before tokenising; offsets index into the normalised form, not the
+  caller's original. A leading BOM is stripped.
+
+The renderer (``geoextent/lib/annotate.py``) reads these fields and
+produces human-readable output via the ``--annotate {auto,ansi,brackets,off}``
+CLI flag. Overlapping spans resolve greedy-longest-wins, matching the
+rule already enforced by ``text_extraction.periods.extract_periods``.
+
+When adding new mention kinds, populate ``char_start``/``char_end``
+explicitly (do not let them default to ``None``); the annotator skips
+records that lack offsets, and the offset round-trip test in
+``tests/test_api_text_offsets.py`` will catch regressions.
+
+### Temporal Output Format
+
+Most temporal extents are emitted as ``%Y-%m-%d`` strings (or whatever the user
+selected via ``--time-format`` / ``time_format=``). For inputs that contain
+**pre-CE / deep-time** mentions — including geological periods resolved from
+the text/NER source (issue #112) — geoextent uses **signed ISO 8601 extended
+year** strings:
+
+- Holocene: ``["-9750-01-01", "1950-01-01"]``
+- Mesozoic Era: ``["-251900050-01-01", "-65998050-01-01"]``
+- CE-only inputs (any other handler, or text without geological mentions):
+  format unchanged.
+
+Lexicographic compare is NOT correct on signed-year strings (because ``"-2"``
+< ``"-9"`` lexicographically but -2 > -9 numerically); the helpers
+``signed_iso_format``, ``parse_signed_iso``, ``signed_iso_min``,
+``signed_iso_max`` in ``helpfunctions.py`` provide numeric ordering. Any new
+temporal aggregator that needs to handle deep-time output must use those
+helpers rather than ``min(...)``/``max(...)`` on the strings directly.
+``tbox_merge`` does this transparently.
 
 ### Coordinate Format Standards
 
@@ -235,6 +282,7 @@ The project follows a modular handler-based architecture:
    - `handle_raster.py` - Raster data (GeoTIFF, Zarr, world files) processing using GDAL. Zarr stores (V2 and V3) are directory-based datasets handled like `.gdb` — routed to `from_file()` instead of being recursed into. Temporal extraction supports: NetCDF CF time dimensions, ACDD `time_coverage_start/end`, GeoTIFF `TIFFTAG_DATETIME`, and band-level `ACQUISITIONDATETIME` (IMAGERY domain)
    - `handle_vector.py` - Vector data (Shapefile, GeoJSON) processing using OGR
    - `handle_pointcloud.py` - Point cloud data (LAS/LAZ) processing using laspy. Header-only bounding box extraction (no point loading). Temporal extent from LAS header creation date. CRS via GeoTIFF VLR keys (`parse_crs()`).
+   - `handle_text.py` - Plain-text inputs via spaCy NER (issue #112). Detects `LOC`/`GPE` place mentions, `DATE`/`TIME` calendar mentions, and named time-period mentions (via spaCy `PhraseMatcher` over the bundled ICS GTS2020 chart). Forward-geocodes places via `gazetteer.forward_geocode_names` (default backend: **Nominatim**, no API key needed) and resolves periods via `period_gazetteer.forward_geocode_periods`. Returns an envelope of resolved points + `place_names` provenance plus a `tbox` envelope + per-mention `date_entities` provenance (each tagged `kind: "date"` or `"period"`). On-by-default: `--text-method` defaults to `"ner"`, so plain-text inputs are processed automatically. Disable with `--text-method none`. A `_spacy_available()` guard in `check_file_supported` makes the handler silently decline when the optional `[nlp]` extra is not installed, so pre-existing workflows that happen to include `README.md` keep working. Backed by `geoextent.lib.text_extraction` (with `dates.py` for range/decade/century parsing and `periods.py` for the matcher), `geoextent.lib.period_gazetteer` (bundled ICS, ~178 geological units), and the `[nlp]` extra (`pip install geoextent[nlp]`).
    - `helpfunctions.py` - Utility functions for CRS transformations and validation
 
 3. **Content Providers** (in `geoextent/lib/content_providers/`):

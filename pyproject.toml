@@ -82,6 +82,9 @@ docs = [
         "sphinxcontrib.autoprogram",
         "sphinx-issues"]
 preview = ["staticmap>=0.5.5", "term-image>=0.7,<0.8"]
+nlp = [
+    "spacy>=3.7",
+]
 
 [project.scripts]
 geoextent = "geoextent.__main__:main"

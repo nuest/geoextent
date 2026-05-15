@@ -20,7 +20,7 @@ def get_handler_display_name():
     return "Point cloud data"
 
 
-def check_file_supported(filepath):
+def check_file_supported(filepath, **_kwargs):
     """Check whether the file is a valid LAS/LAZ point cloud file.
 
     Verifies the file extension (.las or .laz, case-insensitive) and then
@@ -55,7 +55,7 @@ def check_file_supported(filepath):
         return False
 
 
-def get_bounding_box(filepath):
+def get_bounding_box(filepath, **_kwargs):
     """Extract bounding box from LAS/LAZ file header.
 
     Reads only the file header (no point data loaded), extracts min/max
@@ -150,7 +150,7 @@ def get_bounding_box(filepath):
         return None
 
 
-def get_temporal_extent(filepath, time_format=None):
+def get_temporal_extent(filepath, time_format=None, **_kwargs):
     """Extract temporal extent from LAS/LAZ file header creation date.
 
     The LAS specification includes a creation date (year + day-of-year) in

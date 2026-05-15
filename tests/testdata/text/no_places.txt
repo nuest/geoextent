@@ -1,0 +1,2 @@
+This is an abstract paragraph that has no geographic information whatsoever.
+The authors describe the methodology and main results in technical terms only.

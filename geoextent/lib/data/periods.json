@@ -1,0 +1,2156 @@
+{
+  "name": "geoextent bundled period gazetteer",
+  "schema_version": "1.0",
+  "source": "ICS International Chronostratigraphic Chart (GTS2020)",
+  "source_url": "https://github.com/CGI-IUGS/timescale-data",
+  "source_file": "https://raw.githubusercontent.com/CGI-IUGS/timescale-data/master/rdf/isc2020.ttl",
+  "source_revision": "e7f62800e7684a664de98118a5a117adb1b82eec",
+  "source_revision_date": "2020-10-21T04:25:56Z",
+  "source_last_modified": null,
+  "license": "CC0-1.0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "attribution": "International Chronostratigraphic Chart (ICS / IUGS), GTS2020 vocabulary, dedicated to the public domain (CC0-1.0). Distributed by CGI-IUGS at https://github.com/CGI-IUGS/timescale-data .",
+  "built_at": "2026-05-11T21:43:20Z",
+  "built_by": "geoextent tools/build_periods_data.py",
+  "ma_bp_origin_year": 1950,
+  "period_count": 178,
+  "skipped_no_bounds": 0,
+  "periods": [
+    {
+      "name": "Aalenian",
+      "aliases": [
+        "Aalenian Age"
+      ],
+      "start": "-174098050-01-01",
+      "end": "-170298050-01-01",
+      "id": "ics:Aalenian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Aalenian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Aeronian",
+      "aliases": [
+        "Aeronian Age"
+      ],
+      "start": "-440798050-01-01",
+      "end": "-438498050-01-01",
+      "id": "ics:Aeronian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Aeronian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Albian",
+      "aliases": [
+        "Albian Age"
+      ],
+      "start": "-112998050-01-01",
+      "end": "-100498050-01-01",
+      "id": "ics:Albian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Albian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Anisian",
+      "aliases": [
+        "Anisian Age"
+      ],
+      "start": "-247198050-01-01",
+      "end": "-241998050-01-01",
+      "id": "ics:Anisian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Anisian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Aptian",
+      "aliases": [
+        "Aptian Age"
+      ],
+      "start": "-124998050-01-01",
+      "end": "-112998050-01-01",
+      "id": "ics:Aptian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Aptian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Aquitanian",
+      "aliases": [
+        "Aquitanian Age"
+      ],
+      "start": "-23028050-01-01",
+      "end": "-20438050-01-01",
+      "id": "ics:Aquitanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Aquitanian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Archean",
+      "aliases": [
+        "Archean Eon"
+      ],
+      "start": "-3999998050-01-01",
+      "end": "-2499998050-01-01",
+      "id": "ics:Archean",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Archean",
+      "source": "ICS GTS2020",
+      "rank": "Eon"
+    },
+    {
+      "name": "Artinskian",
+      "aliases": [
+        "Artinskian Age"
+      ],
+      "start": "-290098050-01-01",
+      "end": "-283498050-01-01",
+      "id": "ics:Artinskian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Artinskian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Asselian",
+      "aliases": [
+        "Asselian Age"
+      ],
+      "start": "-298898050-01-01",
+      "end": "-294998050-01-01",
+      "id": "ics:Asselian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Asselian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Bajocian",
+      "aliases": [
+        "Bajocian Age"
+      ],
+      "start": "-170298050-01-01",
+      "end": "-168298050-01-01",
+      "id": "ics:Bajocian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Bajocian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Barremian",
+      "aliases": [
+        "Barremian Age"
+      ],
+      "start": "-129398050-01-01",
+      "end": "-124998050-01-01",
+      "id": "ics:Barremian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Barremian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Bartonian",
+      "aliases": [
+        "Bartonian Age"
+      ],
+      "start": "-41198050-01-01",
+      "end": "-37798050-01-01",
+      "id": "ics:Bartonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Bartonian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Bashkirian",
+      "aliases": [
+        "Bashkirian Age"
+      ],
+      "start": "-323198050-01-01",
+      "end": "-315198050-01-01",
+      "id": "ics:Bashkirian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Bashkirian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Bathonian",
+      "aliases": [
+        "Bathonian Age"
+      ],
+      "start": "-168298050-01-01",
+      "end": "-166098050-01-01",
+      "id": "ics:Bathonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Bathonian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Berriasian",
+      "aliases": [
+        "Berriasian Age"
+      ],
+      "start": "-144998050-01-01",
+      "end": "-139798050-01-01",
+      "id": "ics:Berriasian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Berriasian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Burdigalian",
+      "aliases": [
+        "Burdigalian Age"
+      ],
+      "start": "-20438050-01-01",
+      "end": "-15968050-01-01",
+      "id": "ics:Burdigalian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Burdigalian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Calabrian",
+      "aliases": [
+        "Calabrian Age"
+      ],
+      "start": "-1798050-01-01",
+      "end": "-779050-01-01",
+      "id": "ics:Calabrian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Calabrian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Callovian",
+      "aliases": [
+        "Callovian Age"
+      ],
+      "start": "-166098050-01-01",
+      "end": "-163498050-01-01",
+      "id": "ics:Callovian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Callovian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Calymmian",
+      "aliases": [
+        "Calymmian Period"
+      ],
+      "start": "-1599998050-01-01",
+      "end": "-1399998050-01-01",
+      "id": "ics:Calymmian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Calymmian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Cambrian",
+      "aliases": [
+        "Cambrian Period"
+      ],
+      "start": "-540998050-01-01",
+      "end": "-485398050-01-01",
+      "id": "ics:Cambrian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Cambrian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Cambrian Series 2",
+      "aliases": [
+        "Cambrian Series 2 Epoch"
+      ],
+      "start": "-520998050-01-01",
+      "end": "-508998050-01-01",
+      "id": "ics:CambrianSeries2",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/CambrianSeries2",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Cambrian-Stage 10",
+      "aliases": [
+        "Cambrian Stage 10 Age"
+      ],
+      "start": "-489498050-01-01",
+      "end": "-485398050-01-01",
+      "id": "ics:CambrianStage10",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/CambrianStage10",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Cambrian-Stage 2",
+      "aliases": [
+        "Cambrian Stage 2 Age"
+      ],
+      "start": "-528998050-01-01",
+      "end": "-520998050-01-01",
+      "id": "ics:CambrianStage2",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/CambrianStage2",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Cambrian-Stage 3",
+      "aliases": [
+        "Cambrian Stage 3 Age"
+      ],
+      "start": "-520998050-01-01",
+      "end": "-513998050-01-01",
+      "id": "ics:CambrianStage3",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/CambrianStage3",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Cambrian-Stage 4",
+      "aliases": [
+        "Cambrian Stage 4 Age"
+      ],
+      "start": "-513998050-01-01",
+      "end": "-508998050-01-01",
+      "id": "ics:CambrianStage4",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/CambrianStage4",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Campanian",
+      "aliases": [
+        "Campanian Age"
+      ],
+      "start": "-83598050-01-01",
+      "end": "-72098050-01-01",
+      "id": "ics:Campanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Campanian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Capitanian",
+      "aliases": [
+        "Capitanian Age"
+      ],
+      "start": "-265098050-01-01",
+      "end": "-259098050-01-01",
+      "id": "ics:Capitanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Capitanian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Carboniferous",
+      "aliases": [
+        "Carboniferous Period"
+      ],
+      "start": "-358898050-01-01",
+      "end": "-298898050-01-01",
+      "id": "ics:Carboniferous",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Carboniferous",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Carnian",
+      "aliases": [
+        "Carnian Age"
+      ],
+      "start": "-236998050-01-01",
+      "end": "-226998050-01-01",
+      "id": "ics:Carnian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Carnian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Cenomanian",
+      "aliases": [
+        "Cenomanian Age"
+      ],
+      "start": "-100498050-01-01",
+      "end": "-93898050-01-01",
+      "id": "ics:Cenomanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Cenomanian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Cenozoic",
+      "aliases": [
+        "Cenozoic Era"
+      ],
+      "start": "-65998050-01-01",
+      "end": "1950-01-01",
+      "id": "ics:Cenozoic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Cenozoic",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Changhsingian",
+      "aliases": [
+        "Changhsingian Age"
+      ],
+      "start": "-254138050-01-01",
+      "end": "-251900050-01-01",
+      "id": "ics:Changhsingian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Changhsingian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Chattian",
+      "aliases": [
+        "Chattian Age"
+      ],
+      "start": "-27818050-01-01",
+      "end": "-23028050-01-01",
+      "id": "ics:Chattian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Chattian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Chibanian",
+      "aliases": [
+        "Chibanian Age"
+      ],
+      "start": "-779050-01-01",
+      "end": "-124050-01-01",
+      "id": "ics:MiddlePleistocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/MiddlePleistocene",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Cisuralian",
+      "aliases": [
+        "Cisuralian Epoch"
+      ],
+      "start": "-298898050-01-01",
+      "end": "-272948050-01-01",
+      "id": "ics:Cisuralian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Cisuralian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Coniacian",
+      "aliases": [
+        "Coniacian Age"
+      ],
+      "start": "-89798050-01-01",
+      "end": "-86298050-01-01",
+      "id": "ics:Coniacian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Coniacian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Cretaceous",
+      "aliases": [
+        "Cretaceous Period"
+      ],
+      "start": "-144998050-01-01",
+      "end": "-65998050-01-01",
+      "id": "ics:Cretaceous",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Cretaceous",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Cryogenian",
+      "aliases": [
+        "Cryogenian Period"
+      ],
+      "start": "-719998050-01-01",
+      "end": "-634998050-01-01",
+      "id": "ics:Cryogenian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Cryogenian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Danian",
+      "aliases": [
+        "Danian Age"
+      ],
+      "start": "-65998050-01-01",
+      "end": "-61598050-01-01",
+      "id": "ics:Danian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Danian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Dapingian",
+      "aliases": [
+        "Dapingian Age"
+      ],
+      "start": "-469998050-01-01",
+      "end": "-467298050-01-01",
+      "id": "ics:Dapingian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Dapingian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Darriwilian",
+      "aliases": [
+        "Darriwilian Age"
+      ],
+      "start": "-467298050-01-01",
+      "end": "-458398050-01-01",
+      "id": "ics:Darriwilian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Darriwilian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Devonian",
+      "aliases": [
+        "Devonian Period"
+      ],
+      "start": "-419198050-01-01",
+      "end": "-358898050-01-01",
+      "id": "ics:Devonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Devonian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Drumian",
+      "aliases": [
+        "Drumian Age"
+      ],
+      "start": "-504498050-01-01",
+      "end": "-500498050-01-01",
+      "id": "ics:Drumian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Drumian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Early Cretaceous",
+      "aliases": [
+        "Early Cretaceous Epoch"
+      ],
+      "start": "-144998050-01-01",
+      "end": "-100498050-01-01",
+      "id": "ics:LowerCretaceous",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/LowerCretaceous",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Early Devonian",
+      "aliases": [
+        "Early Devonian Epoch"
+      ],
+      "start": "-419198050-01-01",
+      "end": "-393298050-01-01",
+      "id": "ics:LowerDevonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/LowerDevonian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Early Jurassic",
+      "aliases": [
+        "Early Jurassic Epoch"
+      ],
+      "start": "-201298050-01-01",
+      "end": "-174098050-01-01",
+      "id": "ics:LowerJurassic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/LowerJurassic",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Early Mississippian",
+      "aliases": [
+        "Early Mississippian Epoch"
+      ],
+      "start": "-358898050-01-01",
+      "end": "-346698050-01-01",
+      "id": "ics:LowerMississippian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/LowerMississippian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Early Ordovician",
+      "aliases": [
+        "Early Ordovician Epoch"
+      ],
+      "start": "-485398050-01-01",
+      "end": "-469998050-01-01",
+      "id": "ics:LowerOrdovician",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/LowerOrdovician",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Early Pennsylvanian",
+      "aliases": [
+        "Early Pennsylvanian Epoch"
+      ],
+      "start": "-323198050-01-01",
+      "end": "-315198050-01-01",
+      "id": "ics:LowerPennsylvanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/LowerPennsylvanian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Early Triassic",
+      "aliases": [
+        "Early Triassic Epoch"
+      ],
+      "start": "-251900050-01-01",
+      "end": "-247198050-01-01",
+      "id": "ics:LowerTriassic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/LowerTriassic",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Ectasian",
+      "aliases": [
+        "Ectasian Period"
+      ],
+      "start": "-1399998050-01-01",
+      "end": "-1199998050-01-01",
+      "id": "ics:Ectasian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Ectasian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Ediacaran",
+      "aliases": [
+        "Ediacaran Period"
+      ],
+      "start": "-634998050-01-01",
+      "end": "-540998050-01-01",
+      "id": "ics:Ediacaran",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Ediacaran",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Eifelian",
+      "aliases": [
+        "Eifelian Age"
+      ],
+      "start": "-393298050-01-01",
+      "end": "-387698050-01-01",
+      "id": "ics:Eifelian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Eifelian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Emsian",
+      "aliases": [
+        "Emsian Age"
+      ],
+      "start": "-407598050-01-01",
+      "end": "-393298050-01-01",
+      "id": "ics:Emsian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Emsian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Eoarchean",
+      "aliases": [
+        "Eoarchean Era"
+      ],
+      "start": "-3999998050-01-01",
+      "end": "-3599998050-01-01",
+      "id": "ics:Eoarchean",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Eoarchean",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Eocene",
+      "aliases": [
+        "Eocene Epoch"
+      ],
+      "start": "-55998050-01-01",
+      "end": "-33898050-01-01",
+      "id": "ics:Eocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Eocene",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Famennian",
+      "aliases": [
+        "Famennian Age"
+      ],
+      "start": "-372198050-01-01",
+      "end": "-358898050-01-01",
+      "id": "ics:Famennian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Famennian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Floian",
+      "aliases": [
+        "Floian Age"
+      ],
+      "start": "-477698050-01-01",
+      "end": "-469998050-01-01",
+      "id": "ics:Floian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Floian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Fortunian",
+      "aliases": [
+        "Fortunian Age"
+      ],
+      "start": "-540998050-01-01",
+      "end": "-528998050-01-01",
+      "id": "ics:Fortunian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Fortunian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Frasnian",
+      "aliases": [
+        "Frasnian Age"
+      ],
+      "start": "-382698050-01-01",
+      "end": "-372198050-01-01",
+      "id": "ics:Frasnian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Frasnian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Furongian",
+      "aliases": [
+        "Furongian Epoch"
+      ],
+      "start": "-496998050-01-01",
+      "end": "-485398050-01-01",
+      "id": "ics:Furongian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Furongian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Gelasian",
+      "aliases": [
+        "Gelasian Age"
+      ],
+      "start": "-2578050-01-01",
+      "end": "-1798050-01-01",
+      "id": "ics:Gelasian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Gelasian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Givetian",
+      "aliases": [
+        "Givetian Age"
+      ],
+      "start": "-387698050-01-01",
+      "end": "-382698050-01-01",
+      "id": "ics:Givetian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Givetian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Gorstian",
+      "aliases": [
+        "Gorstian Age"
+      ],
+      "start": "-427398050-01-01",
+      "end": "-425598050-01-01",
+      "id": "ics:Gorstian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Gorstian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Greenlandian",
+      "aliases": [
+        "Greenlandian Age"
+      ],
+      "start": "-9750-01-01",
+      "end": "-6250-01-01",
+      "id": "ics:Greenlandian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Greenlandian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Guadalupian",
+      "aliases": [
+        "Guadalupian Epoch"
+      ],
+      "start": "-272948050-01-01",
+      "end": "-259098050-01-01",
+      "id": "ics:Guadalupian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Guadalupian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Guzhangian",
+      "aliases": [
+        "Guzhangian Age"
+      ],
+      "start": "-500498050-01-01",
+      "end": "-496998050-01-01",
+      "id": "ics:Guzhangian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Guzhangian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Gzhelian",
+      "aliases": [
+        "Gzhelian Age"
+      ],
+      "start": "-303698050-01-01",
+      "end": "-298898050-01-01",
+      "id": "ics:Gzhelian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Gzhelian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Hadean",
+      "aliases": [
+        "Hadean Eon"
+      ],
+      "start": "-4566998050-01-01",
+      "end": "-3999998050-01-01",
+      "id": "ics:Hadean",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Hadean",
+      "source": "ICS GTS2020",
+      "rank": "Eon"
+    },
+    {
+      "name": "Hauterivian",
+      "aliases": [
+        "Hauterivian Age"
+      ],
+      "start": "-132898050-01-01",
+      "end": "-129398050-01-01",
+      "id": "ics:Hauterivian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Hauterivian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Hettangian",
+      "aliases": [
+        "Hettangian Age"
+      ],
+      "start": "-201298050-01-01",
+      "end": "-199298050-01-01",
+      "id": "ics:Hettangian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Hettangian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Hirnantian",
+      "aliases": [
+        "Hirnantian Age"
+      ],
+      "start": "-445198050-01-01",
+      "end": "-443798050-01-01",
+      "id": "ics:Hirnantian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Hirnantian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Holocene",
+      "aliases": [
+        "Holocene Epoch"
+      ],
+      "start": "-9750-01-01",
+      "end": "1950-01-01",
+      "id": "ics:Holocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Holocene",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Homerian",
+      "aliases": [
+        "Homerian Age"
+      ],
+      "start": "-430498050-01-01",
+      "end": "-427398050-01-01",
+      "id": "ics:Homerian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Homerian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Induan",
+      "aliases": [
+        "Induan Age"
+      ],
+      "start": "-251900050-01-01",
+      "end": "-251198050-01-01",
+      "id": "ics:Induan",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Induan",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Jiangshanian",
+      "aliases": [
+        "Jiangshanian Age"
+      ],
+      "start": "-493998050-01-01",
+      "end": "-489498050-01-01",
+      "id": "ics:Jiangshanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Jiangshanian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Jurassic",
+      "aliases": [
+        "Jurassic Period"
+      ],
+      "start": "-201298050-01-01",
+      "end": "-144998050-01-01",
+      "id": "ics:Jurassic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Jurassic",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Kasimovian",
+      "aliases": [
+        "Kasimovian Age"
+      ],
+      "start": "-306998050-01-01",
+      "end": "-303698050-01-01",
+      "id": "ics:Kasimovian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Kasimovian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Katian",
+      "aliases": [
+        "Katian Age"
+      ],
+      "start": "-452998050-01-01",
+      "end": "-445198050-01-01",
+      "id": "ics:Katian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Katian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Kimmeridgian",
+      "aliases": [
+        "Kimmeridgian Age"
+      ],
+      "start": "-157298050-01-01",
+      "end": "-152098050-01-01",
+      "id": "ics:Kimmeridgian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Kimmeridgian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Kungurian",
+      "aliases": [
+        "Kungurian Age"
+      ],
+      "start": "-283498050-01-01",
+      "end": "-272948050-01-01",
+      "id": "ics:Kungurian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Kungurian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Ladinian",
+      "aliases": [
+        "Ladinian Age"
+      ],
+      "start": "-241998050-01-01",
+      "end": "-236998050-01-01",
+      "id": "ics:Ladinian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Ladinian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Langhian",
+      "aliases": [
+        "Langhian Age"
+      ],
+      "start": "-15968050-01-01",
+      "end": "-13818050-01-01",
+      "id": "ics:Langhian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Langhian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Late Cretaceous",
+      "aliases": [
+        "Late Cretaceous Epoch"
+      ],
+      "start": "-100498050-01-01",
+      "end": "-65998050-01-01",
+      "id": "ics:UpperCretaceous",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/UpperCretaceous",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Late Devonian",
+      "aliases": [
+        "Late Devonian Epoch"
+      ],
+      "start": "-382698050-01-01",
+      "end": "-358898050-01-01",
+      "id": "ics:UpperDevonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/UpperDevonian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Late Jurassic",
+      "aliases": [
+        "Late Jurassic Epoch"
+      ],
+      "start": "-163498050-01-01",
+      "end": "-144998050-01-01",
+      "id": "ics:UpperJurassic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/UpperJurassic",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Late Mississippian",
+      "aliases": [
+        "Late Mississippian Epoch"
+      ],
+      "start": "-330898050-01-01",
+      "end": "-298898050-01-01",
+      "id": "ics:UpperMississippian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/UpperMississippian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Late Ordovician",
+      "aliases": [
+        "Late Ordovician Epoch"
+      ],
+      "start": "-458398050-01-01",
+      "end": "-443798050-01-01",
+      "id": "ics:UpperOrdovician",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/UpperOrdovician",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Late Pennsylvanian",
+      "aliases": [
+        "Late Pennsylvanian Epoch"
+      ],
+      "start": "-306998050-01-01",
+      "end": "-298898050-01-01",
+      "id": "ics:UpperPennsylvanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/UpperPennsylvanian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Late Pleistocene",
+      "aliases": [
+        "Late Pleistocene Age"
+      ],
+      "start": "-124050-01-01",
+      "end": "-9750-01-01",
+      "id": "ics:UpperPleistocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/UpperPleistocene",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Late Triassic",
+      "aliases": [
+        "Late Triassic Epoch"
+      ],
+      "start": "-236998050-01-01",
+      "end": "-201298050-01-01",
+      "id": "ics:UpperTriassic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/UpperTriassic",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Llandovery",
+      "aliases": [
+        "Llandovery Epoch"
+      ],
+      "start": "-443798050-01-01",
+      "end": "-433398050-01-01",
+      "id": "ics:Llandovery",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Llandovery",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Lochkovian",
+      "aliases": [
+        "Lochkovian Age"
+      ],
+      "start": "-419198050-01-01",
+      "end": "-410798050-01-01",
+      "id": "ics:Lochkovian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Lochkovian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Lopingian",
+      "aliases": [
+        "Lopingian Epoch"
+      ],
+      "start": "-259098050-01-01",
+      "end": "-251900050-01-01",
+      "id": "ics:Lopingian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Lopingian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Ludfordian",
+      "aliases": [
+        "Ludfordian Age"
+      ],
+      "start": "-425598050-01-01",
+      "end": "-422998050-01-01",
+      "id": "ics:Ludfordian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Ludfordian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Ludlow",
+      "aliases": [
+        "Ludlow Epoch"
+      ],
+      "start": "-427398050-01-01",
+      "end": "-422998050-01-01",
+      "id": "ics:Ludlow",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Ludlow",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Lutetian",
+      "aliases": [
+        "Lutetian Age"
+      ],
+      "start": "-47798050-01-01",
+      "end": "-41198050-01-01",
+      "id": "ics:Lutetian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Lutetian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Maastrichtian",
+      "aliases": [
+        "Maastrichtian Age"
+      ],
+      "start": "-72098050-01-01",
+      "end": "-65998050-01-01",
+      "id": "ics:Maastrichtian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Maastrichtian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Meghalayan",
+      "aliases": [
+        "Meghalayan Age"
+      ],
+      "start": "-2250-01-01",
+      "end": "1950-01-01",
+      "id": "ics:Meghalayan",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Meghalayan",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Mesoarchean",
+      "aliases": [
+        "Mesoarchean Era"
+      ],
+      "start": "-3199998050-01-01",
+      "end": "-2799998050-01-01",
+      "id": "ics:Mesoarchean",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Mesoarchean",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Mesoproterozoic",
+      "aliases": [
+        "Mesoproterozoic Era"
+      ],
+      "start": "-1599998050-01-01",
+      "end": "-999998050-01-01",
+      "id": "ics:Mesoproterozoic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Mesoproterozoic",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Mesozoic",
+      "aliases": [
+        "Mesozoic Era"
+      ],
+      "start": "-251900050-01-01",
+      "end": "-65998050-01-01",
+      "id": "ics:Mesozoic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Mesozoic",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Messinian",
+      "aliases": [
+        "Messinian Age"
+      ],
+      "start": "-7244050-01-01",
+      "end": "-5331050-01-01",
+      "id": "ics:Messinian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Messinian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Miaolingian",
+      "aliases": [
+        "Miaolingian Epoch"
+      ],
+      "start": "-508998050-01-01",
+      "end": "-496998050-01-01",
+      "id": "ics:Miaolingian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Miaolingian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Middle Devonian",
+      "aliases": [
+        "Middle Devonian Epoch"
+      ],
+      "start": "-393298050-01-01",
+      "end": "-382698050-01-01",
+      "id": "ics:MiddleDevonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/MiddleDevonian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Middle Jurassic",
+      "aliases": [
+        "Middle Jurassic Epoch"
+      ],
+      "start": "-174098050-01-01",
+      "end": "-163498050-01-01",
+      "id": "ics:MiddleJurassic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/MiddleJurassic",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Middle Mississippian",
+      "aliases": [
+        "Middle Mississippian Epoch"
+      ],
+      "start": "-346698050-01-01",
+      "end": "-330898050-01-01",
+      "id": "ics:MiddleMississippian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/MiddleMississippian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Middle Ordovician",
+      "aliases": [
+        "Middle Ordovician Epoch"
+      ],
+      "start": "-469998050-01-01",
+      "end": "-458398050-01-01",
+      "id": "ics:MiddleOrdovician",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/MiddleOrdovician",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Middle Pennsylvanian",
+      "aliases": [
+        "Middle Pennsylvanian Epoch"
+      ],
+      "start": "-315198050-01-01",
+      "end": "-306998050-01-01",
+      "id": "ics:MiddlePennsylvanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/MiddlePennsylvanian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Middle Triassic",
+      "aliases": [
+        "Middle Triassic Epoch"
+      ],
+      "start": "-247198050-01-01",
+      "end": "-236998050-01-01",
+      "id": "ics:MiddleTriassic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/MiddleTriassic",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Miocene",
+      "aliases": [
+        "Miocene Epoch"
+      ],
+      "start": "-23028050-01-01",
+      "end": "-5331050-01-01",
+      "id": "ics:Miocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Miocene",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Mississippian",
+      "aliases": [
+        "Mississippian Sub-period"
+      ],
+      "start": "-358898050-01-01",
+      "end": "-323198050-01-01",
+      "id": "ics:Mississippian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Mississippian",
+      "source": "ICS GTS2020",
+      "rank": "Sub-Period"
+    },
+    {
+      "name": "Moscovian",
+      "aliases": [
+        "Moscovian Age"
+      ],
+      "start": "-315198050-01-01",
+      "end": "-306998050-01-01",
+      "id": "ics:Moscovian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Moscovian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Neoarchean",
+      "aliases": [
+        "Neoarchean Era"
+      ],
+      "start": "-2799998050-01-01",
+      "end": "-2499998050-01-01",
+      "id": "ics:Neoarchean",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Neoarchean",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Neogene",
+      "aliases": [
+        "Neogene Period"
+      ],
+      "start": "-23028050-01-01",
+      "end": "-2578050-01-01",
+      "id": "ics:Neogene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Neogene",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Neoproterozoic",
+      "aliases": [
+        "Neoproterozoic Era"
+      ],
+      "start": "-999998050-01-01",
+      "end": "-540998050-01-01",
+      "id": "ics:Neoproterozoic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Neoproterozoic",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Norian",
+      "aliases": [
+        "Norian Age"
+      ],
+      "start": "-226998050-01-01",
+      "end": "-208498050-01-01",
+      "id": "ics:Norian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Norian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Northgrippian",
+      "aliases": [
+        "Northgrippian Age"
+      ],
+      "start": "-6250-01-01",
+      "end": "-2250-01-01",
+      "id": "ics:Northgrippian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Northgrippian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Olenekian",
+      "aliases": [
+        "Olenekian Age"
+      ],
+      "start": "-251198050-01-01",
+      "end": "-247198050-01-01",
+      "id": "ics:Olenekian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Olenekian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Oligocene",
+      "aliases": [
+        "Oligocene Epoch"
+      ],
+      "start": "-33898050-01-01",
+      "end": "-23028050-01-01",
+      "id": "ics:Oligocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Oligocene",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Ordovician",
+      "aliases": [
+        "Ordovician Period"
+      ],
+      "start": "-485398050-01-01",
+      "end": "-443798050-01-01",
+      "id": "ics:Ordovician",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Ordovician",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Orosirian",
+      "aliases": [
+        "Orosirian Period"
+      ],
+      "start": "-2049998050-01-01",
+      "end": "-1799998050-01-01",
+      "id": "ics:Orosirian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Orosirian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Oxfordian",
+      "aliases": [
+        "Oxfordian Age"
+      ],
+      "start": "-163498050-01-01",
+      "end": "-157298050-01-01",
+      "id": "ics:Oxfordian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Oxfordian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Paibian",
+      "aliases": [
+        "Paibian Age"
+      ],
+      "start": "-496998050-01-01",
+      "end": "-493998050-01-01",
+      "id": "ics:Paibian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Paibian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Paleoarchean",
+      "aliases": [
+        "Paleoarchean Era"
+      ],
+      "start": "-3599998050-01-01",
+      "end": "-3199998050-01-01",
+      "id": "ics:Paleoarchean",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Paleoarchean",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Paleocene",
+      "aliases": [
+        "Paleocene Epoch"
+      ],
+      "start": "-65998050-01-01",
+      "end": "-55998050-01-01",
+      "id": "ics:Paleocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Paleocene",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Paleogene",
+      "aliases": [
+        "Paleogene Period"
+      ],
+      "start": "-65998050-01-01",
+      "end": "-23028050-01-01",
+      "id": "ics:Paleogene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Paleogene",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Paleoproterozoic",
+      "aliases": [
+        "Paleoproterozoic Era"
+      ],
+      "start": "-2499998050-01-01",
+      "end": "-1599998050-01-01",
+      "id": "ics:Paleoproterozoic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Paleoproterozoic",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Paleozoic",
+      "aliases": [
+        "Paleozoic Era"
+      ],
+      "start": "-540998050-01-01",
+      "end": "-251900050-01-01",
+      "id": "ics:Paleozoic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Paleozoic",
+      "source": "ICS GTS2020",
+      "rank": "Era"
+    },
+    {
+      "name": "Pennsylvanian",
+      "aliases": [
+        "Pennsylvanian Sub-period"
+      ],
+      "start": "-323198050-01-01",
+      "end": "-298898050-01-01",
+      "id": "ics:Pennsylvanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Pennsylvanian",
+      "source": "ICS GTS2020",
+      "rank": "Sub-Period"
+    },
+    {
+      "name": "Permian",
+      "aliases": [
+        "Permian Period"
+      ],
+      "start": "-298898050-01-01",
+      "end": "-251900050-01-01",
+      "id": "ics:Permian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Permian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Phanerozoic",
+      "aliases": [
+        "Phanerozoic Eon"
+      ],
+      "start": "-540998050-01-01",
+      "end": "1950-01-01",
+      "id": "ics:Phanerozoic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Phanerozoic",
+      "source": "ICS GTS2020",
+      "rank": "Eon"
+    },
+    {
+      "name": "Piacenzian",
+      "aliases": [
+        "Piacenzian Age"
+      ],
+      "start": "-3598050-01-01",
+      "end": "-2578050-01-01",
+      "id": "ics:Piacenzian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Piacenzian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Pleistocene",
+      "aliases": [
+        "Pleistocene Epoch"
+      ],
+      "start": "-2578050-01-01",
+      "end": "-9750-01-01",
+      "id": "ics:Pleistocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Pleistocene",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Pliensbachian",
+      "aliases": [
+        "Pliensbachian Age"
+      ],
+      "start": "-190798050-01-01",
+      "end": "-182698050-01-01",
+      "id": "ics:Pliensbachian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Pliensbachian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Pliocene",
+      "aliases": [
+        "Pliocene Epoch"
+      ],
+      "start": "-5331050-01-01",
+      "end": "-2578050-01-01",
+      "id": "ics:Pliocene",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Pliocene",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Pragian",
+      "aliases": [
+        "Pragian Age"
+      ],
+      "start": "-410798050-01-01",
+      "end": "-407598050-01-01",
+      "id": "ics:Pragian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Pragian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Precambrian",
+      "aliases": [
+        "Precambrian Supereon"
+      ],
+      "start": "-4566998050-01-01",
+      "end": "-540998050-01-01",
+      "id": "ics:Precambrian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Precambrian",
+      "source": "ICS GTS2020",
+      "rank": "Super-Eon"
+    },
+    {
+      "name": "Priabonian",
+      "aliases": [
+        "Priabonian Age"
+      ],
+      "start": "-37798050-01-01",
+      "end": "-33898050-01-01",
+      "id": "ics:Priabonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Priabonian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Pridoli",
+      "aliases": [
+        "Pridoli Epoch"
+      ],
+      "start": "-422998050-01-01",
+      "end": "-419198050-01-01",
+      "id": "ics:Pridoli",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Pridoli",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Proterozoic",
+      "aliases": [
+        "Proterozoic Eon"
+      ],
+      "start": "-2499998050-01-01",
+      "end": "-540998050-01-01",
+      "id": "ics:Proterozoic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Proterozoic",
+      "source": "ICS GTS2020",
+      "rank": "Eon"
+    },
+    {
+      "name": "Quaternary",
+      "aliases": [
+        "Quaternary Period"
+      ],
+      "start": "-2578050-01-01",
+      "end": "1950-01-01",
+      "id": "ics:Quaternary",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Quaternary",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Rhaetian",
+      "aliases": [
+        "Rhaetian Age"
+      ],
+      "start": "-208498050-01-01",
+      "end": "-201298050-01-01",
+      "id": "ics:Rhaetian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Rhaetian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Rhuddanian",
+      "aliases": [
+        "Rhuddanian Age"
+      ],
+      "start": "-443798050-01-01",
+      "end": "-440798050-01-01",
+      "id": "ics:Rhuddanian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Rhuddanian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Rhyacian",
+      "aliases": [
+        "Rhyacian Period"
+      ],
+      "start": "-2299998050-01-01",
+      "end": "-2049998050-01-01",
+      "id": "ics:Rhyacian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Rhyacian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Roadian",
+      "aliases": [
+        "Roadian Age"
+      ],
+      "start": "-272948050-01-01",
+      "end": "-268798050-01-01",
+      "id": "ics:Roadian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Roadian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Rupelian",
+      "aliases": [
+        "Rupelian Age"
+      ],
+      "start": "-33898050-01-01",
+      "end": "-28098050-01-01",
+      "id": "ics:Rupelian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Rupelian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Sakmarian",
+      "aliases": [
+        "Sakmarian Age"
+      ],
+      "start": "-294998050-01-01",
+      "end": "-290098050-01-01",
+      "id": "ics:Sakmarian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Sakmarian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Sandbian",
+      "aliases": [
+        "Sandbian Age"
+      ],
+      "start": "-458398050-01-01",
+      "end": "-452998050-01-01",
+      "id": "ics:Sandbian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Sandbian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Santonian",
+      "aliases": [
+        "Santonian Age"
+      ],
+      "start": "-86298050-01-01",
+      "end": "-83598050-01-01",
+      "id": "ics:Santonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Santonian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Selandian",
+      "aliases": [
+        "Selandian Age"
+      ],
+      "start": "-61598050-01-01",
+      "end": "-59198050-01-01",
+      "id": "ics:Selandian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Selandian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Serpukhovian",
+      "aliases": [
+        "Serpukhovian Age"
+      ],
+      "start": "-330898050-01-01",
+      "end": "-323198050-01-01",
+      "id": "ics:Serpukhovian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Serpukhovian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Serravallian",
+      "aliases": [
+        "Serravallian Age"
+      ],
+      "start": "-13818050-01-01",
+      "end": "-11628050-01-01",
+      "id": "ics:Serravallian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Serravallian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Sheinwoodian",
+      "aliases": [
+        "Sheinwoodian Age"
+      ],
+      "start": "-433398050-01-01",
+      "end": "-430498050-01-01",
+      "id": "ics:Sheinwoodian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Sheinwoodian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Siderian",
+      "aliases": [
+        "Siderian Period"
+      ],
+      "start": "-2499998050-01-01",
+      "end": "-2299998050-01-01",
+      "id": "ics:Siderian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Siderian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Silurian",
+      "aliases": [
+        "Silurian Period"
+      ],
+      "start": "-443798050-01-01",
+      "end": "-419198050-01-01",
+      "id": "ics:Silurian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Silurian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Sinemurian",
+      "aliases": [
+        "Sinemurian Age"
+      ],
+      "start": "-199298050-01-01",
+      "end": "-190798050-01-01",
+      "id": "ics:Sinemurian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Sinemurian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Statherian",
+      "aliases": [
+        "Statherian Period"
+      ],
+      "start": "-1799998050-01-01",
+      "end": "-1599998050-01-01",
+      "id": "ics:Statherian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Statherian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Stenian",
+      "aliases": [
+        "Stenian Period"
+      ],
+      "start": "-1199998050-01-01",
+      "end": "-999998050-01-01",
+      "id": "ics:Stenian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Stenian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Telychian",
+      "aliases": [
+        "Telychian Age"
+      ],
+      "start": "-438498050-01-01",
+      "end": "-433398050-01-01",
+      "id": "ics:Telychian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Telychian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Terreneuvian",
+      "aliases": [
+        "Terreneuvian Epoch"
+      ],
+      "start": "-540998050-01-01",
+      "end": "-520998050-01-01",
+      "id": "ics:Terreneuvian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Terreneuvian",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Thanetian",
+      "aliases": [
+        "Thanetian Age"
+      ],
+      "start": "-59198050-01-01",
+      "end": "-55998050-01-01",
+      "id": "ics:Thanetian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Thanetian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Tithonian",
+      "aliases": [
+        "Tithonian Age"
+      ],
+      "start": "-152098050-01-01",
+      "end": "-144998050-01-01",
+      "id": "ics:Tithonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Tithonian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Toarcian",
+      "aliases": [
+        "Toarcian Age"
+      ],
+      "start": "-182698050-01-01",
+      "end": "-174098050-01-01",
+      "id": "ics:Toarcian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Toarcian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Tonian",
+      "aliases": [
+        "Tonian Period"
+      ],
+      "start": "-999998050-01-01",
+      "end": "-719998050-01-01",
+      "id": "ics:Tonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Tonian",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Tortonian",
+      "aliases": [
+        "Tortonian Age"
+      ],
+      "start": "-11628050-01-01",
+      "end": "-7244050-01-01",
+      "id": "ics:Tortonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Tortonian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Tournaisian",
+      "aliases": [
+        "Tournaisian Age"
+      ],
+      "start": "-358898050-01-01",
+      "end": "-346698050-01-01",
+      "id": "ics:Tournaisian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Tournaisian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Tremadocian",
+      "aliases": [
+        "Tremadocian Age"
+      ],
+      "start": "-485398050-01-01",
+      "end": "-477698050-01-01",
+      "id": "ics:Tremadocian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Tremadocian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Triassic",
+      "aliases": [
+        "Triassic Period"
+      ],
+      "start": "-251900050-01-01",
+      "end": "-201298050-01-01",
+      "id": "ics:Triassic",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Triassic",
+      "source": "ICS GTS2020",
+      "rank": "Period"
+    },
+    {
+      "name": "Turonian",
+      "aliases": [
+        "Turonian Age"
+      ],
+      "start": "-93898050-01-01",
+      "end": "-89798050-01-01",
+      "id": "ics:Turonian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Turonian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Valanginian",
+      "aliases": [
+        "Valanginian Age"
+      ],
+      "start": "-139798050-01-01",
+      "end": "-132898050-01-01",
+      "id": "ics:Valanginian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Valanginian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Visean",
+      "aliases": [
+        "Visean Age"
+      ],
+      "start": "-346698050-01-01",
+      "end": "-330898050-01-01",
+      "id": "ics:Visean",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Visean",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Wenlock",
+      "aliases": [
+        "Wenlock Epoch"
+      ],
+      "start": "-433398050-01-01",
+      "end": "-427398050-01-01",
+      "id": "ics:Wenlock",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Wenlock",
+      "source": "ICS GTS2020",
+      "rank": "Epoch"
+    },
+    {
+      "name": "Wordian",
+      "aliases": [
+        "Wordian Age"
+      ],
+      "start": "-268798050-01-01",
+      "end": "-265098050-01-01",
+      "id": "ics:Wordian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Wordian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Wuchiapingian",
+      "aliases": [
+        "Wuchiapingian Age"
+      ],
+      "start": "-259098050-01-01",
+      "end": "-254138050-01-01",
+      "id": "ics:Wuchiapingian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Wuchiapingian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Wuliuan",
+      "aliases": [
+        "Wuliuan Age"
+      ],
+      "start": "-508998050-01-01",
+      "end": "-504498050-01-01",
+      "id": "ics:Wuliuan",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Wuliuan",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Ypresian",
+      "aliases": [
+        "Ypresian Age"
+      ],
+      "start": "-55998050-01-01",
+      "end": "-47798050-01-01",
+      "id": "ics:Ypresian",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Ypresian",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    },
+    {
+      "name": "Zanclean",
+      "aliases": [
+        "Zanclean Age"
+      ],
+      "start": "-5331050-01-01",
+      "end": "-3598050-01-01",
+      "id": "ics:Zanclean",
+      "url": "http://resource.geosciml.org/classifier/ics/ischart/Zanclean",
+      "source": "ICS GTS2020",
+      "rank": "Age"
+    }
+  ]
+}

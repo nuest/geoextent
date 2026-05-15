@@ -57,7 +57,10 @@ jobs:
 
     - name: Install geoextent and dependencies
       run: |
-        pip install -e .[dev,test,preview]
+        pip install -e .[dev,test,preview,nlp]
+    - name: Download spaCy English model for NER tests (issue #112)
+      run: |
+        python -m spacy download en_core_web_sm
     - name: Check code formatting with black
       run: |
         black --check --diff .

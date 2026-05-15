@@ -84,7 +84,7 @@ def _extract_crs_from_layer(layer, layer_name, operation="extraction"):
     return crs, crs_wkt
 
 
-def check_file_supported(filepath):
+def check_file_supported(filepath, **_kwargs):
     """Checks whether it is valid vector file or not. \n
     input "path": type string, path to file which shall be extracted \n
     """
@@ -111,7 +111,7 @@ def check_file_supported(filepath):
     return False
 
 
-def get_temporal_extent(filepath, time_format=None):
+def get_temporal_extent(filepath, time_format=None, **_kwargs):
     """extracts temporal extent of the vector file \n
     input "path": type string, file path to vector file
     """
@@ -203,7 +203,7 @@ def get_temporal_extent(filepath, time_format=None):
     return tbox
 
 
-def get_bounding_box(filepath):
+def get_bounding_box(filepath, **_kwargs):
     """extracts bounding box from vector file \n
     input "filepath": type string, file path to vector \n
     returns bounding box of the file: type list, length = 4
@@ -254,7 +254,7 @@ def get_bounding_box(filepath):
     return spatial_extent
 
 
-def get_convex_hull(filepath):
+def get_convex_hull(filepath, **_kwargs):
     """extracts convex hull from vector file \n
     input "filepath": type string, file path to vector \n
     returns convex hull as a bounding box: type dict with keys 'bbox' and 'crs'

@@ -48,6 +48,7 @@ from . import handle_csv
 from . import handle_raster
 from . import handle_vector
 from . import handle_pointcloud
+from . import handle_text
 from . import helpfunctions as hf
 from . import external_metadata
 
@@ -57,6 +58,7 @@ handle_modules = {
     "pointcloud": handle_pointcloud,
     "raster": handle_raster,
     "vector": handle_vector,
+    "text": handle_text,  # last: opt-in via text_method kwarg
 }
 
 
@@ -138,7 +140,7 @@ def _swap_coordinate_order(metadata):
     return result
 
 
-def compute_bbox_wgs84(module, path, assume_wgs84=False):
+def compute_bbox_wgs84(module, path, assume_wgs84=False, handler_kwargs=None):
     """
     Extract and transform bounding box to WGS84.
 
@@ -146,19 +148,24 @@ def compute_bbox_wgs84(module, path, assume_wgs84=False):
     uses coordinates as provided by the handler without modification.
 
     Args:
-        module: Handler module (handle_csv, handle_vector, handle_raster)
+        module: Handler module (handle_csv, handle_vector, handle_raster, handle_text)
         path: File path
         assume_wgs84: If True, assume WGS84 for ungeoreferenced rasters (default False)
+        handler_kwargs: Optional dict of extra kwargs passed to the handler functions
+            (used by handle_text to receive NER/gazetteer configuration).
 
     Returns:
         dict: {"bbox": [minlon, minlat, maxlon, maxlat], "crs": "4326"}
               Coordinates are always in [longitude, latitude] order per GeoJSON spec.
     """
     logger.debug("compute_bbox_wgs84: {}".format(path))
+    handler_kwargs = handler_kwargs or {}
     if module.get_handler_name() == "handle_raster":
-        spatial_extent_origin = module.get_bounding_box(path, assume_wgs84=assume_wgs84)
+        spatial_extent_origin = module.get_bounding_box(
+            path, assume_wgs84=assume_wgs84, **handler_kwargs
+        )
     else:
-        spatial_extent_origin = module.get_bounding_box(path)
+        spatial_extent_origin = module.get_bounding_box(path, **handler_kwargs)
 
     if spatial_extent_origin is None:
         return None
@@ -225,7 +232,7 @@ def compute_bbox_wgs84(module, path, assume_wgs84=False):
     return spatial_extent
 
 
-def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
+def compute_convex_hull_wgs84(module, path, assume_wgs84=False, handler_kwargs=None):
     """
     Extract and transform convex hull to WGS84.
 
@@ -244,6 +251,8 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
     """
     logger.debug("compute_convex_hull_wgs84: {}".format(path))
 
+    handler_kwargs = handler_kwargs or {}
+
     # Check if module has convex hull support
     if not hasattr(module, "get_convex_hull"):
         logger.debug(
@@ -251,9 +260,11 @@ def compute_convex_hull_wgs84(module, path, assume_wgs84=False):
                 module.get_handler_name()
             )
         )
-        return compute_bbox_wgs84(module, path, assume_wgs84=assume_wgs84)
+        return compute_bbox_wgs84(
+            module, path, assume_wgs84=assume_wgs84, handler_kwargs=handler_kwargs
+        )
 
-    spatial_extent_origin = module.get_convex_hull(path)
+    spatial_extent_origin = module.get_convex_hull(path, **handler_kwargs)
 
     if spatial_extent_origin is None:
         return None
@@ -442,6 +453,20 @@ def from_directory(
     time_format: str | None = None,
     workers: int = 1,
     progress_callback=None,
+    text_method: str | None = None,
+    ner_model: str | None = None,
+    ner_labels=None,
+    ner_score_threshold: float | None = None,
+    ner_gazetteer: str | None = None,
+    ner_ambiguity: str | None = None,
+    ner_auto_download: bool = True,
+    gazetteer_cache=None,
+    period_gazetteer: str | None = None,
+    period_ambiguity: str | None = None,
+    period_resolution: bool = True,
+    period_cache=None,
+    include_source_text: bool = True,
+    place_geometry: str = "auto",
     _internal: bool = False,
 ):
     """Extracts geoextent from a directory/archive
@@ -555,6 +580,13 @@ def from_directory(
     # When we have a callback, suppress show_progress for child from_file calls
     # to avoid nested tqdm bars; the callback handles progress instead.
     _child_show_progress = False if (_cb or parallel_mode) else show_progress
+    # Share a gazetteer cache across all files in the directory so duplicate
+    # place mentions only hit the gazetteer once per run.
+    if gazetteer_cache is None and text_method is not None:
+        gazetteer_cache = {}
+    if period_cache is None and text_method is not None:
+        period_cache = {}
+
     file_kwargs = dict(
         bbox=bbox,
         tbox=tbox,
@@ -565,6 +597,20 @@ def from_directory(
         placename_escape=placename_escape,
         assume_wgs84=assume_wgs84,
         time_format=time_format,
+        text_method=text_method,
+        ner_model=ner_model,
+        ner_labels=ner_labels,
+        ner_score_threshold=ner_score_threshold,
+        ner_gazetteer=ner_gazetteer,
+        ner_ambiguity=ner_ambiguity,
+        ner_auto_download=ner_auto_download,
+        gazetteer_cache=gazetteer_cache,
+        period_gazetteer=period_gazetteer,
+        period_ambiguity=period_ambiguity,
+        period_resolution=period_resolution,
+        period_cache=period_cache,
+        include_source_text=include_source_text,
+        place_geometry=place_geometry,
         _internal=True,
     )
 
@@ -643,6 +689,20 @@ def from_directory(
                     time_format=time_format,
                     workers=workers,
                     progress_callback=_cb if not _auto_tqdm_dir else None,
+                    text_method=text_method,
+                    ner_model=ner_model,
+                    ner_labels=ner_labels,
+                    ner_score_threshold=ner_score_threshold,
+                    ner_gazetteer=ner_gazetteer,
+                    ner_ambiguity=ner_ambiguity,
+                    ner_auto_download=ner_auto_download,
+                    gazetteer_cache=gazetteer_cache,
+                    period_gazetteer=period_gazetteer,
+                    period_ambiguity=period_ambiguity,
+                    period_resolution=period_resolution,
+                    period_cache=period_cache,
+                    include_source_text=include_source_text,
+                    place_geometry=place_geometry,
                     _internal=True,
                 )
             else:
@@ -699,6 +759,20 @@ def from_directory(
                     time_format=time_format,
                     workers=workers,
                     progress_callback=_cb if not _auto_tqdm_dir else None,
+                    text_method=text_method,
+                    ner_model=ner_model,
+                    ner_labels=ner_labels,
+                    ner_score_threshold=ner_score_threshold,
+                    ner_gazetteer=ner_gazetteer,
+                    ner_ambiguity=ner_ambiguity,
+                    ner_auto_download=ner_auto_download,
+                    gazetteer_cache=gazetteer_cache,
+                    period_gazetteer=period_gazetteer,
+                    period_ambiguity=period_ambiguity,
+                    period_resolution=period_resolution,
+                    period_cache=period_cache,
+                    include_source_text=include_source_text,
+                    place_geometry=place_geometry,
                     _internal=True,
                 )
             else:
@@ -806,8 +880,11 @@ def from_directory(
     if timeout and timeout_flag:
         metadata["timeout"] = timeout
 
-    # Add placename if requested and spatial extent is available
-    if placename and metadata.get("bbox"):
+    # Add placename if requested and spatial extent is available.
+    # Skip when this is a child call (_internal=True): per-file/per-subdir
+    # placenames would be redundant and often wrong — the top-level caller
+    # runs placename once on the merged bbox/convex hull.
+    if placename and metadata.get("bbox") and not _internal:
         try:
             from .gazetteer import get_placename_for_geometry
 
@@ -836,10 +913,18 @@ def from_directory(
                 metadata["placename"] = placename_result
                 logger.info(f"Found placename: {placename_result}")
             else:
-                logger.warning("No placename found for the extracted geometry")
+                logger.warning(
+                    "No placename found via %s for the extracted geometry "
+                    "(reverse geocoding returned no shared parent area)",
+                    placename,
+                )
 
         except Exception as e:
-            logger.warning(f"Failed to extract placename: {e}")
+            logger.warning(
+                "Failed to extract placename via %s reverse-geocoding: %s",
+                placename,
+                e,
+            )
 
     # Calculate total size for directory (sum of all processed files in details)
     if details and "details" in metadata:
@@ -877,6 +962,20 @@ def from_file(
     assume_wgs84=False,
     time_format=None,
     progress_callback=None,
+    text_method=None,
+    ner_model=None,
+    ner_labels=None,
+    ner_score_threshold=None,
+    ner_gazetteer=None,
+    ner_ambiguity=None,
+    ner_auto_download=True,
+    gazetteer_cache=None,
+    period_gazetteer=None,
+    period_ambiguity=None,
+    period_resolution=True,
+    period_cache=None,
+    include_source_text=True,
+    place_geometry="auto",
     _internal=False,
 ):
     """Extracts geoextent from a file
@@ -928,10 +1027,29 @@ def from_file(
     # initialization of later output dict
     metadata = {}
 
+    # Build per-handler kwargs (currently only handle_text consumes these,
+    # other handlers ignore via **_kwargs).
+    text_handler_kwargs = {
+        "text_method": text_method,
+        "ner_model": ner_model,
+        "ner_labels": ner_labels,
+        "ner_score_threshold": ner_score_threshold,
+        "ner_gazetteer": ner_gazetteer,
+        "ner_ambiguity": ner_ambiguity,
+        "ner_auto_download": ner_auto_download,
+        "gazetteer_cache": gazetteer_cache,
+        "period_gazetteer": period_gazetteer,
+        "period_ambiguity": period_ambiguity,
+        "period_resolution": period_resolution,
+        "period_cache": period_cache,
+        "include_source_text": include_source_text,
+        "place_geometry": place_geometry,
+    }
+
     # get the module that will be called (depending on the format of the file)
 
     for i in handle_modules:
-        valid = handle_modules[i].check_file_supported(filepath)
+        valid = handle_modules[i].check_file_supported(filepath, **text_handler_kwargs)
         if valid:
             used_module = handle_modules[i]
             logger.info(
@@ -970,11 +1088,17 @@ def from_file(
                     if bbox:
                         if convex_hull:
                             spatial_extent = compute_convex_hull_wgs84(
-                                used_module, filepath, assume_wgs84=assume_wgs84
+                                used_module,
+                                filepath,
+                                assume_wgs84=assume_wgs84,
+                                handler_kwargs=text_handler_kwargs,
                             )
                         else:
                             spatial_extent = compute_bbox_wgs84(
-                                used_module, filepath, assume_wgs84=assume_wgs84
+                                used_module,
+                                filepath,
+                                assume_wgs84=assume_wgs84,
+                                handler_kwargs=text_handler_kwargs,
                             )
 
                         if spatial_extent is not None:
@@ -986,6 +1110,20 @@ def from_file(
                                 metadata["bbox"] = spatial_extent["bbox"]
 
                             metadata["crs"] = spatial_extent["crs"]
+
+                            # Forward NER provenance if the handler emitted it.
+                            for key in (
+                                "place_names",
+                                "date_entities",
+                                "ner_model",
+                                "ner_gazetteer",
+                                "extraction_method",
+                                "source_text",
+                                "source_offset_unit",
+                                "source_normalisation",
+                            ):
+                                if key in spatial_extent:
+                                    metadata[key] = spatial_extent[key]
                 except Exception as e:
                     self.warning_msg = "Error for {} extracting bbox:\n{}".format(
                         filepath, str(e)
@@ -1003,7 +1141,9 @@ def from_file(
                                     "num_sample parameter is ignored, only applies to CSV files"
                                 )
                             extract_tbox = used_module.get_temporal_extent(
-                                filepath, time_format=time_format
+                                filepath,
+                                time_format=time_format,
+                                **text_handler_kwargs,
                             )
                         if extract_tbox is not None:
                             metadata["tbox"] = extract_tbox
@@ -1087,8 +1227,10 @@ def from_file(
     except (OSError, FileNotFoundError):
         pass
 
-    # Add placename if requested and spatial extent is available
-    if placename and metadata.get("bbox"):
+    # Add placename if requested and spatial extent is available.
+    # Skip when this is a child call (_internal=True): the parent
+    # from_directory runs placename once on the merged extent.
+    if placename and metadata.get("bbox") and not _internal:
         try:
             from .gazetteer import get_placename_for_geometry
 
@@ -1117,10 +1259,18 @@ def from_file(
                 metadata["placename"] = placename_result
                 logger.info(f"Found placename: {placename_result}")
             else:
-                logger.warning("No placename found for the extracted geometry")
+                logger.warning(
+                    "No placename found via %s for the extracted geometry "
+                    "(reverse geocoding returned no shared parent area)",
+                    placename,
+                )
 
         except Exception as e:
-            logger.warning(f"Failed to extract placename: {e}")
+            logger.warning(
+                "Failed to extract placename via %s reverse-geocoding: %s",
+                placename,
+                e,
+            )
 
     # Add geojson.io URL if requested and spatial extent is available
     if include_geojsonio and metadata.get("bbox"):
@@ -1130,6 +1280,109 @@ def from_file(
 
     # Apply EPSG:4326 native axis order (lat, lon) unless legacy mode or internal call
     if not legacy and not _internal:
+        metadata = _swap_coordinate_order(metadata)
+
+    return metadata
+
+
+def from_text(
+    text: str,
+    bbox: bool = True,
+    tbox: bool = False,
+    convex_hull: bool = False,
+    text_method: str = "ner",
+    ner_model: str | None = None,
+    ner_labels=None,
+    ner_score_threshold: float | None = None,
+    ner_gazetteer: str = "nominatim",
+    ner_ambiguity: str = "drop",
+    ner_auto_download: bool = True,
+    gazetteer_cache=None,
+    period_gazetteer: str = "bundled",
+    period_ambiguity: str = "drop",
+    period_resolution: bool = True,
+    period_cache=None,
+    include_source_text: bool = True,
+    place_geometry: str = "auto",
+    legacy: bool = False,
+    time_format: str | None = None,
+):
+    """Extract geoextent from a free-text input string.
+
+    Returns a metadata dict shaped like ``from_file`` results, with an
+    additional ``place_names`` provenance list. Coordinate order follows
+    the same EPSG:4326 native (lat, lon) convention as the rest of the API
+    unless ``legacy=True``.
+    """
+    if not text or not text.strip():
+        return None
+
+    res = handle_text.extract_from_text(
+        text,
+        text_method=text_method,
+        ner_model=ner_model,
+        ner_labels=ner_labels,
+        ner_score_threshold=ner_score_threshold,
+        ner_gazetteer=ner_gazetteer,
+        ner_ambiguity=ner_ambiguity,
+        ner_auto_download=ner_auto_download,
+        gazetteer_cache=gazetteer_cache,
+        period_gazetteer=period_gazetteer,
+        period_ambiguity=period_ambiguity,
+        period_resolution=period_resolution,
+        period_cache=period_cache,
+        include_source_text=include_source_text,
+        place_geometry=place_geometry,
+    )
+
+    metadata = {
+        "format": "text",
+        "geoextent_handler": handle_text.get_handler_name(),
+        "extraction_method": res.get("extraction_method"),
+        "ner_model": res.get("ner_model"),
+        "ner_gazetteer": res.get("ner_gazetteer"),
+        "period_gazetteer": res.get("period_gazetteer"),
+        "place_names": res.get("place_names", []),
+        "date_entities": res.get("date_entities", []),
+    }
+    for key in ("source_text", "source_offset_unit", "source_normalisation"):
+        if key in res:
+            metadata[key] = res[key]
+
+    if bbox and "bbox" in res:
+        metadata["crs"] = res["crs"]
+        if convex_hull:
+            matched_hits = []
+            for rec in res["place_names"]:
+                if not rec.get("matched"):
+                    continue
+                hit = {"lat": rec["lat"], "lon": rec["lon"]}
+                if rec.get("boundary") is not None:
+                    hit["boundary"] = rec["boundary"]
+                matched_hits.append(hit)
+            hull = handle_text._convex_hull_from_hits(
+                matched_hits, place_geometry=place_geometry or "auto"
+            )
+            if hull is not None:
+                metadata["bbox"] = hull
+                metadata["convex_hull"] = True
+                # The convex hull already encodes the spatial extent. Carrying
+                # the full administrative boundary polygons in place_names
+                # provenance just bloats the output — a single admin polygon
+                # can be hundreds of KB and push the GeoJSON past geojson.io's
+                # URL-fragment limit (~27 KB), forcing the now-401 gist
+                # fallback. Drop them once we've consumed them for the hull.
+                for rec in metadata["place_names"]:
+                    rec.pop("boundary", None)
+            else:
+                metadata["bbox"] = res["bbox"]
+        else:
+            metadata["bbox"] = res["bbox"]
+
+    if tbox and "tbox" in res:
+        metadata["tbox"] = res["tbox"]
+
+    if not legacy:
         metadata = _swap_coordinate_order(metadata)
 
     return metadata
