@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Journal Landing Page Examples &#8212; geoextent 0.1.dev1+g1393c67b4 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/basic.css?v=686e5160" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=27fed22d" />
+    <link rel="stylesheet" type="text/css" href="_static/jupyter-sphinx.css" />
+    <link rel="stylesheet" type="text/css" href="_static/thebelab.css" />
+    <script src="_static/documentation_options.js?v=643ecf79"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/thebelab-helper.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@jupyter-widgets/html-manager@^1.0.1/dist/embed-amd.js"></script>
+    <link rel="icon" href="_static/favicon.ico"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced Features" href="features.html" />
+    <link rel="prev" title="Examples" href="examples.html" />
+
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+<!-- Favicon variants for better cross-browser and device support -->
+<link rel="icon" type="image/png" sizes="16x16" href="_static/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="_static/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="_static/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="_static/favicon-192x192.png">
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="journal-landing-page-examples">
+<h1>Journal Landing Page Examples<a class="headerlink" href="#journal-landing-page-examples" title="Link to this heading">¶</a></h1>
+<p>This page demonstrates how to extract geospatial extent from <strong>journal article
+landing pages</strong> that advertise spatial metadata in their HTML head. Geoextent
+ships with a <code class="docutils literal notranslate"><span class="pre">journals/</span></code> umbrella content provider that detects three
+publishing platforms out of the box and pulls a normalised bbox / tbox out of
+whatever encoding the publisher chose.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">journals/</span></code> umbrella covers:</p>
+<ul class="simple">
+<li><p><strong>OJS</strong> (Open Journal Systems) with the
+<a class="reference external" href="https://github.com/nuest/ojsGeo">ojsGeo</a> plugin — fingerprinted via the
+<code class="docutils literal notranslate"><span class="pre">&lt;meta</span> <span class="pre">name=&quot;generator&quot;</span> <span class="pre">content=&quot;Open</span> <span class="pre">Journal</span> <span class="pre">Systems</span> <span class="pre">…&quot;&gt;</span></code> tag every OJS
+theme emits.</p></li>
+<li><p><strong>Janeway</strong> with the
+<a class="reference external" href="https://github.com/GeoinformationSystems/janeway_geometadata/">janeway_geometadata</a>
+plugin — fingerprinted via the <code class="docutils literal notranslate"><span class="pre">&lt;link</span> <span class="pre">rel=&quot;alternate&quot;</span>
+<span class="pre">type=&quot;application/geo+json&quot;&gt;</span></code> link the plugin always renders, plus the
+<code class="docutils literal notranslate"><span class="pre">/article/id/{N}/</span></code> URL pattern.</p></li>
+<li><p><strong>Pensoft</strong> journals (e.g. Biodiversity Data Journal, ZooKeys) — DOI-prefix
+fast-path on <code class="docutils literal notranslate"><span class="pre">10.3897/</span></code> plus a JSON-LD <code class="docutils literal notranslate"><span class="pre">contentLocation</span></code> walker. See
+<a class="reference internal" href="examples.html"><span class="doc">Examples</span></a> for the existing Pensoft example.</p></li>
+</ul>
+<p>For OJS and Janeway you can pass either:</p>
+<ul class="simple">
+<li><p>the article landing-page URL (<code class="docutils literal notranslate"><span class="pre">http://journal-host/article/view/{N}</span></code> or
+<code class="docutils literal notranslate"><span class="pre">/article/id/{N}/</span></code>), or</p></li>
+<li><p>a DOI that resolves to the article (any prefix — the OJS/Janeway providers
+do not need a per-publisher allowlist).</p></li>
+</ul>
+<p>A journal that advertises the platform but does <strong>not</strong> have the geo plugin
+installed is still recognised; geoextent then returns no spatial extent but
+will still surface the publication date and, when <code class="docutils literal notranslate"><span class="pre">--ext-metadata</span></code> is set,
+look up the article DOI on CrossRef / DataCite.</p>
+</section>
+<section id="source-preference-priority">
+<h2>Source-Preference Priority<a class="headerlink" href="#source-preference-priority" title="Link to this heading">¶</a></h2>
+<p>When a page emits the same article in multiple encodings, the provider picks
+the one most likely to carry the richest geometry, <em>not</em> the one easiest to
+parse. Priority order (first match wins):</p>
+<ol class="arabic simple">
+<li><p>JSON-LD <code class="docutils literal notranslate"><span class="pre">&lt;script</span> <span class="pre">type=&quot;application/ld+json&quot;&gt;</span></code> with <code class="docutils literal notranslate"><span class="pre">spatialCoverage</span></code>
+or <code class="docutils literal notranslate"><span class="pre">contentLocation</span></code> — may carry Point, Polygon, MultiPolygon,
+GeometryCollection, Feature, or FeatureCollection.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&lt;link</span> <span class="pre">rel=&quot;alternate&quot;</span> <span class="pre">type=&quot;application/geo+json&quot;&gt;</span></code> — fetched inline
+from the plugin’s canonical export endpoint.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DC.SpatialCoverage</span></code> with <code class="docutils literal notranslate"><span class="pre">scheme=&quot;GeoJSON&quot;</span></code> (handles both the OJS
+FeatureCollection wrapper and the Janeway single-Feature wrapper).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">DC.SpatialCoverage</span></code> with <code class="docutils literal notranslate"><span class="pre">scheme=&quot;WKT&quot;</span></code>.</p></li>
+<li><p>Inlined ISO 19139 <code class="docutils literal notranslate"><span class="pre">EX_GeographicBoundingBox</span></code> snippets.</p></li>
+<li><p>DCMI Box (<code class="docutils literal notranslate"><span class="pre">DC.box</span></code>) bounding-box fields.</p></li>
+<li><p>OJS <code class="docutils literal notranslate"><span class="pre">administrativeUnits[].bbox</span></code> fallback (when the plugin recorded an
+admin unit but no real geometry).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ICBM</span></code> / <code class="docutils literal notranslate"><span class="pre">geo.position</span></code> centroids — last resort, single-point bbox.</p></li>
+</ol>
+<p>The temporal extent chain is analogous, but more conservative: JSON-LD
+<code class="docutils literal notranslate"><span class="pre">temporalCoverage</span></code> → <code class="docutils literal notranslate"><span class="pre">DC.temporal</span></code> / <code class="docutils literal notranslate"><span class="pre">DC.PeriodOfTime</span></code> ISO 8601
+intervals → embedded GeoJSON <code class="docutils literal notranslate"><span class="pre">temporal_periods</span></code>. <strong>Publication-date meta
+tags (``DC.Date.issued``, ``citation_publication_date``, ``citation_date``)
+are deliberately NOT used as a fallback</strong> — a journal article’s
+publication date is metadata about the <em>article</em>, not about what the
+article <em>studied</em>. If no research-period source is present, <code class="docutils literal notranslate"><span class="pre">tbox</span></code> stays
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</section>
+<section id="basic-extraction">
+<h2>Basic Extraction<a class="headerlink" href="#basic-extraction" title="Link to this heading">¶</a></h2>
+<section id="ojs-article-with-a-real-polygon-and-research-period">
+<h3>OJS article with a real polygon and research period<a class="headerlink" href="#ojs-article-with-a-real-polygon-and-research-period" title="Link to this heading">¶</a></h3>
+<p>Article 40 in the TIB OJS demo journal carries a polygon over Brandenburg
+and a <em>research</em> period of 2008–2018 advertised via
+<code class="docutils literal notranslate"><span class="pre">&lt;meta</span> <span class="pre">name=&quot;DC.temporal&quot;</span> <span class="pre">scheme=&quot;ISO8601&quot;</span> <span class="pre">content=&quot;2008-01-01/2018-12-31&quot;/&gt;</span></code>
+— note that this is <strong>distinct</strong> from the publication date in
+<code class="docutils literal notranslate"><span class="pre">DC.Date.issued</span></code> (<code class="docutils literal notranslate"><span class="pre">2025-07-14</span></code>). The temporal resolver prefers the
+research period because it appears earlier in the priority list:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span><span class="se">\\</span>
+<span class="w">  </span>https://service.tib.eu/komet/ojs330/index.php/gmdj/article/view/40
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;features&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span>
+<span class="w">          </span><span class="p">[</span><span class="mf">11.2657725</span><span class="p">,</span><span class="w"> </span><span class="mf">51.359064</span><span class="p">],</span>
+<span class="w">          </span><span class="p">[</span><span class="mf">14.7658159</span><span class="p">,</span><span class="w"> </span><span class="mf">51.359064</span><span class="p">],</span>
+<span class="w">          </span><span class="p">[</span><span class="mf">14.7658159</span><span class="p">,</span><span class="w"> </span><span class="mf">53.5590907</span><span class="p">],</span>
+<span class="w">          </span><span class="p">[</span><span class="mf">11.2657725</span><span class="p">,</span><span class="w"> </span><span class="mf">53.5590907</span><span class="p">],</span>
+<span class="w">          </span><span class="p">[</span><span class="mf">11.2657725</span><span class="p">,</span><span class="w"> </span><span class="mf">51.359064</span><span class="p">]</span>
+<span class="w">        </span><span class="p">]]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;tbox&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;2008-01-01&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;2018-12-31&quot;</span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;geoextent_extraction&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;https://service.tib.eu/komet/ojs330/index.php/gmdj/article/view/40&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remote&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;crs&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4326&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;extent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bounding_box&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="ojs-article-with-point-coordinates-and-no-research-period">
+<h3>OJS article with point coordinates and no research period<a class="headerlink" href="#ojs-article-with-point-coordinates-and-no-research-period" title="Link to this heading">¶</a></h3>
+<p>Article 32 on the same demo journal references a study site in Sulawesi as a
+single point and has <strong>no</strong> <code class="docutils literal notranslate"><span class="pre">DC.temporal</span></code> / <code class="docutils literal notranslate"><span class="pre">DC.PeriodOfTime</span></code> / JSON-LD
+<code class="docutils literal notranslate"><span class="pre">temporalCoverage</span></code> — only a <code class="docutils literal notranslate"><span class="pre">DC.Date.issued</span></code> publication date, which is
+intentionally not used as a fallback. <code class="docutils literal notranslate"><span class="pre">tbox</span></code> is therefore absent from the
+output. The point itself comes from the GeoJSON-encoded
+<code class="docutils literal notranslate"><span class="pre">DC.SpatialCoverage</span></code> (the OJS plugin’s first-class encoding):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span><span class="se">\\</span>
+<span class="w">  </span>https://service.tib.eu/komet/ojs330/index.php/gmdj/article/view/32
+</pre></div>
+</div>
+<p>Output (geometry shortened):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;features&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Point&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mf">121.34369641542438</span><span class="p">,</span><span class="w"> </span><span class="mf">-3.9118318544582156</span><span class="p">]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;geoextent_extraction&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;extent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;point&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remote&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;crs&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4326&quot;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="edge-case-platform-detected-no-spatial-metadata">
+<h3>Edge case: platform detected, no spatial metadata<a class="headerlink" href="#edge-case-platform-detected-no-spatial-metadata" title="Link to this heading">¶</a></h3>
+<p>Real-world OJS journals that have not installed the geo plugin yet are still
+recognised as OJS via the <code class="docutils literal notranslate"><span class="pre">generator</span></code> meta tag, so the provider claims the
+request even though it has nothing spatial to return. Article 170 in JOSIS is
+a real peer-reviewed paper without spatial metadata on its landing page:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span><span class="se">\\</span>
+<span class="w">  </span>https://josis.org/index.php/josis/article/view/170
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remote&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;_extracted_doi&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10.5311/JOSIS.2021.23.170&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The provider was unable to compute a bounding box (no spatial extent warning
+is logged) and no temporal extent is reported either — only the article DOI
+is lifted from the head, which sets up the next example.</p>
+</section>
+</section>
+<section id="external-metadata-enrichment-via-extracted-doi">
+<h2>External Metadata Enrichment via Extracted DOI<a class="headerlink" href="#external-metadata-enrichment-via-extracted-doi" title="Link to this heading">¶</a></h2>
+<p>This is what makes the journal providers genuinely useful in citation
+pipelines: pass the <strong>URL</strong> of any journal article and combine <code class="docutils literal notranslate"><span class="pre">--ext-metadata</span></code>
+with the platform fingerprint to get CrossRef / DataCite metadata back, even
+though the user never typed the DOI:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span>--ext-metadata<span class="w"> </span><span class="se">\\</span>
+<span class="w">  </span>https://josis.org/index.php/josis/article/view/170
+</pre></div>
+</div>
+<p>The provider:</p>
+<ol class="arabic simple">
+<li><p>Resolves the URL → fetches the landing page.</p></li>
+<li><p>Detects the OJS generator meta tag → claims the request.</p></li>
+<li><p>Lifts the article DOI out of the HTML head — in order: JSON-LD
+<code class="docutils literal notranslate"><span class="pre">identifier</span></code> blocks, <code class="docutils literal notranslate"><span class="pre">citation_doi</span></code> meta, <code class="docutils literal notranslate"><span class="pre">prism.doi</span></code>, then
+<code class="docutils literal notranslate"><span class="pre">DC.Identifier</span></code> if it looks like a DOI.</p></li>
+<li><p>Substitutes that extracted DOI for the URL when calling
+<code class="docutils literal notranslate"><span class="pre">external_metadata.get_external_metadata</span></code> so CrossRef returns a hit.</p></li>
+</ol>
+<p>Output (single-resource shape):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remote&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;_extracted_doi&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10.5311/JOSIS.2021.23.170&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;external_metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;CrossRef&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;doi&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10.5311/JOSIS.2021.23.170&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Identifying regional variation in place visit behavior during a global pandemic&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;Grant McKenzie&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;Kevin Mwenda&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;publisher&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Journal of Spatial Information Science&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;publication_year&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2021</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://doi.org/10.5311/josis.2021.23.170&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;license&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://creativecommons.org/licenses/by/3.0/&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Without <code class="docutils literal notranslate"><span class="pre">--ext-metadata</span></code> the <code class="docutils literal notranslate"><span class="pre">external_metadata</span></code> array is omitted; with
+the flag it is populated whenever the provider could lift a DOI from the
+head, regardless of whether the original input was a URL or already a DOI.</p>
+</section>
+<section id="python-api">
+<h2>Python API<a class="headerlink" href="#python-api" title="Link to this heading">¶</a></h2>
+<p>Same flow from Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geoextent.lib.extent</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">geoextent</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">geoextent</span><span class="o">.</span><span class="n">from_remote</span><span class="p">(</span>
+    <span class="s2">&quot;https://josis.org/index.php/josis/article/view/170&quot;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">tbox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">ext_metadata</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;_extracted_doi&quot;</span><span class="p">])</span>
+<span class="c1"># &quot;10.5311/JOSIS.2021.23.170&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;external_metadata&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;title&quot;</span><span class="p">])</span>
+<span class="c1"># &quot;Identifying regional variation in place visit behavior during a global pandemic&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tbox&quot;</span><span class="p">))</span>
+<span class="c1"># None — JOSIS article 170 has no research-period meta tag, and the</span>
+<span class="c1"># publication date is intentionally not used as a tbox fallback.</span>
+</pre></div>
+</div>
+</section>
+<section id="janeway-example">
+<h2>Janeway example<a class="headerlink" href="#janeway-example" title="Link to this heading">¶</a></h2>
+<p>The Janeway plugin emits more meta tags than ojsGeo — DC.SpatialCoverage in
+both WKT and GeoJSON, DC.box, ISO 19139, schema.org JSON-LD with
+<code class="docutils literal notranslate"><span class="pre">spatialCoverage</span></code> Place, plus a separate <code class="docutils literal notranslate"><span class="pre">application/geo+json</span></code> alternate
+link. Because Janeway has no public demo URL, this example uses the local
+<code class="docutils literal notranslate"><span class="pre">Delta</span> <span class="pre">Quadrant</span> <span class="pre">Journal</span></code> dev instance (article IDs drift as the dev DB is
+reset):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>geoextent<span class="w"> </span>-b<span class="w"> </span>-t<span class="w"> </span><span class="se">\\</span>
+<span class="w">  </span>http://localhost:8000/dqj/article/id/251/
+</pre></div>
+</div>
+<p>Output (Laos polygon, geometry abbreviated):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;FeatureCollection&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;features&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;geometry&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;coordinates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[[</span>
+<span class="w">          </span><span class="p">[</span><span class="mf">100.1</span><span class="p">,</span><span class="w"> </span><span class="mf">13.9</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">107.7</span><span class="p">,</span><span class="w"> </span><span class="mf">13.9</span><span class="p">],</span>
+<span class="w">          </span><span class="p">[</span><span class="mf">107.7</span><span class="p">,</span><span class="w"> </span><span class="mf">22.5</span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="mf">100.1</span><span class="p">,</span><span class="w"> </span><span class="mf">22.5</span><span class="p">],</span>
+<span class="w">          </span><span class="p">[</span><span class="mf">100.1</span><span class="p">,</span><span class="w"> </span><span class="mf">13.9</span><span class="p">]</span>
+<span class="w">        </span><span class="p">]]</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;geoextent_extraction&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;extent_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bounding_box&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;format&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;remote&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;crs&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;4326&quot;</span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>(The Janeway demo article 251 emits an empty <code class="docutils literal notranslate"><span class="pre">temporal_periods</span></code> list and
+no <code class="docutils literal notranslate"><span class="pre">DC.temporal</span></code>, so no research-period source is available; the
+publication date is excluded as a fallback per the rule above.)</p>
+</section>
+<section id="notes-and-limitations">
+<h2>Notes and Limitations<a class="headerlink" href="#notes-and-limitations" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>The DOI extracted from the HTML head is exposed in the per-resource
+dictionary as <code class="docutils literal notranslate"><span class="pre">_extracted_doi</span></code>. With <code class="docutils literal notranslate"><span class="pre">--ext-metadata</span></code> it is used as the
+CrossRef / DataCite lookup key whenever the user-supplied identifier is a
+URL, not a DOI.</p></li>
+<li><p>The alternate <code class="docutils literal notranslate"><span class="pre">application/geo+json</span></code> link is fetched inline as one
+additional GET; failures fall through to the next priority rule silently
+(debug-logged). Set <code class="docutils literal notranslate"><span class="pre">--debug</span></code> to see the fetch attempt.</p></li>
+<li><p>Coordinate order at the public API boundary is EPSG:4326 native
+<code class="docutils literal notranslate"><span class="pre">[lat,</span> <span class="pre">lon]</span></code>. GeoJSON output remains <code class="docutils literal notranslate"><span class="pre">[lon,</span> <span class="pre">lat]</span></code> per RFC 7946. Use
+<code class="docutils literal notranslate"><span class="pre">--legacy</span></code> to switch the bbox output to <code class="docutils literal notranslate"><span class="pre">[lon,</span> <span class="pre">lat]</span></code>.</p></li>
+<li><p>See <a class="reference internal" href="features.html"><span class="doc">Advanced Features</span></a> for a list of every meta tag and JSON-LD shape the
+<code class="docutils literal notranslate"><span class="pre">journals/</span></code> provider recognises, and <a class="reference external" href="https://github.com/nuest/geoextent/issues/76">#76</a> for the implementation
+history.</p></li>
+</ul>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="index.html">
+              <img class="logo" src="_static/geoextent-logo.svg" alt="Logo of geoextent"/>
+            </a></p>
+<h1 class="logo"><a href="index.html">geoextent</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installing geoextent</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Journal Landing Page Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#source-preference-priority">Source-Preference Priority</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#basic-extraction">Basic Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#external-metadata-enrichment-via-extracted-doi">External Metadata Enrichment via Extracted DOI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#python-api">Python API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#janeway-example">Janeway example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#notes-and-limitations">Notes and Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="features.html">Advanced Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="external-metadata.html">External Metadata Retrieval</a></li>
+<li class="toctree-l1"><a class="reference internal" href="howto/index_howto.html">How-to Guides</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supportedformats/index_supportedformats.html">Supported file formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="examples.html" title="previous chapter">Examples</a></li>
+      <li>Next: <a href="features.html" title="next chapter">Advanced Features</a></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, o2rproject and all contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.1.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="_sources/examples_journals.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

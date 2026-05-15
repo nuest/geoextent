@@ -39,6 +39,7 @@ Documentation overview
 
     install
     examples
+    examples_journals
     features
     external-metadata
     howto/index_howto
