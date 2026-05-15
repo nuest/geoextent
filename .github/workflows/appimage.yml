@@ -10,6 +10,13 @@ jobs:
   build:
     name: Build AppImage
     runs-on: ubuntu-22.04
+    # Opt the workflow's JavaScript actions onto Node.js 24 ahead of the
+    # 2026-06-02 forced cutover (actions/checkout, actions/setup-python,
+    # actions/upload-artifact, softprops/action-gh-release all still ship
+    # Node-20 builds at the time of writing). Remove this once those actions
+    # publish Node-24-default releases.
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +40,19 @@ jobs:
         env:
           GEOEXTENT_VERSION: ${{ steps.version.outputs.version }}
         run: bash scripts/build-appimage.sh
+
+      - name: Verify every install_requires dep is bundled
+        # Cross-check the AppImage's installed distributions against
+        # pyproject.toml's ``project.dependencies`` so the build fails
+        # loudly (here, before the release artefact is attached) the next
+        # time someone adds a dependency without updating
+        # scripts/build-appimage.sh. See scripts/check-appimage-deps.py
+        # for the rationale (regression of the v0.13.0 curl_cffi bug).
+        run: |
+          chmod +x geoextent-*-x86_64.AppImage
+          ./geoextent-*-x86_64.AppImage --appimage-extract >/dev/null
+          python scripts/check-appimage-deps.py squashfs-root/usr/bin/python
+          rm -rf squashfs-root
 
       - name: Smoke test — version
         run: |
@@ -89,8 +109,29 @@ jobs:
           path: geoextent-*-x86_64.AppImage
           retention-days: 30
 
+      - name: Locate per-version release notes (if present)
+        # When a release-notes file exists at the conventional path, expose
+        # it for the next step so the GitHub Release is created with the
+        # notes already in place. Important for the Zenodo deposit, which
+        # captures the release body at *create* time — editing it later
+        # does not update the Zenodo metadata.
+        id: notes
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          NOTES_PATH=".github/RELEASE_NOTES_${{ github.ref_name }}.md"
+          if [ -f "${NOTES_PATH}" ]; then
+            echo "Found release notes at ${NOTES_PATH}"
+            echo "path=${NOTES_PATH}" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::No release notes file at ${NOTES_PATH}; release will use default auto-generated body. To include notes for future tags, drop a markdown file at that path before tagging."
+          fi
+
       - name: Attach to GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: geoextent-*-x86_64.AppImage
+          # ``body_path`` is honoured only when the file exists; an empty
+          # string is silently ignored, so the previous-step's optional
+          # output cleanly degrades to "no body" when no notes are present.
+          body_path: ${{ steps.notes.outputs.path }}
