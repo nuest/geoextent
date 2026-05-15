@@ -100,11 +100,15 @@ fi
 # 3. Install pure-Python / pip-only packages
 # ---------------------------------------------------------------------------
 echo "==> Installing pip packages..."
+# curl_cffi is required by the GeoScienceWorld content provider (TLS-impersonation
+# fetch for Cloudflare-protected pages); without it, ``import geoextent`` fails
+# at content_providers/__init__.py.
 "${APPDIR}/usr/bin/pip" install --no-cache-dir \
     geojson "geojsonio" pygeoj pyshp \
     pangaeapy osfclient filesizelib \
     "setuptools-scm>=8" python-dotenv humanfriendly \
-    crossref-commons datacite patool wheel
+    crossref-commons datacite patool wheel \
+    curl_cffi
 
 # ---------------------------------------------------------------------------
 # 4. Install geoextent itself (no deps — already satisfied above)
