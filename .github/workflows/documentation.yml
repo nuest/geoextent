@@ -16,6 +16,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        # setuptools-scm needs full history to see ``v*`` tags; without it
+        # the docs build reports ``0.1.dev1+g<sha>`` in the page footer
+        # ("Version 0.x") instead of the actual release (e.g. ``0.13.0``).
+        fetch-depth: 0
     - name: Set up Python 3.10
       uses: actions/setup-python@v5
       with:
