@@ -31,47 +31,71 @@
     "reproducible research",
     "open science"
   ],
-  "notes": "This work has been supported in part by the German Research Foundation (DFG) through the project NFDI4Earth (DFG project no. 460036893, https://nfdi4earth.de/), in part by the DFG through the project Opening Reproducible Research (o2r, DFG project no. PE 1632/10-1 and PE 1632/17-1, https://o2r.info), and in part by the German Federal Ministry of Research, Technology and Space (BMFTR) through the project KOMET — Kompetenzzentrum Metadatenstandards für die Wissenschaft (BMFTR grant no. 16KOA009B, https://projects.tib.eu/komet/en/projekt/).",
+  "notes": "This work has been supported in part by the German Research Foundation (DFG) through the project NFDI4Earth (DFG project no. 460036893, https://nfdi4earth.de/), in part by the DFG through the project Opening Reproducible Research (o2r, DFG project no. PE 1632/10-1 and PE 1632/17-1, https://o2r.info), and in part by the German Federal Ministry of Research, Technology and Space (BMFTR) through the project KOMET — Collaborative enrichment of the metadata commons to foster a diverse OA ecosystem (BMFTR grant no. 16KOA009B, https://projects.tib.eu/komet/en/projekt/).",
   "grants": [
+    {"id": "10.13039/501100001659::PE 1632/10-1"},
+    {"id": "10.13039/501100001659::PE 1632/17-1"},
+    {"id": "10.13039/501100001659::460036893"},
+    {"id": "10.13039/501100002347::16KOA009B"}
+  ],
+  "funding": [
     {
-      "title": "Opening Reproducible Research (o2r) — Phase 1",
-      "code": "PE 1632/10-1",
       "funder": {
         "name": "Deutsche Forschungsgemeinschaft",
-        "doi": "10.13039/501100001659",
-        "type": "fundref"
+        "identifier": "10.13039/501100001659",
+        "scheme": "doi"
       },
-      "url": "https://o2r.info"
+      "award": {
+        "title": {"en": "Opening Reproducible Research (o2r) — Phase 1"},
+        "number": "PE 1632/10-1",
+        "identifiers": [
+          {"scheme": "url", "identifier": "https://o2r.info"},
+          {"scheme": "url", "identifier": "https://gepris.dfg.de/gepris/projekt/274927273"}
+        ]
+      }
     },
     {
-      "title": "Opening Reproducible Research (o2r) — Phase 2",
-      "code": "PE 1632/17-1",
       "funder": {
         "name": "Deutsche Forschungsgemeinschaft",
-        "doi": "10.13039/501100001659",
-        "type": "fundref"
+        "identifier": "10.13039/501100001659",
+        "scheme": "doi"
       },
-      "url": "https://o2r.info"
+      "award": {
+        "title": {"en": "Opening Reproducible Research (o2r) — Phase 2"},
+        "number": "PE 1632/17-1",
+        "identifiers": [
+          {"scheme": "url", "identifier": "https://o2r.info"},
+          {"scheme": "url", "identifier": "https://gepris.dfg.de/gepris/projekt/415851837"}
+        ]
+      }
     },
     {
-      "title": "NFDI4Earth — National Research Data Infrastructure for Earth System Sciences",
-      "code": "460036893",
       "funder": {
         "name": "Deutsche Forschungsgemeinschaft",
-        "doi": "10.13039/501100001659",
-        "type": "fundref"
+        "identifier": "10.13039/501100001659",
+        "scheme": "doi"
       },
-      "url": "https://nfdi4earth.de"
+      "award": {
+        "title": {"en": "NFDI4Earth — National Research Data Infrastructure for Earth System Sciences"},
+        "number": "460036893",
+        "identifiers": [
+          {"scheme": "url", "identifier": "https://nfdi4earth.de"}
+        ]
+      }
     },
     {
-      "title": "KOMET — Kompetenzzentrum Metadatenstandards für die Wissenschaft",
-      "code": "16KOA009B",
       "funder": {
         "name": "Bundesministerium für Forschung, Technologie und Raumfahrt",
-        "doi": "10.13039/501100002347",
-        "type": "fundref"
+        "identifier": "10.13039/501100002347",
+        "scheme": "doi"
       },
-      "url": "https://projects.tib.eu/komet/en/projekt/"
+      "award": {
+        "title": {"en": "KOMET — Collaborative enrichment of the metadata commons to foster a diverse OA ecosystem"},
+        "number": "16KOA009B",
+        "identifiers": [
+          {"scheme": "url", "identifier": "https://projects.tib.eu/komet/en/projekt/"}
+        ]
+      }
     }
   ],
   "related_identifiers": [
