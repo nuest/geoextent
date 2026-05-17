@@ -66,9 +66,38 @@ This work is published from: Germany.
 
 ------
 
-This project was initially developed as part of the `DFG-funded <https://o2r.info/about/#funding>`_ research project Opening Reproducible Research `o2r <https://o2r.info>`_.
+Funding & Acknowledgements
+--------------------------
 
-.. image:: https://o2r.info/public/images/logo-transparent.png
+This project was initially developed as part of the German Research
+Foundation (DFG)-funded research project Opening Reproducible Research
+(`o2r <https://o2r.info>`_, DFG project no.
+`PE 1632/10-1 <https://gepris.dfg.de/gepris/projekt/274927273>`_ and
+`PE 1632/17-1 <https://gepris.dfg.de/gepris/projekt/415851837>`_).
+Continuing development is supported by the DFG-funded
+`NFDI4Earth <https://nfdi4earth.de>`_ consortium (DFG project no.
+`460036893 <https://gepris.dfg.de/gepris/projekt/460036893>`_) and by the
+German Federal Ministry of Research, Technology and Space (BMFTR) through
+the `KOMET <https://projects.tib.eu/komet/en/projekt/>`_ project —
+*Collaborative enrichment of the metadata commons to foster a diverse OA
+ecosystem* (BMFTR grant no. 16KOA009B).
+
+.. list-table::
+    :class: funding-logos
+    :widths: auto
+
+    * - .. image:: https://o2r.info/public/images/logo-transparent.png
+           :height: 60px
+           :alt: Logo of the o2r project
+           :target: https://o2r.info
+      - .. image:: https://www.nfdi4earth.de/templates/nfdi4earth/images/NFDI4Earth_logo.png
+           :height: 60px
+           :alt: Logo of NFDI4Earth
+           :target: https://nfdi4earth.de
+      - .. image:: https://projects.tib.eu/fileadmin/templates/komet/tib_projects_komet_1150.png
+           :height: 60px
+           :alt: Logo of the KOMET project
+           :target: https://projects.tib.eu/komet/en/projekt/
 
 ------
 
