@@ -2,6 +2,13 @@
 Changelog
 =========
 
+Unreleased
+^^^^^^^^^^
+
+- **Bug fixes**
+
+  - Fix ``geoextent --version`` (and the version recorded in exported output / extraction metadata) to report the installed package version. Previously called ``setuptools_scm.get_version()`` at runtime, which inspected the current working directory for SCM metadata and reported a version derived from whichever unrelated git repo the user happened to be in.
+
 0.13.0
 ^^^^^^
 
