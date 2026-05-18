@@ -1,7 +1,7 @@
 # geoextent
 
 ![Python package](https://github.com/nuest/geoextent/workflows/Python%20package/badge.svg?branch=main) [![PyPI version](https://badge.fury.io/py/geoextent.svg)](https://pypi.org/project/geoextent/0.13.0/)
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nuest/main) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18635399.svg)](https://doi.org/10.5281/zenodo.18635399) [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/nuest/geoextent.git/)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/nuest/geoextent.git)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/nuest/main) [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18635398.svg)](https://doi.org/10.5281/zenodo.18635398) [![SWH](https://archive.softwareheritage.org/badge/origin/https://github.com/nuest/geoextent.git/)](https://archive.softwareheritage.org/browse/origin/?origin_url=https://github.com/nuest/geoextent.git)
 
 Python library for extracting geospatial and temporal extents from files and directories.
 
@@ -209,7 +209,7 @@ Contributions are welcome! Please use the [issue tracker](https://github.com/nue
 
 If you use geoextent in your research, please cite:
 
-> Nüst, Daniel; Garzón, Sebastian and Qamaz, Yousef. (2021, May 11). o2r-project/geoextent (Version v0.7.1). Zenodo. <https://doi.org/10.5281/zenodo.3925693>
+> Nüst, Daniel; Garzón, Sebastian; Drechsler, Lars and Qamaz, Yousef. (2026, May 15). geoextent (Version v0.13.0). Zenodo. <https://doi.org/10.5281/zenodo.18635398>
 
 ## License
 
