@@ -24,6 +24,7 @@ import re
 from curl_cffi import requests as cffi_requests
 from bs4 import BeautifulSoup
 
+from ..exceptions import CloudflareBlockedError
 from .providers import DoiProvider
 from .journals._meta import parse_wkt as _parse_wkt
 
@@ -147,25 +148,32 @@ class GeoScienceWorld(DoiProvider):
         Uses Chrome TLS fingerprint impersonation to bypass Cloudflare's
         managed challenge without requiring a real browser.
 
+        Raises:
+            CloudflareBlockedError: If Cloudflare blocks the request (HTTP 403
+                or ``cf-mitigated`` header present). Lets callers distinguish
+                a transient block from a genuine "no metadata" outcome.
+
         Returns:
-            str or None: HTML content, or None on failure
+            str or None: HTML content, or None on non-Cloudflare failure
         """
         try:
             resp = cffi_requests.get(url, impersonate="chrome", timeout=30)
-            resp.raise_for_status()
-            # Check for Cloudflare challenge page (small response with no coordinates)
-            if resp.status_code == 403 or (
-                "cf-mitigated" in resp.headers.get("cf-mitigated", "")
-            ):
-                logger.warning(
-                    "Cloudflare blocked request to %s (cf-mitigated challenge)",
-                    url,
-                )
-                return None
-            return resp.text
         except Exception as e:
             logger.warning("Failed to fetch GeoScienceWorld page %s: %s", url, e)
             return None
+
+        if resp.status_code == 403 or resp.headers.get("cf-mitigated"):
+            raise CloudflareBlockedError(
+                url, provider="GeoScienceWorld", status_code=resp.status_code
+            )
+
+        try:
+            resp.raise_for_status()
+        except Exception as e:
+            logger.warning("Failed to fetch GeoScienceWorld page %s: %s", url, e)
+            return None
+
+        return resp.text
 
     def _extract_coordinates_from_html(self, html):
         """Parse ``<coordinates points='...'>`` elements from HTML.
@@ -334,10 +342,7 @@ class GeoScienceWorld(DoiProvider):
 
         html = self._fetch_article_html(self.article_url)
         if html is None:
-            logger.warning(
-                "Could not fetch GeoScienceWorld article. "
-                "Cloudflare may have blocked the request."
-            )
+            logger.warning("Could not fetch GeoScienceWorld article.")
             return
 
         geometries = self._extract_coordinates_from_html(html)

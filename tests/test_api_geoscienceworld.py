@@ -2,6 +2,7 @@ import json
 import pytest
 import geoextent.lib.extent as geoextent
 from conftest import NETWORK_SKIP_EXCEPTIONS
+from geoextent.lib.exceptions import CloudflareBlockedError
 from geoextent.lib.content_providers.GeoScienceWorld import (
     GeoScienceWorld,
     _parse_wkt_coordinates,
@@ -162,6 +163,8 @@ class TestGeoScienceWorldProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or GeoScienceWorld unreachable")
+        except CloudflareBlockedError as e:
+            pytest.skip(f"GeoScienceWorld unreachable: {e}")
         except Exception as e:
             if any(
                 kw in str(e)
@@ -192,6 +195,8 @@ class TestGeoScienceWorldProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or GeoScienceWorld unreachable")
+        except CloudflareBlockedError as e:
+            pytest.skip(f"GeoScienceWorld unreachable: {e}")
         except Exception as e:
             if any(
                 kw in str(e)
@@ -240,6 +245,8 @@ class TestGeoScienceWorldProvider:
             )
         except NETWORK_SKIP_EXCEPTIONS:
             pytest.skip("Network unavailable or GeoScienceWorld unreachable")
+        except CloudflareBlockedError as e:
+            pytest.skip(f"GeoScienceWorld unreachable: {e}")
         except Exception as e:
             if any(
                 kw in str(e)

@@ -250,7 +250,7 @@ jobs:
           patool python-dateutil pandas "numpy<2" requests traitlets \
           wheel pangaeapy osfclient filesizelib "setuptools-scm>=8" \
           tqdm bs4 geopy python-dotenv humanfriendly crossref-commons \
-          datacite owslib "laspy[lazrs]"
+          datacite owslib "laspy[lazrs]" curl_cffi
 
     - name: Install dev and test dependencies
       run: |
@@ -313,7 +313,7 @@ jobs:
           patool python-dateutil pandas "numpy<2" requests traitlets \
           wheel pangaeapy osfclient filesizelib "setuptools-scm>=8" \
           tqdm bs4 geopy python-dotenv humanfriendly crossref-commons \
-          datacite owslib "laspy[lazrs]"
+          datacite owslib "laspy[lazrs]" curl_cffi
 
     - name: Install dev and test dependencies
       run: |
