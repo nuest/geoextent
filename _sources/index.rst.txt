@@ -54,7 +54,7 @@ How to cite
 
 ::
 
-    Nüst, Daniel; Garzón, Sebastian; Drechsler, Lars and Qamaz, Yousef. (2026, May 15). geoextent (Version v0.13.0). Zenodo. https://doi.org/10.5281/zenodo.3925693
+    Nüst, Daniel; Garzón, Sebastian; Drechsler, Lars and Qamaz, Yousef. (2026, May 15). geoextent (Version v0.13.0). Zenodo. https://doi.org/10.5281/zenodo.18635398
 
 ------
 
