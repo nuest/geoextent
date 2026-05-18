@@ -1642,7 +1642,12 @@ def from_remote(
             if isinstance(e, DownloadSizeExceeded):
                 raise
             logger.warning(f"Error processing {identifier}: {str(e)}")
-            output["details"][identifier] = {"error": str(e)}
+            # Stash the original exception under an internal key so the
+            # single-resource path can re-raise it with its true type
+            # (requests.HTTPError, ConnectionError, ...) — tests catch on
+            # those types via NETWORK_SKIP_EXCEPTIONS. Stripped before any
+            # multi-resource return so it never reaches JSON serialization.
+            output["details"][identifier] = {"error": str(e), "_exception": e}
             output["extraction_metadata"]["failed"] += 1
             continue
 
@@ -1697,8 +1702,14 @@ def from_remote(
         if identifier in output["details"]:
             result = output["details"][identifier]
 
-            # If there was an error, raise it
+            # If there was an error, re-raise the original exception (with
+            # its true type) so test skip guards on requests.HTTPError /
+            # ConnectionError / TimeoutError / OSError match. Falls back to
+            # a plain Exception only if the original wasn't preserved.
             if "error" in result:
+                original = result.get("_exception")
+                if original is not None:
+                    raise original
                 raise Exception(result["error"])
 
             # Add merged extents
@@ -1727,6 +1738,12 @@ def from_remote(
             return result
         else:
             raise Exception(f"Failed to extract from {identifier}")
+
+    # Drop internal-only keys so the multi-resource return value is JSON
+    # serializable (the single-resource path already returned above).
+    for entry in output["details"].values():
+        if isinstance(entry, dict):
+            entry.pop("_exception", None)
 
     # Apply EPSG:4326 native axis order (lat, lon) unless legacy mode
     if not legacy:

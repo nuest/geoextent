@@ -101,6 +101,37 @@ class SoftwareHeritage(DoiProvider):
             self.session.headers["Authorization"] = f"Bearer {token}"
             self.log.debug("Using SWH_TOKEN for authenticated API access")
 
+    def _request(self, url, throttle=False, **kwargs):
+        """Wrap base ``_request`` to fall back to anonymous on a rejected token.
+
+        SWH responds with ``HTTP 403`` and body ``{"exception":
+        "AuthenticationFailed", ...}`` when the bearer token is invalid or
+        expired (offline tokens expire after long inactivity). Detect that
+        case, drop the ``Authorization`` header for the rest of the session,
+        and retry anonymously. Other 403s propagate as before.
+        """
+        from requests.exceptions import HTTPError
+
+        try:
+            return super()._request(url, throttle=throttle, **kwargs)
+        except HTTPError as e:
+            if (
+                e.response is not None
+                and e.response.status_code == 403
+                and "Authorization" in self.session.headers
+                and "AuthenticationFailed" in (e.response.text or "")
+            ):
+                self.log.warning(
+                    "SWH_TOKEN rejected by Software Heritage (%s). "
+                    "Falling back to anonymous access (120 req/hr quota). "
+                    "Generate a fresh token at "
+                    "https://archive.softwareheritage.org/oidc/profile/#tokens",
+                    e.response.text.strip()[:200],
+                )
+                del self.session.headers["Authorization"]
+                return super()._request(url, throttle=throttle, **kwargs)
+            raise
+
     @classmethod
     def provider_info(cls):
         return {
