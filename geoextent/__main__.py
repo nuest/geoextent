@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("geoextent")
 
-from setuptools_scm import get_version
+from . import __version__
 
 help_description = """
 geoextent is a Python library for extracting geospatial and temporal extents of a file
@@ -646,7 +646,7 @@ def print_supported_formats():
 
 
 def print_version():
-    print(get_version())
+    print(__version__)
 
 
 def print_features_json():
@@ -1245,7 +1245,7 @@ def main():
                 output,
                 filename,
                 inputs=files,
-                version=get_version(),
+                version=__version__,
                 geometry_format=csv_geom_fmt,
                 native_order=not args["legacy"],
             )
@@ -1254,7 +1254,7 @@ def main():
         extraction_metadata = None
         if not args["no_metadata"]:
             extraction_metadata = hf.create_extraction_metadata(
-                files, get_version(), output
+                files, __version__, output
             )
 
         if not args["details"]:

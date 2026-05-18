@@ -272,12 +272,19 @@ class TestCLISpecialParameters:
         assert "bounding-box" in ret.stdout
         assert "time-box" in ret.stdout
 
-    def test_cli_version_flag(self, script_runner):
-        """Test CLI version flag"""
+    def test_cli_version_flag(self, script_runner, tmp_path, monkeypatch):
+        """Test CLI version flag reports the installed package version regardless of cwd.
+
+        Regression test: previously called ``setuptools_scm.get_version()`` at runtime,
+        which inspected the caller's cwd for SCM metadata and reported the wrong
+        version when invoked inside an unrelated git repo.
+        """
+        import geoextent
+
+        monkeypatch.chdir(tmp_path)
         ret = script_runner.run(["geoextent", "--version"])
         assert ret.success
-        # Should output version information
-        assert len(ret.stdout.strip()) > 0
+        assert ret.stdout.strip() == geoextent.__version__
 
     def test_cli_formats_flag(self, script_runner):
         """Test CLI formats flag"""
